@@ -184,7 +184,7 @@ void Start_Function(void)
   /* Start the transmission */
   system(startCommand);
   
-  system("sudo /home/pi/rpidatv/scripts/lime_ptt.sh &);
+  system("sudo /home/pi/rpidatv/scripts/lime_ptt.sh &");
     
   if(IndicationGPIO >= 0)
   {
