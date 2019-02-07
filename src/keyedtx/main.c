@@ -15,6 +15,8 @@ _timer_t key_timer;
 time_t rawtime;
 struct tm * timeinfo;
 char stream_state [8] = "off";
+// Sortie PTT pin 40 //
+int GPIO_PTT = 29;
 
 void Edge_ISR(void);
 void Start_Function(void);
@@ -22,6 +24,9 @@ void Stop_Function(void);
 
 int main( int argc, char *argv[] )
 {
+  pinMode(GPIO_PTT, OUTPUT);
+  digitalWrite(GPIO_PTT, LOW);
+  
   /* Set Indication GPIO out of bounds to detect valid user input */
   IndicationGPIO = -1; 
 
@@ -178,6 +183,8 @@ void Start_Function(void)
 {
   /* Start the transmission */
   system(startCommand);
+  
+  system("sudo /home/pi/rpidatv/scripts/lime_ptt.sh &);
     
   if(IndicationGPIO >= 0)
   {
@@ -192,6 +199,8 @@ void Stop_Function(void)
 {
   /* Stop the transmission */
   system(stopCommand1);
+  
+  digitalWrite(GPIO_PTT, LOW);
 
   if(IndicationGPIO >= 0)
   {
