@@ -68,7 +68,7 @@ if [ "$1" == "-d" ]; then
 
 else
   echo "Installing BATC Production load"
-  wget https://github.com/BritishAmateurTelevisionClub/portsdown/archive/master.zip
+  wget https://github.com/f4dvk/portsdown/archive/master.zip
 fi
 
 # Unzip the rpidatv software and copy to the Pi
