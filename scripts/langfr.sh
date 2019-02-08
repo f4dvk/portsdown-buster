@@ -57,6 +57,9 @@ StrOutputRFFreqTitle="Frequence RF QPSK"
 StrOutputRFGainContext="Gain RF(0=-3.4dbm 7=10.6dbm"
 StrOutputRFGainTitle="Gain RF"
 
+StrLimeGainContext="Lime Gain"
+StrLimeGainTitle="Lime Gain"
+
 StrOutputBATCContext="Nom du flux BATC"
 StrOutputBATCTitle="Configuration BATC"
 
