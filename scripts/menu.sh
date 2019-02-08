@@ -696,7 +696,6 @@ do_output_setup_mode()
       :
     ;;
     LIMEMINI)
-      FREQ_OUTPUT=$(get_config_var freqoutput $PCONFIGFILE)
       LIME_GAIN=$(get_config_var limegain $PCONFIGFILE)
       GAIN=$(whiptail --inputbox "$StrLimeGainContext" 8 78 $LIME_GAIN --title "$StrLimeGainTitle" 3>&1 1>&2 2>&3)
       if [ $? -eq 0 ]; then
