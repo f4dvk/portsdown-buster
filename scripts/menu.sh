@@ -696,7 +696,12 @@ do_output_setup_mode()
       :
     ;;
     LIMEMINI)
-      :
+      FREQ_OUTPUT=$(get_config_var freqoutput $PCONFIGFILE)
+      LIME_GAIN=$(get_config_var limegain $PCONFIGFILE)
+      GAIN=$(whiptail --inputbox "$StrOutputRFGainContext" 8 78 $LIME_GAIN --title "$StrOutputRFGainTitle" 3>&1 1>&2 2>&3)
+      if [ $? -eq 0 ]; then
+        set_config_var limegain "$GAIN" $PCONFIGFILE
+      fi
     ;;
     LIMEUSB)
       :
@@ -1295,6 +1300,7 @@ do_autostart_setup()
   Radio9=OFF
   Radio10=OFF
   Radio11=OFF
+  Radio12=OFF
 
   case "$MODE_STARTUP" in
     Prompt)
@@ -1330,6 +1336,9 @@ do_autostart_setup()
     StreamRX_boot)
       Radio11=ON
     ;;
+    Button)
+      Radio12=ON
+    ;;
     *)
       Radio1=ON
     ;;
@@ -1348,6 +1357,7 @@ do_autostart_setup()
    "Keyed_TX_boot" "Boot up to GPIO Keyed Transmitter" $Radio9 \
    "SigGen_boot" "Boot up with the Sig Gen Output On" $Radio10 \
    "StreamRX_boot" "Boot up to display a BATC Stream" $Radio11 \
+   "Button" "Boot up to GPIO Button" $Radio12 \
    3>&2 2>&1 1>&3)
 
   if [ $? -eq 0 ]; then
