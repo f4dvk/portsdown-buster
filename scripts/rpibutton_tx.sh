@@ -27,8 +27,6 @@ gpio -g mode $button_SR up
 gpio -g mode $PTT in
 gpio -g mode $PTT up
 
-
-
 ############### IN/OUT CONFIG FILE
 set_config_var() {
 lua - "$1" "$2" "$3"<<EOF > "$3.bak2"
@@ -74,6 +72,7 @@ do_transmit()
 
         sleep 0.5
         sudo $PATHSCRIPT"/a.sh" >/dev/null 2>/dev/null &
+	$PATHSCRIPT"/lime_ptt.sh" &
         sleep 0.5
 }
 
