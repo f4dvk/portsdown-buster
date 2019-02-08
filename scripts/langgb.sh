@@ -56,6 +56,9 @@ StrOutputRFFreqTitle="RF Frequency"
 StrOutputRFGainContext="RF Gain(0=-3.4dbm 7=10.6dbm"
 StrOutputRFGainTitle="RF Gain"
 
+StrLimeGainContext="Lime Gain"
+StrLimeGainTitle="Lime Gain"
+
 StrOutputBATCContext="BATC Stream name"
 StrOutputBATCTitle="BATC Setup"
 
