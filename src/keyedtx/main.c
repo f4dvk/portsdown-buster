@@ -15,10 +15,7 @@ _timer_t key_timer;
 time_t rawtime;
 struct tm * timeinfo;
 char stream_state [8] = "off";
-// Sortie PTT pin 40 //
-int GPIO_PTT = 29;
 
-void init_ptt(void);
 void Edge_ISR(void);
 void Start_Function(void);
 void Stop_Function(void);
@@ -154,12 +151,6 @@ int main( int argc, char *argv[] )
   return 0;
 }
 
-void init_ptt(void)
-{
-  pinMode(GPIO_PTT, OUTPUT);
-  digitalWrite(GPIO_PTT, LOW);
-}
-
 void Edge_ISR(void)
 {
   /* Each time this is called, it starts the timer and tries to let it run to completion */
@@ -203,8 +194,6 @@ void Stop_Function(void)
 {
   /* Stop the transmission */
   system(stopCommand1);
-  
-  digitalWrite(GPIO_PTT, LOW);
 
   if(IndicationGPIO >= 0)
   {
