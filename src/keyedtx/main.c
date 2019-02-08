@@ -18,15 +18,13 @@ char stream_state [8] = "off";
 // Sortie PTT pin 40 //
 int GPIO_PTT = 29;
 
+void init_ptt(void);
 void Edge_ISR(void);
 void Start_Function(void);
 void Stop_Function(void);
 
 int main( int argc, char *argv[] )
 {
-  pinMode(GPIO_PTT, OUTPUT);
-  digitalWrite(GPIO_PTT, LOW);
-  
   /* Set Indication GPIO out of bounds to detect valid user input */
   IndicationGPIO = -1; 
 
@@ -154,6 +152,12 @@ int main( int argc, char *argv[] )
     delay(10000);
   }
   return 0;
+}
+
+void init_ptt(void)
+{
+  pinMode(GPIO_PTT, OUTPUT);
+  digitalWrite(GPIO_PTT, LOW);
 }
 
 void Edge_ISR(void)
