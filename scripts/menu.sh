@@ -553,6 +553,67 @@ do_station_setup()
   fi
 }
 
+do_modulation_setup()
+{
+  MODULATION=$(get_config_var modulation $PCONFIGFILE)
+  Radio1=OFF
+  Radio2=OFF
+  Radio3=OFF
+  Radio4=OFF
+  Radio5=OFF
+  Radio6=OFF
+  case "$MODULATION" in
+  DVB-S)
+    Radio1=ON
+  ;;
+  S2QPSK)
+    Radio2=ON
+  ;;
+  8PSK)
+    Radio3=ON
+  ;;
+  16APSK)
+    Radio4=ON
+  ;;
+  32APSK)
+    Radio5=ON
+  ;;
+  *)
+    Radio6=ON
+  ;;
+  esac
+  
+  chmodulation=$(whiptail --title "Modulation" --radiolist \
+    "Modulation" 20 78 10 \   
+    "DVB-S" $Radio1 \
+    "S2QPSK" $Radio2 \ 
+    "8PSK" $Radio3 \
+    "16APSK" $Radio4 \ 
+    "32APSK" $Radio5 \
+    3>&2 2>&1 1>&3)
+    
+  if [ $? -eq 0 ]; then
+    case "$chmodulation" in
+    DVB-S)
+      :
+    ;;
+    S2QPSK)
+      :
+    ;;
+    8PSK)
+      :
+    ;;
+    16APSK)
+      :
+    ;;
+    32APSK)
+      :
+    ;;
+    esac
+    set_config_var modulation "$chmodulation" $PCONFIGFILE
+  fi
+}
+
 do_output_setup_mode()
 {
   MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
@@ -1080,8 +1141,9 @@ menuchoice=$(whiptail --title "$StrOutputTitle" --menu "$StrOutputContext" 16 78
   "3 Output mode" "$StrOutputMode" \
   "4 PID" "$StrPIDSetup" \
   "5 Frequency" "$StrOutputRFFreqContext" \
-  "6 Caption" "Callsign Caption in MPEG-2 on/off" \
-  "7 Standard" "Output 576PAL or 480NTSC" \
+  "6 Modulation" \
+  "7 Caption" "Callsign Caption in MPEG-2 on/off" \
+  "8 Standard" "Output 576PAL or 480NTSC" \
 	3>&2 2>&1 1>&3)
 	case "$menuchoice" in
             1\ *) do_symbolrate_setup ;;
@@ -1089,8 +1151,9 @@ menuchoice=$(whiptail --title "$StrOutputTitle" --menu "$StrOutputContext" 16 78
 	    3\ *) do_output_setup_mode ;;
 	    4\ *) do_PID_setup ;;
 	    5\ *) do_freq_setup ;;
-	    6\ *) do_caption_setup ;;
-	    7\ *) do_output_standard ;;
+	    6\ *) do_modulation_setup ;;
+	    7\ *) do_caption_setup ;;
+	    8\ *) do_output_standard ;;
         esac
 }
 
