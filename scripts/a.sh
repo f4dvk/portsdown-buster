@@ -762,9 +762,9 @@ IDRPERIOD=100
 case "$MODE_OUTPUT" in
   "LIMEMINI" | "LIMEUSB")
     if [ "$SYMBOLRATE_K" -lt 990 ] ; then
-      UPSAMPLE=2
+      UPSAMPLE=4
       LIME_GAINF=`echo - | awk '{print '$LIME_GAIN' / 100}'`
-    elif [ "$SYMBOLRATE_K" -lt 1500 ] && [ "$MODULATION" == "DVB-S" ] ; then
+    elif [ "$SYMBOLRATE_K" -lt 1501 ] && [ "$MODULATION" == "DVB-S" ] ; then
       UPSAMPLE=2
       LIME_GAINF=`echo - | awk '{print '$LIME_GAIN' / 100}'`
     else
