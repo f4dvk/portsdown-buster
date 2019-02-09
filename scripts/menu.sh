@@ -697,13 +697,17 @@ do_output_setup_mode()
     ;;
     LIMEMINI)
       LIME_GAIN=$(get_config_var limegain $PCONFIGFILE)
-      GAIN=$(whiptail --inputbox "$StrLimeGainContext" 8 78 $LIME_GAIN --title "$StrLimeGainTitle" 3>&1 1>&2 2>&3)
+      GAIN=$(whiptail --inputbox "Lime Gain" 8 78 $LIME_GAIN --title "Lime Gain" 3>&1 1>&2 2>&3)
       if [ $? -eq 0 ]; then
         set_config_var limegain "$GAIN" $PCONFIGFILE
       fi
     ;;
     LIMEUSB)
-      :
+      LIME_GAIN=$(get_config_var limegain $PCONFIGFILE)
+      GAIN=$(whiptail --inputbox "Lime Gain" 8 78 $LIME_GAIN --title "Lime Gain" 3>&1 1>&2 2>&3)
+      if [ $? -eq 0 ]; then
+        set_config_var limegain "$GAIN" $PCONFIGFILE
+      fi
     ;;
     esac
     set_config_var modeoutput "$choutput" $PCONFIGFILE
