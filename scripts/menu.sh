@@ -2942,13 +2942,19 @@ while [ "$status" -eq 0 ]
     GAIN_OUTPUT=$(get_config_var rfpower $PCONFIGFILE)
     let FECNUM=FEC
     let FECDEN=FEC+1
+    let FECS2NUM=FEC/10
+    let FECS2DEN=FEC-FECS2NUM*10
+    if [ $FECS2DEN = 1 ] ; then
+     FECS2DEN=10
+    fi
     INFO=$CALL":"$MODE_INPUT"-->"$MODE_OUTPUT"("$SYMBOLRATEK"KSymbol FEC "$FECNUM"/"$FECDEN") on "$FREQ_OUTPUT"Mhz"
     V_FINDER=$(get_config_var vfinder $PCONFIGFILE)
 
     # Display main menu
 
-    menuchoice=$(whiptail --title "$StrMainMenuTitle" --menu "$INFO" 16 82 9 \
-	"0 Transmit" $FREQ_OUTPUT" Mhz, "$SYMBOLRATEK" KS, FEC "$FECNUM"/"$FECDEN"." \
+    if [ $MODULATION = "DVB-S" ] ; then
+     menuchoice=$(whiptail --title "$StrMainMenuTitle" --menu "$INFO" 16 82 9 \
+	"0 Transmit" $FREQ_OUTPUT" Mhz, "$MODULATION", "$SYMBOLRATEK" KS, FEC "$FECNUM"/"$FECDEN"." \
         "1 Source" "$StrMainMenuSource"" ("$MODE_INPUT" selected)" \
 	"2 Output" "$StrMainMenuOutput"" ("$MODE_OUTPUT" selected)" \
 	"3 Station" "$StrMainMenuCall" \
@@ -2958,6 +2964,19 @@ while [ "$status" -eq 0 ]
 	"7 Language" "$StrMainMenuLanguage" \
         "8 Shutdown" "$StrMainMenuShutdown" \
  	3>&2 2>&1 1>&3)
+    else
+     menuchoice=$(whiptail --title "$StrMainMenuTitle" --menu "$INFO" 16 82 9 \
+	"0 Transmit" $FREQ_OUTPUT" Mhz, "$MODULATION", "$SYMBOLRATEK" KS, FEC "$FECS2NUM"/"$FECS2DEN"." \
+        "1 Source" "$StrMainMenuSource"" ("$MODE_INPUT" selected)" \
+	"2 Output" "$StrMainMenuOutput"" ("$MODE_OUTPUT" selected)" \
+	"3 Station" "$StrMainMenuCall" \
+	"4 Receive" "$StrMainMenuReceive" \
+	"5 System" "$StrMainMenuSystem" \
+        "6 System 2" "$StrMainMenuSystem2" \
+	"7 Language" "$StrMainMenuLanguage" \
+        "8 Shutdown" "$StrMainMenuShutdown" \
+ 	3>&2 2>&1 1>&3)
+    fi
 
         case "$menuchoice" in
 	    0\ *) do_transmit   ;;
