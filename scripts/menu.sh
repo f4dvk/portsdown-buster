@@ -899,6 +899,7 @@ do_fec_setup()
 	 Radio7=OFF
 	 Radio8=OFF
 	 Radio9=OFF
+	 ;;
 	 34)
 	 Radio1=OFF
 	 Radio2=OFF
