@@ -585,11 +585,11 @@ do_modulation_setup()
   
   chmodulation=$(whiptail --title "Modulation" --radiolist \
     "Modulation" 20 78 10 \   
-    "DVB-S" $Radio1 \
-    "S2QPSK" $Radio2 \ 
-    "8PSK" $Radio3 \
-    "16APSK" $Radio4 \ 
-    "32APSK" $Radio5 \
+    "DVB-S" "" $Radio1 \
+    "S2QPSK" "" $Radio2 \ 
+    "8PSK" "" $Radio3 \
+    "16APSK" "" $Radio4 \ 
+    "32APSK" "" $Radio5 \
     3>&2 2>&1 1>&3)
     
   if [ $? -eq 0 ]; then
