@@ -611,6 +611,11 @@ do_modulation_setup()
     ;;
     esac
     set_config_var modulation "$chmodulation" $PCONFIGFILE
+    if [ $chmodulation = "DVB-S" ] ; then
+     set_config_var fec "7" $PCONFIGFILE
+    else
+     set_config_var fec "91" $PCONFIGFILE
+    fi
   fi
 }
 
