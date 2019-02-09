@@ -1141,7 +1141,7 @@ menuchoice=$(whiptail --title "$StrOutputTitle" --menu "$StrOutputContext" 16 78
   "3 Output mode" "$StrOutputMode" \
   "4 PID" "$StrPIDSetup" \
   "5 Frequency" "$StrOutputRFFreqContext" \
-  "6 Modulation" \
+  "6 Modulation" "Modulation" \
   "7 Caption" "Callsign Caption in MPEG-2 on/off" \
   "8 Standard" "Output 576PAL or 480NTSC" \
 	3>&2 2>&1 1>&3)
