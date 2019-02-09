@@ -1335,9 +1335,6 @@ do_autostart_setup()
     StreamRX_boot)
       Radio11=ON
     ;;
-    Button)
-      Radio12=ON
-    ;;
     *)
       Radio1=ON
     ;;
@@ -1356,7 +1353,6 @@ do_autostart_setup()
    "Keyed_TX_boot" "Boot up to GPIO Keyed Transmitter" $Radio9 \
    "SigGen_boot" "Boot up with the Sig Gen Output On" $Radio10 \
    "StreamRX_boot" "Boot up to display a BATC Stream" $Radio11 \
-   "Button" "Boot up to GPIO Button" $Radio12 \
    3>&2 2>&1 1>&3)
 
   if [ $? -eq 0 ]; then
