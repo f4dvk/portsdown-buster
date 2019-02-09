@@ -787,57 +787,187 @@ do_symbolrate_setup()
 do_fec_setup()
 {
 	FEC=$(get_config_var fec $PCONFIGFILE)
-	case "$FEC" in
-	1) 
-	Radio1=ON
-	Radio2=OFF
-	Radio3=OFF
-	Radio4=OFF
-	Radio5=OFF
-	;;
-	2)
-	Radio1=OFF
-	Radio2=ON
-	Radio3=OFF
-	Radio4=OFF
-	Radio5=OFF
-	;;
-	3)
-	Radio1=OFF
-	Radio2=OFF
-	Radio3=ON
-	Radio4=OFF
-	Radio5=OFF
-	;;
-	5)
-	Radio1=OFF
-	Radio2=OFF
-	Radio3=OFF
-	Radio4=ON
-	Radio5=OFF
-	;;
-	7)
-	Radio1=OFF
-	Radio2=OFF
-	Radio3=OFF
-	Radio4=OFF
-	Radio5=ON
-	;;
-	*)
-	Radio1=ON
-	Radio2=OFF
-	Radio3=OFF
-	Radio4=OFF
-	Radio5=OFF
-	;;
-	esac
-	FEC=$(whiptail --title "$StrOutputFECTitle" --radiolist \
+	MODULATION=$(get_config_var modulation $PCONFIGFILE)
+	
+	if [ $MODULATION = "DVB-S" ] ; then
+	 case "$FEC" in
+	 1) 
+	 Radio1=ON
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=OFF
+	 ;;
+	 2)
+	 Radio1=OFF
+	 Radio2=ON
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=OFF
+	 ;;
+	 3)
+	 Radio1=OFF
+	 Radio2=OFF
+	 Radio3=ON
+	 Radio4=OFF
+	 Radio5=OFF
+	 ;;
+	 5)
+	 Radio1=OFF
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=ON
+	 Radio5=OFF
+	 ;;
+	 7)
+	 Radio1=OFF
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=ON
+	 ;;
+	 *)
+	 Radio1=ON
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=OFF
+	 ;;
+	 esac
+	 FEC=$(whiptail --title "$StrOutputFECTitle" --radiolist \
 		"$StrOutputFECContext" 20 78 8 \
 		"1" "1/2" $Radio1 \
 		"2" "2/3" $Radio2 \
 		"3" "3/4" $Radio3 \
 		"5" "5/6" $Radio4 \
 		"7" "7/8" $Radio5 3>&2 2>&1 1>&3)
+	
+	else
+	
+	 case "$FEC" in
+	 14) 
+	 Radio1=ON
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=OFF
+	 Radio6=OFF
+	 Radio7=OFF
+	 Radio8=OFF
+	 Radio9=OFF
+	 ;;
+	 13)
+	 Radio1=OFF
+	 Radio2=ON
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=OFF
+	 Radio6=OFF
+	 Radio7=OFF
+	 Radio8=OFF
+	 Radio9=OFF
+	 ;;
+	 12)
+	 Radio1=OFF
+	 Radio2=OFF
+	 Radio3=ON
+	 Radio4=OFF
+	 Radio5=OFF
+	 Radio6=OFF
+	 Radio7=OFF
+	 Radio8=OFF
+	 Radio9=OFF
+	 ;;
+	 35)
+	 Radio1=OFF
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=ON
+	 Radio5=OFF
+	 Radio6=OFF
+	 Radio7=OFF
+	 Radio8=OFF
+	 Radio9=OFF
+	 ;;
+	 23)
+	 Radio1=OFF
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=ON
+	 Radio6=OFF
+	 Radio7=OFF
+	 Radio8=OFF
+	 Radio9=OFF
+	 34)
+	 Radio1=OFF
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=OFF
+	 Radio6=ON
+	 Radio7=OFF
+	 Radio8=OFF
+	 Radio9=OFF
+	 ;;
+	 56)
+	 Radio1=OFF
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=OFF
+	 Radio6=OFF
+	 Radio7=ON
+	 Radio8=OFF
+	 Radio9=OFF
+	 ;;
+	 89)
+	 Radio1=OFF
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=OFF
+	 Radio6=OFF
+	 Radio7=OFF
+	 Radio8=ON
+	 Radio9=OFF
+	 ;;
+	 91)
+	 Radio1=OFF
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=OFF
+	 Radio6=OFF
+	 Radio7=OFF
+	 Radio8=OFF
+	 Radio9=ON
+	 ;;
+	 *)
+	 Radio1=ON
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=OFF
+	 Radio6=OFF
+	 Radio7=OFF
+	 Radio8=OFF
+	 Radio9=OFF
+	 ;;
+	 esac
+	 FEC=$(whiptail --title "$StrOutputFECTitle" --radiolist \
+		"$StrOutputFECContext" 20 78 8 \
+		"14" "1/4" $Radio1 \
+		"13" "1/3" $Radio2 \
+		"12" "1/2" $Radio3 \
+		"35" "3/5" $Radio4 \
+		"23" "2/3" $Radio5 \
+		"34" "3/4" $Radio6 \
+		"56" "5/6" $Radio7 \
+		"89" "8/9" $Radio8 \
+		"91" "9/10" $Radio9 3>&2 2>&1 1>&3)
+	fi
+
 if [ $? -eq 0 ]; then
 	set_config_var fec "$FEC" $PCONFIGFILE
 fi
