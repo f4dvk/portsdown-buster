@@ -392,7 +392,7 @@ cd /home/pi
 # Compile and install the executable for GPIO-switched transmission (201710080)
 cd /home/pi/rpidatv/src/keyedtx
 make
-mv keyedtx /home/pi/rpidatv/bin/
+sudo mv keyedtx /home/pi/rpidatv/bin/
 cd /home/pi
 
 # Compile and install the executable for the Stream Receiver (201807290)
