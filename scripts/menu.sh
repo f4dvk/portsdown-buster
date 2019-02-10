@@ -556,6 +556,7 @@ do_station_setup()
 do_modulation_setup()
 {
   MODULATION=$(get_config_var modulation $PCONFIGFILE)
+  MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
   Radio1=OFF
   Radio2=OFF
   Radio3=OFF
@@ -583,14 +584,21 @@ do_modulation_setup()
   ;;
   esac
   
-  chmodulation=$(whiptail --title "Modulation" --radiolist \
-    "Modulation" 20 78 10 \
-    "DVB-S" "" $Radio1 \
-    "S2QPSK" "" $Radio2 \
-    "8PSK" "" $Radio3 \
-    "16APSK" "" $Radio4 \
-    "32APSK" "" $Radio5 \
-    3>&2 2>&1 1>&3)
+  if [ $MODE_OUTPUT = "LIMEMINI" | "LIMEUSN" ] ; then
+   chmodulation=$(whiptail --title "Modulation" --radiolist \
+     "Modulation" 20 78 10 \
+     "DVB-S" "" $Radio1 \
+     "S2QPSK" "" $Radio2 \
+     "8PSK" "" $Radio3 \
+     "16APSK" "" $Radio4 \
+     "32APSK" "" $Radio5 \
+     3>&2 2>&1 1>&3)
+  else
+   chmodulation=$(whiptail --title "Modulation" --radiolist \
+     "Modulation" 20 78 10 \
+     "DVB-S" "" $Radio1 \
+     3>&2 2>&1 1>&3)
+  fi
 
   if [ $? -eq 0 ]; then
     case "$chmodulation" in
@@ -777,6 +785,9 @@ do_output_setup_mode()
     ;;
     esac
     set_config_var modeoutput "$choutput" $PCONFIGFILE
+    if [ $chouput != "LIMEMINI" | "LIMEUSB" ] ; then
+     set_config_var modulation "DVB-S" $PCONFIGFILE
+    fi
   fi
 }
 
