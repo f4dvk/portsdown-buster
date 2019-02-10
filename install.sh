@@ -73,7 +73,7 @@ fi
 
 # Unzip the rpidatv software and copy to the Pi
 unzip -o master.zip
-mv portsdown-master rpidatv
+mv portsdown_DVK-master rpidatv
 rm master.zip
 cd /home/pi
 
