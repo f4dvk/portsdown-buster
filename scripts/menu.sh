@@ -557,34 +557,52 @@ do_modulation_setup()
 {
   MODULATION=$(get_config_var modulation $PCONFIGFILE)
   MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
-  Radio1=OFF
-  Radio2=OFF
-  Radio3=OFF
-  Radio4=OFF
-  Radio5=OFF
-  Radio6=OFF
-  case "$MODULATION" in
-  DVB-S)
-    Radio1=ON
-  ;;
-  S2QPSK)
-    Radio2=ON
-  ;;
-  8PSK)
-    Radio3=ON
-  ;;
-  16APSK)
-    Radio4=ON
-  ;;
-  32APSK)
-    Radio5=ON
-  ;;
-  *)
-    Radio6=ON
-  ;;
-  esac
   
-  if [ $MODE_OUTPUT = "LIMEMINI" | "LIMEUSN" ] ; then
+  if [ "$MODE_OUTPUT" == "LIMEMINI" ] || [ "$MODE_OUTPUT" == "LIMEUSB" ] ; then
+   case "$MODULATION" in
+    DVB-S)
+      Radio1=ON
+      Radio2=OFF
+      Radio3=OFF
+      Radio4=OFF
+      Radio5=OFF
+    ;;
+    S2QPSK)
+      Radio1=OFF
+      Radio2=ON
+      Radio3=OFF
+      Radio4=OFF
+      Radio5=OFF
+    ;;
+    8PSK)
+      Radio1=OFF
+      Radio2=OFF
+      Radio3=ON
+      Radio4=OFF
+      Radio5=OFF
+    ;;
+    16APSK)
+      Radio1=OFF
+      Radio2=OFF
+      Radio3=OFF
+      Radio4=ON
+      Radio5=OFF
+    ;;
+    32APSK)
+      Radio1=OFF
+      Radio2=OFF
+      Radio3=OFF
+      Radio4=OFF
+      Radio5=ON
+    ;;
+    *)
+      Radio1=ON
+      Radio2=OFF
+      Radio3=OFF
+      Radio4=OFF
+      Radio5=OFF
+   ;;
+   esac
    chmodulation=$(whiptail --title "Modulation" --radiolist \
      "Modulation" 20 78 10 \
      "DVB-S" "" $Radio1 \
@@ -593,7 +611,17 @@ do_modulation_setup()
      "16APSK" "" $Radio4 \
      "32APSK" "" $Radio5 \
      3>&2 2>&1 1>&3)
+
   else
+  
+   case "$MODULATION" in
+   DVB-S)
+     Radio1=ON
+   ;;
+   *)
+     Radio1=ON
+   ;;
+   esac
    chmodulation=$(whiptail --title "Modulation" --radiolist \
      "Modulation" 20 78 10 \
      "DVB-S" "" $Radio1 \
@@ -601,23 +629,6 @@ do_modulation_setup()
   fi
 
   if [ $? -eq 0 ]; then
-    case "$chmodulation" in
-    DVB-S)
-      :
-    ;;
-    S2QPSK)
-      :
-    ;;
-    8PSK)
-      :
-    ;;
-    16APSK)
-      :
-    ;;
-    32APSK)
-      :
-    ;;
-    esac
     set_config_var modulation "$chmodulation" $PCONFIGFILE
     if [ $chmodulation = "DVB-S" ] ; then
      set_config_var fec "7" $PCONFIGFILE
@@ -785,7 +796,7 @@ do_output_setup_mode()
     ;;
     esac
     set_config_var modeoutput "$choutput" $PCONFIGFILE
-    if [ $chouput != "LIMEMINI" | "LIMEUSB" ] ; then
+    if [ "$chouput" != "LIMEMINI" ] || [ "$chouput" != "LIMEUSB" ] ; then
      set_config_var modulation "DVB-S" $PCONFIGFILE
     fi
   fi
@@ -804,10 +815,10 @@ do_fec_setup()
 {
 	FEC=$(get_config_var fec $PCONFIGFILE)
 	MODULATION=$(get_config_var modulation $PCONFIGFILE)
-	
-	if [ $MODULATION = "DVB-S" ] ; then
+
+	if [ "$MODULATION" == "DVB-S" ] ; then
 	 case "$FEC" in
-	 1) 
+	 1)
 	 Radio1=ON
 	 Radio2=OFF
 	 Radio3=OFF
@@ -859,9 +870,9 @@ do_fec_setup()
 		"7" "7/8" $Radio5 3>&2 2>&1 1>&3)
 	
 	else
-	
+
 	 case "$FEC" in
-	 14) 
+	 14)
 	 Radio1=ON
 	 Radio2=OFF
 	 Radio3=OFF
@@ -2939,7 +2950,7 @@ fi
 sleep 0.2
 
 # Loop round main menu
-while [ "$status" -eq 0 ] 
+while [ "$status" -eq 0 ]
   do
 
     # Lookup parameters for Menu Info Message
@@ -2951,12 +2962,12 @@ while [ "$status" -eq 0 ]
     PATHTS=$(get_config_var pathmedia $PCONFIGFILE)
     FREQ_OUTPUT=$(get_config_var freqoutput $PCONFIGFILE)
     GAIN_OUTPUT=$(get_config_var rfpower $PCONFIGFILE)
-    if [ $MODULATION = "DVB-S" ] ; then
+    if [ "$MODULATION" == "DVB-S" ] ; then
      let FECNUM=FEC
      let FECDEN=FEC+1
     else
      let FECNUM=FEC/10
-     let FECDEN=FEC-FECS2NUM*10
+     let FECDEN=FEC-FECNUM*10
      if [ $FECDEN = 1 ] ; then
       FECDEN=10
      fi
