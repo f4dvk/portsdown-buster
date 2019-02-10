@@ -553,6 +553,91 @@ do_station_setup()
   fi
 }
 
+do_modulation_setup()
+{
+  MODULATION=$(get_config_var modulation $PCONFIGFILE)
+  MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
+  
+  if [ "$MODE_OUTPUT" == "LIMEMINI" ] || [ "$MODE_OUTPUT" == "LIMEUSB" ] ; then
+   case "$MODULATION" in
+    DVB-S)
+      Radio1=ON
+      Radio2=OFF
+      Radio3=OFF
+      Radio4=OFF
+      Radio5=OFF
+    ;;
+    S2QPSK)
+      Radio1=OFF
+      Radio2=ON
+      Radio3=OFF
+      Radio4=OFF
+      Radio5=OFF
+    ;;
+    8PSK)
+      Radio1=OFF
+      Radio2=OFF
+      Radio3=ON
+      Radio4=OFF
+      Radio5=OFF
+    ;;
+    16APSK)
+      Radio1=OFF
+      Radio2=OFF
+      Radio3=OFF
+      Radio4=ON
+      Radio5=OFF
+    ;;
+    32APSK)
+      Radio1=OFF
+      Radio2=OFF
+      Radio3=OFF
+      Radio4=OFF
+      Radio5=ON
+    ;;
+    *)
+      Radio1=ON
+      Radio2=OFF
+      Radio3=OFF
+      Radio4=OFF
+      Radio5=OFF
+   ;;
+   esac
+   chmodulation=$(whiptail --title "Modulation" --radiolist \
+     "Modulation" 20 78 10 \
+     "DVB-S" "" $Radio1 \
+     "S2QPSK" "" $Radio2 \
+     "8PSK" "" $Radio3 \
+     "16APSK" "" $Radio4 \
+     "32APSK" "" $Radio5 \
+     3>&2 2>&1 1>&3)
+
+  else
+  
+   case "$MODULATION" in
+   DVB-S)
+     Radio1=ON
+   ;;
+   *)
+     Radio1=ON
+   ;;
+   esac
+   chmodulation=$(whiptail --title "Modulation" --radiolist \
+     "Modulation" 20 78 10 \
+     "DVB-S" "" $Radio1 \
+     3>&2 2>&1 1>&3)
+  fi
+
+  if [ $? -eq 0 ]; then
+    set_config_var modulation "$chmodulation" $PCONFIGFILE
+    if [ $chmodulation = "DVB-S" ] ; then
+     set_config_var fec "7" $PCONFIGFILE
+    else
+     set_config_var fec "91" $PCONFIGFILE
+    fi
+  fi
+}
+
 do_output_setup_mode()
 {
   MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
@@ -711,6 +796,8 @@ do_output_setup_mode()
     ;;
     esac
     set_config_var modeoutput "$choutput" $PCONFIGFILE
+    set_config_var modulation "DVB-S" $PCONFIGFILE
+    set_config_var fec "7" $PCONFIGFILE
   fi
 }
 
@@ -726,57 +813,188 @@ do_symbolrate_setup()
 do_fec_setup()
 {
 	FEC=$(get_config_var fec $PCONFIGFILE)
-	case "$FEC" in
-	1) 
-	Radio1=ON
-	Radio2=OFF
-	Radio3=OFF
-	Radio4=OFF
-	Radio5=OFF
-	;;
-	2)
-	Radio1=OFF
-	Radio2=ON
-	Radio3=OFF
-	Radio4=OFF
-	Radio5=OFF
-	;;
-	3)
-	Radio1=OFF
-	Radio2=OFF
-	Radio3=ON
-	Radio4=OFF
-	Radio5=OFF
-	;;
-	5)
-	Radio1=OFF
-	Radio2=OFF
-	Radio3=OFF
-	Radio4=ON
-	Radio5=OFF
-	;;
-	7)
-	Radio1=OFF
-	Radio2=OFF
-	Radio3=OFF
-	Radio4=OFF
-	Radio5=ON
-	;;
-	*)
-	Radio1=ON
-	Radio2=OFF
-	Radio3=OFF
-	Radio4=OFF
-	Radio5=OFF
-	;;
-	esac
-	FEC=$(whiptail --title "$StrOutputFECTitle" --radiolist \
+	MODULATION=$(get_config_var modulation $PCONFIGFILE)
+
+	if [ "$MODULATION" == "DVB-S" ] ; then
+	 case "$FEC" in
+	 1)
+	 Radio1=ON
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=OFF
+	 ;;
+	 2)
+	 Radio1=OFF
+	 Radio2=ON
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=OFF
+	 ;;
+	 3)
+	 Radio1=OFF
+	 Radio2=OFF
+	 Radio3=ON
+	 Radio4=OFF
+	 Radio5=OFF
+	 ;;
+	 5)
+	 Radio1=OFF
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=ON
+	 Radio5=OFF
+	 ;;
+	 7)
+	 Radio1=OFF
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=ON
+	 ;;
+	 *)
+	 Radio1=ON
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=OFF
+	 ;;
+	 esac
+	 FEC=$(whiptail --title "$StrOutputFECTitle" --radiolist \
 		"$StrOutputFECContext" 20 78 8 \
 		"1" "1/2" $Radio1 \
 		"2" "2/3" $Radio2 \
 		"3" "3/4" $Radio3 \
 		"5" "5/6" $Radio4 \
 		"7" "7/8" $Radio5 3>&2 2>&1 1>&3)
+	
+	else
+
+	 case "$FEC" in
+	 14)
+	 Radio1=ON
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=OFF
+	 Radio6=OFF
+	 Radio7=OFF
+	 Radio8=OFF
+	 Radio9=OFF
+	 ;;
+	 13)
+	 Radio1=OFF
+	 Radio2=ON
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=OFF
+	 Radio6=OFF
+	 Radio7=OFF
+	 Radio8=OFF
+	 Radio9=OFF
+	 ;;
+	 12)
+	 Radio1=OFF
+	 Radio2=OFF
+	 Radio3=ON
+	 Radio4=OFF
+	 Radio5=OFF
+	 Radio6=OFF
+	 Radio7=OFF
+	 Radio8=OFF
+	 Radio9=OFF
+	 ;;
+	 35)
+	 Radio1=OFF
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=ON
+	 Radio5=OFF
+	 Radio6=OFF
+	 Radio7=OFF
+	 Radio8=OFF
+	 Radio9=OFF
+	 ;;
+	 23)
+	 Radio1=OFF
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=ON
+	 Radio6=OFF
+	 Radio7=OFF
+	 Radio8=OFF
+	 Radio9=OFF
+	 ;;
+	 34)
+	 Radio1=OFF
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=OFF
+	 Radio6=ON
+	 Radio7=OFF
+	 Radio8=OFF
+	 Radio9=OFF
+	 ;;
+	 56)
+	 Radio1=OFF
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=OFF
+	 Radio6=OFF
+	 Radio7=ON
+	 Radio8=OFF
+	 Radio9=OFF
+	 ;;
+	 89)
+	 Radio1=OFF
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=OFF
+	 Radio6=OFF
+	 Radio7=OFF
+	 Radio8=ON
+	 Radio9=OFF
+	 ;;
+	 91)
+	 Radio1=OFF
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=OFF
+	 Radio6=OFF
+	 Radio7=OFF
+	 Radio8=OFF
+	 Radio9=ON
+	 ;;
+	 *)
+	 Radio1=ON
+	 Radio2=OFF
+	 Radio3=OFF
+	 Radio4=OFF
+	 Radio5=OFF
+	 Radio6=OFF
+	 Radio7=OFF
+	 Radio8=OFF
+	 Radio9=OFF
+	 ;;
+	 esac
+	 FEC=$(whiptail --title "$StrOutputFECTitle" --radiolist \
+		"$StrOutputFECContext" 20 78 9 \
+		"14" "1/4" $Radio1 \
+		"13" "1/3" $Radio2 \
+		"12" "1/2" $Radio3 \
+		"35" "3/5" $Radio4 \
+		"23" "2/3" $Radio5 \
+		"34" "3/4" $Radio6 \
+		"56" "5/6" $Radio7 \
+		"89" "8/9" $Radio8 \
+		"91" "9/10" $Radio9 3>&2 2>&1 1>&3)
+	fi
+
 if [ $? -eq 0 ]; then
 	set_config_var fec "$FEC" $PCONFIGFILE
 fi
@@ -1074,14 +1292,15 @@ do_output_standard()
 
 
 do_output_setup() {
-menuchoice=$(whiptail --title "$StrOutputTitle" --menu "$StrOutputContext" 16 78 7 \
+menuchoice=$(whiptail --title "$StrOutputTitle" --menu "$StrOutputContext" 16 78 8 \
   "1 SymbolRate" "$StrOutputSR"  \
   "2 FEC" "$StrOutputFEC" \
   "3 Output mode" "$StrOutputMode" \
   "4 PID" "$StrPIDSetup" \
   "5 Frequency" "$StrOutputRFFreqContext" \
-  "6 Caption" "Callsign Caption in MPEG-2 on/off" \
-  "7 Standard" "Output 576PAL or 480NTSC" \
+  "6 Modulation" "Modulation" \
+  "7 Caption" "Callsign Caption in MPEG-2 on/off" \
+  "8 Standard" "Output 576PAL or 480NTSC" \
 	3>&2 2>&1 1>&3)
 	case "$menuchoice" in
             1\ *) do_symbolrate_setup ;;
@@ -1089,8 +1308,9 @@ menuchoice=$(whiptail --title "$StrOutputTitle" --menu "$StrOutputContext" 16 78
 	    3\ *) do_output_setup_mode ;;
 	    4\ *) do_PID_setup ;;
 	    5\ *) do_freq_setup ;;
-	    6\ *) do_caption_setup ;;
-	    7\ *) do_output_standard ;;
+	    6\ *) do_modulation_setup ;;
+	    7\ *) do_caption_setup ;;
+	    8\ *) do_output_standard ;;
         esac
 }
 
@@ -2649,6 +2869,7 @@ OnStartup()
 CALL=$(get_config_var call $PCONFIGFILE)
 MODE_INPUT=$(get_config_var modeinput $PCONFIGFILE)
 MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
+MODULATION=$(get_config_var modulation $PCONFIGFILE)
 SYMBOLRATEK=$(get_config_var symbolrate $PCONFIGFILE)
 FEC=$(get_config_var fec $PCONFIGFILE)
 PATHTS=$(get_config_var pathmedia $PCONFIGFILE)
@@ -2728,7 +2949,7 @@ fi
 sleep 0.2
 
 # Loop round main menu
-while [ "$status" -eq 0 ] 
+while [ "$status" -eq 0 ]
   do
 
     # Lookup parameters for Menu Info Message
@@ -2740,15 +2961,23 @@ while [ "$status" -eq 0 ]
     PATHTS=$(get_config_var pathmedia $PCONFIGFILE)
     FREQ_OUTPUT=$(get_config_var freqoutput $PCONFIGFILE)
     GAIN_OUTPUT=$(get_config_var rfpower $PCONFIGFILE)
-    let FECNUM=FEC
-    let FECDEN=FEC+1
+    if [ "$MODULATION" == "DVB-S" ] ; then
+     let FECNUM=FEC
+     let FECDEN=FEC+1
+    else
+     let FECNUM=FEC/10
+     let FECDEN=FEC-FECNUM*10
+     if [ $FECDEN = 1 ] ; then
+      FECDEN=10
+     fi
+    fi
     INFO=$CALL":"$MODE_INPUT"-->"$MODE_OUTPUT"("$SYMBOLRATEK"KSymbol FEC "$FECNUM"/"$FECDEN") on "$FREQ_OUTPUT"Mhz"
     V_FINDER=$(get_config_var vfinder $PCONFIGFILE)
 
     # Display main menu
 
-    menuchoice=$(whiptail --title "$StrMainMenuTitle" --menu "$INFO" 16 82 9 \
-	"0 Transmit" $FREQ_OUTPUT" Mhz, "$SYMBOLRATEK" KS, FEC "$FECNUM"/"$FECDEN"." \
+     menuchoice=$(whiptail --title "$StrMainMenuTitle" --menu "$INFO" 16 82 9 \
+	"0 Transmit" $FREQ_OUTPUT" Mhz, "$MODULATION", "$SYMBOLRATEK" KS, FEC "$FECNUM"/"$FECDEN"." \
         "1 Source" "$StrMainMenuSource"" ("$MODE_INPUT" selected)" \
 	"2 Output" "$StrMainMenuOutput"" ("$MODE_OUTPUT" selected)" \
 	"3 Station" "$StrMainMenuCall" \

@@ -167,19 +167,19 @@ if [ "$1" == "-d" ]; then
   wget https://github.com/davecrump/portsdown/archive/master.zip -O master.zip
 else
   echo "Installing BATC Production load"
-  wget https://github.com/BritishAmateurTelevisionClub/portsdown/archive/master.zip -O master.zip
+  wget https://github.com/f4dvk/portsdown_DVK/archive/master.zip -O master.zip
 fi
 
 # Unzip and overwrite where we need to
 unzip -o master.zip
-cp -f -r portsdown-master/bin rpidatv
-cp -f -r portsdown-master/scripts rpidatv
-cp -f -r portsdown-master/src rpidatv
+cp -f -r portsdown_DVK-master/bin rpidatv
+cp -f -r portsdown_DVK-master/scripts rpidatv
+cp -f -r portsdown_DVK-master/src rpidatv
 rm -f rpidatv/video/*.jpg
-cp -f -r portsdown-master/video rpidatv
-cp -f -r portsdown-master/version_history.txt rpidatv/version_history.txt
+cp -f -r portsdown_DVK-master/video rpidatv
+cp -f -r portsdown_DVK-master/version_history.txt rpidatv/version_history.txt
 rm master.zip
-rm -rf portsdown-master
+rm -rf portsdown_DVK-master
 cd /home/pi
 
 # Check which avc2ts to download.  Default is production
