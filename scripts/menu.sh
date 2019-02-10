@@ -962,7 +962,7 @@ do_fec_setup()
 	 ;;
 	 esac
 	 FEC=$(whiptail --title "$StrOutputFECTitle" --radiolist \
-		"$StrOutputFECContext" 20 78 8 \
+		"$StrOutputFECContext" 20 78 9 \
 		"14" "1/4" $Radio1 \
 		"13" "1/3" $Radio2 \
 		"12" "1/2" $Radio3 \
@@ -1271,7 +1271,7 @@ do_output_standard()
 
 
 do_output_setup() {
-menuchoice=$(whiptail --title "$StrOutputTitle" --menu "$StrOutputContext" 16 78 7 \
+menuchoice=$(whiptail --title "$StrOutputTitle" --menu "$StrOutputContext" 16 78 8 \
   "1 SymbolRate" "$StrOutputSR"  \
   "2 FEC" "$StrOutputFEC" \
   "3 Output mode" "$StrOutputMode" \
