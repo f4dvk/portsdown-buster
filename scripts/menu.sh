@@ -796,9 +796,8 @@ do_output_setup_mode()
     ;;
     esac
     set_config_var modeoutput "$choutput" $PCONFIGFILE
-    if [ "$chouput" != "LIMEMINI" ] || [ "$chouput" != "LIMEUSB" ] ; then
-     set_config_var modulation "DVB-S" $PCONFIGFILE
-    fi
+    set_config_var modulation "DVB-S" $PCONFIGFILE
+    set_config_var fec "7" $PCONFIGFILE
   fi
 }
 
