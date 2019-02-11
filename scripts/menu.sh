@@ -2957,6 +2957,7 @@ while [ "$status" -eq 0 ]
     MODE_INPUT=$(get_config_var modeinput $PCONFIGFILE)
     MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
     SYMBOLRATEK=$(get_config_var symbolrate $PCONFIGFILE)
+    MODULATION=$(get_config_var modulation $PCONFIGFILE)
     FEC=$(get_config_var fec $PCONFIGFILE)
     PATHTS=$(get_config_var pathmedia $PCONFIGFILE)
     FREQ_OUTPUT=$(get_config_var freqoutput $PCONFIGFILE)
