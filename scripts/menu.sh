@@ -784,6 +784,9 @@ do_output_setup_mode()
       LIME_GAIN=$(get_config_var limegain $PCONFIGFILE)
       GAIN=$(whiptail --inputbox "Lime Gain" 8 78 $LIME_GAIN --title "Lime Gain" 3>&1 1>&2 2>&3)
       if [ $? -eq 0 ]; then
+       if [ "$GAIN" > "100" ] ; then
+        GAIN=100
+       fi
         set_config_var limegain "$GAIN" $PCONFIGFILE
       fi
     ;;
@@ -791,6 +794,9 @@ do_output_setup_mode()
       LIME_GAIN=$(get_config_var limegain $PCONFIGFILE)
       GAIN=$(whiptail --inputbox "Lime Gain" 8 78 $LIME_GAIN --title "Lime Gain" 3>&1 1>&2 2>&3)
       if [ $? -eq 0 ]; then
+       if [ "$GAIN" > "100" ] ; then
+        GAIN=100
+       fi
         set_config_var limegain "$GAIN" $PCONFIGFILE
       fi
     ;;
