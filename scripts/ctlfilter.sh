@@ -201,7 +201,7 @@ if [ "$DIRECT" == "TRUE" ]; then
 
   MODE_STARTUP=$(get_config_var startup $PCONFIGFILE)
   if [ "$MODE_STARTUP" == "Keyed_TX_boot" ] || [ "$MODE_STARTUP" == "Keyed_Stream_boot" ]\
-    || [ "$MODE_STARTUP" == "Cont_Stream_boot" ] || [ "$MODE_STARTUP" == "Button" ]; then
+    || [ "$MODE_STARTUP" == "Cont_Stream_boot" ] || [ "$MODE_STARTUP" == "Button_boot" ]; then
     :
   else
     gpio -g write $tverter_bit 0;
