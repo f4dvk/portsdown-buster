@@ -100,7 +100,8 @@ AutostartSetupPrompt="Log-on to Linux Command Prompt"
 AutostartSetupConsole="Log-on to Portsdown Console Menu"
 AutostartSetupTX_boot="Boot-up to Transmit"
 AutostartSetupDisplay_boot="Boot-up to Graphique(avec ecran tactile)"
-AutostartSetupButton_boot="Boot-up to Boutons poussoires"
+AutostartSetupButton_tx_boot="Boot-up to Boutons poussoires TX"
+AutostartSetupButton_rx_boot="Boot-up to Boutons poussoires RX"
 
 ######## TOUCHSCREEN MENU #########
 
