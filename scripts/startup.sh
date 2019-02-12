@@ -369,10 +369,17 @@ case "$MODE_STARTUP" in
     fi
     return
   ;;
-  Button_boot)
+  Button_tx_boot)
     # Start Button
     if [ "$SESSION_TYPE" == "boot" ]; then
       /home/pi/rpidatv/scripts/rpibutton_tx.sh
+    fi
+    return
+  ;;
+  Button_rx_boot)
+    # Start Button
+    if [ "$SESSION_TYPE" == "boot" ]; then
+      /home/pi/rpidatv/scripts/rpibutton_rx.sh
     fi
     return
   ;;
