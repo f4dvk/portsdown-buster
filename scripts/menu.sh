@@ -1547,23 +1547,26 @@ do_autostart_setup()
     TestRig_boot)
       Radio5=ON
     ;;
-    Button_boot)
+    Button_tx_boot)
       Radio6=ON
     ;;
-    Keyed_Stream_boot)
+    Button_rx_boot)
       Radio7=ON
     ;;
-    Cont_Stream_boot)
+    Keyed_Stream_boot)
       Radio8=ON
     ;;
-    Keyed_TX_boot)
+    Cont_Stream_boot)
       Radio9=ON
     ;;
-    SigGen_boot)
+    Keyed_TX_boot)
       Radio10=ON
     ;;
-    StreamRX_boot)
+    SigGen_boot)
       Radio11=ON
+    ;;
+    StreamRX_boot)
+      Radio12=ON
     ;;
     *)
       Radio1=ON
@@ -1577,12 +1580,13 @@ do_autostart_setup()
    "TX_boot" "$AutostartSetupTX_boot" $Radio3 \
    "Display_boot" "$AutostartSetupDisplay_boot" $Radio4 \
    "TestRig_boot" "Boot-up to Test Rig for F-M Boards" $Radio5 \
-   "Button_boot" "$AutostartSetupButton_boot" $Radio6 \
-   "Keyed_Stream_boot" "Boot up to Keyed Repeater Streamer" $Radio7 \
-   "Cont_Stream_boot" "Boot up to Always-on Repeater Streamer" $Radio8 \
-   "Keyed_TX_boot" "Boot up to GPIO Keyed Transmitter" $Radio9 \
-   "SigGen_boot" "Boot up with the Sig Gen Output On" $Radio10 \
-   "StreamRX_boot" "Boot up to display a BATC Stream" $Radio11 \
+   "Button_tx_boot" "$AutostartSetupButton_tx_boot" $Radio6 \
+   "Button_rx_boot" "$AutostartSetupButton_rx_boot" $Radio7 \
+   "Keyed_Stream_boot" "Boot up to Keyed Repeater Streamer" $Radio8 \
+   "Cont_Stream_boot" "Boot up to Always-on Repeater Streamer" $Radio9 \
+   "Keyed_TX_boot" "Boot up to GPIO Keyed Transmitter" $Radio10 \
+   "SigGen_boot" "Boot up with the Sig Gen Output On" $Radio11 \
+   "StreamRX_boot" "Boot up to display a BATC Stream" $Radio12 \
    3>&2 2>&1 1>&3)
 
   if [ $? -eq 0 ]; then
