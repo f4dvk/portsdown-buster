@@ -32,7 +32,7 @@
 #define KWHT  "\x1B[37m"
 #define KYEL  "\x1B[33m"
 
-#define PATH_CONFIG "/home/pi/rpidatv/scripts/rpidatvconfig.txt"
+#define PATH_CONFIG "/home/pi/rpidatv/scripts/portsdown_config.txt"
 char ImageFolder[]="/home/pi/rpidatv/image/";
 
 int fd=0;
