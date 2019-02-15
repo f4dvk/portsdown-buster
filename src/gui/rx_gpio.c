@@ -547,7 +547,7 @@ void *WaitButtonEvent(void * arg)
 
 void ProcessLeandvb()
 {
-   #define PATH_SCRIPT_LEAN "sudo /home/pi/rpidatv/scripts/leandvbgui.sh 2>&1"
+   #define PATH_SCRIPT_LEAN "sudo /home/pi/rpidatv/scripts/leandvb_rx.sh 2>&1"
    char *line=NULL;
    size_t len = 0;
     ssize_t read;
