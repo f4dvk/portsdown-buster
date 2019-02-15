@@ -127,10 +127,10 @@ int GPIO_SPI_CLK = 21;
 int GPIO_SPI_DATA = 22;
 int GPIO_4351_LE = 30;
 int GPIO_Atten_LE = 16;
-//int GPIO_5355_LE = 15;
+int GPIO_5355_LE = 15;
 int GPIO_Band_LSB = 31;
 int GPIO_Band_MSB = 24;
-//int GPIO_Tverter = 7;
+int GPIO_Tverter = 7;
 
 char ScreenState[255] = "NormalMenu";  // NormalMenu SpecialMenu TXwithMenu TXwithImage RXwithImage VideoOut SnapView VideoView Snap SigGen
 char MenuTitle[50][127];
@@ -2128,12 +2128,12 @@ void InitialiseGPIO()
   digitalWrite(GPIO_4351_LE, HIGH);
   pinMode(GPIO_Atten_LE, OUTPUT);
   digitalWrite(GPIO_Atten_LE, HIGH);
- // pinMode(GPIO_5355_LE, OUTPUT);
- // digitalWrite(GPIO_5355_LE, HIGH);
+  pinMode(GPIO_5355_LE, OUTPUT);
+  digitalWrite(GPIO_5355_LE, HIGH);
   pinMode(GPIO_Band_LSB, OUTPUT);
   pinMode(GPIO_Band_MSB, OUTPUT);
- // pinMode(GPIO_Tverter, OUTPUT);
- // digitalWrite(GPIO_Tverter, LOW);
+  pinMode(GPIO_Tverter, OUTPUT);
+  digitalWrite(GPIO_Tverter, LOW);
 }
 
 /***************************************************************************//**
@@ -6340,7 +6340,7 @@ void CompVidInitialise()
   VidPTT = 1;
   digitalWrite(GPIO_Band_LSB, LOW);
   digitalWrite(GPIO_Band_MSB, LOW);
-//  digitalWrite(GPIO_Tverter, LOW);
+  digitalWrite(GPIO_Tverter, LOW);
   digitalWrite(GPIO_PTT, HIGH);
   char mic[15] = "xx";
   // char card[15];
@@ -6701,7 +6701,7 @@ void TransmitStop()
   {
     //  Ensure that Transverter line does not float
     //  As it is released when rpidatv terminates
- //   pinMode(GPIO_Tverter, OUTPUT);
+    pinMode(GPIO_Tverter, OUTPUT);
   }
 
   // Turn the Viewfinder off
