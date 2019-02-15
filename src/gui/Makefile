@@ -42,6 +42,9 @@ LIBFLAGS2=-L/opt/vc/lib -lbrcmEGL -lbrcmGLESv2 -lbcm_host -lpthread  -ljpeg -lrt
 
 rpidatvtouch: rpidatvtouch.c 
 	gcc -Wall $(INCLUDEFLAGS2) -o  rpidatvgui rpidatvtouch.c libshapes.o oglinit.o $(LIBFLAGS2) 
+	
+rx_gpio: rx_gpio.c 
+	gcc -Wall $(INCLUDEFLAGS2) -o  rx_gpio rx_gpio.c libshapes.o oglinit.o $(LIBFLAGS2)
 
 tcanim: tcanim.c
 	gcc -Wall $(INCLUDEFLAGS2) -o  tcanim tcanim.c  libshapes.o oglinit.o $(LIBFLAGS2)
