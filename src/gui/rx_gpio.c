@@ -164,7 +164,7 @@ void ProcessLeandvb()
 
 // Thread FFT
 
-	pthread_create (&thbutton,NULL, &WaitButtonEvent,NULL);
+	//pthread_create (&thbutton,NULL, &WaitButtonEvent,NULL);
 
 //END ThreadFFT
 
@@ -396,8 +396,8 @@ int main(int argc, char **argv) {
 	int screenYmax, screenYmin;
 	int ReceiveDirect=0;
 	int i;
-        char Param[255];
-        char Value[255];
+        //char Param[255];
+        //char Value[255];
  
 // Catch sigaction and call terminate
 	for (i = 0; i < 16; i++) {
@@ -431,8 +431,8 @@ int main(int argc, char **argv) {
 	//printf ("Y Scale Factor = %f\n", scaleYvalue);
 
 // Define button grid
-	int wbuttonsize=wscreen/5;
-	int hbuttonsize=hscreen/6;
+	//int wbuttonsize=wscreen/5;
+	//int hbuttonsize=hscreen/6;
 
 	// RESIZE JPEG TO BE DONE
 	/*char PictureName[255];
