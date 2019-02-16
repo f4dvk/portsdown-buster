@@ -32,7 +32,7 @@
 #define KWHT  "\x1B[37m"
 #define KYEL  "\x1B[33m"
 
-#define PATH_CONFIG "/home/pi/rpidatv/scripts/portsdown_config.txt"
+#define PATH_CONFIG "/home/pi/rpidatv/scripts/rpidatvconfig.txt"
 char ImageFolder[]="/home/pi/rpidatv/image/";
 
 int fd=0;
@@ -95,6 +95,67 @@ pthread_t thfft,thbutton;
  * @return void
 *******************************************************************************/
 
+void GetConfigParam(char *PathConfigFile,char *Param, char *Value)
+{
+	char * line = NULL;
+	size_t len = 0;
+	int read;
+	FILE *fp=fopen(PathConfigFile,"r");
+	if(fp!=0)
+	{
+		while ((read = getline(&line, &len, fp)) != -1)
+		{
+			if(strncmp (line,Param,strlen(Param)) == 0)
+			{
+				strcpy(Value,line+strlen(Param)+1);
+				char *p;
+				if((p=strchr(Value,'\n'))!=0) *p=0; //Remove \n
+				break;
+			}
+			//strncpy(Value,line+strlen(Param)+1,strlen(line)-strlen(Param)-1-1/* pour retour chariot*/);
+	    	}
+	}
+	else
+		printf("Config file not found \n");
+	fclose(fp);
+
+}
+
+void SetConfigParam(char *PathConfigFile,char *Param,char *Value)
+{
+	char * line = NULL;
+	 size_t len = 0;
+	int read;
+	char BackupConfigName[255];
+	strcpy(BackupConfigName,PathConfigFile);
+	strcat(BackupConfigName,".bak");
+	//printf("Read %s\n",PathConfigFile);
+	 FILE *fp=fopen(PathConfigFile,"r");
+
+	 FILE *fw=fopen(BackupConfigName,"w+");
+	if(fp!=0)
+	{
+		while ((read = getline(&line, &len, fp)) != -1)
+		{
+		      	//printf("%s", line);
+			if(strncmp (line,Param,strlen(Param)) == 0)
+			{
+				fprintf(fw,"%s=%s\n",Param,Value);
+			}
+			else
+				fprintf(fw,line);
+			//strncpy(Value,line+strlen(Param)+1,strlen(line)-strlen(Param)-1-1/* pour retour chariot*/);
+	    	}
+	}
+	else
+		printf("Config file not found \n");
+	fclose(fp);
+	fclose(fw);
+	char Command[255];
+	sprintf(Command,"cp %s %s",BackupConfigName,PathConfigFile);
+	system(Command);
+}
+
 int mymillis()
 {
         struct timeval tv;
@@ -102,6 +163,336 @@ int mymillis()
         return (tv.tv_sec) * 1000 + (tv.tv_usec)/1000;
 }
 
+int IsButtonPushed(int NbButton,int x,int y)
+{
+	int  scaledX, scaledY;
+	if(Inversed==0)
+	{
+		scaledX = x/scaleXvalue;
+        	scaledY = hscreen-y/scaleYvalue;
+	}
+	else
+	{
+		scaledX = wscreen-y/scaleXvalue; //FOR INVERSED TOUCSCREEN (AIW)
+		scaledY = hscreen-x/scaleYvalue;
+	}
+	//printf("x=%d y=%d scaledx %d scaledy %d\n",x,y,scaledX,scaledY);
+	int margin=10;  // was 20
+	if((scaledX<=(ButtonArray[NbButton].x+ButtonArray[NbButton].w-margin))&&(scaledX>=ButtonArray[NbButton].x+margin) &&
+	(scaledY<=(ButtonArray[NbButton].y+ButtonArray[NbButton].h-margin))&&(scaledY>=ButtonArray[NbButton].y+margin)
+	/*&&(mymillis()-ButtonArray[NbButton].LastEventTime>TIME_ANTI_BOUNCE)*/)
+	{
+		ButtonArray[NbButton].LastEventTime=mymillis();
+		return 1;
+	}
+	else
+		return 0;
+
+}
+
+int AddButton(int x,int y,int w,int h)
+{
+	button_t *NewButton=&(ButtonArray[IndexButtonInArray]);
+	NewButton->x=x;
+	NewButton->y=y;
+	NewButton->w=w;
+	NewButton->h=h;
+	NewButton->NoStatus=0;
+	NewButton->IndexStatus=0;
+	NewButton->LastEventTime=mymillis();
+	return IndexButtonInArray++;
+}
+
+int AddButtonStatus(int ButtonIndex,char *Text,color_t *Color)
+{
+	button_t *Button=&(ButtonArray[ButtonIndex]);
+	strcpy(Button->Status[Button->IndexStatus].Text,Text);
+	Button->Status[Button->IndexStatus].Color=*Color;
+	return Button->IndexStatus++;
+}
+
+void DrawButton(int ButtonIndex)
+{
+	button_t *Button=&(ButtonArray[ButtonIndex]);
+
+	Fill(Button->Status[Button->NoStatus].Color.r, Button->Status[Button->NoStatus].Color.g, Button->Status[Button->NoStatus].Color.b, 1);
+	 Roundrect(Button->x,Button->y,Button->w,Button->h, Button->w/10, Button->w/10);
+	Fill(255, 255, 255, 1);				   // White text
+	TextMid(Button->x+Button->w/2, Button->y+Button->h/2, Button->Status[Button->NoStatus].Text, SerifTypeface, Button->w/strlen(Button->Status[Button->NoStatus].Text)/*25*/);	
+}
+
+void SetButtonStatus(int ButtonIndex,int Status)
+{
+	button_t *Button=&(ButtonArray[ButtonIndex]);
+	Button->NoStatus=Status;
+}
+
+int GetButtonStatus(int ButtonIndex)
+{
+	button_t *Button=&(ButtonArray[ButtonIndex]);
+	return	Button->NoStatus;
+
+}
+
+void GetNextPicture(char *PictureName)
+{
+
+	DIR           *d;
+ 	struct dirent *dir;
+
+  	d = opendir(ImageFolder);
+  	if (d)
+  	{
+    	while ((dir = readdir(d)) != NULL)
+    	{
+		if (dir->d_type == DT_REG)
+		{
+			size_t len = strlen(dir->d_name);
+    			if( len > 4 && strcmp(dir->d_name + len - 4, ".jpg") == 0)
+			{
+    				 printf("%s\n", dir->d_name);
+
+				strncpy(PictureName,dir->d_name,strlen(dir->d_name)-4);
+				break;
+			}
+  		}
+      	}
+
+    	closedir(d);
+	}
+}
+
+int openTouchScreen(int NoDevice)
+{
+	char sDevice[255];
+	sprintf(sDevice,"/dev/input/event%d",NoDevice);
+	if(fd!=0) close(fd);
+        if ((fd = open(sDevice, O_RDONLY)) > 0)
+	 {
+                return 1;
+        }
+	else
+		return 0;
+}
+
+/*
+Input device name: "ADS7846 Touchscreen"
+Supported events:
+  Event type 0 (Sync)
+  Event type 1 (Key)
+    Event code 330 (Touch)
+  Event type 3 (Absolute)
+    Event code 0 (X)
+     Value      0
+     Min        0
+     Max     4095
+    Event code 1 (Y)
+     Value      0
+     Min        0
+     Max     4095
+    Event code 24 (Pressure)
+     Value      0
+     Min        0
+     Max      255
+*/
+
+int getTouchScreenDetails(int *screenXmin,int *screenXmax,int *screenYmin,int *screenYmax)
+{
+	//unsigned short id[4];
+        unsigned long bit[EV_MAX][NBITS(KEY_MAX)];
+        char name[256] = "Unknown";
+        int abs[6] = {0};
+
+        ioctl(fd, EVIOCGNAME(sizeof(name)), name);
+        printf("Input device name: \"%s\"\n", name);
+
+        memset(bit, 0, sizeof(bit));
+        ioctl(fd, EVIOCGBIT(0, EV_MAX), bit[0]);
+        printf("Supported events:\n");
+
+        int i,j,k;
+	int IsAtouchDevice=0;
+        for (i = 0; i < EV_MAX; i++)
+                if (test_bit(i, bit[0])) {
+                        printf("  Event type %d (%s)\n", i, events[i] ? events[i] : "?");
+                        if (!i) continue;
+                        ioctl(fd, EVIOCGBIT(i, KEY_MAX), bit[i]);
+                        for (j = 0; j < KEY_MAX; j++){
+                                if (test_bit(j, bit[i])) {
+                                        printf("    Event code %d (%s)\n", j, names[i] ? (names[i][j] ? names[i][j] : "?") : "?");
+	if(j==330) IsAtouchDevice=1;
+                                        if (i == EV_ABS) {
+                                                ioctl(fd, EVIOCGABS(j), abs);
+                                                for (k = 0; k < 5; k++)
+                                                        if ((k < 3) || abs[k]){
+                                                                printf("     %s %6d\n", absval[k], abs[k]);
+                                                                if (j == 0){
+                                                                        if (absval[k] == "Min  ") *screenXmin =  abs[k];
+                                                                        if (absval[k] == "Max  ") *screenXmax =  abs[k];
+                                                                }
+                                                                if (j == 1){
+                                                                        if (absval[k] == "Min  ") *screenYmin =  abs[k];
+                                                                        if (absval[k] == "Max  ") *screenYmax =  abs[k];
+                                                                }
+                                                        }
+                                                }
+
+                                        }
+                               }
+                        }
+
+return IsAtouchDevice;
+}
+
+
+int getTouchSample(int *rawX, int *rawY, int *rawPressure)
+{
+	int i;
+        /* how many bytes were read */
+        size_t rb;
+        /* the events (up to 64 at once) */
+        struct input_event ev[64];
+	//static int Last_event=0; //not used?
+	rb=read(fd,ev,sizeof(struct input_event)*64);
+	*rawX=-1;*rawY=-1;
+	int StartTouch=0;
+        for (i = 0;  i <  (rb / sizeof(struct input_event)); i++){
+              if (ev[i].type ==  EV_SYN)
+		{
+                         //printf("Event type is %s%s%s = Start of New Event\n",KYEL,events[ev[i].type],KWHT);
+		}
+                else if (ev[i].type == EV_KEY && ev[i].code == 330 && ev[i].value == 1)
+		{
+			StartTouch=1;
+                        //printf("Event type is %s%s%s & Event code is %sTOUCH(330)%s & Event value is %s1%s = Touch Starting\n", KYEL,events[ev[i].type],KWHT,KYEL,KWHT,KYEL,KWHT);
+		}
+                else if (ev[i].type == EV_KEY && ev[i].code == 330 && ev[i].value == 0)
+		{
+			//StartTouch=0;
+			//printf("Event type is %s%s%s & Event code is %sTOUCH(330)%s & Event value is %s0%s = Touch Finished\n", KYEL,events[ev[i].type],KWHT,KYEL,KWHT,KYEL,KWHT);
+		}
+                else if (ev[i].type == EV_ABS && ev[i].code == 0 && ev[i].value > 0){
+                        //printf("Event type is %s%s%s & Event code is %sX(0)%s & Event value is %s%d%s\n", KYEL,events[ev[i].type],KWHT,KYEL,KWHT,KYEL,ev[i].value,KWHT);
+			*rawX = ev[i].value;
+		}
+                else if (ev[i].type == EV_ABS  && ev[i].code == 1 && ev[i].value > 0){
+                        //printf("Event type is %s%s%s & Event code is %sY(1)%s & Event value is %s%d%s\n", KYEL,events[ev[i].type],KWHT,KYEL,KWHT,KYEL,ev[i].value,KWHT);
+			*rawY = ev[i].value;
+		}
+                else if (ev[i].type == EV_ABS  && ev[i].code == 24 && ev[i].value > 0){
+                        //printf("Event type is %s%s%s & Event code is %sPressure(24)%s & Event value is %s%d%s\n", KYEL,events[ev[i].type],KWHT,KYEL,KWHT,KYEL,ev[i].value,KWHT);
+			*rawPressure = ev[i].value;
+		}
+		if((*rawX!=-1)&&(*rawY!=-1)&&(StartTouch==1))
+		{
+			/*if(Last_event-mymillis()>500)
+			{
+				Last_event=mymillis();
+				return 1;
+			}*/
+			//StartTouch=0;
+			return 1;
+		}
+
+	}
+	return 0;
+}
+
+void UpdateWindow()
+{
+	int i;
+	for(i=0;i<IndexButtonInArray;i++)
+		DrawButton(i);
+	End();
+}
+
+void SelectInGroup(int StartButton,int StopButton,int NoButton,int Status)
+{
+	int i;
+	for(i=StartButton;i<=StopButton;i++)
+	{
+		if(i==NoButton)
+		 	SetButtonStatus(i,Status);
+		else
+			 SetButtonStatus(i,0);
+	}
+}
+
+void SelectFreq(int NoButton)  //Frequency
+{
+	SelectInGroup(0,4,NoButton,1);
+	strcpy(freqtxt,TabFreq[NoButton-0]);
+	char Param[]="freqoutput";
+        printf("************** Set Frequency = %s\n",freqtxt);
+	SetConfigParam(PATH_CONFIG,Param,freqtxt);
+}
+
+
+void SelectSR(int NoButton)  // Symbol Rate
+{
+	SelectInGroup(5,9,NoButton,1);
+	SR=TabSR[NoButton-5];
+	char Param[]="symbolrate";
+	char Value[255];
+ 	sprintf(Value,"%d",SR);
+        printf("************** Set SR = %s\n",Value);
+ 	SetConfigParam(PATH_CONFIG,Param,Value);
+}
+
+void SelectFec(int NoButton)  // FEC
+{
+	SelectInGroup(10,14,NoButton,1);
+	fec=TabFec[NoButton-10];
+	char Param[]="fec";
+	char Value[255];
+	sprintf(Value,"%d",fec);
+	printf("************** Set FEC = %s\n",Value);
+	SetConfigParam(PATH_CONFIG,Param,Value);
+}
+
+void SelectSource(int NoButton,int Status)  //Input mode
+{
+	SelectInGroup(15,19,NoButton,Status);
+	strcpy(ModeInput,TabModeInput[NoButton-15]);
+	printf("************** Set Input Mode = %s\n",ModeInput);
+	char Param[]="modeinput";
+	SetConfigParam(PATH_CONFIG,Param,ModeInput);
+}
+
+void SelectPTT(int NoButton,int Status)  // TX/RX
+{
+	SelectInGroup(20,21,NoButton,Status);
+}
+
+void TransmitStart()
+{
+	printf("Transmit Start\n");
+
+	#define PATH_SCRIPT_A "sudo /home/pi/rpidatv/scripts/a.sh >/dev/null 2>/dev/null"
+	if((strcmp(ModeInput,TabModeInput[0])==0)||(strcmp(ModeInput,TabModeInput[1])==0)) //CAM
+	{
+		printf("DISPLAY OFF \n");
+		IsDisplayOn=0;
+		finish();
+
+		system("v4l2-ctl --overlay=1 >/dev/null 2>/dev/null");
+	}
+
+	system(PATH_SCRIPT_A);
+
+}
+
+void TransmitStop()
+{
+	printf("Transmit Stop\n");
+	system("sudo /home/pi/rpidatv/bin/adf4351 off");  // Turn the VCO off
+	system("sudo killall rpidatv >/dev/null 2>/dev/null");
+	system("sudo killall ffmpeg >/dev/null 2>/dev/null");
+	system("sudo killall tcanim >/dev/null 2>/dev/null");
+	system("sudo killall avc2ts >/dev/null 2>/dev/null");
+	system("v4l2-ctl --overlay=0 >/dev/null 2>/dev/null");
+
+}
 
 void coordpoint(VGfloat x, VGfloat y, VGfloat size, VGfloat pcolor[4]) {
 	setfill(pcolor);
@@ -145,9 +536,18 @@ void *DisplayFFT(void * arg)
 	fftwf_free(fftout);
 }
 
+void *WaitButtonEvent(void * arg)
+{
+	int rawX, rawY, rawPressure;
+
+	while(getTouchSample(&rawX, &rawY, &rawPressure)==0);
+
+	FinishedButton=1;
+}
+
 void ProcessLeandvb()
 {
-   #define PATH_SCRIPT_LEAN "sudo /home/pi/rpidatv/scripts/leandvb_rx.sh 2>&1"
+   #define PATH_SCRIPT_LEAN "sudo /home/pi/rpidatv/scripts/leandvbgui.sh 2>&1"
    char *line=NULL;
    size_t len = 0;
     ssize_t read;
@@ -161,10 +561,15 @@ void ProcessLeandvb()
 
 	printf("Entering LeandProcess\n");
 	FinishedButton=0;
+// Thread FFT
+
+	pthread_create (&thfft,NULL, &DisplayFFT,NULL);
+
+//END ThreadFFT
 
 // Thread FFT
 
-	//pthread_create (&thbutton,NULL, &WaitButtonEvent,NULL);
+	pthread_create (&thbutton,NULL, &WaitButtonEvent,NULL);
 
 //END ThreadFFT
 
@@ -370,6 +775,127 @@ void ReceiveStop()
 	//system("sudo killall mplayer");
 }
 
+// wait for a specific character 
+void waituntil(int w,int h,int endchar)
+{
+	// int key; not used?
+	int rawX, rawY, rawPressure,i;
+
+	// int Toggle=0; not used
+
+	for (;;)
+	{
+		//Start(w,h);
+		if (getTouchSample(&rawX, &rawY, &rawPressure)==0) continue;
+		printf("x=%d y=%d\n",rawX,rawY);
+		if(IsDisplayOn==0)
+		{
+				printf("Display ON\n");
+				TransmitStop();
+				ReceiveStop();
+				init(&wscreen, &hscreen);
+				Start(wscreen,hscreen);
+				BackgroundRGB(255,255,255,255);
+				IsDisplayOn=1;
+
+				SelectPTT(20,0);
+				SelectPTT(21,0);
+				UpdateWindow();
+				//usleep(500000);
+				continue;
+		}
+	for(i=0;i<IndexButtonInArray;i++)
+	{
+		if(IsButtonPushed(i,rawX,rawY)==1)
+		{
+			printf("Button Event %d\n",i);
+			if((i>=0)&&(i<=4)) //Frequency
+			{
+				SelectFreq(i);
+			}
+			if((i>=5)&&(i<=9)) //SR	
+			{
+				SelectSR(i);
+			}
+			if((i>=10)&&(i<=14)) //FEC
+			{
+				SelectFec(i);
+			}
+			if((i>=15)&&(i<=19)) //Source
+			{
+				SelectSource(i,1);
+			}
+			if((i>=20)&&(i<=21)) //PTT
+			{
+
+				printf("Status %d\n",GetButtonStatus(i));
+				if((i==20)&&(GetButtonStatus(i)==0))
+				{
+					usleep(500000);
+					SelectPTT(i,1);
+					UpdateWindow();
+					TransmitStart();
+					break;
+				}
+				if((i==20)&&(GetButtonStatus(i)==1))
+				{
+					TransmitStop();
+					usleep(500000);
+					SelectPTT(i,0);
+					UpdateWindow();
+					break;
+				}
+				if(i==21)
+				{
+					printf("DISPLAY OFF \n");
+					//finish();
+					BackgroundRGB(0,0,0,255);
+					ReceiveStart();
+					BackgroundRGB(255,255,255,255);
+					IsDisplayOn=1;
+
+					SelectPTT(20,0);
+					SelectPTT(21,0);
+					UpdateWindow();
+					IsDisplayOn=1;
+					//usleep(500000);
+				}
+
+			}
+			if(IsDisplayOn==1)
+			{
+				UpdateWindow();
+	//			DrawButton(i)
+
+	//		End();
+			}
+			/*if((i==0)&&(GetButtonStatus(i)==0))
+			{
+				printf("DISPLAY OFF \n");
+				finish();
+				IsDisplayOn=0;
+			}
+			if((i==0)&&(GetButtonStatus(i)==1))
+			{
+				printf("DISPLAY ON  \n");
+				init(&wscreen, &hscreen);
+				Start(wscreen,hscreen);
+				IsDisplayOn=1;
+				UpdateWindow();
+			}*/
+			//FixMe : Add a Antibounce
+		}
+	}
+	//circleCursor(scaledX,h-scaledY);
+
+
+//        key = getchar();
+  //      if (key == endchar || key == '\n') {
+    //        break;
+     //   }
+    }
+}
+
 static void
 terminate(int dummy)
 {
@@ -396,8 +922,8 @@ int main(int argc, char **argv) {
 	int screenYmax, screenYmin;
 	int ReceiveDirect=0;
 	int i;
-        //char Param[255];
-        //char Value[255];
+        char Param[255];
+        char Value[255];
  
 // Catch sigaction and call terminate
 	for (i = 0; i < 16; i++) {
@@ -408,16 +934,34 @@ int main(int argc, char **argv) {
 		sigaction(i, &sa, NULL);
 	}
 
+// Determine if using waveshare screen
+// Either by first argument or from rpidatvconfig.txt
+	if(argc>1)
+		Inversed=atoi(argv[1]);
+        strcpy(Param,"display");
+
+        GetConfigParam(PATH_CONFIG,Param,Value);
+        if(strcmp(Value,"Waveshare")==0)
+        	Inversed=1;
+
 // Determine if ReceiveDirect 2nd argument 
 	if(argc>2)
 		ReceiveDirect=atoi(argv[2]);
 
 	if(ReceiveDirect==1)
 	{
-		//getTouchScreenDetails(&screenXmin,&screenXmax,&screenYmin,&screenYmax);
+		getTouchScreenDetails(&screenXmin,&screenXmax,&screenYmin,&screenYmax);
 		 ProcessLeandvb(); // For FrMenu and no 
 	}
 
+// Check for presence of touchscreen
+	for(NoDeviceEvent=0;NoDeviceEvent<5;NoDeviceEvent++)
+	{
+		if (openTouchScreen(NoDeviceEvent) == 1)
+		{
+			if(getTouchScreenDetails(&screenXmin,&screenXmax,&screenYmin,&screenYmax)==1) break;
+		}
+	}
 	if(NoDeviceEvent==5) 
 	{
 		perror("No Touchscreen found");
@@ -431,8 +975,246 @@ int main(int argc, char **argv) {
 	//printf ("Y Scale Factor = %f\n", scaleYvalue);
 
 // Define button grid
-	//int wbuttonsize=wscreen/5;
-	//int hbuttonsize=hscreen/6;
+	int wbuttonsize=wscreen/5;
+	int hbuttonsize=hscreen/6;
+
+// Frequency
+
+	int button=AddButton(0*wbuttonsize+20,0+hbuttonsize*0+20,wbuttonsize*0.9,hbuttonsize*0.9);
+	color_t Col;
+	Col.r=0;Col.g=0;Col.b=128;
+	AddButtonStatus(button," 71 MHz ",&Col);
+	Col.r=0;Col.g=128;Col.b=0;
+	AddButtonStatus(button," 71 MHz ",&Col);
+
+	button=AddButton(1*wbuttonsize+20,hbuttonsize*0+20,wbuttonsize*0.9,hbuttonsize*0.9);
+	Col.r=0;Col.g=0;Col.b=128;
+	AddButtonStatus(button,"146.5 MHz",&Col);
+	Col.r=0;Col.g=128;Col.b=0;
+	AddButtonStatus(button,"146.5 MHz",&Col);
+
+	button=AddButton(2*wbuttonsize+20,hbuttonsize*0+20,wbuttonsize*0.9,hbuttonsize*0.9);
+	Col.r=0;Col.g=0;Col.b=128;
+	AddButtonStatus(button,"437 MHz ",&Col);
+	Col.r=0;Col.g=128;Col.b=0;
+	AddButtonStatus(button,"437 MHz ",&Col);
+
+	button=AddButton(3*wbuttonsize+20,hbuttonsize*0+20,wbuttonsize*0.9,hbuttonsize*0.9);
+	Col.r=0;Col.g=0;Col.b=128;
+	AddButtonStatus(button,"1249 MHz",&Col);
+	Col.r=0;Col.g=128;Col.b=0;
+	AddButtonStatus(button,"1249 MHz",&Col);
+
+	button=AddButton(4*wbuttonsize+20,hbuttonsize*0+20,wbuttonsize*0.9,hbuttonsize*0.9);
+	Col.r=0;Col.g=0;Col.b=128;
+	AddButtonStatus(button,"1255 MHz",&Col);
+	Col.r=0;Col.g=128;Col.b=0;
+	AddButtonStatus(button,"1255 MHz",&Col);
+
+// Symbol Rate
+
+	button=AddButton(0*wbuttonsize+20,0+hbuttonsize*1+20,wbuttonsize*0.9,hbuttonsize*0.9);
+	Col.r=0;Col.g=0;Col.b=128;
+	AddButtonStatus(button,"SR 250",&Col);
+	Col.r=0;Col.g=128;Col.b=0;
+	AddButtonStatus(button,"SR 250",&Col);
+
+	button=AddButton(1*wbuttonsize+20,hbuttonsize*1+20,wbuttonsize*0.9,hbuttonsize*0.9);
+	Col.r=0;Col.g=0;Col.b=128;
+	AddButtonStatus(button,"SR 333",&Col);
+	Col.r=0;Col.g=128;Col.b=0;
+	AddButtonStatus(button,"SR 333",&Col);
+
+	button=AddButton(2*wbuttonsize+20,hbuttonsize*1+20,wbuttonsize*0.9,hbuttonsize*0.9);
+	Col.r=0;Col.g=0;Col.b=128;
+	AddButtonStatus(button,"SR 500",&Col);
+	Col.r=0;Col.g=128;Col.b=0;
+	AddButtonStatus(button,"SR 500",&Col);
+
+	button=AddButton(3*wbuttonsize+20,hbuttonsize*1+20,wbuttonsize*0.9,hbuttonsize*0.9);
+	Col.r=0;Col.g=0;Col.b=128;
+	AddButtonStatus(button,"SR1000",&Col);
+	Col.r=0;Col.g=128;Col.b=0;
+	AddButtonStatus(button,"SR1000",&Col);
+
+	button=AddButton(4*wbuttonsize+20,hbuttonsize*1+20,wbuttonsize*0.9,hbuttonsize*0.9);
+	Col.r=0;Col.g=0;Col.b=128;
+	AddButtonStatus(button,"SR2000",&Col);
+	Col.r=0;Col.g=128;Col.b=0;
+	AddButtonStatus(button,"SR2000",&Col);
+
+// FEC
+
+	button=AddButton(0*wbuttonsize+20,hbuttonsize*2+20,wbuttonsize*0.9,hbuttonsize*0.9);
+	Col.r=0;Col.g=0;Col.b=128;
+	AddButtonStatus(button,"FEC 1/2",&Col);
+	Col.r=0;Col.g=128;Col.b=0;
+	AddButtonStatus(button,"FEC 1/2",&Col);
+
+	button=AddButton(1*wbuttonsize+20,hbuttonsize*2+20,wbuttonsize*0.9,hbuttonsize*0.9);
+	Col.r=0;Col.g=0;Col.b=128;
+	AddButtonStatus(button,"FEC 2/3",&Col);
+	Col.r=0;Col.g=128;Col.b=0;
+	AddButtonStatus(button,"FEC 2/3",&Col);
+
+	button=AddButton(2*wbuttonsize+20,hbuttonsize*2+20,wbuttonsize*0.9,hbuttonsize*0.9);
+	Col.r=0;Col.g=0;Col.b=128;
+	AddButtonStatus(button,"FEC 3/4",&Col);
+	Col.r=0;Col.g=128;Col.b=0;
+	AddButtonStatus(button,"FEC 3/4",&Col);
+
+	button=AddButton(3*wbuttonsize+20,hbuttonsize*2+20,wbuttonsize*0.9,hbuttonsize*0.9);
+	Col.r=0;Col.g=0;Col.b=128;
+	AddButtonStatus(button,"FEC 5/6",&Col);
+	Col.r=0;Col.g=128;Col.b=0;
+	AddButtonStatus(button,"FEC 5/6",&Col);
+
+	button=AddButton(4*wbuttonsize+20,hbuttonsize*2+20,wbuttonsize*0.9,hbuttonsize*0.9);
+	Col.r=0;Col.g=0;Col.b=128;
+	AddButtonStatus(button,"FEC 7/8",&Col);
+	Col.r=0;Col.g=128;Col.b=0;
+	AddButtonStatus(button,"FEC 7/8",&Col);
+
+//SOURCE
+
+	button=AddButton(0*wbuttonsize+20,hbuttonsize*3+20,wbuttonsize*0.9,hbuttonsize*0.9);
+	Col.r=0;Col.g=0;Col.b=128;
+	AddButtonStatus(button,"CAM MPEG2",&Col);
+	Col.r=0;Col.g=128;Col.b=0;
+	AddButtonStatus(button,"CAM MPEG2",&Col);
+
+	button=AddButton(1*wbuttonsize+20,hbuttonsize*3+20,wbuttonsize*0.9,hbuttonsize*0.9);
+	Col.r=0;Col.g=0;Col.b=128;
+	AddButtonStatus(button,"CAM H264",&Col);
+	Col.r=0;Col.g=128;Col.b=0;
+	AddButtonStatus(button,"CAM H264",&Col);
+
+	char PictureName[255];
+	//strcpy(PictureName,ImageFolder);
+	GetNextPicture(PictureName);
+
+	button=AddButton(2*wbuttonsize+20,hbuttonsize*3+20,wbuttonsize*0.9,hbuttonsize*0.9);
+	Col.r=0;Col.g=0;Col.b=128;
+	AddButtonStatus(button,"Pattern",&Col);
+	Col.r=0;Col.g=128;Col.b=0;
+	AddButtonStatus(button,"Pattern",&Col);
+
+	button=AddButton(3*wbuttonsize+20,hbuttonsize*3+20,wbuttonsize*0.9,hbuttonsize*0.9);
+	Col.r=0;Col.g=0;Col.b=128;
+	AddButtonStatus(button,"TS File",&Col);
+	Col.r=0;Col.g=128;Col.b=0;
+	AddButtonStatus(button,"TSFile",&Col);
+
+	button=AddButton(4*wbuttonsize+20,hbuttonsize*3+20,wbuttonsize*0.9,hbuttonsize*0.9);
+	Col.r=0;Col.g=0;Col.b=128;
+	AddButtonStatus(button,"Carrier",&Col);
+	Col.r=0;Col.g=128;Col.b=0;
+	AddButtonStatus(button,"Carrier",&Col);
+
+//TRANSMIT
+
+	button=AddButton(0*wbuttonsize+20,hbuttonsize*4+20,wbuttonsize*1.2,hbuttonsize*1.2);
+	Col.r=0;Col.g=0;Col.b=128;
+	AddButtonStatus(button,"TX   ",&Col);
+	Col.r=255;Col.g=0;Col.b=0;
+	AddButtonStatus(button,"TX ON",&Col);
+
+	button=AddButton(1*wbuttonsize*3+20,hbuttonsize*4+20,wbuttonsize*1.2,hbuttonsize*1.2);
+	Col.r=0;Col.g=0;Col.b=128;
+	AddButtonStatus(button,"RX   ",&Col);
+	Col.r=0;Col.g=128;Col.b=0;
+	AddButtonStatus(button,"RX ON",&Col);
+
+	Start(wscreen,hscreen);
+	IsDisplayOn=1;
+
+// Determine button highlights
+
+	// Frequency
+
+ 	strcpy(Param,"freqoutput");
+	GetConfigParam(PATH_CONFIG,Param,Value);
+	strcpy(freqtxt,Value);
+	printf("Value=%s %s\n",Value,"Freq");
+	if(strcmp(Value,"71")==0)
+	{
+	     SelectFreq(0);
+	}
+	if(strcmp(Value,"146.5")==0)
+        {
+             SelectFreq(1);
+        }
+        if(strcmp(Value,"437")==0)
+        {
+             SelectFreq(2);
+        }
+        if(strcmp(Value,"1249")==0)
+        {
+             SelectFreq(3);
+        }
+        if(strcmp(Value,"1255")==0)
+        {
+             SelectFreq(4);
+        }
+
+	// Symbol Rate
+
+	strcpy(Param,"symbolrate");
+	GetConfigParam(PATH_CONFIG,Param,Value);
+	SR=atoi(Value);
+	printf("Value=%s %s\n",Value,"SR");
+	switch(SR)
+	{
+		case 250:SelectSR(5);break;
+		case 333:SelectSR(6);break;
+		case 500:SelectSR(7);break;
+		case 1000:SelectSR(8);break;
+		case 2000:SelectSR(9);break;
+	}
+
+	// FEC
+
+	strcpy(Param,"fec");
+	strcpy(Value,"");
+	GetConfigParam(PATH_CONFIG,Param,Value);
+	printf("Value=%s %s\n",Value,"Fec");
+	fec=atoi(Value);
+	switch(fec)
+	{
+		case 1:SelectFec(10);break;
+		case 2:SelectFec(11);break;
+		case 3:SelectFec(12);break;
+		case 5:SelectFec(13);break;
+		case 7:SelectFec(14);break;
+	}
+
+	// Input Mode
+
+	strcpy(Param,"modeinput");
+	GetConfigParam(PATH_CONFIG,Param,Value);
+	strcpy(ModeInput,Value);
+	printf("Value=%s %s\n",Value,"Input Mode"); //
+	if(strcmp(Value,"CAMH264")==0)
+	{
+	     SelectSource(16,1);
+	}
+	if(strcmp(Value,"CAMMPEG-2")==0)
+	{
+	 	SelectSource(15,1);
+	}
+	if(strcmp(Value,"PATERNAUDIO")==0)
+	{
+	 	SelectSource(17,1);
+	}
+	if(strcmp(Value,"CARRIER")==0)
+	{
+		SelectSource(18,1);
+	}
+
+	UpdateWindow();
+
+
+	printf("Update Window\n");
 
 	// RESIZE JPEG TO BE DONE
 	/*char PictureName[255];
@@ -442,6 +1224,7 @@ int main(int argc, char **argv) {
 	End();
 	*/
 	//ReceiveStart();
+	waituntil(wscreen,hscreen,0x1b);
 	restoreterm();
 	finish();
 	return 0;
