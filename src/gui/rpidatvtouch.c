@@ -6775,7 +6775,7 @@ void *DisplayFFT(void * arg)
   fftwf_plan plan ;
   plan = fftwf_plan_dft_1d(fft_size, fftin, fftout, FFTW_FORWARD, FFTW_ESTIMATE );
 
-  system("mkfifo fifo.iq >/dev/null 2>/dev/null");
+  system("mkfifo fifo.iq");
   printf("Entering FFT thread\n");
   pFileIQ = fopen("fifo.iq", "r");
 
