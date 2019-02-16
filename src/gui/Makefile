@@ -55,6 +55,7 @@ tcanim1v16: tcanim1v16.c
 install:
 	install -m 755 -p font2openvg /usr/bin/
 	cp rpidatvgui ../../bin/
+	cp rx_gpio ../../bin/
 	cp tcanim ../../bin
 	cp tcanim1v16 ../../bin
 	install -m 755 -p libshapes.so /usr/lib/libshapes.so.1.0.0
