@@ -4,7 +4,7 @@ LIBFLAGS=-L/opt/vc/lib -lbrcmEGL -lbrcmGLESv2 -ljpeg
 FONTLIB=/usr/share/fonts/truetype/ttf-dejavu
 FONTFILES=DejaVuSans.inc  DejaVuSansMono.inc DejaVuSerif.inc
 FFT_C = ./hello_fft/mailbox.c ./hello_fft/gpu_fft.c ./hello_fft/gpu_fft_base.c ./hello_fft/gpu_fft_twiddles.c ./hello_fft/gpu_fft_shaders.c
-all:	font2openvg fonts library rpidatvtouch tcanim tcanim1v16
+all:	font2openvg fonts library rpidatvtouch rx_gpio tcanim tcanim1v16
 
 libshapes.o:	libshapes.c shapes.h fontinfo.h fonts 
 	gcc -O2 -Wall $(INCLUDEFLAGS) -c libshapes.c
