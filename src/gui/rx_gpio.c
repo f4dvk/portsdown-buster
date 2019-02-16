@@ -93,7 +93,7 @@ pthread_t thfft,thbutton;
  * @param Value the looked-up value of the parameter
  *
  * @return void
-*******************************************************************************/}
+*******************************************************************************/
 
 int mymillis()
 {
@@ -161,11 +161,6 @@ void ProcessLeandvb()
 
 	printf("Entering LeandProcess\n");
 	FinishedButton=0;
-// Thread FFT
-
-	pthread_create (&thfft,NULL, &DisplayFFT,NULL);
-
-//END ThreadFFT
 
 // Thread FFT
 
@@ -423,14 +418,6 @@ int main(int argc, char **argv) {
 		 ProcessLeandvb(); // For FrMenu and no 
 	}
 
-// Check for presence of touchscreen
-	for(NoDeviceEvent=0;NoDeviceEvent<5;NoDeviceEvent++)
-	{
-		if (openTouchScreen(NoDeviceEvent) == 1)
-		{
-			if(getTouchScreenDetails(&screenXmin,&screenXmax,&screenYmin,&screenYmax)==1) break;
-		}
-	}
 	if(NoDeviceEvent==5) 
 	{
 		perror("No Touchscreen found");
@@ -455,7 +442,6 @@ int main(int argc, char **argv) {
 	End();
 	*/
 	//ReceiveStart();
-	waituntil(wscreen,hscreen,0x1b);
 	restoreterm();
 	finish();
 	return 0;
