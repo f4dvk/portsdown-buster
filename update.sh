@@ -180,6 +180,10 @@ cp -f -r portsdown_DVK-master/video rpidatv
 cp -f -r portsdown_DVK-master/version_history.txt rpidatv/version_history.txt
 rm master.zip
 rm -rf portsdown_DVK-master
+cd /home/pi/rpidatv/scripts
+chmod +x rpibutton_rx.sh
+chmod +x rpibutton_tx.sh
+chmod +x leandvb_rx.sh
 cd /home/pi
 
 # Check which avc2ts to download.  Default is production
