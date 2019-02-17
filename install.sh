@@ -75,6 +75,10 @@ fi
 unzip -o master.zip
 mv portsdown_DVK-master rpidatv
 rm master.zip
+cd /home/pi/rpidatv/scripts
+chmod +x rpibutton_rx.sh
+chmod +x rpibutton_tx.sh
+chmod +x leandvb_rx.sh
 cd /home/pi
 
 # Check which avc2ts to download.  Default is production
