@@ -424,6 +424,9 @@ make
 cp -f /home/pi/rpidatv/src/xy/xy /home/pi/rpidatv/bin/xy
 cd /home/pi
 
+# Remove fifo.iq
+sudo rm fifo.iq
+
 # Always auto-logon and run .bashrc (and hence startup.sh) (20180729)
 sudo ln -fs /etc/systemd/system/autologin@.service\
  /etc/systemd/system/getty.target.wants/getty@tty1.service
