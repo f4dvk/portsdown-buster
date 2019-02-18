@@ -10367,17 +10367,25 @@ void waituntil(int w,int h)
           UpdateWindow();
           SetConfigParam(PATH_RXPRESETS, "rx0parameters", RXparams[0]);
           break;
-        case 21:                       // RX
-          if(CheckRTL()==0)
+        case 21: // RX
+	  GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY)
+          if ((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))
           {
             BackgroundRGB(0,0,0,255);
             Start(wscreen,hscreen);
             ReceiveStart2();
             break;
           }
+	  if ((strcmp(ModeOutput, "LIMEMINI") == 0) && (CheckLimeMiniConnect() == 0))
+	  {
+	    BackgroundRGB(0,0,0,255);
+            Start(wscreen,hscreen);
+            ReceiveStart2();
+            break;
+	  }
           else
           {
-            MsgBox("No RTL-SDR Connected");
+            MsgBox("No RX Key Connected");
             wait_touch();
             BackgroundRGB(0, 0, 0, 255);
             UpdateWindow();
@@ -15618,8 +15626,8 @@ void Define_Menu39()
   AddButtonStatus(button,"RTL-SDR",&Grey);
 
   button = CreateButton(39, 6);
-//  AddButtonStatus(button,"Lime Mini",&Blue);
-//  AddButtonStatus(button,"Lime Mini",&Green);
+  AddButtonStatus(button,"Lime Mini",&Blue);
+  AddButtonStatus(button,"Lime Mini",&Green);
   AddButtonStatus(button,"Lime Mini",&Grey);
 
   button = CreateButton(39, 7);
@@ -15635,6 +15643,10 @@ void Define_Menu39()
 
 void Start_Highlights_Menu39()
 {
+  if (CheckLimeMiniConnect() == 1)  // Lime Mini not connected so GreyOut
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 6), 2); // Lime Mini
+  }  
 }
 
 void Define_Menu42()
