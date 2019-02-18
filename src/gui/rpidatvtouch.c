@@ -10225,6 +10225,7 @@ void waituntil(int w,int h)
       {
         printf("Button Event %d, Entering Menu 5 Case Statement\n",i);
         CallingMenu = 5;
+	GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY);
 
         // Clear RX Preset store trigger if not a preset
         if ((i > 3) && (RXStoreTrigger == 1))
@@ -10375,15 +10376,15 @@ void waituntil(int w,int h)
           SetConfigParam(PATH_RXPRESETS, "rx0parameters", RXparams[0]);
           break;
         case 21: // RX
-	  GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY);
-          if (("$RXKEY" == "RTLSDR") && (CheckRTL()==0))
+	  //GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY);
+          if ((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))
           {
             BackgroundRGB(0,0,0,255);
             Start(wscreen,hscreen);
             ReceiveStart2();
             break;
           }
-	  if (("$RXKEY" == "LIMEMINI") && (CheckLimeMiniConnect() == 0))
+	  if ((strcmp(RXKEY, "LIMEMINI") == 0) && (CheckLimeMiniConnect() == 0))
 	  {
 	    BackgroundRGB(0,0,0,255);
             Start(wscreen,hscreen);
