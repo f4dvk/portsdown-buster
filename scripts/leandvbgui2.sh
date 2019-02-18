@@ -60,6 +60,14 @@ MODULATION=$(get_config_var rx0modulation $RXPRESETSFILE)
 ENCODING=$(get_config_var rx0encoding $RXPRESETSFILE)
 
 SDR=$(get_config_var rx0sdr $RXPRESETSFILE)
+if [ "$SDR" = "RTLSDR"]; then
+  KEY="sudo rtl_sdr -p $FREQOFFSET -g $GAIN -f $FreqHz -s $SR_RTLSDR - 2>/dev/null "
+  B=""
+if [ "$SDR" = "LIMEMINI"]; then
+  SR_RTLSDR=2000000
+  KEY="sudo /home/pi/rpidatv/bin/limsdr_dump -f $FreqHz -s $SR_RTLSDR -b 5e6 -s $SR_RTLSDR -g 1 |buffer"
+  B="--s16"
+fi
 
 GRAPHICS=$(get_config_var rx0graphics $RXPRESETSFILE)
 
@@ -99,26 +107,26 @@ sudo fbi -T 1 -noverbose -a $PATHSCRIPT"/images/Blank_Black.png"
 
 # Constellation and Parameters on
 if [ "$GRAPHICS" = "ON" ] && [ "$PARAMS" = "ON" ]; then
-  sudo rtl_sdr -p $FREQOFFSET -g $GAIN -f $FreqHz -s $SR_RTLSDR - 2>/dev/null \
-    | $PATHBIN"leandvb" --fd-pp 3 --fd-info 2 --fd-const 2 --cr $FECNUM"/"$FECDEN $FASTLOCK --sr $SYMBOLRATE -f $SR_RTLSDR >videots 3>fifo.iq &
+  $KEY\
+    | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 --cr $FECNUM"/"$FECDEN $FASTLOCK --sr $SYMBOLRATE -f $SR_RTLSDR >videots 3>fifo.iq &
 fi
 
 # Constellation on, Parameters off
 if [ "$GRAPHICS" = "ON" ] && [ "$PARAMS" = "OFF" ]; then
-  sudo rtl_sdr -p $FREQOFFSET -g $GAIN -f $FreqHz -s $SR_RTLSDR - 2>/dev/null \
-    | $PATHBIN"leandvb" --fd-pp 3 --fd-const 2 --cr $FECNUM"/"$FECDEN $FASTLOCK --sr $SYMBOLRATE -f $SR_RTLSDR >videots 3>fifo.iq &
+  $KEY\
+    | $PATHBIN"leandvb" $B --fd-pp 3 --fd-const 2 --cr $FECNUM"/"$FECDEN $FASTLOCK --sr $SYMBOLRATE -f $SR_RTLSDR >videots 3>fifo.iq &
 fi
 
 # Constellation off, Parameters on
 if [ "$GRAPHICS" = "OFF" ] && [ "$PARAMS" = "ON" ]; then
-  sudo rtl_sdr -p $FREQOFFSET -g $GAIN -f $FreqHz -s $SR_RTLSDR - 2>/dev/null \
-    | $PATHBIN"leandvb" --fd-pp 3 --fd-info 2 --fd-const 2 --cr $FECNUM"/"$FECDEN $FASTLOCK --sr $SYMBOLRATE -f $SR_RTLSDR >videots 3>fifo.iq &
+  $KEY\
+    | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 --cr $FECNUM"/"$FECDEN $FASTLOCK --sr $SYMBOLRATE -f $SR_RTLSDR >videots 3>fifo.iq &
 fi
 
 # Constellation and Parameters off
 if [ "$GRAPHICS" = "OFF" ] && [ "$PARAMS" = "OFF" ]; then
-  sudo rtl_sdr -p $FREQOFFSET -g $GAIN -f $FreqHz -s $SR_RTLSDR - 2>/dev/null \
-    | $PATHBIN"leandvb" --cr $FECNUM"/"$FECDEN $FASTLOCK --sr $SYMBOLRATE -f $SR_RTLSDR >videots 3>/dev/null &
+  $KEY\
+    | $PATHBIN"leandvb" $B --cr $FECNUM"/"$FECDEN $FASTLOCK --sr $SYMBOLRATE -f $SR_RTLSDR >videots 3>/dev/null &
 fi
 
 # read videots and output video es
