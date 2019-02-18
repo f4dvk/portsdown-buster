@@ -218,6 +218,7 @@ int RXStoreTrigger = 0;     // Set to 1 if ready to store RX preset
 int FinishedButton2 = 1;    // Used to control FFT
 fftwf_complex *fftout=NULL; // FFT for RX
 #define FFT_SIZE 256        // for RX display
+char RXKEY[256];
 
 // Stream Display Parameters. [0] is current
 char StreamAddress[9][127];  // Full rtmp address of stream
@@ -7572,7 +7573,6 @@ void ReceiveStart2()
 
 void ReceiveStop()
 {
-  char RXKEY[256];
   GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY);
   system("sudo killall leandvb >/dev/null 2>/dev/null");
   system("sudo killall -9 hello_video.bin >/dev/null 2>/dev/null");
@@ -10375,7 +10375,6 @@ void waituntil(int w,int h)
           SetConfigParam(PATH_RXPRESETS, "rx0parameters", RXparams[0]);
           break;
         case 21: // RX
-	  char RXKEY[256];
 	  GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY);
           if ((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))
           {
