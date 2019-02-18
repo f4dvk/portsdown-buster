@@ -7572,9 +7572,15 @@ void ReceiveStart2()
 
 void ReceiveStop()
 {
+  GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY);
   system("sudo killall leandvb >/dev/null 2>/dev/null");
   system("sudo killall -9 hello_video.bin >/dev/null 2>/dev/null");
   system("sudo killall -9 hello_video2.bin >/dev/null 2>/dev/null");
+  if ((strcmp(RXKEY, "LIMEMINI") == 0)
+  {
+     system("sudo killall limesdr_dump >/dev/null 2>/dev/null");
+     system("/home/pi/rpidatv/bin/limesdr_stopchannel");
+  }
   printf("Receive Stop\n");
 }
 
@@ -10368,7 +10374,7 @@ void waituntil(int w,int h)
           SetConfigParam(PATH_RXPRESETS, "rx0parameters", RXparams[0]);
           break;
         case 21: // RX
-	  GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY)
+	  GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY);
           if ((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))
           {
             BackgroundRGB(0,0,0,255);
