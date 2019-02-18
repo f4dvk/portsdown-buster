@@ -60,15 +60,6 @@ MODULATION=$(get_config_var rx0modulation $RXPRESETSFILE)
 ENCODING=$(get_config_var rx0encoding $RXPRESETSFILE)
 
 SDR=$(get_config_var rx0sdr $RXPRESETSFILE)
-if [ "$SDR" = "RTLSDR"]; then
-  KEY="sudo rtl_sdr -p $FREQOFFSET -g $GAIN -f $FreqHz -s $SR_RTLSDR - 2>/dev/null "
-  B=""
-fi
-if [ "$SDR" = "LIMEMINI"]; then
-  SR_RTLSDR=2000000
-  KEY="sudo /home/pi/rpidatv/bin/limesdr_dump -f $FreqHz -s $SR_RTLSDR -b 5e6 -s $SR_RTLSDR -g 1 |buffer"
-  B="--s16"
-fi
 
 GRAPHICS=$(get_config_var rx0graphics $RXPRESETSFILE)
 
@@ -85,6 +76,16 @@ fi
 
 # Look up the RTL-SDR Frequency error from the RTL-FM file
 FREQOFFSET=$(get_config_var roffset $RTLPRESETSFILE)
+
+if [ "$SDR" = "RTLSDR"]; then
+  KEY="sudo rtl_sdr -p $FREQOFFSET -g $GAIN -f $FreqHz -s $SR_RTLSDR - 2>/dev/null "
+  B=""
+fi
+if [ "$SDR" = "LIMEMINI"]; then
+  SR_RTLSDR=2000000
+  KEY="sudo /home/pi/rpidatv/bin/limesdr_dump -f $FreqHz -s $SR_RTLSDR -b 5e6 -s $SR_RTLSDR -g 1 |buffer"
+  B="--s16"
+fi
 
 # Clean up
 #sudo rm fifo.264 >/dev/null 2>/dev/null
