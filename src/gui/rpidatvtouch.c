@@ -10376,14 +10376,14 @@ void waituntil(int w,int h)
           break;
         case 21: // RX
 	  GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY);
-          if ((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))
+          if (("$RXKEY" == "RTLSDR") && (CheckRTL()==0))
           {
             BackgroundRGB(0,0,0,255);
             Start(wscreen,hscreen);
             ReceiveStart2();
             break;
           }
-	  if ((strcmp(ModeOutput, "LIMEMINI") == 0) && (CheckLimeMiniConnect() == 0))
+	  if (("$RXKEY" == "LIMEMINI") && (CheckLimeMiniConnect() == 0))
 	  {
 	    BackgroundRGB(0,0,0,255);
             Start(wscreen,hscreen);
