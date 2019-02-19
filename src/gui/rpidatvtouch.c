@@ -11849,7 +11849,7 @@ void waituntil(int w,int h)
           SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 0); // Reset cancel (even if not selected)
           printf("Returning to MENU 1 from Menu 39\n");
           CurrentMenu=1;
-          BackgroundRGB(255,255,255,255);
+          BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu1();
           UpdateWindow();
           break;
@@ -11857,7 +11857,7 @@ void waituntil(int w,int h)
           SetConfigParam(PATH_RXPRESETS, "rx0sdr", "RTLSDR");
           printf("RTLSDR\n");
 	  CurrentMenu=5;
-	  BackgroundRGB(255,255,255,255);
+	  BackgroundRGB(0,0,0,255);
 	  Start_Highlights_Menu5();
 	  UpdateWindow();
           break;
