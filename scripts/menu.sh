@@ -1522,16 +1522,16 @@ do_rx_select()
   
   case "$RXKEY" in
    RTLSDR)
-    RADIO1=ON
-    RADION2=OFF
+    Radio1=ON
+    Radio2=OFF
    ;;
    LIMEMINI)
-    RADIO1=OFF
-    RADIO2=ON
+    Radio1=OFF
+    Radio2=ON
    ;;
    *)
-    RADIO1=ON
-    RADIO2=OFF
+    Radio1=ON
+    Radio2=OFF
    ;;
    esac
    RXKEY=$(whiptail --title "RX Key Select" --radiolist \
