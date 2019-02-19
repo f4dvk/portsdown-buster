@@ -11865,7 +11865,7 @@ void waituntil(int w,int h)
           SetConfigParam(PATH_RXPRESETS, "rx0sdr", "LIMEMINI");
           printf("LIMEMINI\n");
 	  CurrentMenu=5;
-	  BackgroundRGB(255,255,255,255);
+	  BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu5();
 	  UpdateWindow();
           break;
