@@ -11858,14 +11858,12 @@ void waituntil(int w,int h)
           printf("RTLSDR\n");
 	  CurrentMenu=5;
 	  Start_Highlights_Menu5();
-	  UpdateWindow();
           break;
         case 6:                               // LIMEMINI
           SetConfigParam(PATH_RXPRESETS, "rx0sdr", "LIMEMINI");
           printf("LIMEMINI\n");
 	  CurrentMenu=5;
           Start_Highlights_Menu5();
-	  UpdateWindow();
           break;
         default:
           printf("Menu 39 Error\n");
