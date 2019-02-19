@@ -46,14 +46,13 @@ else
 fi
 #SR_RTLSDR=1024000
 
-if [ "$SDR" = "RTLSDR"]; then
+if [ "$SDR" = "RTLSDR" ]; then
   KEY="sudo rtl_sdr -p 0 -g 0 -f $FreqHz -s $SR_RTLSDR - 2>/dev/null "
   B=""
 fi
-if [ "$SDR" = "LIMEMINI"]; then
-  SR_RTLSDR=2000000
+if [ "$SDR" = "LIMEMINI" ]; then
   KEY="sudo /home/pi/rpidatv/bin/limesdr_dump -f $FreqHz -b 5e6 -s $SR_RTLSDR -g 1 |buffer"
-  B="--s16"
+  B="--s12"
 fi
 
 sudo killall -9 hello_video.bin
