@@ -1527,7 +1527,7 @@ do_rx_select()
    ;;
    LIMEMINI)
     RADIO1=OFF
-    RADIO2=OFF
+    RADIO2=ON
    ;;
    *)
     RADIO1=ON
