@@ -11855,11 +11855,11 @@ void waituntil(int w,int h)
           break;
 	case 5:                               // RTLSDR
           SetConfigParam(PATH_RXPRESETS, "rx0sdr", "RTLSDR");
-          //printf("RTLSDR\n");
+          printf("RTLSDR\n");
           break;
         case 6:                               // LIMEMINI
           SetConfigParam(PATH_RXPRESETS, "rx0sdr", "LIMEMINI");
-          //printf("LIMEMINI\n");
+          printf("LIMEMINI\n");
           break;
         default:
           printf("Menu 39 Error\n");
