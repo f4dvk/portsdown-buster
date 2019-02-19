@@ -11856,6 +11856,7 @@ void waituntil(int w,int h)
 	case 5:                               // RTLSDR
           SetConfigParam(PATH_RXPRESETS, "rx0sdr", "RTLSDR");
           printf("RTLSDR\n");
+	  strcpy(RXsdr[0], "RTLSDR");
 	  CurrentMenu=5;
 	  BackgroundRGB(0,0,0,255);
 	  Start_Highlights_Menu5();
@@ -11863,7 +11864,7 @@ void waituntil(int w,int h)
           break;
         case 6:                               // LIMEMINI
           SetConfigParam(PATH_RXPRESETS, "rx0sdr", "LIMEMINI");
-          printf("LIMEMINI\n");
+          strcpy(RXsdr[0], "LIMEMINI");
 	  CurrentMenu=5;
 	  BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu5();
