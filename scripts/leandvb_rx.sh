@@ -25,6 +25,8 @@ EOF
 
 SYMBOLRATEK=$(get_config_var rx0sr $RXPRESETSFILE)
 FREQ_OUTPUT=$(get_config_var rx0frequency $RXPRESETSFILE)
+SDR=$(get_config_var rx0sdr $RXPRESETSFILE)
+MODULATION=$(get_config_var rx0modulation $RXPRESETSFILE)
 FEC=$(get_config_var rx0fec $RXPRESETSFILE)
 let FECNUM=FEC
 let FECDEN=FEC+1
@@ -44,6 +46,16 @@ else
 fi
 #SR_RTLSDR=1024000
 
+if [ "$SDR" = "RTLSDR"]; then
+  KEY="sudo rtl_sdr -p 0 -g 0 -f $FreqHz -s $SR_RTLSDR - 2>/dev/null "
+  B=""
+fi
+if [ "$SDR" = "LIMEMINI"]; then
+  SR_RTLSDR=2000000
+  KEY="sudo /home/pi/rpidatv/bin/limesdr_dump -f $FreqHz -b 5e6 -s $SR_RTLSDR -g 1 |buffer"
+  B="--s16"
+fi
+
 sudo killall -9 hello_video.bin
 sudo killall leandvb
 sudo killall ts2es
@@ -57,7 +69,7 @@ sudo fbi -T 1 -noverbose -a $PATHSCRIPT"/images/Blank_Black.png"
 
 #--fd-pp 3 
 #sudo rtl_sdr -p 20 -g 30 -f $FreqHz -s $SR_RTLSDR - 2>/dev/null | $PATHBIN"leandvb"  --cr $FECNUM"/"$FECDEN --sr $SYMBOLRATE -f $SR_RTLSDR 2>/dev/null |buffer| $PATHBIN"ts2es" -video -stdin fifo.264 &
-sudo rtl_sdr -p 0 -g 0 -f $FreqHz -s $SR_RTLSDR - 2>/dev/null | $PATHBIN"leandvb"  --fd-pp 3 --fd-info 2 --fd-const 2  --cr $FECNUM"/"$FECDEN --fastlock --sr $SYMBOLRATE -f $SR_RTLSDR  3>fifo.iq | $PATHBIN"ts2es" -video -stdin fifo.264 & 
+$KEY| $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2  --cr $FECNUM"/"$FECDEN --fastlock --sr $SYMBOLRATE -f $SR_RTLSDR  3>fifo.iq | $PATHBIN"ts2es" -video -stdin fifo.264 & 
 #sudo rtl_sdr -p 20 -g 40 -f $FreqHz -s $SR_RTLSDR - 2>/dev/null | $PATHBIN"leandvb"  -- --gui -d --cr $FECNUM"/"$FECDEN --sr $SYMBOLRATE -f $SR_RTLSDR  |buffer| $PATHBIN"ts2es" -video -stdin fifo.264 &
 #sudo rtl_sdr  -p 20 -g 30 -f 650000000 -s 1024000 - 2>/dev/null | $PATHBIN"leandvb"  --filter --gui -d --cr 7/8 --sr 250000 -f 1024000 | $PATHBIN"ts2es" -video -stdin fifo.264 &
 #sudo rtl_sdr -p 20 -g 30 -f 650000000 -s 1024000 - 2>/dev/null | $PATHBIN"leandvb"  --filter --gui -d --cr 7/8 --sr 250000 -f 1024000 > file.ts
