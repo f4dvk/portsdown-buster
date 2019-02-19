@@ -1515,6 +1515,34 @@ do_receive_menu()
   esac
 }
 
+do_rx_select()
+{
+  RXKEY=$(get_config_var rx0sdr $RXPRESETSFILE)
+  
+  case "$RXKEY" in
+   RTLSDR)
+    RADIO1=ON
+    RADION2=OFF
+   ;;
+   LIMEMINI
+    RADIO1=OFF
+    RADIO2=OFF
+   ;;
+   *)
+    RADIO1=ON
+    RADIO2=OFF
+   ;;
+   esac
+   RXKEY=$(whiptail --title "RX Key Select" --radiolist \
+		"RX Key" 20 78 2 \
+		"RTLSDR" "" $Radio1 \
+		"LIMEMINI" "" $Radio2 3>&2 2>&1 1>&3)
+
+ if [ $? -eq 0 ]; then
+	set_config_var rx0sdr "$RXKEY" $RXPRESETSFILE
+fi
+}
+
 do_autostart_setup()
 {
   MODE_STARTUP=$(get_config_var startup $PCONFIGFILE)
@@ -1574,7 +1602,7 @@ do_autostart_setup()
   esac
 
   chstartup=$(whiptail --title "$StrAutostartSetupTitle" --radiolist \
-   "$StrAutostartSetupContext" 20 78 11 \
+   "$StrAutostartSetupContext" 20 78 12 \
    "Prompt" "$AutostartSetupPrompt" $Radio1 \
    "Console" "$AutostartSetupConsole" $Radio2 \
    "TX_boot" "$AutostartSetupTX_boot" $Radio3 \
@@ -1591,6 +1619,11 @@ do_autostart_setup()
 
   if [ $? -eq 0 ]; then
      set_config_var startup "$chstartup" $PCONFIGFILE
+     case "$chstartup" in
+     Button_rx_boot)
+      do_rx_select
+     ;;
+     esac
   fi
 
   # Allow user to set stream for display if required
