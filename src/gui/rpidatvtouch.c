@@ -11856,12 +11856,14 @@ void waituntil(int w,int h)
 	case 5:                               // RTLSDR
           SetConfigParam(PATH_RXPRESETS, "rx0sdr", "RTLSDR");
           printf("RTLSDR\n");
+	  CurrentMenu=5;
 	  Start_Highlights_Menu5();
 	  UpdateWindow();
           break;
         case 6:                               // LIMEMINI
           SetConfigParam(PATH_RXPRESETS, "rx0sdr", "LIMEMINI");
           printf("LIMEMINI\n");
+	  CurrentMenu=5;
           Start_Highlights_Menu5();
 	  UpdateWindow();
           break;
