@@ -77,11 +77,11 @@ fi
 # Look up the RTL-SDR Frequency error from the RTL-FM file
 FREQOFFSET=$(get_config_var roffset $RTLPRESETSFILE)
 
-if [ "$SDR" = "RTLSDR"]; then
-  KEY="rtl_sdr -p $FREQOFFSET -g $GAIN -f $FreqHz -s $SR_RTLSDR - 2>/dev/null"
+if [ "$SDR" = "RTLSDR" ]; then
+  KEY="rtl_sdr -p $FREQOFFSET -g $GAIN -f $FreqHz -s $SR_RTLSDR - 2>/dev/null "
   B=""
 fi
-if [ "$SDR" = "LIMEMINI"]; then
+if [ "$SDR" = "LIMEMINI" ]; then
   SR_RTLSDR=2000000
   KEY="/home/pi/rpidatv/bin/limesdr_dump -f $FreqHz -b 5e6 -s $SR_RTLSDR -g 1 |buffer"
   B="--s16"
@@ -109,25 +109,25 @@ sudo fbi -T 1 -noverbose -a $PATHSCRIPT"/images/Blank_Black.png"
 
 # Constellation and Parameters on
 if [ "$GRAPHICS" = "ON" ] && [ "$PARAMS" = "ON" ]; then
-  sudo $KEY \
+  sudo $KEY\
     | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 --cr $FECNUM"/"$FECDEN $FASTLOCK --sr $SYMBOLRATE -f $SR_RTLSDR >videots 3>fifo.iq &
 fi
 
 # Constellation on, Parameters off
 if [ "$GRAPHICS" = "ON" ] && [ "$PARAMS" = "OFF" ]; then
-  sudo $KEY \
+  sudo $KEY\
     | $PATHBIN"leandvb" $B --fd-pp 3 --fd-const 2 --cr $FECNUM"/"$FECDEN $FASTLOCK --sr $SYMBOLRATE -f $SR_RTLSDR >videots 3>fifo.iq &
 fi
 
 # Constellation off, Parameters on
 if [ "$GRAPHICS" = "OFF" ] && [ "$PARAMS" = "ON" ]; then
-  sudo $KEY \
+  sudo $KEY\
     | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 --cr $FECNUM"/"$FECDEN $FASTLOCK --sr $SYMBOLRATE -f $SR_RTLSDR >videots 3>fifo.iq &
 fi
 
 # Constellation and Parameters off
 if [ "$GRAPHICS" = "OFF" ] && [ "$PARAMS" = "OFF" ]; then
-  sudo $KEY \
+  sudo $KEY\
     | $PATHBIN"leandvb" $B --cr $FECNUM"/"$FECDEN $FASTLOCK --sr $SYMBOLRATE -f $SR_RTLSDR >videots 3>/dev/null &
 fi
 
