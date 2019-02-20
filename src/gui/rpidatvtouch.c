@@ -11864,7 +11864,7 @@ void waituntil(int w,int h)
           break;
         case 6:                               // LIMEMINI
           SetConfigParam(PATH_RXPRESETS, "rx0sdr", "LIMEMINI");
-          strcpy(RXsdr[0], "Lime mini");
+          strcpy(RXsdr[0], "Lime Mini");
 	  CurrentMenu=5;
 	  BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu5();
