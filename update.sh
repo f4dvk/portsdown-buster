@@ -274,6 +274,17 @@ make
 cp adf4351 ../../bin/
 cd /home/pi
 
+#install leandvb DVB-S2 work
+cd /home/pi/rpidatv/src/
+sudo rm -fr leansdr
+wget https://github.com/pabr/leansdr/archive/work.zip
+unzip master.zip
+mv leansdr-work leansdr
+rm work.zip
+cd leansdr/src/apps
+make
+cp leandvb ../../../../bin/
+
 #install H264 Decoder : hello_video
 #compile ilcomponet first
 cd /opt/vc/src/hello_pi/
