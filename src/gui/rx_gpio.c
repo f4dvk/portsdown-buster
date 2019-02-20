@@ -73,6 +73,7 @@ int fec;
 int SR;
 char ModeInput[255];
 char freqtxt[255];
+char RXKEY[256];
 
 // Values to be stored in and read from rpidatvconfig.txt:
 
