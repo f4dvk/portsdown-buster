@@ -11854,6 +11854,8 @@ void waituntil(int w,int h)
           UpdateWindow();
           break;
 	case 5:                               // RTLSDR
+	 if (CheckRTL()==0)
+	 {
           SetConfigParam(PATH_RXPRESETS, "rx0sdr", "RTLSDR");
           printf("RTLSDR\n");
 	  strcpy(RXsdr[0], "RTL-SDR");
@@ -11861,14 +11863,18 @@ void waituntil(int w,int h)
 	  BackgroundRGB(0,0,0,255);
 	  Start_Highlights_Menu5();
 	  UpdateWindow();
+	 }
           break;
         case 6:                               // LIMEMINI
+	 if (CheckLimeMiniConnect() == 0)
+	 {
           SetConfigParam(PATH_RXPRESETS, "rx0sdr", "LIMEMINI");
           strcpy(RXsdr[0], "Lime Mini");
 	  CurrentMenu=5;
 	  BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu5();
 	  UpdateWindow();
+	 }
           break;
         default:
           printf("Menu 39 Error\n");
