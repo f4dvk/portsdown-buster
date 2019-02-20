@@ -11856,7 +11856,7 @@ void waituntil(int w,int h)
 	case 5:                               // RTLSDR
           SetConfigParam(PATH_RXPRESETS, "rx0sdr", "RTLSDR");
           printf("RTLSDR\n");
-	  strcpy(RXsdr[0], "RTLSDR");
+	  strcpy(RXsdr[0], "RTL-SDR");
 	  CurrentMenu=5;
 	  BackgroundRGB(0,0,0,255);
 	  Start_Highlights_Menu5();
@@ -11864,7 +11864,7 @@ void waituntil(int w,int h)
           break;
         case 6:                               // LIMEMINI
           SetConfigParam(PATH_RXPRESETS, "rx0sdr", "LIMEMINI");
-          strcpy(RXsdr[0], "LIMEMINI");
+          strcpy(RXsdr[0], "Lime mini");
 	  CurrentMenu=5;
 	  BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu5();
@@ -15671,7 +15671,33 @@ void Start_Highlights_Menu39()
   if (CheckLimeMiniConnect() == 1)  // Lime Mini not connected so GreyOut
   {
     SetButtonStatus(ButtonNumber(CurrentMenu, 6), 2); // Lime Mini
-  }  
+  }
+
+  if ((CheckLimeMiniConnect() == 0)  && (strcmp(RXKEY, "LIMEMINI") == 0))// Lime Mini
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 6), 1); // Lime Mini
+  }
+
+  if ((CheckLimeMiniConnect() == 0)  && (strcmp(RXKEY, "LIMEMINI") != 0))// Lime Mini
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 6), 0); // Lime Mini
+  }
+
+  if (CheckRTL()==1)  // RTLSDR not connected so GreyOut
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 2); // RTLSDR
+  }
+	
+  if ((CheckRTL()==0)  && (strcmp(RXKEY, "RTLSDR") == 0))// RTLSDR 
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 1); // RTLSDR
+  }
+	
+  if ((CheckRTL()==0)  && (strcmp(RXKEY, "RTLSDR") != 0))// RTLSDR 
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0); // RTLSDR
+  }
+
 }
 
 void Define_Menu42()
