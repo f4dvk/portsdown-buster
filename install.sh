@@ -162,12 +162,12 @@ make && sudo make install && sudo ldconfig
 sudo bash -c 'echo -e "\n# for RTL-SDR:\nblacklist dvb_usb_rtl28xxu\n" >> /etc/modprobe.d/blacklist.conf'
 cd ../../
 
-# Get leandvb
+# Get leandvb // DVB-S / DVB-S2 version
 cd /home/pi/rpidatv/src
-wget https://github.com/pabr/leansdr/archive/master.zip
-unzip master.zip
-mv leansdr-master leansdr
-rm master.zip
+wget https://github.com/pabr/leansdr/archive/work.zip
+unzip work.zip
+mv leansdr-work leansdr
+rm work.zip
 
 # Compile leandvb
 cd leansdr/src/apps
