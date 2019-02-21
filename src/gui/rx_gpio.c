@@ -33,6 +33,7 @@
 #define KYEL  "\x1B[33m"
 
 #define PATH_CONFIG "/home/pi/rpidatv/scripts/portsdown_config.txt"
+#define PATH_RXPRESETS "/home/pi/rpidatv/scripts/rx_presets.txt"
 char ImageFolder[]="/home/pi/rpidatv/image/";
 
 int fd=0;
@@ -72,6 +73,7 @@ int fec;
 int SR;
 char ModeInput[255];
 char freqtxt[255];
+char RXKEY[256];
 
 // Values to be stored in and read from rpidatvconfig.txt:
 
@@ -770,8 +772,14 @@ void ReceiveStart()
 
 void ReceiveStop()
 {
+	GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY);
 	system("sudo killall leandvb");
 	system("sudo killall hello_video.bin");
+	if (strcmp(RXKEY, "LIMEMINI") == 0)
+        {
+         system("sudo killall limesdr_dump >/dev/null 2>/dev/null");
+         system("/home/pi/rpidatv/bin/limesdr_stopchannel");
+        }
 	//system("sudo killall mplayer");
 }
 

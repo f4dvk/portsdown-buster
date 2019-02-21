@@ -9,6 +9,7 @@ PATHRPI=/home/pi/rpidatv/bin
 CONFIGFILE=$PATHSCRIPT"/rpidatvconfig.txt"
 PATHCONFIGS="/home/pi/rpidatv/scripts/configs"  ## Path to config files
 PCONFIGFILE="/home/pi/rpidatv/scripts/portsdown_config.txt"
+RXPRESETSFILE="/home/pi/rpidatv/scripts/rx_presets.txt"
 PATH_PPRESETS="/home/pi/rpidatv/scripts/portsdown_presets.txt"
 PATH_STREAMPRESETS="/home/pi/rpidatv/scripts/stream_presets.txt"
 
@@ -1515,6 +1516,34 @@ do_receive_menu()
   esac
 }
 
+do_rx_select()
+{
+  RXKEY=$(get_config_var rx0sdr $RXPRESETSFILE)
+  
+  case "$RXKEY" in
+   RTLSDR)
+    Radio1=ON
+    Radio2=OFF
+   ;;
+   LIMEMINI)
+    Radio1=OFF
+    Radio2=ON
+   ;;
+   *)
+    Radio1=ON
+    Radio2=OFF
+   ;;
+   esac
+   RXKEY=$(whiptail --title "RX Key Select" --radiolist \
+		"RX Key" 20 78 2 \
+		"RTLSDR" "" $Radio1 \
+		"LIMEMINI" "" $Radio2 3>&2 2>&1 1>&3)
+
+ if [ $? -eq 0 ]; then
+	set_config_var rx0sdr "$RXKEY" $RXPRESETSFILE
+fi
+}
+
 do_autostart_setup()
 {
   MODE_STARTUP=$(get_config_var startup $PCONFIGFILE)
@@ -1574,7 +1603,7 @@ do_autostart_setup()
   esac
 
   chstartup=$(whiptail --title "$StrAutostartSetupTitle" --radiolist \
-   "$StrAutostartSetupContext" 20 78 11 \
+   "$StrAutostartSetupContext" 20 78 12 \
    "Prompt" "$AutostartSetupPrompt" $Radio1 \
    "Console" "$AutostartSetupConsole" $Radio2 \
    "TX_boot" "$AutostartSetupTX_boot" $Radio3 \
@@ -1591,6 +1620,11 @@ do_autostart_setup()
 
   if [ $? -eq 0 ]; then
      set_config_var startup "$chstartup" $PCONFIGFILE
+     case "$chstartup" in
+     Button_rx_boot)
+      do_rx_select
+     ;;
+     esac
   fi
 
   # Allow user to set stream for display if required

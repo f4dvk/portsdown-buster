@@ -218,6 +218,7 @@ int RXStoreTrigger = 0;     // Set to 1 if ready to store RX preset
 int FinishedButton2 = 1;    // Used to control FFT
 fftwf_complex *fftout=NULL; // FFT for RX
 #define FFT_SIZE 256        // for RX display
+char RXKEY[256];
 
 // Stream Display Parameters. [0] is current
 char StreamAddress[9][127];  // Full rtmp address of stream
@@ -7572,9 +7573,15 @@ void ReceiveStart2()
 
 void ReceiveStop()
 {
+  GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY);
   system("sudo killall leandvb >/dev/null 2>/dev/null");
   system("sudo killall -9 hello_video.bin >/dev/null 2>/dev/null");
   system("sudo killall -9 hello_video2.bin >/dev/null 2>/dev/null");
+  if (strcmp(RXKEY, "LIMEMINI") == 0)
+  {
+     system("sudo killall limesdr_dump >/dev/null 2>/dev/null");
+     system("/home/pi/rpidatv/bin/limesdr_stopchannel");
+  }
   printf("Receive Stop\n");
 }
 
@@ -10218,6 +10225,7 @@ void waituntil(int w,int h)
       {
         printf("Button Event %d, Entering Menu 5 Case Statement\n",i);
         CallingMenu = 5;
+	GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY);
 
         // Clear RX Preset store trigger if not a preset
         if ((i > 3) && (RXStoreTrigger == 1))
@@ -10367,17 +10375,25 @@ void waituntil(int w,int h)
           UpdateWindow();
           SetConfigParam(PATH_RXPRESETS, "rx0parameters", RXparams[0]);
           break;
-        case 21:                       // RX
-          if(CheckRTL()==0)
+        case 21: // RX
+	  //GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY);
+          if ((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))
           {
             BackgroundRGB(0,0,0,255);
             Start(wscreen,hscreen);
             ReceiveStart2();
             break;
           }
+	  if ((strcmp(RXKEY, "LIMEMINI") == 0) && (CheckLimeMiniConnect() == 0))
+	  {
+	    BackgroundRGB(0,0,0,255);
+            Start(wscreen,hscreen);
+            ReceiveStart2();
+            break;
+	  }
           else
           {
-            MsgBox("No RTL-SDR Connected");
+            MsgBox("No RX Key Connected");
             wait_touch();
             BackgroundRGB(0, 0, 0, 255);
             UpdateWindow();
@@ -11833,9 +11849,29 @@ void waituntil(int w,int h)
           SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 0); // Reset cancel (even if not selected)
           printf("Returning to MENU 1 from Menu 39\n");
           CurrentMenu=1;
-          BackgroundRGB(255,255,255,255);
+          BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu1();
           UpdateWindow();
+          break;
+	case 5:                               // RTLSDR
+	 if (CheckRTL()==0)
+	 {
+          SetConfigParam(PATH_RXPRESETS, "rx0sdr", "RTLSDR");
+	  CurrentMenu=5;
+	  BackgroundRGB(0,0,0,255);
+	  Start_Highlights_Menu5();
+	  UpdateWindow();
+	 }
+          break;
+        case 6:                               // LIMEMINI
+	 if (CheckLimeMiniConnect() == 0)
+	 {
+          SetConfigParam(PATH_RXPRESETS, "rx0sdr", "LIMEMINI");
+	  CurrentMenu=5;
+	  BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu5();
+	  UpdateWindow();
+	 }
           break;
         default:
           printf("Menu 39 Error\n");
@@ -12960,6 +12996,8 @@ void Define_Menu5()
 
 void Start_Highlights_Menu5()
 {
+  GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY);
+
   color_t Green;
   color_t Blue;
   color_t Grey;
@@ -13083,6 +13121,15 @@ void Start_Highlights_Menu5()
   AmendButtonStatus(ButtonNumber(5, 16), 1, RXBtext, &Green);
 
   // SDR Type button 17
+  if (strcmp(RXKEY, "RTLSDR") == 0)
+  {
+    strcpy(RXsdr[0], "RTL-SDR");
+  }
+	
+  if (strcmp(RXKEY, "LIMEMINI") == 0)
+  {
+    strcpy(RXsdr[0], "Lime Mini");
+  }
   strcpy(RXBtext, "SDR^");
   strcat(RXBtext, RXsdr[0]);
   AmendButtonStatus(ButtonNumber(5, 17), 0, RXBtext, &Blue);
@@ -15618,8 +15665,8 @@ void Define_Menu39()
   AddButtonStatus(button,"RTL-SDR",&Grey);
 
   button = CreateButton(39, 6);
-//  AddButtonStatus(button,"Lime Mini",&Blue);
-//  AddButtonStatus(button,"Lime Mini",&Green);
+  AddButtonStatus(button,"Lime Mini",&Blue);
+  AddButtonStatus(button,"Lime Mini",&Green);
   AddButtonStatus(button,"Lime Mini",&Grey);
 
   button = CreateButton(39, 7);
@@ -15635,6 +15682,36 @@ void Define_Menu39()
 
 void Start_Highlights_Menu39()
 {
+  if (CheckLimeMiniConnect() == 1)  // Lime Mini not connected so GreyOut
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 6), 2); // Lime Mini
+  }
+
+  if ((CheckLimeMiniConnect() == 0)  && (strcmp(RXKEY, "LIMEMINI") == 0))// Lime Mini
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 6), 1); // Lime Mini
+  }
+
+  if ((CheckLimeMiniConnect() == 0)  && (strcmp(RXKEY, "LIMEMINI") != 0))// Lime Mini
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 6), 0); // Lime Mini
+  }
+
+  if (CheckRTL()==1)  // RTLSDR not connected so GreyOut
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 2); // RTLSDR
+  }
+	
+  if ((CheckRTL()==0)  && (strcmp(RXKEY, "RTLSDR") == 0))// RTLSDR 
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 1); // RTLSDR
+  }
+	
+  if ((CheckRTL()==0)  && (strcmp(RXKEY, "RTLSDR") != 0))// RTLSDR 
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0); // RTLSDR
+  }
+
 }
 
 void Define_Menu42()
