@@ -47,7 +47,7 @@ if [ "$SAMPLERATEK" = "0" ]; then
   elif [ "$SYMBOLRATEK" -gt 250 ] && [ "$SYMBOLRATEK" -lt 1000 ]; then
     SR_RTLSDR=1200000
   elif [ "$SYMBOLRATEK" -gt 999 ] && [ "$SYMBOLRATEK" -lt 1101 ]; then
-    SR_RTLSDR=1500000
+    SR_RTLSDR=1250000
   else
     SR_RTLSDR=2400000
   fi
