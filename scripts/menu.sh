@@ -1362,7 +1362,7 @@ do_stop_transmit()
   sudo killall avc2ts.old >/dev/null 2>/dev/null
   sudo killall netcat >/dev/null 2>/dev/null
   sudo killall dvb2iq >/dev/null 2>/dev/null
-  sudo killall limetx >/dev/null 2>/dev/null
+  sudo killall limesdr_send >/dev/null 2>/dev/null
 
   # Then pause and make sure that avc2ts has really been stopped (needed at high SRs)
   sleep 0.1
@@ -1373,7 +1373,7 @@ do_stop_transmit()
   sudo killall -9 rpidatv >/dev/null 2>/dev/null
 
   # And make sure limetx has been stopped
-  sudo killall -9 limetx >/dev/null 2>/dev/null
+  sudo killall -9 limesdr_send >/dev/null 2>/dev/null
 
   # Stop the audio for CompVid mode
   sudo killall arecord >/dev/null 2>/dev/null
