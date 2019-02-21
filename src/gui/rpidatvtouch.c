@@ -11857,8 +11857,6 @@ void waituntil(int w,int h)
 	 if (CheckRTL()==0)
 	 {
           SetConfigParam(PATH_RXPRESETS, "rx0sdr", "RTLSDR");
-          printf("RTLSDR\n");
-	  strcpy(RXsdr[0], "RTL-SDR");
 	  CurrentMenu=5;
 	  BackgroundRGB(0,0,0,255);
 	  Start_Highlights_Menu5();
@@ -11869,7 +11867,6 @@ void waituntil(int w,int h)
 	 if (CheckLimeMiniConnect() == 0)
 	 {
           SetConfigParam(PATH_RXPRESETS, "rx0sdr", "LIMEMINI");
-          strcpy(RXsdr[0], "Lime Mini");
 	  CurrentMenu=5;
 	  BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu5();
@@ -12999,6 +12996,8 @@ void Define_Menu5()
 
 void Start_Highlights_Menu5()
 {
+  GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY);
+
   color_t Green;
   color_t Blue;
   color_t Grey;
@@ -13122,6 +13121,15 @@ void Start_Highlights_Menu5()
   AmendButtonStatus(ButtonNumber(5, 16), 1, RXBtext, &Green);
 
   // SDR Type button 17
+  if (strcmp(RXKEY, "RTLSDR") == 0)
+  {
+    strcpy(RXsdr[0], "RTL-SDR");
+  }
+	
+  if (strcmp(RXKEY, "LIMEMINI") == 0)
+  {
+    strcpy(RXsdr[0], "Lime Mini");
+  }
   strcpy(RXBtext, "SDR^");
   strcat(RXBtext, RXsdr[0]);
   AmendButtonStatus(ButtonNumber(5, 17), 0, RXBtext, &Blue);
