@@ -108,6 +108,20 @@ if [ "$RESULT" -eq 0 ]; then
   return
 fi
 
+# If keyedtx is already running and this is an ssh session
+# stop the keyedtx, start the menu and return
+ps -cax | grep 'keyedtx' >/dev/null 2>/dev/null
+RESULT="$?"
+if [ "$RESULT" -eq 0 ]; then
+  if [ "$SESSION_TYPE" == "ssh" ]; then
+    killall keyedtx >/dev/null 2>/dev/null
+    killall limesdr_send >den/null 2>/dev/null
+    /home/pi/rpidatv/bin/limesdr_stopchannel
+    /home/pi/rpidatv/scripts/menu.sh menu
+  fi
+  return
+fi
+
 # If menu is already running, exit to command prompt
 ps -cax | grep 'menu.sh' >/dev/null 2>/dev/null
 RESULT="$?"
