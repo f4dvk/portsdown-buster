@@ -278,7 +278,7 @@ cd /home/pi
 cd /home/pi/rpidatv/src/
 sudo rm -fr leansdr
 wget https://github.com/pabr/leansdr/archive/work.zip
-unzip master.zip
+unzip work.zip
 mv leansdr-work leansdr
 rm work.zip
 cd leansdr/src/apps
