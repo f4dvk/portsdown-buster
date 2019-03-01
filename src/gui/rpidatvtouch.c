@@ -13097,7 +13097,7 @@ void Start_Highlights_Menu5()
   AmendButtonStatus(ButtonNumber(5, 13), 1, RXBtext, &Green);
 
   // Gain button 14
-  if(RXgain[0] == 0)
+  if((RXgain[0] == 0) && (strcmp(RXKEY, "RTLSDR") == 0))
   {
     strcpy(RXBtext, "Gain^Auto");
   }
