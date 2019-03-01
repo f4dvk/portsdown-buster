@@ -90,7 +90,7 @@ int limesdr_set_channel(const unsigned int freq,
 			return -1;
 		}
 
-		LMS_SetNormalizedGain(device, is_tx, channel, 0);
+		//LMS_SetNormalizedGain(device, is_tx, channel, 0);
 
 		if (LMS_SaveConfig(device, "limemini.cal") < 0)
 		{
