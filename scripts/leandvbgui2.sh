@@ -76,6 +76,12 @@ else
   FASTLOCK=" "
 fi
 
+GAIN_LIME="0.$GAIN"
+
+if [ "$GAIN" = 100 ] && [ "$SDR" = "LIMEMINI" ]; then
+ GAIN_LIME=1
+fi
+
 # Look up the RTL-SDR Frequency error from the RTL-FM file
 FREQOFFSET=$(get_config_var roffset $RTLPRESETSFILE)
 
@@ -84,7 +90,7 @@ if [ "$SDR" = "RTLSDR" ]; then
   B=""
 fi
 if [ "$SDR" = "LIMEMINI" ]; then
-  KEY="/home/pi/rpidatv/bin/limesdr_dump -f $FreqHz -b 5e6 -s $SR_RTLSDR -g 1 -l 256*256 |buffer"
+  KEY="/home/pi/rpidatv/bin/limesdr_dump -f $FreqHz -b 5e6 -s $SR_RTLSDR -g $GAIN_LIME -l 256*256 |buffer"
   B="--s12"
 fi
 
