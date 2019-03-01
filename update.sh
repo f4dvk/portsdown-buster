@@ -313,6 +313,10 @@ rm -rf /home/pi/rpidatv/bin/limetx
 
 # Install limesdr_toolbox
 cd /home/pi/rpidatv/src/limesdr_toolbox
+rm limesdr_dump
+rm limesdr_send
+rm limesdr_stopchannel
+rm limesdr_forward
 cmake .
 make
 cp limesdr_dump  ../../bin/
