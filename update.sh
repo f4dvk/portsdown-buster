@@ -184,6 +184,7 @@ cd /home/pi/rpidatv/scripts
 chmod +x rpibutton_rx.sh
 chmod +x rpibutton_tx.sh
 chmod +x leandvb_rx.sh
+chmod +x ctlSR.sh
 cd /home/pi
 
 # Check which avc2ts to download.  Default is production
