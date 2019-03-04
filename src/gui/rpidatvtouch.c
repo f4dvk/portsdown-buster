@@ -837,7 +837,7 @@ void ExecuteUpdate(int NoButton)
       else
       {
         printf("Downloading Normal Update Stretch Version\n");
-        strcpy(LinuxCommand, "wget https://raw.githubusercontent.com/BritishAmateurTelevisionClub/portsdown/master/update.sh");
+        strcpy(LinuxCommand, "wget https://raw.githubusercontent.com/f4dvk/portsdown_DVK/master/update.sh");
         strcat(LinuxCommand, " -O /home/pi/update.sh");
         system(LinuxCommand);
 
