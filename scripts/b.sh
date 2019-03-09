@@ -73,6 +73,9 @@ MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
 
   # And make sure limesdr_send has been stopped
   sudo killall -9 limesdr_send >/dev/null 2>/dev/null
+  if [ "$MODE_OUTPUT" == "LIMEMINI" ]; then
+   /home/pi/rpidatv/bin/limesdr_stopchannel
+  fi
 
   # Stop the audio for CompVid mode
   sudo killall arecord >/dev/null 2>/dev/null
@@ -80,7 +83,7 @@ MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
    # Make sure that the PTT is released (required for carrier, test and Lime modes)
   gpio mode $GPIO_PTT out
   gpio write $GPIO_PTT 0
-  
+
   # Re-enable SR selection which might have been set all high by a LimeSDR
   /home/pi/rpidatv/scripts/ctlSR.sh
 
@@ -102,5 +105,3 @@ MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
   fi
 
 printf "Transmit processes stopped\n"
-
-
