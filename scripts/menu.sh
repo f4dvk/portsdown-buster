@@ -124,7 +124,7 @@ fi
 RET=$?
 if [ $RET -eq 1 ]; then
 ## This is the section where you control what happens when the user hits Cancel
-Cancel	
+Cancel
 elif [ $RET -eq 0 ]; then
 	if [[ -d "/$1$pathselect" ]]; then
 		Pathbrowser "/$1$pathselect"
@@ -132,7 +132,7 @@ elif [ $RET -eq 0 ]; then
 		## Do your thing here, this is just a stub of the code I had to do what I wanted the script to do.
 		fileout=`file "$1$pathselect"`
 		filenametemp=`readlink -m $1$pathselect`
-		filename=`dirname $filenametemp` 
+		filename=`dirname $filenametemp`
 
 	else
 		echo pathselect $1$pathselect
@@ -558,7 +558,7 @@ do_modulation_setup()
 {
   MODULATION=$(get_config_var modulation $PCONFIGFILE)
   MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
-  
+
   if [ "$MODE_OUTPUT" == "LIMEMINI" ] || [ "$MODE_OUTPUT" == "LIMEUSB" ] ; then
    case "$MODULATION" in
     DVB-S)
@@ -614,7 +614,7 @@ do_modulation_setup()
      3>&2 2>&1 1>&3)
 
   else
-  
+
    case "$MODULATION" in
    DVB-S)
      Radio1=ON
@@ -874,7 +874,7 @@ do_fec_setup()
 		"3" "3/4" $Radio3 \
 		"5" "5/6" $Radio4 \
 		"7" "7/8" $Radio5 3>&2 2>&1 1>&3)
-	
+
 	else
 
 	 case "$FEC" in
@@ -1091,7 +1091,7 @@ do_freq_setup()
     "t4" "Transverter 4" $Radio5 \
     3>&2 2>&1 1>&3)
 
-  if [[ "$BAND" == "Direct" || "$BAND" == "d1" || "$BAND" == "d2" || "$BAND" == "d3" || "$BAND" == "d4" || "$BAND" == "d5" ]]; then 
+  if [[ "$BAND" == "Direct" || "$BAND" == "d1" || "$BAND" == "d2" || "$BAND" == "d3" || "$BAND" == "d4" || "$BAND" == "d5" ]]; then
     ## If direct, look up which band
 
     INT_FREQ_OUTPUT=${FREQ_OUTPUT%.*}       # Change frequency to integer
@@ -1322,7 +1322,7 @@ menuchoice=$(whiptail --title "$StrOutputTitle" --menu "$StrOutputContext" 16 78
 }
 
 
-do_transmit() 
+do_transmit()
 {
   # Call a.sh in an additional process to start the transmitter
   $PATHSCRIPT"/a.sh" >/dev/null 2>/dev/null &
@@ -1355,14 +1355,17 @@ do_stop_transmit()
   sudo $PATHRPI"/adf4351" off
 
   # Kill the key processes as nicely as possible
-  sudo killall rpidatv >/dev/null 2>/dev/null
-  sudo killall ffmpeg >/dev/null 2>/dev/null
-  sudo killall tcanim >/dev/null 2>/dev/null
-  sudo killall avc2ts >/dev/null 2>/dev/null
-  sudo killall avc2ts.old >/dev/null 2>/dev/null
-  sudo killall netcat >/dev/null 2>/dev/null
-  sudo killall dvb2iq >/dev/null 2>/dev/null
-  sudo killall limesdr_send >/dev/null 2>/dev/null
+  sudo killall -9 rpidatv >/dev/null 2>/dev/null
+  sudo killall -9 ffmpeg >/dev/null 2>/dev/null
+  sudo killall -9 tcanim1v16 >/dev/null 2>/dev/null
+  sudo killall -9 avc2ts >/dev/null 2>/dev/null
+  sudo killall -9 avc2ts.old >/dev/null 2>/dev/null
+  sudo killall -9 netcat >/dev/null 2>/dev/null
+  sudo killall -9 dvb2iq >/dev/null 2>/dev/null
+  sudo killall -9 limesdr_send >/dev/null 2>/dev/null
+	if [ "$MODE_OUTPUT" == "LIMEMINI" ]; then
+   /home/pi/rpidatv/bin/limesdr_stopchannel &
+  fi
 
   # Then pause and make sure that avc2ts has really been stopped (needed at high SRs)
   sleep 0.1
@@ -1423,14 +1426,19 @@ do_display_off()
 do_receive_status()
 {
   whiptail --title "RECEIVE" --msgbox "$INFO" 8 78
-  sudo killall rpidatvgui >/dev/null 2>/dev/null
-  sudo killall leandvb >/dev/null 2>/dev/null
-  sudo killall hello_video.bin >/dev/null 2>/dev/null
+  sudo killall -9 rx_gpio >/dev/null 2>/dev/null
+  sudo killall -9 leandvb >/dev/null 2>/dev/null
+  sudo killall -9 hello_video.bin >/dev/null 2>/dev/null
+	if [ "$RXKEY" == "LIMEMINI" ]; then
+   sudo killall limesdr_dump >/dev/null 2>/dev/null
+   /home/pi/rpidatv/bin/limesdr_stopchannel
+  fi
   sudo fbi -T 1 -noverbose -a /home/pi/rpidatv/scripts/images/BATC_Black.png
 }
 
 do_receive()
 {
+  RXKEY=$(get_config_var rx0sdr $RXPRESETSFILE)
   if pgrep -x "rtl_tcp" > /dev/null; then
     # rtl_tcp is running, so kill it, pause and really kill it
     killall rtl_tcp >/dev/null 2>/dev/null
@@ -1443,23 +1451,8 @@ do_receive()
     fbcp &
   fi
 
-  MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
-  case "$MODE_OUTPUT" in
-  BATC)
-    ORGINAL_MODE_INPUT=$(get_config_var modeinput $PCONFIGFILE)
-    sleep 0.1
-    set_config_var modeinput "DESKTOP" $PCONFIGFILE
-    sleep 0.1
-    /home/pi/rpidatv/bin/rpidatvgui 0 1  >/dev/null 2>/dev/null & 
-    $PATHSCRIPT"/a.sh" >/dev/null 2>/dev/null &
-    do_receive_status
-    set_config_var modeinput "$ORGINAL_MODE_INPUT" $PCONFIGFILE
-  ;;
-  *)
-    /home/pi/rpidatv/bin/rpidatvgui 0 1  >/dev/null 2>/dev/null & 
-    do_receive_status
-  ;;
-  esac
+    /home/pi/rpidatv/bin/rx_gpio 0 1  >/dev/null 2>/dev/null &
+   do_receive_status
 }
 
 do_start_rtl_tcp()
@@ -1519,7 +1512,7 @@ do_receive_menu()
 do_rx_select()
 {
   RXKEY=$(get_config_var rx0sdr $RXPRESETSFILE)
-  
+
   case "$RXKEY" in
    RTLSDR)
     Radio1=ON
@@ -1671,7 +1664,7 @@ do_display_setup()
   ;;
   *)
     Radio1=ON
-  ;;		
+  ;;
   esac
 
   chdisplay=$(whiptail --title "$StrDisplaySetupTitle" --radiolist \
@@ -2870,7 +2863,7 @@ do_DisableButtonSD()
 {
   rm /home/pi/.pi-sdn             ## Stop it being loaded at log-on
   sudo pkill -x pi-sdn            ## kill the current process
-} 
+}
 
 do_shutdown_menu()
 {
