@@ -37,15 +37,19 @@ let SYMBOLRATE=SYMBOLRATEK*1000
 #let FreqHz=FREQ_OUTPUT*1000000
 echo Freq = $FreqHz
 
-if [ "$SYMBOLRATEK" -lt 251 ]; then
-  SR_RTLSDR=300000
-elif [ "$SYMBOLRATEK" -gt 250 ] && [ "$SYMBOLRATEK" -lt 1000 ]; then
-  SR_RTLSDR=1200000
-elif [ "$SYMBOLRATEK" -gt 999 ] && [ "$SYMBOLRATEK" -lt 1101 ]; then
-  SR_RTLSDR=1250000
-else
-  SR_RTLSDR=2400000
-fi
+  if [ "$SYMBOLRATEK" -lt 251 ]; then
+    SR_RTLSDR=300000
+  elif [ "$SYMBOLRATEK" -gt 250 ] && [ "$SYMBOLRATEK" -lt 500 ] && [ "$SDR" = "RTLSDR" ]; then
+    SR_RTLSDR=1000000
+  elif [ "$SYMBOLRATEK" -gt 499 ] && [ "$SYMBOLRATEK" -lt 1000 ]; then
+    SR_RTLSDR=1200000
+  elif [ "$SYMBOLRATEK" -gt 999 ] && [ "$SYMBOLRATEK" -lt 1101 ]; then
+    SR_RTLSDR=1250000
+  elif [ "$SYMBOLRATEK" -gt 250 ] && [ "$SYMBOLRATEK" -lt 500 ] && [ "$SDR" = "LIMEMINI" ]; then
+    SR_RTLSDR=850000
+  else
+    SR_RTLSDR=2400000
+  fi
 #SR_RTLSDR=1024000
 
 if [ "$SDR" = "RTLSDR" ]; then
