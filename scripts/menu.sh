@@ -1490,22 +1490,124 @@ do_stop_streamrx()
   sudo killall omxplayer.bin >/dev/null 2>/dev/null
 }
 
+do_RX_Frequency()
+{
+   freq_rx=$(get_config_var rx0frequency $RXPRESETSFILE)
+   Frequency_rx=$(whiptail --inputbox "Frequency MHz" 8 78 $freq_rx --title "RX Frequency" 3>&1 1>&2 2>&3)
+   if [ $? -eq 0 ]; then
+     set_config_var rx0frequency "$Frequency_rx" $RXPRESETSFILE
+   fi
+}
+
+do_RX_SR()
+{
+   sr_rx=$(get_config_var rx0sr $RXPRESETSFILE)
+   SR_rx=$(whiptail --inputbox "SR KS" 8 78 $sr_rx --title "Symbol Rate" 3>&1 1>&2 2>&3)
+   if [ $? -eq 0 ]; then
+     set_config_var rx0sr "$SR_rx" $RXPRESETSFILE
+   fi
+}
+
+do_RX_FEC()
+{
+	fec_rx=$(get_config_var rx0fec $RXPRESETSFILE)
+
+	case "$fec_rx" in
+	1)
+	Radio1=ON
+	Radio2=OFF
+	Radio3=OFF
+	Radio4=OFF
+	Radio5=OFF
+	;;
+	2)
+	Radio1=OFF
+	Radio2=ON
+	Radio3=OFF
+	Radio4=OFF
+	Radio5=OFF
+	;;
+	3)
+	Radio1=OFF
+	Radio2=OFF
+	Radio3=ON
+	Radio4=OFF
+	Radio5=OFF
+	;;
+	5)
+	Radio1=OFF
+	Radio2=OFF
+	Radio3=OFF
+	Radio4=ON
+	Radio5=OFF
+	;;
+	7)
+	Radio1=OFF
+	Radio2=OFF
+	Radio3=OFF
+	Radio4=OFF
+	Radio5=ON
+	;;
+	*)
+	Radio1=ON
+	Radio2=OFF
+	Radio3=OFF
+	Radio4=OFF
+	Radio5=OFF
+	;;
+	esac
+	fec_rx=$(whiptail --title "$StrOutputFECTitle" --radiolist \
+		"$StrOutputFECContext" 20 78 8 \
+		"1" "1/2" $Radio1 \
+		"2" "2/3" $Radio2 \
+		"3" "3/4" $Radio3 \
+		"5" "5/6" $Radio4 \
+		"7" "7/8" $Radio5 3>&2 2>&1 1>&3)
+
+   if [ $? -eq 0 ]; then
+	   set_config_var rx0fec "$fec_rx" $RXPRESETSFILE
+	 fi
+}
+
+do_RX_Config()
+{
+	menuchoice=$(whiptail --title "Select RX Configuration" --menu "RX Menu" 20 78 13 \
+    "1 Frequency" $RXfreq" MHz"  \
+    "2 Symbol Rate" $RXsr" KS"  \
+    "3 FEC" "FEC "$FECNUM_RX"/"$FECDEN_RX  \
+    3>&2 2>&1 1>&3)
+  case "$menuchoice" in
+    1\ *) do_RX_Frequency ;;
+    2\ *) do_RX_SR ;;
+    3\ *) do_RX_FEC ;;
+  esac
+}
 
 do_receive_menu()
 {
+	# RX values
+  RXKEY=$(get_config_var rx0sdr $RXPRESETSFILE)
+  RXfreq=$(get_config_var rx0frequency $RXPRESETSFILE)
+  RXfec=$(get_config_var rx0fec $RXPRESETSFILE)
+  RXsr=$(get_config_var rx0sr $RXPRESETSFILE)
+  let FECNUM_RX=RXfec
+  let FECDEN_RX=RXfec+1
+
   menuchoice=$(whiptail --title "Select Receive Option" --menu "RTL Menu" 20 78 13 \
-    "1 Receive DATV" "Use the RTL to Receive with default settings"  \
-    "2 Start RTL-TCP" "Start the RTL-TCP Server for use with SDR Sharp"  \
-    "3 Stop RTL-TCP" "Stop the RTL-TCP Server" \
-    "4 Start Stream RX" "Display the Selected Stream" \
-    "5 Stop Stream RX" "Stop Displaying the Selected Stream" \
+    "1 Receive DATV" $RXfreq" MHz, "$RXsr" KS, FEC "$FECNUM_RX"/"$FECDEN_RX"."  \
+    "2 RX Configuration" "Configure Freq, SR, FEC"  \
+    "3 Start RTL-TCP" "Start the RTL-TCP Server for use with SDR Sharp"  \
+    "4 Stop RTL-TCP" "Stop the RTL-TCP Server" \
+    "5 Start Stream RX" "Display the Selected Stream" \
+    "6 Stop Stream RX" "Stop Displaying the Selected Stream" \
     3>&2 2>&1 1>&3)
   case "$menuchoice" in
     1\ *) do_receive ;;
-    2\ *) do_start_rtl_tcp ;;
-    3\ *) do_stop_rtl_tcp  ;;
-    4\ *) do_streamrx  ;;
-    5\ *) do_stop_streamrx  ;;
+    2\ *) do_RX_Config ;;
+    3\ *) do_start_rtl_tcp ;;
+    4\ *) do_stop_rtl_tcp  ;;
+    5\ *) do_streamrx  ;;
+    6\ *) do_stop_streamrx  ;;
   esac
 }
 
