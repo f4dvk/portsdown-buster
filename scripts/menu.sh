@@ -1573,12 +1573,12 @@ do_RX_Config()
 {
 	menuchoice=$(whiptail --title "Select RX Configuration" --menu "RX Menu" 20 78 13 \
     "1 Frequency" $RXfreq" MHz"  \
-		"2 Symbol Rate" $RXsr" KS"  \
+    "2 Symbol Rate" $RXsr" KS"  \
     "3 FEC" "FEC "$FECNUM_RX"/"$FECDEN_RX  \
     3>&2 2>&1 1>&3)
   case "$menuchoice" in
     1\ *) do_RX_Frequency ;;
-		2\ *) do_RX_SR ;;
+    2\ *) do_RX_SR ;;
     3\ *) do_RX_FEC ;;
   esac
 }
@@ -1588,14 +1588,14 @@ do_receive_menu()
 	# RX values
   RXKEY=$(get_config_var rx0sdr $RXPRESETSFILE)
   RXfreq=$(get_config_var rx0frequency $RXPRESETSFILE)
-	RXfec=$(get_config_var rx0fec $RXPRESETSFILE)
-	RXsr=$(get_config_var rx0sr $RXPRESETSFILE)
-	let FECNUM_RX=RXfec
+  RXfec=$(get_config_var rx0fec $RXPRESETSFILE)
+  RXsr=$(get_config_var rx0sr $RXPRESETSFILE)
+  let FECNUM_RX=RXfec
   let FECDEN_RX=RXfec+1
 
   menuchoice=$(whiptail --title "Select Receive Option" --menu "RTL Menu" 20 78 13 \
     "1 Receive DATV" $RXfreq" MHz, "$RXsr" KS, FEC "$FECNUM_RX"/"$FECDEN_RX"."  \
-		"2 RX Configuration" "Configure Freq, SR, FEC"  \
+    "2 RX Configuration" "Configure Freq, SR, FEC"  \
     "3 Start RTL-TCP" "Start the RTL-TCP Server for use with SDR Sharp"  \
     "4 Stop RTL-TCP" "Stop the RTL-TCP Server" \
     "5 Start Stream RX" "Display the Selected Stream" \
@@ -1603,7 +1603,7 @@ do_receive_menu()
     3>&2 2>&1 1>&3)
   case "$menuchoice" in
     1\ *) do_receive ;;
-		2\ *) do_RX_Config ;;
+    2\ *) do_RX_Config ;;
     3\ *) do_start_rtl_tcp ;;
     4\ *) do_stop_rtl_tcp  ;;
     5\ *) do_streamrx  ;;
