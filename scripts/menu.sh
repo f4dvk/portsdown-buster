@@ -1575,11 +1575,13 @@ do_RX_Config()
     "1 Frequency" $RXfreq" MHz"  \
     "2 Symbol Rate" $RXsr" KS"  \
     "3 FEC" "FEC "$FECNUM_RX"/"$FECDEN_RX  \
+    "4 RX Key" "$Key_Rx"  \
     3>&2 2>&1 1>&3)
   case "$menuchoice" in
     1\ *) do_RX_Frequency ;;
     2\ *) do_RX_SR ;;
     3\ *) do_RX_FEC ;;
+    4\ *) do_rx_select ;;
   esac
   do_receive_menu
 }
@@ -1588,6 +1590,17 @@ do_receive_menu()
 {
 	# RX values
   RXKEY=$(get_config_var rx0sdr $RXPRESETSFILE)
+
+  if [ "$RXKEY" = "LIMEMINI" ]; then
+    Key_Rx="Lime Mini"
+  elif [ "$RXKEY" = "LIMEUSB" ]; then
+    Key_Rx="Lime USB"
+  elif [ "$RXKEY" = "RTLSDR" ]; then
+    Key_Rx="RTL SDR"
+  else
+    Key_Rx="$RXKEY"
+  fi
+
   RXfreq=$(get_config_var rx0frequency $RXPRESETSFILE)
   RXfec=$(get_config_var rx0fec $RXPRESETSFILE)
   RXsr=$(get_config_var rx0sr $RXPRESETSFILE)
@@ -1595,7 +1608,7 @@ do_receive_menu()
   let FECDEN_RX=RXfec+1
 
   menuchoice=$(whiptail --title "Select Receive Option" --menu "RTL Menu" 20 78 13 \
-    "1 Receive DATV" $RXfreq" MHz, "$RXsr" KS, FEC "$FECNUM_RX"/"$FECDEN_RX"."  \
+    "1 Receive DATV" "$Key_Rx, "$RXfreq" MHz, "$RXsr" KS, FEC "$FECNUM_RX"/"$FECDEN_RX"."  \
     "2 RX Configuration" "Configure Freq, SR, FEC"  \
     "3 Start RTL-TCP" "Start the RTL-TCP Server for use with SDR Sharp"  \
     "4 Stop RTL-TCP" "Stop the RTL-TCP Server" \
