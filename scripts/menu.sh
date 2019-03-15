@@ -1581,6 +1581,7 @@ do_RX_Config()
     2\ *) do_RX_SR ;;
     3\ *) do_RX_FEC ;;
   esac
+  do_receive_menu
 }
 
 do_receive_menu()
