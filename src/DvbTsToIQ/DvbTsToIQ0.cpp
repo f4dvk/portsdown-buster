@@ -8,6 +8,7 @@
 #include "../libdvbmod/libdvbmod.h"
 #include <getopt.h>
 #include <ctype.h>
+ #include <termios.h>
 #define PROGRAM_VERSION "0.0.1"
 
 #ifndef WINDOWS
@@ -152,9 +153,15 @@ bool RunWithFile(bool live)
 		int ret = ioctl(fileno(input), FIONREAD, &nin);
 		int ret2 = ioctl(fileno(output), FIONREAD, &nout);
 
-		if ((ret == 0) && (nin < 18000))
+		if ((ret == 0) && (nout ==0))
 		{
-
+			//fprintf(stderr,"Pipeout=%d\n",nout);
+			//usleep(100);
+			//NullFiller(100);
+			//return true;
+		}
+		/*if ((ret == 0) && (nin < 18000))
+		{
 			while (nin < 1800)
 			{
 				if ((nout < 32000) )
@@ -179,13 +186,20 @@ bool RunWithFile(bool live)
 		}
 		if ((nin > 64000) && (nout > 64000))
 			fprintf(stderr, "DVB2IQ fifoin %d fifoout %d\n", nin, nout);
+			*/
 	}
+
 	int NbRead = fread(BufferTS, 1, BUFFER_SIZE, input);
 	DebugReceivedpacket += NbRead;
 	if (NbRead != BUFFER_SIZE)
 	{
 		if (!live)
-								return false; //end of file
+        {
+            fseek(input, 0, SEEK_SET);
+            fprintf(stderr,"TS Loop file\n");
+            return true;
+			//return false; //end of file
+        }
 	}
 
 	if (NbRead % 188 != 0)
@@ -207,8 +221,8 @@ bool RunWithFile(bool live)
 	for (int i = 0; i < NbRead; i += 188)
 	{
 		int len = 0;
-//		if ((BufferTS[i + 1] == 0x1F) && (BufferTS[i + 2] == 0xFF))
-//			continue; // Remove Null packets
+		/*if ((BufferTS[i + 1] == 0x1F) && (BufferTS[i + 2] == 0xFF))
+			continue; // Remove Null packets*/
 		if (ModeDvb == DVBS)
 			len = DvbsAddTsPacket(BufferTS + i);
 		if (ModeDvb == DVBS2)
@@ -223,7 +237,17 @@ bool RunWithFile(bool live)
 			if (ModeDvb == DVBS2)
 				Frame = Dvbs2_get_IQ();
 			if(Simu==false)
+			{
+				int  nout;
+				ioctl(fileno(output), FIONREAD, &nout);
+
+				/*if(0xFFFF-nout<len*sizeof(sfcmplx))
+				{
+					 fprintf(stderr,"dvb2iq Blocked by output to write %d/left %d -> \n",len*sizeof(sfcmplx),nout);
+					 return true;
+				}*/
 				fwrite(Frame, sizeof(sfcmplx), len, output);
+			}
 			/*else
 			{
 				sfcmplx *FrameSimu=(sfcmplx *)malloc(len*sizeof(sfcmplx));
@@ -233,7 +257,6 @@ bool RunWithFile(bool live)
 					FrameSimu[j].re=Frame[j].re*(0.5+0.5*GainSimu*sin(2*3.1415*(ComptSample/(SymbolRate*TimingSimu)))));
 					FrameSimu[j].im=Frame[j].im*(0.5+0.5*GainSimu*sin(2*3.1415*(ComptSample/(SymbolRate*TimingSimu)))));
 				}
-
 			}*/
 
 		}
@@ -266,6 +289,8 @@ Usage:\ndvb2iq -s SymbolRate [-i File Input] [-o File Output] [-f Fec]  [-m Modu
 -c 	      Constellation mapping (DVBS2) : {QPSK,8PSK,16APSK,32APSK}\n\
 -p 	      Pilots on(DVBS2)\n\
 -r 	      upsample (1,2,4) Better MER for low SR(<1M) choose 4\n\
+-v 	      ShortFrame(DVBS2)\n\
+-d 	      print net bitrate on stdout and exit\n\
 -h            help (print this help).\n\
 Example : ./dvb2iq -s 1000 -f 7/8 -m DVBS2 -c 8PSK -p\n\
 \n",
@@ -282,11 +307,12 @@ int main(int argc, char **argv)
 	int a;
 	int anyargs = 0;
 	int upsample = 1;
-
+	bool AskNetBitrate=false;
 	ModeDvb = DVBS;
+	bool ShortFrame=false;
 	while (1)
 	{
-		a = getopt(argc, argv, "i:o:s:f:c:hf:m:c:pr:");
+		a = getopt(argc, argv, "i:o:s:f:c:hf:m:c:pr:dv");
 
 		if (a == -1)
 		{
@@ -379,10 +405,16 @@ int main(int argc, char **argv)
 		case 'p':
 			Pilot = 1;
 			break;
+		case 'd':
+			AskNetBitrate = true;
+			break;
 		case 'r':
 			upsample = atoi(optarg);
 			if (upsample > 4)
 				upsample = 4;
+			break;
+		case 'v':
+			ShortFrame = true;
 			break;
 		case -1:
 			break;
@@ -417,13 +449,25 @@ int main(int argc, char **argv)
 	}
 	if ((ModeDvb == DVBS2)&&(FEC>=0))
 	{
+//		Bitrate = Dvbs2Init(SymbolRate, FEC, Constellation, Pilot, RO_0_35, upsample,ShortFrame);
 		Bitrate = Dvbs2Init(SymbolRate, FEC, Constellation, Pilot, RO_0_35, upsample);
 	}
 
 	fprintf(stderr, "Net TS bitrate input should be %d\n", Bitrate);
+	if(AskNetBitrate)
+	{
+		fprintf(stdout, "%d\n", Bitrate);
+		exit(1);
+	}
 	bool isapipe = (fseek(input, 0, SEEK_CUR) < 0); //Dirty trick to see if it is a pipe or not
 	if (isapipe)
+	{
+
+
 		fprintf(stderr, "Using live mode\n");
+	}
+	else
+			fprintf(stderr, "Using file mode\n");
 	while (!want_quit && RunWithFile(isapipe))
 		;
 

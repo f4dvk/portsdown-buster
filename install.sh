@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Stretch Version by davecrump on 201811300
+# Stretch Version by davecrump on 201903030
 
 # Update the package manager
 sudo dpkg --configure -a
@@ -17,7 +17,7 @@ sudo apt-get -y dist-upgrade
 
 # Install the packages that we need
 sudo apt-get -y install git
-sudo apt-get -y install cmake libusb-1.0-0-dev libx11-dev buffer libjpeg-dev indent 
+sudo apt-get -y install cmake libusb-1.0-0-dev libx11-dev buffer libjpeg-dev indent
 sudo apt-get -y install ttf-dejavu-core bc usbmount fftw3-dev wiringpi libvncserver-dev
 sudo apt-get -y install fbi netcat imagemagick rng-tools
 sudo apt-get -y install libvdpau-dev libva-dev libxcb-shape0  # For latest ffmpeg build
@@ -258,8 +258,16 @@ cd /home/pi/rpidatv/src/libdvbmod
 make dirmake
 make
 cd ../DvbTsToIQ
+
+# First compile the dvb2iq to be used for mpeg-2
+cp DvbTsToIQ2.cpp DvbTsToIQ.cpp
 make
-cp dvb2iq ../../bin/
+cp dvb2iq ../../bin/dvb2iq2
+
+# Now compile the dvb2iq to be used for H264
+cp DvbTsToIQ0.cpp DvbTsToIQ.cpp
+make
+cp dvb2iq ../../bin/dvb2iq
 
 cd /home/pi/rpidatv/scripts/
 
