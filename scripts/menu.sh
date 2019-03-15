@@ -1425,7 +1425,7 @@ do_display_off()
 
 do_receive_status()
 {
-  whiptail --title "RECEIVE" --msgbox "$INFO" 8 78
+  whiptail --title "RECEIVE" --msgbox "$RXKEY, $RXfreq MHz, $RXsr KS, FEC $FECNUM_RX/$FECDEN_RX." 8 78
   sudo killall -9 rx_gpio >/dev/null 2>/dev/null
   sudo killall -9 leandvb >/dev/null 2>/dev/null
   sudo killall -9 hello_video.bin >/dev/null 2>/dev/null
@@ -1581,6 +1581,7 @@ do_RX_Config()
     2\ *) do_RX_SR ;;
     3\ *) do_RX_FEC ;;
   esac
+  do_receive_menu
 }
 
 do_receive_menu()
