@@ -10,6 +10,7 @@ CONFIGFILE=$PATHSCRIPT"/rpidatvconfig.txt"
 PATHCONFIGS="/home/pi/rpidatv/scripts/configs"  ## Path to config files
 PCONFIGFILE="/home/pi/rpidatv/scripts/portsdown_config.txt"
 RXPRESETSFILE="/home/pi/rpidatv/scripts/rx_presets.txt"
+RTLPRESETSFILE="/home/pi/rpidatv/scripts/rtl-fm_presets.txt"
 PATH_PPRESETS="/home/pi/rpidatv/scripts/portsdown_presets.txt"
 PATH_STREAMPRESETS="/home/pi/rpidatv/scripts/stream_presets.txt"
 
@@ -1586,6 +1587,160 @@ do_RX_Config()
   do_receive_menu
 }
 
+do_RTL_Frequency()
+{
+FREQ_RX_FM=$(get_config_var r0freq $RTLPRESETSFILE)
+Frequency_rtl=$(whiptail --inputbox "Frequency MHz" 8 78 $FREQ_RX_FM --title "RTL FM Frequency" 3>&1 1>&2 2>&3)
+if [ $? -eq 0 ]; then
+  set_config_var r0freq "$Frequency_rtl" $RTLPRESETSFILE
+fi
+}
+
+do_RTL_MODE()
+{
+MODE_RX_FM=$(get_config_var r0mode $RTLPRESETSFILE)
+
+  case "$MODE_RX_FM" in
+  am)
+  Radio1=ON
+  Radio2=OFF
+  Radio3=OFF
+  Radio4=OFF
+  Radio5=OFF
+  ;;
+  fm)
+  Radio1=OFF
+  Radio2=ON
+  Radio3=OFF
+  Radio4=OFF
+  Radio5=OFF
+  ;;
+  wbfm)
+  Radio1=OFF
+  Radio2=OFF
+  Radio3=ON
+  Radio4=OFF
+  Radio5=OFF
+  ;;
+  usb)
+  Radio1=OFF
+  Radio2=OFF
+  Radio3=OFF
+  Radio4=ON
+  Radio5=OFF
+  ;;
+  lsb)
+  Radio1=OFF
+  Radio2=OFF
+  Radio3=OFF
+  Radio4=OFF
+  Radio5=ON
+  ;;
+  *)
+  Radio1=ON
+  Radio2=OFF
+  Radio3=OFF
+  Radio4=OFF
+  Radio5=OFF
+  ;;
+  esac
+  MODE_RX_FM=$(whiptail --title "Mode" --radiolist \
+    "$StrOutputFECContext" 20 78 8 \
+    "am" "AM" $Radio1 \
+    "fm" "FM" $Radio2 \
+    "wbfm" "WBFM" $Radio3 \
+    "usb" "USB" $Radio4 \
+    "lsb" "LSB" $Radio5 3>&2 2>&1 1>&3)
+
+  if [ $? -eq 0 ]; then
+    set_config_var r0mode "$MODE_RX_FM" $RTLPRESETSFILE
+  fi
+}
+
+do_RTL_SQUELCH()
+{
+SQUELCH_RX_FM=$(get_config_var r0squelch $RTLPRESETSFILE)
+Squelch_rtl=$(whiptail --inputbox "Squelch Level" 8 78 $SQUELCH_RX_FM --title "RTL FM Squelch" 3>&1 1>&2 2>&3)
+if [ $? -eq 0 ]; then
+  set_config_var r0squelch "$Squelch_rtl" $RTLPRESETSFILE
+fi
+}
+
+do_RTL_GAIN()
+{
+GAIN_RX_FM=$(get_config_var r0gain $RTLPRESETSFILE)
+Gain_rtl=$(whiptail --inputbox "Gain Level" 8 78 $GAIN_RX_FM --title "RTL FM Gain" 3>&1 1>&2 2>&3)
+if [ $? -eq 0 ]; then
+  set_config_var r0gain "$Gain_rtl" $RTLPRESETSFILE
+fi
+}
+
+do_RTL_Configuration()
+{
+  menuchoice=$(whiptail --title "Select RTL FM Configuration" --menu "RTL FM Menu" 20 78 13 \
+    "1 Frequency" $FREQ_RX_FM" MHz"  \
+    "2 Mode" $MODE_RX_FM  \
+    "3 Squelch" $SQUELCH_RX_FM  \
+    "4 Gain" $GAIN_RX_FM  \
+    3>&2 2>&1 1>&3)
+  case "$menuchoice" in
+    1\ *) do_RTL_Frequency ;;
+    2\ *) do_RTL_MODE ;;
+    3\ *) do_RTL_SQUELCH ;;
+    4\ *) do_RTL_GAIN ;;
+  esac
+  do_RTL_FM_Menu
+}
+
+do_RTL_Receive_Status()
+{
+  whiptail --title "RECEIVE" --msgbox "RTL FM $FREQ_RX_FM MHz, $MODE_RX_FM" 8 78
+  sudo killall rtl_fm >/dev/null 2>/dev/null
+  sudo killall aplay >/dev/null 2>/dev/null
+  sleep 1
+  sudo killall -9 rtl_fm >/dev/null 2>/dev/null
+  sudo killall -9 aplay >/dev/null 2>/dev/null
+  sudo fbi -T 1 -noverbose -a /home/pi/rpidatv/scripts/images/BATC_Black.png
+}
+
+do_RTL_Receive()
+{
+if pgrep -x "rtl_tcp" > /dev/null; then
+  # rtl_tcp is running, so kill it, pause and really kill it
+  killall rtl_tcp >/dev/null 2>/dev/null
+  sleep 0.5
+  sudo killall -9 rtl_tcp >/dev/null 2>/dev/null
+fi
+
+if ! pgrep -x "fbcp" > /dev/null; then
+  # fbcp is not running, so start it
+  fbcp &
+fi
+
+  /home/pi/rpidatv/scripts/rtl_fm.sh >/dev/null 2>/dev/null &
+  do_RTL_Receive_Status
+
+}
+
+do_RTL_FM_Menu()
+{
+  # Read Configuration
+  FREQ_RX_FM=$(get_config_var r0freq $RTLPRESETSFILE)
+  MODE_RX_FM=$(get_config_var r0mode $RTLPRESETSFILE)
+  SQUELCH_RX_FM=$(get_config_var r0squelch $RTLPRESETSFILE)
+  GAIN_RX_FM=$(get_config_var r0gain $RTLPRESETSFILE)
+  CARD="0"
+
+  menuchoice=$(whiptail --title "RTL FM" --menu "RTL FM Menu" 20 78 13 \
+    "1 Receive" $FREQ_RX_FM" MHz, "$MODE_RX_FM", Squelch: "$SQUELCH_RX_FM", Gain: "$GAIN_RX_FM  \
+    "2 Configuration" "Frequency, Mode, Squelch, Gain"  \
+    3>&2 2>&1 1>&3)
+  case "$menuchoice" in
+    1\ *) do_RTL_Receive ;;
+    2\ *) do_RTL_Configuration ;;
+  esac
+}
+
 do_receive_menu()
 {
 	# RX values
@@ -1610,18 +1765,20 @@ do_receive_menu()
   menuchoice=$(whiptail --title "Select Receive Option" --menu "RTL Menu" 20 78 13 \
     "1 Receive DATV" "$Key_Rx, "$RXfreq" MHz, "$RXsr" KS, FEC "$FECNUM_RX"/"$FECDEN_RX"."  \
     "2 RX Configuration" "Configure Freq, SR, FEC"  \
-    "3 Start RTL-TCP" "Start the RTL-TCP Server for use with SDR Sharp"  \
-    "4 Stop RTL-TCP" "Stop the RTL-TCP Server" \
-    "5 Start Stream RX" "Display the Selected Stream" \
-    "6 Stop Stream RX" "Stop Displaying the Selected Stream" \
+    "3 RTL FM" "Receiver with RTL-SDR"  \
+    "4 Start RTL-TCP" "Start the RTL-TCP Server for use with SDR Sharp"  \
+    "5 Stop RTL-TCP" "Stop the RTL-TCP Server" \
+    "6 Start Stream RX" "Display the Selected Stream" \
+    "7 Stop Stream RX" "Stop Displaying the Selected Stream" \
     3>&2 2>&1 1>&3)
   case "$menuchoice" in
     1\ *) do_receive ;;
     2\ *) do_RX_Config ;;
-    3\ *) do_start_rtl_tcp ;;
-    4\ *) do_stop_rtl_tcp  ;;
-    5\ *) do_streamrx  ;;
-    6\ *) do_stop_streamrx  ;;
+    3\ *) do_RTL_FM_Menu ;;
+    4\ *) do_start_rtl_tcp ;;
+    5\ *) do_stop_rtl_tcp  ;;
+    6\ *) do_streamrx  ;;
+    7\ *) do_stop_streamrx  ;;
   esac
 }
 
