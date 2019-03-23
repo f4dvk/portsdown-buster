@@ -12118,7 +12118,7 @@ void Define_Menu1()
   color_t Blue;
   color_t Red;
   color_t Grey;
-  strcpy(MenuTitle[1], "BATC Portsdown Transmitter Main Menu");
+  strcpy(MenuTitle[1], "BATC Portsdown_DVK Transmitter Main Menu");
 
   Green.r=0; Green.g=96; Green.b=0;
   Blue.r=0; Blue.g=0; Blue.b=128;
