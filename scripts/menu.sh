@@ -1335,6 +1335,10 @@ do_transmit()
     do_display_off
   fi
 
+  if [ "$MODE_OUTPUT" == "LIMEMINI" ]; then
+    /home/pi/rpidatv/scripts/lime_ptt.sh &
+  fi
+
   # Wait here transmitting until user presses a key
   whiptail --title "$StrStatusTitle" --msgbox "$INFO" 8 78
 
