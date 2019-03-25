@@ -674,7 +674,7 @@ do_output_setup_mode()
     Radio6=ON
   ;;
   IP)
-    Radio6=ON
+    Radio7=ON
   ;;
   COMPVID)
     Radio8=ON
