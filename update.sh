@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Updated by davecrump 201811300
+# Updated by davecrump 201903030
 
 DisplayUpdateMsg() {
   # Delete any old update message image  201802040
@@ -102,14 +102,14 @@ if ! grep -q MountFlags=shared systemd-udevd.service; then
 fi
 
 # Check if Lime needs to be updated
-# Look for Commit 809c16c
-grep -Fxqs "809c16c" /home/pi/LimeSuite/commit_tag.txt
+# Look for Commit 42f752a
+grep -Fxqs "42f752a" /home/pi/LimeSuite/commit_tag.txt
 Lime_Update_Not_Required=$?
 
 if [ $Lime_Update_Not_Required != 0 ]; then
 
   # Install packages here to catch first-time Lime Install
-  sudo apt-get -y install libsqlite3-dev libi2c-dev 
+  sudo apt-get -y install libsqlite3-dev libi2c-dev
 
   # Delete the old installation files
   sudo rm -rf /usr/local/lib/cmake/LimeSuite/* >/dev/null 2>/dev/null
@@ -120,13 +120,14 @@ if [ $Lime_Update_Not_Required != 0 ]; then
   sudo rm -rf /usr/local/bin/LimeQuickTest >/dev/null 2>/dev/null
   sudo rm -rf /home/pi/LimeSuite >/dev/null 2>/dev/null
 
-  # Install LimeSuite 18.04 as at 14 Nov 18
-  # Commit 809c16ccb88fe1b714200777d1676b3f35757832
+  # Install LimeSuite 19.01 as at 12 Feb 19
+  # Commit 42f752af905a5b4464cdb95964e408a4682b4ffa
   cd /home/pi
-  wget https://github.com/myriadrf/LimeSuite/archive/809c16ccb88fe1b714200777d1676b3f35757832.zip -O master.zip
+  wget https://github.com/myriadrf/LimeSuite/archive/42f752af905a5b4464cdb95964e408a4682b4ffa.zip -O master.zip
   unzip -o master.zip
-  cp -f -r LimeSuite-809c16ccb88fe1b714200777d1676b3f35757832 LimeSuite
-  rm -rf LimeSuite-809c16ccb88fe1b714200777d1676b3f35757832
+  cp -f -r LimeSuite-42f752af905a5b4464cdb95964e408a4682b4ffa LimeSuite
+  rm -rf LimeSuite-42f752af905a5b4464cdb95964e408a4682b4ffa
+
   rm master.zip
 
   # Compile LimeSuite
@@ -145,7 +146,7 @@ if [ $Lime_Update_Not_Required != 0 ]; then
   sudo /home/pi/LimeSuite/udev-rules/install.sh
 
   # Record the LimeSuite Version
-  echo "809c16c" >/home/pi/LimeSuite/commit_tag.txt
+  echo "42f752a" >/home/pi/LimeSuite/commit_tag.txt
 fi
 
 # Delete old limetool and binary
@@ -180,11 +181,11 @@ cp -f -r portsdown_DVK-master/video rpidatv
 cp -f -r portsdown_DVK-master/version_history.txt rpidatv/version_history.txt
 rm master.zip
 rm -rf portsdown_DVK-master
-cd /home/pi/rpidatv/scripts
-chmod +x rpibutton_rx.sh
-chmod +x rpibutton_tx.sh
-chmod +x leandvb_rx.sh
-chmod +x ctlSR.sh
+chmod -R +x /home/pi/rpidatv/scripts/
+#chmod +x rpibutton_rx.sh
+#chmod +x rpibutton_tx.sh
+#chmod +x leandvb_rx.sh
+#chmod +x ctlSR.sh
 cd /home/pi
 
 # Check which avc2ts to download.  Default is production
@@ -330,10 +331,16 @@ cd /home/pi/rpidatv/src/libdvbmod
 make dirmake
 make
 cd ../DvbTsToIQ
-touch DvbTsToIQ.cpp # To make sure that failed Dev updates get remade
-rm DvbTsToIQ.o
+
+# First compile the dvb2iq to be used for mpeg-2
+cp DvbTsToIQ2.cpp DvbTsToIQ.cpp
 make
-cp dvb2iq ../../bin/
+cp dvb2iq ../../bin/dvb2iq2
+
+# Now compile the dvb2iq to be used for H264
+cp DvbTsToIQ0.cpp DvbTsToIQ.cpp
+make
+cp dvb2iq ../../bin/dvb2iq
 
 # There is no step 7!
 
@@ -360,7 +367,7 @@ if ! grep -q modulation /home/pi/rpidatv/scripts/portsdown_config.txt; then
   printf "Adding new entries to user's portsdown_config.txt\n"
   # Delete any blank lines
   sed -i -e '/^$/d' /home/pi/rpidatv/scripts/portsdown_config.txt
-  # Add the 2 new entries and a new line 
+  # Add the 2 new entries and a new line
   echo "modulation=DVB-S" >> /home/pi/rpidatv/scripts/portsdown_config.txt
   echo "limegain=90" >> /home/pi/rpidatv/scripts/portsdown_config.txt
   echo "" >> /home/pi/rpidatv/scripts/portsdown_config.txt
@@ -371,7 +378,7 @@ if ! grep -q d1limegain /home/pi/rpidatv/scripts/portsdown_presets.txt; then
   printf "Adding new entries to user's portsdown_presets.txt\n"
   # Delete any blank lines
   sed -i -e '/^$/d' /home/pi/rpidatv/scripts/portsdown_presets.txt
-  # Add the 9 new entries and a new line 
+  # Add the 9 new entries and a new line
   echo "d1limegain=90" >> /home/pi/rpidatv/scripts/portsdown_presets.txt
   echo "d2limegain=90" >> /home/pi/rpidatv/scripts/portsdown_presets.txt
   echo "d3limegain=90" >> /home/pi/rpidatv/scripts/portsdown_presets.txt
@@ -473,7 +480,7 @@ if ! grep -q r0gain /home/pi/rpidatv/scripts/rtl-fm_presets.txt; then
   printf "Adding new entries to user's rtl-fm_presets.txt\n"
   # Delete any blank lines
   sed -i -e '/^$/d' /home/pi/rpidatv/scripts/rtl-fm_presets.txt
-  # Add the 9 new entries and a new line 
+  # Add the 9 new entries and a new line
   echo "r0gain=30" >> /home/pi/rpidatv/scripts/rtl-fm_presets.txt
   echo "r1gain=30" >> /home/pi/rpidatv/scripts/rtl-fm_presets.txt
   echo "r2gain=30" >> /home/pi/rpidatv/scripts/rtl-fm_presets.txt
@@ -509,7 +516,7 @@ if ! grep -q streamurl1 /home/pi/rpidatv/scripts/stream_presets.txt; then
   printf "Adding new entries to user's stream_presets.txt\n"
   # Delete any blank lines
   sed -i -e '/^$/d' /home/pi/rpidatv/scripts/stream_presets.txt
-  # Add the 9 new entries and a new line 
+  # Add the 9 new entries and a new line
   echo "streamurl1=rtmp://rtmp.batc.org.uk/live" >> /home/pi/rpidatv/scripts/stream_presets.txt
   echo "streamkey1=callsign-keykey" >> /home/pi/rpidatv/scripts/stream_presets.txt
   echo "streamurl2=rtmp://rtmp.batc.org.uk/live" >> /home/pi/rpidatv/scripts/stream_presets.txt
@@ -539,7 +546,7 @@ sudo dpkg -i /home/pi/rpidatv/scripts/configs/freqshow/libsdl1.2debian_1.2.15-5_
 
 # Download FreqShow
 git clone https://github.com/adafruit/FreqShow.git
-  
+
 # Change the settings for our environment
 rm /home/pi/FreqShow/freqshow.py
 cp /home/pi/rpidatv/scripts/configs/freqshow/waveshare_freqshow.py /home/pi/FreqShow/freqshow.py

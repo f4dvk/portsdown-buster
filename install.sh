@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Stretch Version by davecrump on 201811300
+# Stretch Version by davecrump on 201903030
 
 # Update the package manager
 sudo dpkg --configure -a
@@ -17,7 +17,7 @@ sudo apt-get -y dist-upgrade
 
 # Install the packages that we need
 sudo apt-get -y install git
-sudo apt-get -y install cmake libusb-1.0-0-dev libx11-dev buffer libjpeg-dev indent 
+sudo apt-get -y install cmake libusb-1.0-0-dev libx11-dev buffer libjpeg-dev indent
 sudo apt-get -y install ttf-dejavu-core bc usbmount fftw3-dev wiringpi libvncserver-dev
 sudo apt-get -y install fbi netcat imagemagick rng-tools
 sudo apt-get -y install libvdpau-dev libva-dev libxcb-shape0  # For latest ffmpeg build
@@ -32,13 +32,14 @@ if ! grep -q MountFlags=shared systemd-udevd.service; then
   sudo sed -i -e 's/MountFlags=slave/MountFlags=shared/' systemd-udevd.service
 fi
 
-# Install LimeSuite 18.04 as at 14 Nov 18
-# Commit 809c16ccb88fe1b714200777d1676b3f35757832
+# Install LimeSuite 19.01 as at 12 Feb 19
+# Commit 42f752af905a5b4464cdb95964e408a4682b4ffa
 cd /home/pi
-wget https://github.com/myriadrf/LimeSuite/archive/809c16ccb88fe1b714200777d1676b3f35757832.zip -O master.zip
+wget https://github.com/myriadrf/LimeSuite/archive/42f752af905a5b4464cdb95964e408a4682b4ffa.zip -O master.zip
 unzip -o master.zip
-cp -f -r LimeSuite-809c16ccb88fe1b714200777d1676b3f35757832 LimeSuite
-rm -rf LimeSuite-809c16ccb88fe1b714200777d1676b3f35757832
+cp -f -r LimeSuite-42f752af905a5b4464cdb95964e408a4682b4ffa LimeSuite
+rm -rf LimeSuite-42f752af905a5b4464cdb95964e408a4682b4ffa
+
 rm master.zip
 
 # Compile LimeSuite
@@ -57,7 +58,7 @@ chmod +x install.sh
 sudo /home/pi/LimeSuite/udev-rules/install.sh
 
 # Record the LimeSuite Version
-echo "809c16c" >/home/pi/LimeSuite/commit_tag.txt
+echo "42f752a" >/home/pi/LimeSuite/commit_tag.txt
 cd /home/pi
 
 # Check which rpidatv source to download.  Default is production
@@ -75,11 +76,11 @@ fi
 unzip -o master.zip
 mv portsdown_DVK-master rpidatv
 rm master.zip
-cd /home/pi/rpidatv/scripts
-chmod +x rpibutton_rx.sh
-chmod +x rpibutton_tx.sh
-chmod +x leandvb_rx.sh
-chmod +x ctlSR.sh
+chmod -R +x /home/pi/rpidatv/scripts/
+#chmod +x rpibutton_rx.sh
+#chmod +x rpibutton_tx.sh
+#chmod +x leandvb_rx.sh
+#chmod +x ctlSR.sh
 cd /home/pi
 
 # Check which avc2ts to download.  Default is production
@@ -257,8 +258,16 @@ cd /home/pi/rpidatv/src/libdvbmod
 make dirmake
 make
 cd ../DvbTsToIQ
+
+# First compile the dvb2iq to be used for mpeg-2
+cp DvbTsToIQ2.cpp DvbTsToIQ.cpp
 make
-cp dvb2iq ../../bin/
+cp dvb2iq ../../bin/dvb2iq2
+
+# Now compile the dvb2iq to be used for H264
+cp DvbTsToIQ0.cpp DvbTsToIQ.cpp
+make
+cp dvb2iq ../../bin/dvb2iq
 
 cd /home/pi/rpidatv/scripts/
 
