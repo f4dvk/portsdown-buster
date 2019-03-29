@@ -40,6 +40,8 @@ FEC=$(get_config_var rx0fec $RXPRESETSFILE)
 let FECNUM=FEC
 let FECDEN=FEC+1
 
+SDR=$(get_config_var rx0sdr $RXPRESETSFILE)
+
 SAMPLERATEK=$(get_config_var rx0samplerate $RXPRESETSFILE)
 if [ "$SAMPLERATEK" = "0" ]; then
   if [ "$SYMBOLRATEK" -lt 251 ]; then
@@ -65,7 +67,7 @@ MODULATION=$(get_config_var rx0modulation $RXPRESETSFILE)
 
 ENCODING=$(get_config_var rx0encoding $RXPRESETSFILE)
 
-SDR=$(get_config_var rx0sdr $RXPRESETSFILE)
+#SDR=$(get_config_var rx0sdr $RXPRESETSFILE)
 
 GRAPHICS=$(get_config_var rx0graphics $RXPRESETSFILE)
 
@@ -158,8 +160,3 @@ fi
 # --fd-info FDNUM      Output demodulator status to file descriptor
 # --fd-const FDNUM     Output constellation and symbols to file descr
 # --fd-spectrum FDNUM  Output spectrum to file descr
-
-
-
-
-
