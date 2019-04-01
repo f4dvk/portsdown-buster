@@ -13194,6 +13194,7 @@ void Start_Highlights_Menu5()
   AmendButtonStatus(ButtonNumber(5, 14), 1, RXBtext, &Green);
 
   // Modulation button 15
+  GetConfigParam(PATH_RXPRESETS, "rx0modulation", RXMOD);
   strcpy(RXBtext, "Modulation^");
   strcpy(RXmodulation[0], RXMOD);
   strcat(RXBtext, RXmodulation[0]);
