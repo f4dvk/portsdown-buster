@@ -10364,7 +10364,7 @@ void waituntil(int w,int h)
            printf("MENU 25 \n");        // FEC
            CurrentMenu=25;
            Start_Highlights_Menu25();
-				  }
+          }
           UpdateWindow();
           break;
         case 13:                       // Sample Rate
@@ -11374,10 +11374,20 @@ void waituntil(int w,int h)
         UpdateWindow();
         usleep(500000);
         SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 0); // Reset cancel (even if not selected)
-        printf("Returning to MENU 1 from Menu 25\n");
-        CurrentMenu=1;
-        BackgroundRGB(255,255,255,255);
-        Start_Highlights_Menu1();
+        if (CallingMenu == 1)
+        {
+         printf("Returning to MENU 1 from Menu 25\n");
+         CurrentMenu=1;
+         BackgroundRGB(255,255,255,255);
+         Start_Highlights_Menu1();
+       }
+       else
+       {
+        printf("Returning to MENU 5 from Menu 25\n");
+        CurrentMenu=5;
+        BackgroundRGB(0, 0, 0, 255);
+        Start_Highlights_Menu5();
+       }
         UpdateWindow();
         continue;   // Completed Menu 25 action, go and wait for touch
       }
