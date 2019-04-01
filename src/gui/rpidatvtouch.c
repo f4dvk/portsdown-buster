@@ -5601,7 +5601,7 @@ void SelectS2Fec(int NoButton)  // DVB-S2 FEC
  else
  {
   fec = TabS2Fec[NoButton];
-  EnforceValidFEC();
+  //EnforceValidFEC();
   char Param[7]="fec";
   char Value[255];
   sprintf(Value, "%d", fec);

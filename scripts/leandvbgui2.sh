@@ -45,7 +45,7 @@ else
  let FECNUM=FEC/10
  let FECDEN=FEC-FECNUM*10
  if [ $FECDEN = 1 ]; then
-  FECDEN=10
+  let FECDEN=10
  fi
 fi
 
