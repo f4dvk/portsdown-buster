@@ -13190,6 +13190,7 @@ void Start_Highlights_Menu5()
 
   // Modulation button 15
   strcpy(RXBtext, "Modulation^");
+  strcpy(RXmodulation[0], RXMOD);
   strcat(RXBtext, RXmodulation[0]);
   AmendButtonStatus(ButtonNumber(5, 15), 0, RXBtext, &Blue);
   AmendButtonStatus(ButtonNumber(5, 15), 1, RXBtext, &Green);
@@ -15846,11 +15847,11 @@ void Define_Menu40()
 
 void Start_Highlights_Menu40()
 {
-  SetButtonStatus(ButtonNumber(CurrentMenu, 5), 2); // DVB-S
-  SetButtonStatus(ButtonNumber(CurrentMenu, 6), 2); // DVB-S2
-  SetButtonStatus(ButtonNumber(CurrentMenu, 7), 2); // 8PSK
-  SetButtonStatus(ButtonNumber(CurrentMenu, 8), 2); // 16APSK
-  SetButtonStatus(ButtonNumber(CurrentMenu, 9), 2); // 32APSK
+  SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0); // DVB-S
+  SetButtonStatus(ButtonNumber(CurrentMenu, 6), 0); // DVB-S2
+  SetButtonStatus(ButtonNumber(CurrentMenu, 7), 0); // 8PSK
+  SetButtonStatus(ButtonNumber(CurrentMenu, 8), 0); // 16APSK
+  SetButtonStatus(ButtonNumber(CurrentMenu, 9), 0); // 32APSK
 
   if (strcmp(RXMOD, "DVB-S") == 0) // DVB-S
   {
