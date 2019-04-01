@@ -11970,22 +11970,22 @@ void waituntil(int w,int h)
           Start_Highlights_Menu5();
           UpdateWindow();
           break;
-        case 8:                               // 16APSK
-          SetConfigParam(PATH_RXPRESETS, "rx0modulation", "16APSK");
-          SetConfigParam(PATH_RXPRESETS, "rx0fec", "91");
-          CurrentMenu=5;
-          BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu5();
-          UpdateWindow();
-          break;
-        case 9:                               // 32APSK
-          SetConfigParam(PATH_RXPRESETS, "rx0modulation", "32APSK");
-          SetConfigParam(PATH_RXPRESETS, "rx0fec", "91");
-          CurrentMenu=5;
-          BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu5();
-          UpdateWindow();
-          break;
+        //case 8:                               // 16APSK
+          //SetConfigParam(PATH_RXPRESETS, "rx0modulation", "16APSK");
+          //SetConfigParam(PATH_RXPRESETS, "rx0fec", "91");
+          //CurrentMenu=5;
+          //BackgroundRGB(0,0,0,255);
+          //Start_Highlights_Menu5();
+          //UpdateWindow();
+          //break;
+        //case 9:                               // 32APSK
+          //SetConfigParam(PATH_RXPRESETS, "rx0modulation", "32APSK");
+          //SetConfigParam(PATH_RXPRESETS, "rx0fec", "91");
+          //CurrentMenu=5;
+          //BackgroundRGB(0,0,0,255);
+          //Start_Highlights_Menu5();
+          //UpdateWindow();
+          //break;
         default:
           printf("Menu 40 Error\n");
 				}
@@ -15869,13 +15869,13 @@ void Define_Menu40()
   AddButtonStatus(button,"8PSK",&Grey);
 
   button = CreateButton(40, 8);
-  AddButtonStatus(button,"16APSK",&Blue);
-  AddButtonStatus(button,"16APSK",&Green);
+  //AddButtonStatus(button,"16APSK",&Blue);
+  //AddButtonStatus(button,"16APSK",&Green);
   AddButtonStatus(button,"16APSK",&Grey);
 
   button = CreateButton(40, 9);
-  AddButtonStatus(button,"32APSK",&Blue);
-  AddButtonStatus(button,"32APSK",&Green);
+  //AddButtonStatus(button,"32APSK",&Blue);
+  //AddButtonStatus(button,"32APSK",&Green);
   AddButtonStatus(button,"32APSK",&Grey);
 }
 
@@ -15902,15 +15902,15 @@ void Start_Highlights_Menu40()
     SetButtonStatus(ButtonNumber(CurrentMenu, 7), 1); // 8PSK
   }
 
-  if (strcmp(RXMOD, "16APSK") == 0) // 16APSK
-  {
-    SetButtonStatus(ButtonNumber(CurrentMenu, 8), 1); // 16APSK
-  }
+  //if (strcmp(RXMOD, "16APSK") == 0) // 16APSK
+  //{
+    //SetButtonStatus(ButtonNumber(CurrentMenu, 8), 1); // 16APSK
+  //}
 
-  if (strcmp(RXMOD, "32APSK") == 0) // 32APSK
-  {
-    SetButtonStatus(ButtonNumber(CurrentMenu, 9), 1); // 32APSK
-  }
+  //if (strcmp(RXMOD, "32APSK") == 0) // 32APSK
+  //{
+    //SetButtonStatus(ButtonNumber(CurrentMenu, 9), 1); // 32APSK
+  //}
 }
 
 void Define_Menu42()

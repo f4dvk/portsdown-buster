@@ -72,7 +72,7 @@ fi
 
 GAIN=$(get_config_var rx0gain $RXPRESETSFILE)
 
-#ENCODING=$(get_config_var rx0encoding $RXPRESETSFILE)
+ENCODING=$(get_config_var rx0encoding $RXPRESETSFILE)
 
 #SDR=$(get_config_var rx0sdr $RXPRESETSFILE)
 
