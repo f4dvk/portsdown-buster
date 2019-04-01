@@ -220,6 +220,7 @@ fftwf_complex *fftout=NULL; // FFT for RX
 #define FFT_SIZE 256        // for RX display
 char RXKEY[256];
 char RXMOD[256];
+char RXFEC[256];
 
 // Stream Display Parameters. [0] is current
 char StreamAddress[9][127];  // Full rtmp address of stream
@@ -13094,6 +13095,7 @@ void Define_Menu5()
 void Start_Highlights_Menu5()
 {
   GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY);
+  GetConfigParam(PATH_RXPRESETS, "rx0fec", RXFEC);
 
   color_t Green;
   color_t Blue;
@@ -13176,6 +13178,10 @@ void Start_Highlights_Menu5()
     case 89:strcpy(RXBtext, "  FEC  ^  8/9 ") ;break;
     case 91:strcpy(RXBtext, "  FEC  ^  9/10 ") ;break;
     default:strcpy(RXBtext, "  FEC  ^Error") ;break;
+  }
+  if (strcmp(RXFEC, "Auto") == 0)
+  {
+    strcpy(RXBtext, "  FEC  ^  Auto ") ;break;
   }
   AmendButtonStatus(ButtonNumber(5, 12), 0, RXBtext, &Blue);
   AmendButtonStatus(ButtonNumber(5, 12), 1, RXBtext, &Green);
