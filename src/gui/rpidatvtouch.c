@@ -5605,6 +5605,7 @@ void SelectS2Fec(int NoButton)  // DVB-S2 FEC
   char Param[7]="fec";
   char Value[255];
   sprintf(Value, "%d", fec);
+  strcpy(RXfec[0], Value);
   printf("************** Set FEC = %s\n",Value);
   SetConfigParam(PATH_RXPRESETS, "rx0fec", Value);
  }
@@ -11947,6 +11948,7 @@ void waituntil(int w,int h)
           break;
         case 5:                               // DVB-S
           SetConfigParam(PATH_RXPRESETS, "rx0modulation", "DVB-S");
+          SetConfigParam(PATH_RXPRESETS, "rx0fec", "7");
           CurrentMenu=5;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu5();
@@ -11954,6 +11956,7 @@ void waituntil(int w,int h)
           break;
         case 6:                               // DVB-S2
           SetConfigParam(PATH_RXPRESETS, "rx0modulation", "DVB-S2");
+          SetConfigParam(PATH_RXPRESETS, "rx0fec", "91");
           CurrentMenu=5;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu5();
@@ -11961,6 +11964,7 @@ void waituntil(int w,int h)
           break;
         case 7:                               // 8PSK
           SetConfigParam(PATH_RXPRESETS, "rx0modulation", "8PSK");
+          SetConfigParam(PATH_RXPRESETS, "rx0fec", "91");
           CurrentMenu=5;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu5();
@@ -11968,6 +11972,7 @@ void waituntil(int w,int h)
           break;
         case 8:                               // 16APSK
           SetConfigParam(PATH_RXPRESETS, "rx0modulation", "16APSK");
+          SetConfigParam(PATH_RXPRESETS, "rx0fec", "91");
           CurrentMenu=5;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu5();
@@ -11975,6 +11980,7 @@ void waituntil(int w,int h)
           break;
         case 9:                               // 32APSK
           SetConfigParam(PATH_RXPRESETS, "rx0modulation", "32APSK");
+          SetConfigParam(PATH_RXPRESETS, "rx0fec", "91");
           CurrentMenu=5;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu5();

@@ -35,12 +35,13 @@ FREQ_OUTPUT=$(get_config_var rx0frequency $RXPRESETSFILE)
 FreqHz=$(echo "($FREQ_OUTPUT*1000000)/1" | bc )
 #echo Freq = $FreqHz
 
+MODULATION=$(get_config_var rx0modulation $RXPRESETSFILE)
 FEC=$(get_config_var rx0fec $RXPRESETSFILE)
 # Will need additional lines here to handle DVB-S2 FECs
 if [ "$MODULATION" == "DVB-S" ]; then
  let FECNUM=FEC
  let FECDEN=FEC+1
-esle
+else
  let FECNUM=FEC/10
  let FECDEN=FEC-FECNUM*10
  if [ $FECDEN = 1 ]; then
@@ -71,9 +72,7 @@ fi
 
 GAIN=$(get_config_var rx0gain $RXPRESETSFILE)
 
-MODULATION=$(get_config_var rx0modulation $RXPRESETSFILE)
-
-ENCODING=$(get_config_var rx0encoding $RXPRESETSFILE)
+#ENCODING=$(get_config_var rx0encoding $RXPRESETSFILE)
 
 #SDR=$(get_config_var rx0sdr $RXPRESETSFILE)
 
@@ -108,14 +107,14 @@ if [ "$SDR" = "LIMEMINI" ]; then
   B="--s12"
 fi
 
-if [ "$MODULATION" != "DVB-S" ] || [ "$MODULATION" != "DVB-S2" ]; then
-  if [ "$MODULATION" == "8PSK" ]; then
+if [ "$MODULATION" != "DVB-S" ] && [ "$MODULATION" != "DVB-S2" ]; then
+  if [ "$MODULATION" = "8PSK" ]; then
     MODULATION="DVB-S2"
     CONST="8PSK"
-  elif [ "$MODULATION" == "16APSK" ]; then
+  elif [ "$MODULATION" = "16APSK" ]; then
     MODULATION="DVB-S2"
     CONST="16APSK"
-  elif [ "$MODULATION" == "32APSK" ]; then
+  elif [ "$MODULATION" = "32APSK" ]; then
     MODULATION="DVB-S2"
     CONST="32APSK"
   fi
@@ -146,7 +145,7 @@ sudo fbi -T 1 -noverbose -a $PATHSCRIPT"/images/Blank_Black.png"
 # Constellation and Parameters on
 if [ "$GRAPHICS" = "ON" ] && [ "$PARAMS" = "ON" ]; then
   sudo $KEY\
-    | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 --cr $FECNUM"/"$FECDEN $FASTLOCK --sr $SYMBOLRATE --standard --const $CONST $MODULATION -f $SR_RTLSDR >videots 3>fifo.iq &
+    | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 --cr $FECNUM"/"$FECDEN $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
 fi
 
 # Constellation on, Parameters off
