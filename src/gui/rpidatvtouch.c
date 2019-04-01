@@ -15828,7 +15828,7 @@ void Define_Menu40()
   AddButtonStatus(button,"DVB-S2",&Green);
   AddButtonStatus(button,"DVB-S2",&Grey);
 
-  button = CreateButton(49, 7);
+  button = CreateButton(40, 7);
   AddButtonStatus(button,"8PSK",&Blue);
   AddButtonStatus(button,"8PSK",&Green);
   AddButtonStatus(button,"8PSK",&Grey);
