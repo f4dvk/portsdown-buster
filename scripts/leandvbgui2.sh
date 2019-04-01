@@ -41,7 +41,7 @@ FEC=$(get_config_var rx0fec $RXPRESETSFILE)
 if [ "$FEC" != "Auto" ]; then
  let FECNUM=FEC
  let FECDEN=FEC+1
- FECDVB="--cr $FECNUM/$FECDEN"
+ FECDVB="--cr $FECNUM"/"$FECDEN"
 else
  FECDVB=""
 fi
