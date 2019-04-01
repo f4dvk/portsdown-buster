@@ -11929,30 +11929,35 @@ void waituntil(int w,int h)
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu5();
           UpdateWindow();
+          break;
         case 6:                               // DVB-S2
           SetConfigParam(PATH_RXPRESETS, "rx0modulation", "DVB-S2");
           CurrentMenu=5;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu5();
           UpdateWindow();
+          break;
         case 7:                               // 8PSK
           SetConfigParam(PATH_RXPRESETS, "rx0modulation", "8PSK");
           CurrentMenu=5;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu5();
           UpdateWindow();
+          break;
         case 8:                               // 16APSK
           SetConfigParam(PATH_RXPRESETS, "rx0modulation", "16APSK");
           CurrentMenu=5;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu5();
           UpdateWindow();
+          break;
         case 9:                               // 32APSK
           SetConfigParam(PATH_RXPRESETS, "rx0modulation", "32APSK");
           CurrentMenu=5;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu5();
           UpdateWindow();
+          break;
         default:
           printf("Menu 40 Error\n");
 				}
