@@ -285,6 +285,7 @@ void Start_Highlights_Menu36();
 void Start_Highlights_Menu37();
 void Start_Highlights_Menu38();
 void Start_Highlights_Menu39();
+void Start_Highlights_Menu40();
 void Start_Highlights_Menu42();
 void Start_Highlights_Menu43();
 
@@ -10242,7 +10243,8 @@ void waituntil(int w,int h)
       {
         printf("Button Event %d, Entering Menu 5 Case Statement\n",i);
         CallingMenu = 5;
-	GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY);
+        GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY);
+        GetConfigParam(PATH_RXPRESETS, "rx0modulation", RXMOD);
 
         // Clear RX Preset store trigger if not a preset
         if ((i > 3) && (RXStoreTrigger == 1))
@@ -10351,6 +10353,13 @@ void waituntil(int w,int h)
           SetRXGain();
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu5();
+          UpdateWindow();
+          break;
+        case 15:                       // RXmodulation
+          printf("MENU 40 \n");
+          CurrentMenu=40;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu40();
           UpdateWindow();
           break;
         case 16:                       // Encoding
@@ -11870,31 +11879,84 @@ void waituntil(int w,int h)
           Start_Highlights_Menu1();
           UpdateWindow();
           break;
-	case 5:                               // RTLSDR
-	 if (CheckRTL()==0)
-	 {
-          SetConfigParam(PATH_RXPRESETS, "rx0sdr", "RTLSDR");
-	  CurrentMenu=5;
-	  BackgroundRGB(0,0,0,255);
-	  Start_Highlights_Menu5();
-	  UpdateWindow();
-	 }
+      	case 5:                               // RTLSDR
+	        if (CheckRTL()==0)
+	        {
+           SetConfigParam(PATH_RXPRESETS, "rx0sdr", "RTLSDR");
+	         CurrentMenu=5;
+	         BackgroundRGB(0,0,0,255);
+	         Start_Highlights_Menu5();
+	         UpdateWindow();
+	        }
           break;
-        case 6:                               // LIMEMINI
-	 if (CheckLimeMiniConnect() == 0)
-	 {
-          SetConfigParam(PATH_RXPRESETS, "rx0sdr", "LIMEMINI");
-	  CurrentMenu=5;
-	  BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu5();
-	  UpdateWindow();
-	 }
-          break;
-        default:
+         case 6:                               // LIMEMINI
+	        if (CheckLimeMiniConnect() == 0)
+	        {
+           SetConfigParam(PATH_RXPRESETS, "rx0sdr", "LIMEMINI");
+	         CurrentMenu=5;
+	         BackgroundRGB(0,0,0,255);
+           Start_Highlights_Menu5();
+	         UpdateWindow();
+	        }
+         break;
+         default:
           printf("Menu 39 Error\n");
-        }
+       }
         continue;   // Completed Menu 39 action, go and wait for touch
-      }
+}
+
+      if (CurrentMenu == 40)  // Menu 40 LeanDVB Modulation Selection
+      {
+        printf("Button Event %d, Entering Menu 40 Case Statement\n",i);
+        switch (i)
+        {
+        case 4:                               // Cancel
+          SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 1);
+          printf("Cancelling LeanDVB Modulation Selection Menu\n")
+          UpdateWindow();
+          usleep(500000);
+          SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 0); // Reset cancel (even if not selected)
+          printf("Returning to MENU 1 from Menu 40\n");
+          CurrentMenu=1;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu1();
+          UpdateWindow();
+          break;
+        case 5:                               // DVB-S
+          SetConfigParam(PATH_RXPRESETS, "rx0modulation", "DVB-S");
+          CurrentMenu=5;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu5();
+          UpdateWindow();
+        case 6:                               // DVB-S2
+          SetConfigParam(PATH_RXPRESETS, "rx0modulation", "DVB-S2");
+          CurrentMenu=5;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu5();
+          UpdateWindow();
+        case 7:                               // 8PSK
+          SetConfigParam(PATH_RXPRESETS, "rx0modulation", "8PSK");
+          CurrentMenu=5;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu5();
+          UpdateWindow();
+        case 8:                               // 16APSK
+          SetConfigParam(PATH_RXPRESETS, "rx0modulation", "16APSK");
+          CurrentMenu=5;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu5();
+          UpdateWindow();
+        case 9:                               // 32APSK
+          SetConfigParam(PATH_RXPRESETS, "rx0modulation", "32APSK");
+          CurrentMenu=5;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu5();
+          UpdateWindow();
+        default:
+          printf("Menu 40 Error\n");
+				}
+        continue;   // Completed Menu 40 action, go and wait for touch
+			}
 
       if (CurrentMenu == 42)  // Menu 42 Output Device
       {
@@ -12118,7 +12180,7 @@ void Define_Menu1()
   color_t Blue;
   color_t Red;
   color_t Grey;
-  strcpy(MenuTitle[1], "BATC Portsdown_DVK Transmitter Main Menu"); 
+  strcpy(MenuTitle[1], "BATC Portsdown_DVK Transmitter Main Menu");
 
   Green.r=0; Green.g=96; Green.b=0;
   Blue.r=0; Blue.g=0; Blue.b=128;
@@ -15731,6 +15793,90 @@ void Start_Highlights_Menu39()
 
 }
 
+void Define_Menu40()
+{
+  int button;
+  color_t Green;
+  color_t Blue;
+  color_t LBlue;
+  color_t DBlue;
+  color_t Grey;
+  Green.r=0; Green.g=128; Green.b=0;
+  Blue.r=0; Blue.g=0; Blue.b=128;
+  LBlue.r=64; LBlue.g=64; LBlue.b=192;
+  DBlue.r=0; DBlue.g=0; DBlue.b=64;
+  Grey.r=127; Grey.g=127; Grey.b=127;
+
+  strcpy(MenuTitle[40], "LeanDVB Modulation Selection Menu (40)");
+
+  // Bottom Row, Menu 40
+
+  button = CreateButton(40, 4);
+  AddButtonStatus(button, "Cancel", &DBlue);
+  AddButtonStatus(button, "Cancel", &LBlue);
+
+  // 2nd Row, Menu 40
+
+  button = CreateButton(40, 5);
+  AddButtonStatus(button,"DVB-S",&Blue);
+  AddButtonStatus(button,"DVB-S",&Green);
+  AddButtonStatus(button,"DVB-S",&Grey);
+
+  button = CreateButton(40, 6);
+  AddButtonStatus(button,"DVB-S2",&Blue);
+  AddButtonStatus(button,"DVB-S2",&Green);
+  AddButtonStatus(button,"DVB-S2",&Grey);
+
+  button = CreateButton(49, 7);
+  AddButtonStatus(button,"8PSK",&Blue);
+  AddButtonStatus(button,"8PSK",&Green);
+  AddButtonStatus(button,"8PSK",&Grey);
+
+  button = CreateButton(40, 8);
+  AddButtonStatus(button,"16APSK",&Blue);
+  AddButtonStatus(button,"16APSK",&Green);
+  AddButtonStatus(button,"16APSK",&Grey);
+
+  button = CreateButton(40, 9);
+  AddButtonStatus(button,"32APSK",&Blue);
+  AddButtonStatus(button,"32APSK",&Green);
+  AddButtonStatus(button,"32APSK",&Grey);
+}
+
+void Start_Highlights_Menu40()
+{
+  SetButtonStatus(ButtonNumber(CurrentMenu, 5), 2); // DVB-S
+  SetButtonStatus(ButtonNumber(CurrentMenu, 6), 2); // DVB-S2
+  SetButtonStatus(ButtonNumber(CurrentMenu, 7), 2); // 8PSK
+  SetButtonStatus(ButtonNumber(CurrentMenu, 8), 2); // 16APSK
+  SetButtonStatus(ButtonNumber(CurrentMenu, 9), 2); // 32APSK
+
+  if (strcmp(RXMOD, "DVB-S") == 0) // DVB-S
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 1); // DVB-S
+  }
+
+  if (strcmp(RXMOD, "DVB-S2") == 0) // DVB-S2
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 6), 1); // DVB-S2
+  }
+
+  if (strcmp(RXMOD, "8PSK") == 0) // 8PSK
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 7), 1); // 8PSK
+  }
+
+  if (strcmp(RXMOD, "16APSK") == 0) // 16APSK
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 8), 1); // 16APSK
+  }
+
+  if (strcmp(RXMOD, "32APSK") == 0) // 32APSK
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 9), 1); // 32APSK
+  }
+}
+
 void Define_Menu42()
 {
   int button;
@@ -16415,7 +16561,7 @@ int main(int argc, char **argv)
   Define_Menu37();
   Define_Menu38();
   Define_Menu39();
-
+  Define_Menu40()
   Define_Menu41();
   Define_Menu42();
   Define_Menu43();
