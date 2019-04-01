@@ -5588,6 +5588,8 @@ void SelectS2Fec(int NoButton)  // DVB-S2 FEC
   {
     NoButton = NoButton + 5;
   }
+ if (CallingMenu == 1)  // Transmit FEC
+ {
   fec = TabS2Fec[NoButton];
   EnforceValidFEC();
   char Param[7]="fec";
@@ -5595,6 +5597,17 @@ void SelectS2Fec(int NoButton)  // DVB-S2 FEC
   sprintf(Value, "%d", fec);
   printf("************** Set FEC = %s\n",Value);
   SetConfigParam(PATH_PCONFIG, Param, Value);
+ }
+ else
+ {
+  fec = TabS2Fec[NoButton];
+  EnforceValidFEC();
+  char Param[7]="fec";
+  char Value[255];
+  sprintf(Value, "%d", fec);
+  printf("************** Set FEC = %s\n",Value);
+  SetConfigParam(PATH_RXPRESETS, "rx0fec", Value);
+ }
 }
 
 void SelectPTT(int NoButton,int Status)  // TX/RX

@@ -37,8 +37,16 @@ FreqHz=$(echo "($FREQ_OUTPUT*1000000)/1" | bc )
 
 FEC=$(get_config_var rx0fec $RXPRESETSFILE)
 # Will need additional lines here to handle DVB-S2 FECs
-let FECNUM=FEC
-let FECDEN=FEC+1
+if [ "$MODULATION" == "DVB-S" ]; then
+ let FECNUM=FEC
+ let FECDEN=FEC+1
+esle
+ let FECNUM=FEC/10
+ let FECDEN=FEC-FECNUM*10
+ if [ $FECDEN = 1 ]; then
+  FECDEN=10
+ fi
+fi
 
 SDR=$(get_config_var rx0sdr $RXPRESETSFILE)
 
