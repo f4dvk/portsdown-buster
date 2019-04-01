@@ -38,15 +38,12 @@ FreqHz=$(echo "($FREQ_OUTPUT*1000000)/1" | bc )
 MODULATION=$(get_config_var rx0modulation $RXPRESETSFILE)
 FEC=$(get_config_var rx0fec $RXPRESETSFILE)
 # Will need additional lines here to handle DVB-S2 FECs
-if [ "$MODULATION" == "DVB-S" ]; then
+if [ "$FEC" != "Auto" ]; then
  let FECNUM=FEC
  let FECDEN=FEC+1
+ FECDVB="--cr $FECNUM/$FECDEN"
 else
- let FECNUM=FEC/10
- let FECDEN=FEC-FECNUM*10
- if [ $FECDEN = 1 ]; then
-  FECDEN=10
- fi
+ FECDVB=""
 fi
 
 SDR=$(get_config_var rx0sdr $RXPRESETSFILE)
@@ -145,25 +142,25 @@ sudo fbi -T 1 -noverbose -a $PATHSCRIPT"/images/Blank_Black.png"
 # Constellation and Parameters on
 if [ "$GRAPHICS" = "ON" ] && [ "$PARAMS" = "ON" ]; then
   sudo $KEY\
-    | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 --cr $FECNUM"/"$FECDEN $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
+    | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 $FECDVB --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
 fi
 
 # Constellation on, Parameters off
 if [ "$GRAPHICS" = "ON" ] && [ "$PARAMS" = "OFF" ]; then
   sudo $KEY\
-    | $PATHBIN"leandvb" $B --fd-pp 3 --fd-const 2 --cr $FECNUM"/"$FECDEN $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
+    | $PATHBIN"leandvb" $B --fd-pp 3 --fd-const 2 $FECDVB --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
 fi
 
 # Constellation off, Parameters on
 if [ "$GRAPHICS" = "OFF" ] && [ "$PARAMS" = "ON" ]; then
   sudo $KEY\
-    | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 --cr $FECNUM"/"$FECDEN $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
+    | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
 fi
 
 # Constellation and Parameters off
 if [ "$GRAPHICS" = "OFF" ] && [ "$PARAMS" = "OFF" ]; then
   sudo $KEY\
-    | $PATHBIN"leandvb" $B --cr $FECNUM"/"$FECDEN $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>/dev/null &
+    | $PATHBIN"leandvb" $B $FECDVB --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>/dev/null &
 fi
 
 # read videots and output video es

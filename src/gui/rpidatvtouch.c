@@ -5588,8 +5588,6 @@ void SelectS2Fec(int NoButton)  // DVB-S2 FEC
   {
     NoButton = NoButton + 5;
   }
- if (CallingMenu == 1)  // Transmit FEC
- {
   fec = TabS2Fec[NoButton];
   EnforceValidFEC();
   char Param[7]="fec";
@@ -5597,18 +5595,6 @@ void SelectS2Fec(int NoButton)  // DVB-S2 FEC
   sprintf(Value, "%d", fec);
   printf("************** Set FEC = %s\n",Value);
   SetConfigParam(PATH_PCONFIG, Param, Value);
- }
- else
- {
-  fec = TabS2Fec[NoButton];
-  //EnforceValidFEC();
-  char Param[7]="fec";
-  char Value[255];
-  sprintf(Value, "%d", fec);
-  strcpy(RXfec[0], Value);
-  printf("************** Set FEC = %s\n",Value);
-  SetConfigParam(PATH_RXPRESETS, "rx0fec", Value);
- }
 }
 
 void SelectPTT(int NoButton,int Status)  // TX/RX
@@ -10361,9 +10347,7 @@ void waituntil(int w,int h)
 				  }
           else // DVB-S2
           {
-           printf("MENU 25 \n");        // FEC
-           CurrentMenu=25;
-           Start_Highlights_Menu25();
+           //SetConfigParam(PATH_RXPRESETS, "rx0fec", "Auto");
           }
           UpdateWindow();
           break;
@@ -11374,20 +11358,10 @@ void waituntil(int w,int h)
         UpdateWindow();
         usleep(500000);
         SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 0); // Reset cancel (even if not selected)
-        if (CallingMenu == 1)
-        {
          printf("Returning to MENU 1 from Menu 25\n");
          CurrentMenu=1;
          BackgroundRGB(255,255,255,255);
          Start_Highlights_Menu1();
-       }
-       else
-       {
-        printf("Returning to MENU 5 from Menu 25\n");
-        CurrentMenu=5;
-        BackgroundRGB(0, 0, 0, 255);
-        Start_Highlights_Menu5();
-       }
         UpdateWindow();
         continue;   // Completed Menu 25 action, go and wait for touch
       }
@@ -11966,7 +11940,7 @@ void waituntil(int w,int h)
           break;
         case 6:                               // DVB-S2
           SetConfigParam(PATH_RXPRESETS, "rx0modulation", "DVB-S2");
-          SetConfigParam(PATH_RXPRESETS, "rx0fec", "91");
+          SetConfigParam(PATH_RXPRESETS, "rx0fec", "Auto");
           CurrentMenu=5;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu5();
@@ -11974,7 +11948,7 @@ void waituntil(int w,int h)
           break;
         case 7:                               // 8PSK
           SetConfigParam(PATH_RXPRESETS, "rx0modulation", "8PSK");
-          SetConfigParam(PATH_RXPRESETS, "rx0fec", "91");
+          SetConfigParam(PATH_RXPRESETS, "rx0fec", "Auto");
           CurrentMenu=5;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu5();
@@ -11982,7 +11956,7 @@ void waituntil(int w,int h)
           break;
         //case 8:                               // 16APSK
           //SetConfigParam(PATH_RXPRESETS, "rx0modulation", "16APSK");
-          //SetConfigParam(PATH_RXPRESETS, "rx0fec", "91");
+          //SetConfigParam(PATH_RXPRESETS, "rx0fec", "Auto");
           //CurrentMenu=5;
           //BackgroundRGB(0,0,0,255);
           //Start_Highlights_Menu5();
@@ -11990,7 +11964,7 @@ void waituntil(int w,int h)
           //break;
         //case 9:                               // 32APSK
           //SetConfigParam(PATH_RXPRESETS, "rx0modulation", "32APSK");
-          //SetConfigParam(PATH_RXPRESETS, "rx0fec", "91");
+          //SetConfigParam(PATH_RXPRESETS, "rx0fec", "Auto");
           //CurrentMenu=5;
           //BackgroundRGB(0,0,0,255);
           //Start_Highlights_Menu5();
