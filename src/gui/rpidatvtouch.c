@@ -219,6 +219,7 @@ int FinishedButton2 = 1;    // Used to control FFT
 fftwf_complex *fftout=NULL; // FFT for RX
 #define FFT_SIZE 256        // for RX display
 char RXKEY[256];
+char RXMOD[256];
 
 // Stream Display Parameters. [0] is current
 char StreamAddress[9][127];  // Full rtmp address of stream
@@ -11912,7 +11913,7 @@ void waituntil(int w,int h)
         {
         case 4:                               // Cancel
           SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 1);
-          printf("Cancelling LeanDVB Modulation Selection Menu\n")
+          printf("Cancelling LeanDVB Modulation Selection Menu\n");
           UpdateWindow();
           usleep(500000);
           SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 0); // Reset cancel (even if not selected)
@@ -16561,7 +16562,7 @@ int main(int argc, char **argv)
   Define_Menu37();
   Define_Menu38();
   Define_Menu39();
-  Define_Menu40()
+  Define_Menu40();
   Define_Menu41();
   Define_Menu42();
   Define_Menu43();
