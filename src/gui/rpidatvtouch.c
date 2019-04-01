@@ -13181,7 +13181,7 @@ void Start_Highlights_Menu5()
   }
   if (strcmp(RXFEC, "Auto") == 0)
   {
-    strcpy(RXBtext, "  FEC  ^  Auto ") ;break;
+    strcpy(RXBtext, "  FEC  ^  Auto ");
   }
   AmendButtonStatus(ButtonNumber(5, 12), 0, RXBtext, &Blue);
   AmendButtonStatus(ButtonNumber(5, 12), 1, RXBtext, &Green);
