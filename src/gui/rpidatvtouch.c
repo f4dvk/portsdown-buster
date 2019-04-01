@@ -10338,10 +10338,19 @@ void waituntil(int w,int h)
           UpdateWindow();
           break;
         case 12:
-          printf("MENU 18 \n");        // FEC
-          CurrentMenu=18;
           BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu18();
+          if (strcmp(RXMOD, "DVB-S") == 0) // DVB-S
+          {
+           printf("MENU 18 \n");        // FEC
+           CurrentMenu=18;
+           Start_Highlights_Menu18();
+				  }
+          else // DVB-S2
+          {
+           printf("MENU 25 \n");        // FEC
+           CurrentMenu=25;
+           Start_Highlights_Menu25();
+				  }
           UpdateWindow();
           break;
         case 13:                       // Sample Rate
