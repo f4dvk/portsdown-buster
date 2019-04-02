@@ -1434,6 +1434,9 @@ do_receive_status()
   sudo killall -9 rx_gpio >/dev/null 2>/dev/null
   sudo killall -9 leandvb >/dev/null 2>/dev/null
   sudo killall -9 hello_video.bin >/dev/null 2>/dev/null
+  sudo killall -9 hello_video2.bin >/dev/null 2>/dev/null
+  sudo killall -9 rtl_sdr >/dev/null 2>/dev/null
+  sudo killall fbi >/dev/null 2>/dev/null
   if [ "$RXKEY" == "LIMEMINI" ]; then
     sudo killall limesdr_dump >/dev/null 2>/dev/null
     /home/pi/rpidatv/bin/limesdr_stopchannel
