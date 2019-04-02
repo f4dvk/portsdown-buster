@@ -1430,13 +1430,13 @@ do_display_off()
 
 do_receive_status()
 {
-  whiptail --title "RECEIVE" --msgbox "$RXKEY, $RXfreq MHz, $RXsr KS, FEC $FECNUM_RX/$FECDEN_RX." 8 78
+  whiptail --title "RECEIVE" --msgbox "$RXKEY, $RXfreq MHz, $RXModulation, $RXsr KS, FEC $FECDVB." 8 78
   sudo killall -9 rx_gpio >/dev/null 2>/dev/null
   sudo killall -9 leandvb >/dev/null 2>/dev/null
   sudo killall -9 hello_video.bin >/dev/null 2>/dev/null
-	if [ "$RXKEY" == "LIMEMINI" ]; then
-   sudo killall limesdr_dump >/dev/null 2>/dev/null
-   /home/pi/rpidatv/bin/limesdr_stopchannel
+  if [ "$RXKEY" == "LIMEMINI" ]; then
+    sudo killall limesdr_dump >/dev/null 2>/dev/null
+    /home/pi/rpidatv/bin/limesdr_stopchannel
   fi
   sudo fbi -T 1 -noverbose -a /home/pi/rpidatv/scripts/images/BATC_Black.png
 }
@@ -1525,7 +1525,7 @@ do_RX_FEC()
 	Radio3=OFF
 	Radio4=OFF
 	Radio5=OFF
-  Radio6=OFF
+	Radio6=OFF
 	;;
 	2)
 	Radio1=OFF
@@ -1533,7 +1533,7 @@ do_RX_FEC()
 	Radio3=OFF
 	Radio4=OFF
 	Radio5=OFF
-  Radio6=OFF
+	Radio6=OFF
 	;;
 	3)
 	Radio1=OFF
@@ -1541,7 +1541,7 @@ do_RX_FEC()
 	Radio3=ON
 	Radio4=OFF
 	Radio5=OFF
-  Radio6=OFF
+	Radio6=OFF
 	;;
 	5)
 	Radio1=OFF
@@ -1549,7 +1549,7 @@ do_RX_FEC()
 	Radio3=OFF
 	Radio4=ON
 	Radio5=OFF
-  Radio6=OFF
+	Radio6=OFF
 	;;
 	7)
 	Radio1=OFF
@@ -1557,7 +1557,7 @@ do_RX_FEC()
 	Radio3=OFF
 	Radio4=OFF
 	Radio5=ON
-  Radio6=OFF
+	Radio6=OFF
 	;;
 	Auto)
 	Radio1=OFF
@@ -1566,6 +1566,7 @@ do_RX_FEC()
 	Radio4=OFF
 	Radio5=OFF
 	Radio6=ON
+	;;
 	*)
 	Radio1=ON
 	Radio2=OFF
@@ -1613,6 +1614,7 @@ do_RX_Modulation()
    Radio1=Off
    Radio2=OFF
    Radio3=ON
+	 ;;
    *)
    Radio1=ON
    Radio2=OFF
