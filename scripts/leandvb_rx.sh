@@ -28,8 +28,13 @@ FREQ_OUTPUT=$(get_config_var rx0frequency $RXPRESETSFILE)
 SDR=$(get_config_var rx0sdr $RXPRESETSFILE)
 MODULATION=$(get_config_var rx0modulation $RXPRESETSFILE)
 FEC=$(get_config_var rx0fec $RXPRESETSFILE)
-let FECNUM=FEC
-let FECDEN=FEC+1
+if [ "$FEC" != "Auto" ]; then
+ let FECNUM=FEC
+ let FECDEN=FEC+1
+ FECDVB="--cr $FECNUM"/"$FECDEN"
+else
+ FECDVB=""
+fi
 
 FreqHz=$(echo "($FREQ_OUTPUT*1000000)/1" | bc )
 let SYMBOLRATE=SYMBOLRATEK*1000
@@ -61,6 +66,21 @@ if [ "$SDR" = "LIMEMINI" ]; then
   B="--s12"
 fi
 
+if [ "$MODULATION" != "DVB-S" ] && [ "$MODULATION" != "DVB-S2" ]; then
+ if [ "$MODULATION" = "8PSK" ]; then
+  MODULATION="DVB-S2"
+  CONST="8PSK"
+ elif [ "$MODULATION" = "16APSK" ]; then
+  MODULATION="DVB-S2"
+  CONST="16APSK"
+ elif [ "$MODULATION" = "32APSK" ]; then
+  MODULATION="DVB-S2"
+  CONST="32APSK"
+ fi
+else
+ CONST="QPSK"
+fi
+
 sudo killall -9 hello_video.bin
 sudo killall leandvb
 sudo killall ts2es
@@ -72,9 +92,9 @@ sudo killall fbi >/dev/null 2>/dev/null
 sudo fbi -T 1 -noverbose -a $PATHSCRIPT"/images/Blank_Black.png"
 (sleep 1; sudo killall -9 fbi >/dev/null 2>/dev/null) &  ## kill fbi once it has done its work
 
-#--fd-pp 3 
+#--fd-pp 3
 #sudo rtl_sdr -p 20 -g 30 -f $FreqHz -s $SR_RTLSDR - 2>/dev/null | $PATHBIN"leandvb"  --cr $FECNUM"/"$FECDEN --sr $SYMBOLRATE -f $SR_RTLSDR 2>/dev/null |buffer| $PATHBIN"ts2es" -video -stdin fifo.264 &
-$KEY| $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2  --cr $FECNUM"/"$FECDEN --fastlock --sr $SYMBOLRATE -f $SR_RTLSDR  3>fifo.iq | $PATHBIN"ts2es" -video -stdin fifo.264 & 
+$KEY| $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2  $FECDVB --fastlock --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR  3>fifo.iq | $PATHBIN"ts2es" -video -stdin fifo.264 &
 #sudo rtl_sdr -p 20 -g 40 -f $FreqHz -s $SR_RTLSDR - 2>/dev/null | $PATHBIN"leandvb"  -- --gui -d --cr $FECNUM"/"$FECDEN --sr $SYMBOLRATE -f $SR_RTLSDR  |buffer| $PATHBIN"ts2es" -video -stdin fifo.264 &
 #sudo rtl_sdr  -p 20 -g 30 -f 650000000 -s 1024000 - 2>/dev/null | $PATHBIN"leandvb"  --filter --gui -d --cr 7/8 --sr 250000 -f 1024000 | $PATHBIN"ts2es" -video -stdin fifo.264 &
 #sudo rtl_sdr -p 20 -g 30 -f 650000000 -s 1024000 - 2>/dev/null | $PATHBIN"leandvb"  --filter --gui -d --cr 7/8 --sr 250000 -f 1024000 > file.ts
