@@ -220,7 +220,7 @@ void DrawButton(int ButtonIndex)
 	Fill(Button->Status[Button->NoStatus].Color.r, Button->Status[Button->NoStatus].Color.g, Button->Status[Button->NoStatus].Color.b, 1);
 	 Roundrect(Button->x,Button->y,Button->w,Button->h, Button->w/10, Button->w/10);
 	Fill(255, 255, 255, 1);				   // White text
-	TextMid(Button->x+Button->w/2, Button->y+Button->h/2, Button->Status[Button->NoStatus].Text, SerifTypeface, Button->w/strlen(Button->Status[Button->NoStatus].Text)/*25*/);	
+	TextMid(Button->x+Button->w/2, Button->y+Button->h/2, Button->Status[Button->NoStatus].Text, SerifTypeface, Button->w/strlen(Button->Status[Button->NoStatus].Text)/*25*/);
 }
 
 void SetButtonStatus(int ButtonIndex,int Status)
@@ -652,7 +652,7 @@ void ProcessLeandvb()
 			{
 
 				PowerFFTx[i]=(i<FFT_SIZE/2)?(FFT_SIZE+i)/2:i/2;
-				PowerFFTy[i]=log10f(sqrt(fftout[i][0]*fftout[i][0]+fftout[i][1]*fftout[i][1])/FFT_SIZE)*100;	
+				PowerFFTy[i]=log10f(sqrt(fftout[i][0]*fftout[i][0]+fftout[i][1]*fftout[i][1])/FFT_SIZE)*100;
 			Line(PowerFFTx[i],0,PowerFFTx[i],PowerFFTy[i]);
 			//Polyline(PowerFFTx,PowerFFTy,FFT_SIZE);
 
@@ -757,24 +757,32 @@ void ProcessLeandvb()
     }
 printf("End Lean - Clean\n");
 usleep(5000000); // Time to FFT end reading samples
-   pthread_join(thfft, NULL);
-	//pclose(fp);
-	pthread_join(thbutton, NULL);
-	printf("End Lean\n");
+  pthread_join(thfft, NULL);
+  pclose(fp);
+  pthread_join(thbutton, NULL);
+  system("sudo killall -9 hello_video.bin >/dev/null 2>/dev/null");
+  system("sudo killall -9 hello_video2.bin >/dev/null 2>/dev/null");
+  system("sudo killall fbi >/dev/null 2>/dev/null");
+  system("sudo killall leandvb >/dev/null 2>/dev/null");
+  system("sudo killall ts2es >/dev/null 2>/dev/null");
+  finish();
 }
 
 void ReceiveStart()
 {
 	//system("sudo SDL_VIDEODRIVER=fbcon SDL_FBDEV=/dev/fb0 mplayer -ao /dev/null -vo sdl  /home/pi/rpidatv/video/mire250.ts &");
 	//system(PATH_SCRIPT_LEAN);
+  system("sudo killall hello_video.bin >/dev/null 2>/dev/null");
+  system("sudo killall hello_video2.bin >/dev/null 2>/dev/null");
 	ProcessLeandvb();
 }
 
 void ReceiveStop()
 {
 	GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY);
-	system("sudo killall leandvb");
-	system("sudo killall hello_video.bin");
+	system("sudo killall leandvb >/dev/null 2>/dev/null");
+	system("sudo killall -9 hello_video.bin >/dev/null 2>/dev/null");
+  system("sudo killall -9 hello_video2.bin >/dev/null 2>/dev/null");
 	if (strcmp(RXKEY, "LIMEMINI") == 0)
         {
          system("sudo killall limesdr_dump >/dev/null 2>/dev/null");
@@ -783,7 +791,7 @@ void ReceiveStop()
 	//system("sudo killall mplayer");
 }
 
-// wait for a specific character 
+// wait for a specific character
 void waituntil(int w,int h,int endchar)
 {
 	// int key; not used?
@@ -821,7 +829,7 @@ void waituntil(int w,int h,int endchar)
 			{
 				SelectFreq(i);
 			}
-			if((i>=5)&&(i<=9)) //SR	
+			if((i>=5)&&(i<=9)) //SR
 			{
 				SelectSR(i);
 			}
@@ -917,7 +925,7 @@ terminate(int dummy)
 	exit(1);
 }
 
-// main initializes the system and shows the picture. 
+// main initializes the system and shows the picture.
 // Exit and clean up when you hit [RETURN].
 int main(int argc, char **argv) {
 	// int n;  // not used?
@@ -932,7 +940,7 @@ int main(int argc, char **argv) {
 	int i;
         char Param[255];
         char Value[255];
- 
+
 // Catch sigaction and call terminate
 	for (i = 0; i < 16; i++) {
 		struct sigaction sa;
@@ -952,14 +960,14 @@ int main(int argc, char **argv) {
         if(strcmp(Value,"Waveshare")==0)
         	Inversed=1;
 
-// Determine if ReceiveDirect 2nd argument 
+// Determine if ReceiveDirect 2nd argument
 	if(argc>2)
 		ReceiveDirect=atoi(argv[2]);
 
 	if(ReceiveDirect==1)
 	{
 		getTouchScreenDetails(&screenXmin,&screenXmax,&screenYmin,&screenYmax);
-		 ProcessLeandvb(); // For FrMenu and no 
+		 ProcessLeandvb(); // For FrMenu and no
 	}
 
 // Check for presence of touchscreen
@@ -970,7 +978,7 @@ int main(int argc, char **argv) {
 			if(getTouchScreenDetails(&screenXmin,&screenXmax,&screenYmin,&screenYmax)==1) break;
 		}
 	}
-	if(NoDeviceEvent==5) 
+	if(NoDeviceEvent==5)
 	{
 		perror("No Touchscreen found");
 		exit(1);

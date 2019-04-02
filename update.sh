@@ -279,7 +279,7 @@ cd /home/pi
 #install leandvb DVB-S2 work
 cd /home/pi/rpidatv/src/
 sudo rm -fr leansdr
-wget https://github.com/pabr/leansdr/archive/work.zip
+wget https://github.com/f4dvk/leansdr/archive/work.zip
 unzip work.zip
 mv leansdr-work leansdr
 rm work.zip

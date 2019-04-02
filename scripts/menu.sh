@@ -1430,13 +1430,16 @@ do_display_off()
 
 do_receive_status()
 {
-  whiptail --title "RECEIVE" --msgbox "$RXKEY, $RXfreq MHz, $RXsr KS, FEC $FECNUM_RX/$FECDEN_RX." 8 78
+  whiptail --title "RECEIVE" --msgbox "$RXKEY, $RXfreq MHz, $RXModulation, $RXsr KS, FEC $FECDVB." 8 78
   sudo killall -9 rx_gpio >/dev/null 2>/dev/null
   sudo killall -9 leandvb >/dev/null 2>/dev/null
   sudo killall -9 hello_video.bin >/dev/null 2>/dev/null
-	if [ "$RXKEY" == "LIMEMINI" ]; then
-   sudo killall limesdr_dump >/dev/null 2>/dev/null
-   /home/pi/rpidatv/bin/limesdr_stopchannel
+  sudo killall -9 hello_video2.bin >/dev/null 2>/dev/null
+  sudo killall -9 rtl_sdr >/dev/null 2>/dev/null
+  sudo killall fbi >/dev/null 2>/dev/null
+  if [ "$RXKEY" == "LIMEMINI" ]; then
+    sudo killall limesdr_dump >/dev/null 2>/dev/null
+    /home/pi/rpidatv/bin/limesdr_stopchannel
   fi
   sudo fbi -T 1 -noverbose -a /home/pi/rpidatv/scripts/images/BATC_Black.png
 }
@@ -1515,7 +1518,8 @@ do_RX_SR()
 
 do_RX_FEC()
 {
-	fec_rx=$(get_config_var rx0fec $RXPRESETSFILE)
+  fec_rx=$(get_config_var rx0fec $RXPRESETSFILE)
+  RXModulation=$(get_config_var rx0modulation $RXPRESETSFILE)
 
 	case "$fec_rx" in
 	1)
@@ -1524,6 +1528,7 @@ do_RX_FEC()
 	Radio3=OFF
 	Radio4=OFF
 	Radio5=OFF
+	Radio6=OFF
 	;;
 	2)
 	Radio1=OFF
@@ -1531,6 +1536,7 @@ do_RX_FEC()
 	Radio3=OFF
 	Radio4=OFF
 	Radio5=OFF
+	Radio6=OFF
 	;;
 	3)
 	Radio1=OFF
@@ -1538,6 +1544,7 @@ do_RX_FEC()
 	Radio3=ON
 	Radio4=OFF
 	Radio5=OFF
+	Radio6=OFF
 	;;
 	5)
 	Radio1=OFF
@@ -1545,6 +1552,7 @@ do_RX_FEC()
 	Radio3=OFF
 	Radio4=ON
 	Radio5=OFF
+	Radio6=OFF
 	;;
 	7)
 	Radio1=OFF
@@ -1552,6 +1560,15 @@ do_RX_FEC()
 	Radio3=OFF
 	Radio4=OFF
 	Radio5=ON
+	Radio6=OFF
+	;;
+	Auto)
+	Radio1=OFF
+	Radio2=OFF
+	Radio3=OFF
+	Radio4=OFF
+	Radio5=OFF
+	Radio6=ON
 	;;
 	*)
 	Radio1=ON
@@ -1559,34 +1576,84 @@ do_RX_FEC()
 	Radio3=OFF
 	Radio4=OFF
 	Radio5=OFF
+	Radio6=OFF
 	;;
 	esac
-	fec_rx=$(whiptail --title "$StrOutputFECTitle" --radiolist \
-		"$StrOutputFECContext" 20 78 8 \
-		"1" "1/2" $Radio1 \
-		"2" "2/3" $Radio2 \
-		"3" "3/4" $Radio3 \
-		"5" "5/6" $Radio4 \
-		"7" "7/8" $Radio5 3>&2 2>&1 1>&3)
+	if [ "$RXModulation" == "DVB-S" ]; then
+	 fec_rx=$(whiptail --title "$StrOutputFECTitle" --radiolist \
+		 "$StrOutputFECContext" 20 78 8 \
+		 "1" "1/2" $Radio1 \
+		 "2" "2/3" $Radio2 \
+		 "3" "3/4" $Radio3 \
+		 "5" "5/6" $Radio4 \
+		 "7" "7/8" $Radio5 3>&2 2>&1 1>&3)
+  else
+   fec_rx=$(whiptail --title "$StrOutputFECTitle" --radiolist \
+     "$StrOutputFECContext" 20 78 8 \
+     "Auto" "Auto for DVB-S2" $Radio6 3>&2 2>&1 1>&3)
+  fi
 
    if [ $? -eq 0 ]; then
-	   set_config_var rx0fec "$fec_rx" $RXPRESETSFILE
-	 fi
+    set_config_var rx0fec "$fec_rx" $RXPRESETSFILE
+   fi
+}
+
+do_RX_Modulation()
+{
+  RXModulation=$(get_config_var rx0modulation $RXPRESETSFILE)
+
+  case "$RXModulation" in
+   DVB-S)
+   Radio1=ON
+   Radio2=OFF
+   Radio3=OFF
+   ;;
+   DVB-S2)
+   Radio1=Off
+   Radio2=ON
+   Radio3=OFF
+   ;;
+   8PSK)
+   Radio1=Off
+   Radio2=OFF
+   Radio3=ON
+	 ;;
+   *)
+   Radio1=ON
+   Radio2=OFF
+   Radio3=OFF
+   ;;
+   esac
+   RXModulation=$(whiptail --title "Select RX Modulation" --radiolist \
+           "RX Modulation Menu" 20 78 8 \
+           "DVB-S" "DVB-S" $Radio1 \
+           "DVB-S2" "DVB-S2 QPSK" $Radio2 \
+           "8PSK" "DVB-S2 8PSK" $Radio3 3>&2 2>&1 1>&3)
+   if [ $? -eq 0 ]; then
+    set_config_var rx0modulation "$RXModulation" $RXPRESETSFILE
+   fi
+   if [ "$RXModulation" == "DVB-S" ]; then
+    set_config_var rx0fec "7" $RXPRESETSFILE
+   else
+    set_config_var rx0fec "Auto" $RXPRESETSFILE
+	fi
 }
 
 do_RX_Config()
 {
-	menuchoice=$(whiptail --title "Select RX Configuration" --menu "RX Menu" 20 78 13 \
+  menuchoice=$(whiptail --title "Select RX Configuration" --menu "RX Menu" 20 78 13 \
     "1 Frequency" $RXfreq" MHz"  \
-    "2 Symbol Rate" $RXsr" KS"  \
-    "3 FEC" "FEC "$FECNUM_RX"/"$FECDEN_RX  \
-    "4 RX Key" "$Key_Rx"  \
+    "2 Modulation" "$RXModulation" \
+    "3 Symbol Rate" $RXsr" KS"  \
+    "4 FEC" "FEC "$FECDVB  \
+    "5 RX Key" "$Key_Rx"  \
     3>&2 2>&1 1>&3)
   case "$menuchoice" in
     1\ *) do_RX_Frequency ;;
-    2\ *) do_RX_SR ;;
-    3\ *) do_RX_FEC ;;
-    4\ *) do_rx_select ;;
+    2\ *) do_RX_Modulation ;;
+    3\ *) do_RX_SR ;;
+    4\ *) do_RX_FEC ;;
+    5\ *) do_rx_select ;;
   esac
   do_receive_menu
 }
@@ -1763,12 +1830,18 @@ do_receive_menu()
   RXfreq=$(get_config_var rx0frequency $RXPRESETSFILE)
   RXfec=$(get_config_var rx0fec $RXPRESETSFILE)
   RXsr=$(get_config_var rx0sr $RXPRESETSFILE)
-  let FECNUM_RX=RXfec
-  let FECDEN_RX=RXfec+1
+  RXModulation=$(get_config_var rx0modulation $RXPRESETSFILE)
+  if [ "$RXfec" != "Auto" ]; then
+   let FECNUM_RX=RXfec
+   let FECDEN_RX=RXfec+1
+   FECDVB="$FECNUM_RX"/"$FECDEN_RX"
+  else
+   FECDVB="Auto"
+  fi
 
   menuchoice=$(whiptail --title "Select Receive Option" --menu "RTL Menu" 20 78 13 \
-    "1 Receive DATV" "$Key_Rx, "$RXfreq" MHz, "$RXsr" KS, FEC "$FECNUM_RX"/"$FECDEN_RX"."  \
-    "2 RX Configuration" "Configure Freq, SR, FEC"  \
+    "1 Receive DATV" "$Key_Rx, "$RXfreq" MHz, "$RXModulation", "$RXsr" KS, FEC "$FECDVB"."  \
+    "2 RX Configuration" "Configure Freq, Modulation, SR, FEC"  \
     "3 RTL FM" "Receiver with RTL-SDR"  \
     "4 Start RTL-TCP" "Start the RTL-TCP Server for use with SDR Sharp"  \
     "5 Stop RTL-TCP" "Stop the RTL-TCP Server" \

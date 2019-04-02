@@ -166,7 +166,7 @@ cd ../../
 
 # Get leandvb // DVB-S / DVB-S2 version
 cd /home/pi/rpidatv/src
-wget https://github.com/pabr/leansdr/archive/work.zip
+wget https://github.com/f4dvk/leansdr/archive/work.zip
 unzip work.zip
 mv leansdr-work leansdr
 rm work.zip
