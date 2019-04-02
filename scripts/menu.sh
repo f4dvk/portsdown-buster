@@ -1638,11 +1638,11 @@ do_RX_Modulation()
 
 do_RX_Config()
 {
-	menuchoice=$(whiptail --title "Select RX Configuration" --menu "RX Menu" 20 78 13 \
+  menuchoice=$(whiptail --title "Select RX Configuration" --menu "RX Menu" 20 78 13 \
     "1 Frequency" $RXfreq" MHz"  \
     "2 Modulation" "$RXModulation" \
     "3 Symbol Rate" $RXsr" KS"  \
-    "4 FEC" "FEC "$FECNUM_RX"/"$FECDEN_RX  \
+    "4 FEC" "FEC "$FECDVB  \
     "5 RX Key" "$Key_Rx"  \
     3>&2 2>&1 1>&3)
   case "$menuchoice" in
