@@ -89,11 +89,12 @@ do_refresh_config()
         SYMBOLRATEK=$(get_config_var symbolrate $CONFIGFILE)
         FEC=$(get_config_var fec $CONFIGFILE)
         FREQ=$(get_config_var freqoutput $CONFIGFILE)
+        MODULATION=$(get_config_var modulation $CONFIGFILE)
 }
 
 do_process_button()
 {
-	 if [ `gpio -g read $button_SR` = 1 ]&&[ "$SYMBOLRATEK" != 333 ] ; then
+	 if [ `gpio -g read $button_SR` = 1 ]&&[ "$SYMBOLRATEK" != 333 ]&&[ "$FREQ" != 145.9 ] ; then
 
                         NEW_SR=333;
 
@@ -103,7 +104,7 @@ do_process_button()
                 do_refresh_config
         fi
 
-        if [ `gpio -g read $button_SR` = 0 ]&&[ "$SYMBOLRATEK" != 800 ] ; then
+        if [ `gpio -g read $button_SR` = 0 ]&&[ "$SYMBOLRATEK" != 800 ]&&[ "$FREQ" != 145.9 ] ; then
 
                         NEW_SR=800;
 
@@ -116,8 +117,12 @@ do_process_button()
         if [ `gpio -g read $button_0` = 1 ]&&[ `gpio -g read $button_1` = 1 ]&&[ "$FREQ" != 437 ] ; then
 
                                 NEW_FREQ_OUTPUT=437;
+                                MODULATION=DVB-S;
+                                FEC=7;
 
                 set_config_var freqoutput "$NEW_FREQ_OUTPUT" $CONFIGFILE
+                set_config_var modulation "$MODULATION" $CONFIGFILE
+                set_config_var fec "$FEC" $CONFIGFILE
 
                 echo $NEW_FREQ_OUTPUT
                 do_refresh_config
@@ -126,8 +131,15 @@ do_process_button()
         if [ `gpio -g read $button_0` = 0 ]&&[ `gpio -g read $button_1` = 1 ]&&[ "$FREQ" != 145.9 ] ; then
 
                                 NEW_FREQ_OUTPUT=145.9;
+                                NEW_SR=125;
+                                MODULATION=S2QPSK;
+                                FEC=91;
+
 
                 set_config_var freqoutput "$NEW_FREQ_OUTPUT" $CONFIGFILE
+                set_config_var symbolrate "$NEW_SR" $CONFIGFILE
+                set_config_var modulation "$MODULATION" $CONFIGFILE
+                set_config_var fec "$FEC" $CONFIGFILE
 
                 echo $NEW_FREQ_OUTPUT
                 do_refresh_config
@@ -136,8 +148,12 @@ do_process_button()
         if [ `gpio -g read $button_0` = 1 ]&&[ `gpio -g read $button_1` = 0 ]&&[ "$FREQ" != 1255 ] ; then
 
                                 NEW_FREQ_OUTPUT=1255;
+                                MODULATION=DVB-S;
+                                FEC=7;
 
                 set_config_var freqoutput "$NEW_FREQ_OUTPUT" $CONFIGFILE
+                set_config_var modulation "$MODULATION" $CONFIGFILE
+                set_config_var fec "$FEC" $CONFIGFILE
 
                 echo $NEW_FREQ_OUTPUT
                 do_refresh_config
