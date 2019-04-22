@@ -81,9 +81,12 @@ else
  CONST="QPSK"
 fi
 
-sudo killall -9 hello_video.bin
-sudo killall leandvb
-sudo killall ts2es
+sudo rm fifo.264 >/dev/null 2>/dev/null
+sudo rm videots >/dev/null 2>/dev/null
+sudo killall -9 hello_video.bin >/dev/null 2>/dev/null
+sudo killall -9 hello_video2.bin >/dev/null 2>/dev/null
+sudo killall leandvb >/dev/null 2>/dev/null
+sudo killall ts2es >/dev/null 2>/dev/null
 mkfifo fifo.264
 mkfifo videots
 

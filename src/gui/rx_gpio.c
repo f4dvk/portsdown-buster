@@ -774,6 +774,7 @@ void ReceiveStart()
 	//system(PATH_SCRIPT_LEAN);
   system("sudo killall hello_video.bin >/dev/null 2>/dev/null");
   system("sudo killall hello_video2.bin >/dev/null 2>/dev/null");
+  system("sudo rm /home/pi/fifo.iq >/dev/null 2>/dev/null");  // Clean up before receive
 	ProcessLeandvb();
 }
 

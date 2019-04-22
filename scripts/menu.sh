@@ -1364,9 +1364,9 @@ do_stop_transmit()
   sudo killall -9 ffmpeg >/dev/null 2>/dev/null
   sudo killall -9 tcanim1v16 >/dev/null 2>/dev/null
   sudo killall -9 avc2ts >/dev/null 2>/dev/null
-  sudo killall -9 avc2ts.old >/dev/null 2>/dev/null
   sudo killall -9 netcat >/dev/null 2>/dev/null
   sudo killall -9 dvb2iq >/dev/null 2>/dev/null
+  sudo killall -9 dvb2iq2 >/dev/null 2>/dev/null
   sudo killall -9 limesdr_send >/dev/null 2>/dev/null
 	if [ "$MODE_OUTPUT" == "LIMEMINI" ]; then
    /home/pi/rpidatv/bin/limesdr_stopchannel &
@@ -1375,7 +1375,6 @@ do_stop_transmit()
   # Then pause and make sure that avc2ts has really been stopped (needed at high SRs)
   sleep 0.1
   sudo killall -9 avc2ts >/dev/null 2>/dev/null
-  sudo killall -9 avc2ts.old >/dev/null 2>/dev/null
 
   # And make sure rpidatv has been stopped (required for brief transmit selections)
   sudo killall -9 rpidatv >/dev/null 2>/dev/null
@@ -3253,22 +3252,30 @@ display_splash()
 
 OnStartup()
 {
-CALL=$(get_config_var call $PCONFIGFILE)
-MODE_INPUT=$(get_config_var modeinput $PCONFIGFILE)
-MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
-MODULATION=$(get_config_var modulation $PCONFIGFILE)
-SYMBOLRATEK=$(get_config_var symbolrate $PCONFIGFILE)
-FEC=$(get_config_var fec $PCONFIGFILE)
-PATHTS=$(get_config_var pathmedia $PCONFIGFILE)
-FREQ_OUTPUT=$(get_config_var freqoutput $PCONFIGFILE)
-GAIN_OUTPUT=$(get_config_var rfpower $PCONFIGFILE)
-let FECNUM=FEC
-let FECDEN=FEC+1
-V_FINDER=$(get_config_var vfinder $PCONFIGFILE)
+  CALL=$(get_config_var call $PCONFIGFILE)
+  MODE_INPUT=$(get_config_var modeinput $PCONFIGFILE)
+  MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
+  MODULATION=$(get_config_var modulation $PCONFIGFILE)
+  SYMBOLRATEK=$(get_config_var symbolrate $PCONFIGFILE)
+  FEC=$(get_config_var fec $PCONFIGFILE)
+  PATHTS=$(get_config_var pathmedia $PCONFIGFILE)
+  FREQ_OUTPUT=$(get_config_var freqoutput $PCONFIGFILE)
+  GAIN_OUTPUT=$(get_config_var rfpower $PCONFIGFILE)
+  if [ "$MODULATION" == "DVB-S" ] ; then
+   let FECNUM=FEC
+   let FECDEN=FEC+1
+  else
+   let FECNUM=FEC/10
+   let FECDEN=FEC-FECNUM*10
+   if [ $FECDEN = 1 ] ; then
+	  FECDEN=10
+   fi
+  fi
+  V_FINDER=$(get_config_var vfinder $PCONFIGFILE)
 
-INFO=$CALL":"$MODE_INPUT"-->"$MODE_OUTPUT"("$SYMBOLRATEK"KSymbol FEC "$FECNUM"/"$FECDEN") on "$FREQ_OUTPUT"Mhz"
+  INFO=$CALL":"$MODE_INPUT"-->"$MODE_OUTPUT" "$FREQ_OUTPUT" MHz "$SYMBOLRATEK" KS, "$MODULATION", FEC "$FECNUM"/"$FECDEN""
 
-do_transmit
+  do_transmit
 }
 
 #********************************************* MAIN MENU *********************************
@@ -3365,15 +3372,15 @@ while [ "$status" -eq 0 ]
     # Display main menu
 
      menuchoice=$(whiptail --title "$StrMainMenuTitle" --menu "$INFO" 16 82 9 \
-	"0 Transmit" $FREQ_OUTPUT" Mhz, "$MODULATION", "$SYMBOLRATEK" KS, FEC "$FECNUM"/"$FECDEN"." \
-        "1 Source" "$StrMainMenuSource"" ("$MODE_INPUT" selected)" \
+	"0 Transmit" $FREQ_OUTPUT" MHz, "$MODULATION", "$SYMBOLRATEK" KS, FEC "$FECNUM"/"$FECDEN"." \
+  "1 Source" "$StrMainMenuSource"" ("$MODE_INPUT" selected)" \
 	"2 Output" "$StrMainMenuOutput"" ("$MODE_OUTPUT" selected)" \
 	"3 Station" "$StrMainMenuCall" \
 	"4 Receive" "$StrMainMenuReceive" \
 	"5 System" "$StrMainMenuSystem" \
-        "6 System 2" "$StrMainMenuSystem2" \
+  "6 System 2" "$StrMainMenuSystem2" \
 	"7 Language" "$StrMainMenuLanguage" \
-        "8 Shutdown" "$StrMainMenuShutdown" \
+  "8 Shutdown" "$StrMainMenuShutdown" \
  	3>&2 2>&1 1>&3)
 
         case "$menuchoice" in

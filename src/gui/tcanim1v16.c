@@ -1,10 +1,11 @@
-#define VERSION "tcanim1v16"
+#define VERSION "tcanim1v16a"
 
 // particles.c - Simple particles example using the OpenVG Testbed
 // via Nick Williams (github.com/nilliams)
 // https://gist.githubusercontent.com/nilliams/7705819/raw/9cbb5a1298d6eef858639095148ede2c33cb6d40/particles.c
 //
 // Modified by Brian Jordan, G4EWJ, 2016
+// and Dave Crump, G8GKQ, 2019
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,7 +24,7 @@
 #define NUM_PARTICLES 		100
 #define CYCLEFIELDS		0
 
-	int 			angle ;			
+	int 			angle ;
 	int 			np ;
 	int				changes ;
 	struct timeval	now ;
@@ -43,6 +44,8 @@
 	char			bannertext [65005] ;
 	int				counter1, counter2 ;
 	int 			w, h ;
+	int				xsize;
+	int				ysize;
 
 #define	MAXNAMES		1000
 	VGImage			save [MAXNAMES] ;
@@ -52,14 +55,14 @@
 	int			nameseconds ;
 	int			namefields ;
 
-typedef struct particle 
+typedef struct particle
 {
 	int	active ;
 	double	x, y;
 	double 	vx, vy;
 	int 	r, g, b;
 	double	radius;
-	int	cycles ;	
+	int	cycles ;
 } particle_t;
 
 particle_t particles[NUM_PARTICLES];
@@ -76,7 +79,7 @@ int		filter		(const struct dirent *) ;
 void initParticles(int w, int h) {
 	int i;
 
-	for (i = 0; i < NUM_PARTICLES; i++) 
+	for (i = 0; i < NUM_PARTICLES; i++)
 	{
 		particle_t *p = &particles[i];
 		p->active = 0 ;
@@ -91,7 +94,7 @@ void initParticles(int w, int h) {
 		p->g = rand() % 256;
 		p->b = rand() % 256;
 		p->radius = (rand() % 40) + 80;
-		if (directionRTL) 
+		if (directionRTL)
 		{
 			p->vx *= -1;
 			p->x = w;
@@ -106,11 +109,11 @@ void draw(int w, int h) {
 	double		fontsize ;
 	double		tempf ;
 	int 		temp ;
-	
+
 	vgSetPixels (0,0,save[nameindex],0,0,w,h) ;
-	
+
 	activecount = 0 ;
-	for (i = 0; i < NUM_PARTICLES ; i++) 
+	for (i = 0; i < NUM_PARTICLES ; i++)
 	{
 		p = &particles[i];
 		if (p->active)
@@ -128,8 +131,8 @@ void draw(int w, int h) {
 			{
 				Fill (255,255,255,1) ;
 			}
-			fontsize = (14+2*strlen(balloontext)) * p->radius / TextWidth(balloontext,SansTypeface,25) ;	
-			TextMid (p->x,p->y-fontsize/2,balloontext,SansTypeface,fontsize) ;	
+			fontsize = (14+2*strlen(balloontext)) * p->radius / TextWidth(balloontext,SansTypeface,25) ;
+			TextMid (p->x,p->y-fontsize/2,balloontext,SansTypeface,fontsize) ;
 
 		// Apply the velocity
 			p->x += p->vx / 4 ;
@@ -141,19 +144,19 @@ void draw(int w, int h) {
 		// Gravity
 			p->vy -= gravity / 1.25 ;
 
-		// Stop particles leaving the canvas  
+		// Stop particles leaving the canvas
 			if (p->x < -50)	p->x = w + 50;
 			if (p->x > w + 50) p->x = -50;
 
 		// When particle reaches the bottom of screen reset velocity & start posn
-			if (p->y < -50) 
+			if (p->y < -50)
 			{
 				p->cycles++ ;
 				p->x = 0;
 				p->y = 0;
 				p->vx = (rand() % 20) + 10;
 				p->vy = (rand() % 15) + 25;
-	
+
 				if (directionRTL) {
 					p->vx *= -1;
 					p->x = w;
@@ -175,7 +178,7 @@ void draw(int w, int h) {
 		if (banneractive == 1)
 		{
 			Fill (0,0,0,1) ;
-			Rect (0,0,720,54) ;
+			Rect (0,0,800,54) ;
 			if (bannertoggle & 1)
 			{
 				Fill (128,0,192,1) ;
@@ -184,12 +187,12 @@ void draw(int w, int h) {
 			{
 				Fill (128,0,192,1) ;
 			}
-			Rect (0,20,720,34) ;
+			Rect (0,20,800,34) ;
 			Fill (255,255,255,1) ;
 			Text (w-frames*2,28,bannertext,SansTypeface,19) ;
 			frames++ ;
 			temp = TextWidth (bannertext,SansTypeface,19) ;
-			if (temp - frames * 2 < -720)
+			if (temp - frames * 2 < -800)
 			{
 				frames = 0 ;
 				bannertoggle++ ;
@@ -210,7 +213,7 @@ void makeImage ()
 		Fill (0,0,0,1);
 		Rect (0, 0, w, h);
 		sprintf (filename2,"%s/%s",dir,namelist[nameindex]->d_name) ;
-		Image (xoffset,yoffset,720-xoffset,576-yoffset,filename2) ;
+		Image (xoffset, yoffset, xsize-xoffset, ysize-yoffset,filename2) ;
 		vgFinish() ;
 		vgGetPixels (save[nameindex],0,0,0,0,w,h) ;
 //		End() ;
@@ -226,114 +229,134 @@ void makeImage ()
 // -r  right-to-left
 // -l  left-to-right
 
-int main(int argc, char **argv) 
+int main(int argc, char **argv)
 {
-	int 		i ;
-	int		x ;
-	int 		temp ;
-	int		errors ;
-	char		*p ;	
+  int 		i ;
+  int		x ;
+  int 		temp ;
+  int		errors ;
+  char		*p ;
 
-	counter1 = 0 ; counter2 = 0 ;
+  counter1 = 0 ;
+  counter2 = 0 ;
+  errors = 0 ;
 
-	errors = 0 ;
-	if (argc != 6)
+	if (argc != 8)
 	{
-		errors++ ;
+    errors++ ;
+    printf ("Incorrect number of arguments\n") ;
 	}
 	else
 	{
-		strncpy (filename,argv[1],sizeof(filename)-5) ;
-		p = strchr (filename,'*') ;
-		if (p)
-		{
-			nameseconds = atoi (p+1) ;
-			if (nameseconds == 0)
-			{
-				nameseconds = 1 ;
-			}
-			*p = 0 ;
-			p = strstr (filename,".jpg") ;
-			if (p)
-			{
-				*p = 0 ;
-			}
-			strcat (filename,"*.jpg") ;	
-		}
-		p = strstr (filename,".jpg") ;
-		if (p == 0)
-		{
-			strcat (filename,".jpg") ;
-		}
+    strncpy (filename,argv[1],sizeof(filename)-5) ;
+    p = strchr (filename,'*') ;
+    if (p)
+    {
+      nameseconds = atoi (p+1) ;
+      if (nameseconds == 0)
+      {
+        nameseconds = 1 ;
+      }
+      *p = 0 ;
+      p = strstr (filename,".jpg") ;
+      if (p)
+      {
+        *p = 0 ;
+      }
+      strcat (filename,"*.jpg") ;
+    }
+    p = strstr (filename,".jpg") ;
+    if (p == 0)
+    {
+      strcat (filename,".jpg") ;
+    }
+    strcpy (dir,filename) ;
+    strcpy (dir,dirname(dir)) ;
+    strcpy (base,filename) ;
+    strcpy (base,basename(base)) ;
+    namecount = scan() ;
+    if (namecount <= 0)
+    {
+      printf ("Cannot find %s\n\n",filename) ;
+      exit (3) ;
+    }
+    if (namecount > MAXNAMES)
+    {
+      namecount = MAXNAMES ;
+    }
 
-		strcpy (dir,filename) ;
-		strcpy (dir,dirname(dir)) ;
-		strcpy (base,filename) ;
-		strcpy (base,basename(base)) ;
+    xsize = atoi (argv[2]) ;
+    if (abs(xsize) > 800)
+    {
+      printf ("xsize error\n") ;
+      errors++ ;
+    }
 
-		namecount = scan() ;
-		if (namecount <= 0)
-		{
-			printf ("Cannot find %s\n\n",filename) ;
-			exit (3) ;
-		}
+    ysize = atoi (argv[3]) ;
+    if (abs(ysize) > 576)
+    {
+      printf ("ysize error\n") ;
+      errors++ ;
+    }
 
+    xoffset = atoi (argv[4]) ;
+    if (abs(xoffset) > abs(xsize))
+    {
+      printf ("xoffset error\n") ;
+      errors++ ;
+    }
 
-		if (namecount > MAXNAMES)
-		{
-			namecount = MAXNAMES ;
-		}
+    yoffset = atoi (argv[5]) ;
+    if (abs(yoffset) > abs(ysize))
+    {
+      printf ("yoffset error\n") ;
+      errors++ ;
+    }
 
-		xoffset = atoi (argv[2]) ;
-		if (abs(xoffset) > 720)
-		{
-			errors++ ;
-		}
-		yoffset = atoi (argv[3]) ;
-		if (abs(yoffset) > 576)
-		{
-			errors++ ;
-		}
-		strncpy (balloontext,argv[4],sizeof(balloontext)-1) ;
-		strncpy (bannertext,argv[5],sizeof(bannertext)-5) ;
-		if (strlen(bannertext))
-		{
-			strcat (bannertext,"    ") ;
-		}
-	}
-	printf ("\n") ;
-	if (errors)
-	{
-		printf ("Usage: %s \"FILENAME(S)\" XOFFSET YOFFSET \"BALLOONTEXT\" \"BANNERTEXT\" \n",VERSION) ;
-		printf ("                                +/-720  +/-576   Max 5         Max 65000    \n") ;
-		printf ("FILENAME(S) may be a single file or FILENAMES*n - it is not necessary to specify the .jpg extension\n") ;
-		printf ("FILENAMES*n displays all files that start with FILENAMES in alpha order changing every n seconds\n") ;
-		printf ("FILENAME(S) should be enclosed in double quotes\n") ;
-		printf ("\n") ;
-		exit (2) ;
-	}
+    strncpy (balloontext,argv[6],sizeof(balloontext)-1) ;
 
-	printf ("\n%s: Test Card Animator\n",VERSION) ;
-	if (namecount > 0)
-	{
-		printf ("Using image files in this order: \n") ;
-		for (nameindex = 0 ; nameindex < namecount ; nameindex++)
-		{
-			printf ("%s/%s\n",dir,namelist[nameindex]->d_name) ;
-		}
-	}
-	printf ("\n") ;
+    strncpy (bannertext,argv[7],sizeof(bannertext)-5) ;
+    if (strlen(bannertext))
+    {
+      strcat (bannertext,"    ") ;
+    }
+  }
 
-	init (&w, &h);
-	w = 720 ; h = 576 ;
-	makeImage() ;	
-	Start (w,h) ;
-	vgSetPixels (0,0,save[0],0,0,w,h) ;
-	End() ;
+  printf ("\n") ;
+  if (errors)
+  {
+    printf ("Usage: %s \"FILENAME(S)\" XSIZE YSIZE XOFFSET YOFFSET \"BALLOONTEXT\" \"BANNERTEXT\" \n",VERSION) ;
+    printf ("                             <801  <577     +/-720  +/-576   Max 5         Max 65000    \n") ;
+    printf ("FILENAME(S) may be a single file or FILENAMES*n - it is not necessary to specify the .jpg extension\n") ;
+    printf ("FILENAMES*n displays all files that start with FILENAMES in alpha order changing every n seconds\n") ;
+    printf ("FILENAME(S) should be enclosed in double quotes\n") ;
+    printf ("\n") ;
+    exit (2) ;
+ }
 
-	namefields = 0 ;
-	nameindex = 0 ;
-	
+  printf ("\n%s: Test Card Animator\n",VERSION) ;
+  if (namecount > 0)
+  {
+    printf ("Using image files in this order: \n") ;
+    for (nameindex = 0 ; nameindex < namecount ; nameindex++)
+    {
+      printf ("%s/%s\n",dir,namelist[nameindex]->d_name) ;
+    }
+  }
+  printf ("\n") ;
+
+  init (&w, &h);
+  //w = 720 ; h = 576 ;
+  //w = 800 ; h = 480 ;
+  w = xsize ; h = ysize ;
+  makeImage() ;
+  Start (w,h) ;
+  vgSetPixels (0,0,save[0],0,0,w,h) ;
+  End() ;
+
+  namefields = 0 ;
+  nameindex = 0 ;
+
     while (1)
     {
 	counter1++ ;
@@ -353,13 +376,13 @@ int main(int argc, char **argv)
 	{
 		np = 0 ;
 	}
-	
+
 	srand(time(NULL));
 
 	initParticles(w, h);
 	for (x = 0 ; x < np ; x++)
 	{
-		particles[x].active = 1 ;		
+		particles[x].active = 1 ;
 	}
 
 	usleep (1000000) ;
@@ -372,13 +395,13 @@ int main(int argc, char **argv)
 	{
 		banneractive = 2 ;
 	}
-		
+
 	balloonsactive = 0 ;
-	while (1) 
+	while (1)
 	{
 		Start (w, h);
 		counter2++ ;
-		draw(w, h);		
+		draw(w, h);
 		End() ;
 		cycles++ ;
 
@@ -394,11 +417,11 @@ int main(int argc, char **argv)
 		}
 
 		if (activecount == 0 && CYCLEFIELDS && cycles >= CYCLEFIELDS && frames == 0)
-		{			
+		{
 			banneractive = 2 ;
 			Start (w, h);
 			counter2++ ;
-			draw(w, h);		
+			draw(w, h);
 			End() ;
 			break ;
 		}
@@ -419,7 +442,7 @@ int main(int argc, char **argv)
 
 		// Change launch direction every 25 draws
 		i++;
-		if (alternate && i == 25) 
+		if (alternate && i == 25)
 		{
 			changes++ ;
 			directionRTL = directionRTL ? 0 : 1;
@@ -443,7 +466,7 @@ int filter (const struct dirent *sdx)
 }
 
 int scan()
-{    
+{
 	int 	n ;
 
     	n = scandir(dir, &namelist, filter, alphasort) ;
@@ -453,5 +476,3 @@ int scan()
     	}
 	return (n) ;
 }
-
-

@@ -7,4 +7,6 @@ if [ $? == 0 ]; then   ## Present
   echo "0"
 else
   echo "1"
-fi 
+fi
+
+exit

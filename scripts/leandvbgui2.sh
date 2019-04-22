@@ -120,8 +120,8 @@ else
 fi
 
 # Clean up
-#sudo rm fifo.264 >/dev/null 2>/dev/null
-#sudo rm videots >/dev/null 2>/dev/null
+sudo rm fifo.264 >/dev/null 2>/dev/null
+sudo rm videots >/dev/null 2>/dev/null
 #sudo rm fifo.iq >/dev/null 2>/dev/null
 sudo killall -9 hello_video.bin >/dev/null 2>/dev/null
 sudo killall -9 hello_video2.bin >/dev/null 2>/dev/null
