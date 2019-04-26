@@ -42,6 +42,14 @@ let SYMBOLRATE=SYMBOLRATEK*1000
 #let FreqHz=FREQ_OUTPUT*1000000
 echo Freq = $FreqHz
 
+  if [ "$FREQ_OUTPUT" -lt 146.1 ] && [ "$SDR" = "LIMEMINI" ]; then
+    GAIN=1
+  if [ "$FREQ_OUTPUT" -gt 146.0 ] && [ "$FREQ_OUTPUT" -lt 440.1 ] && [ "$SDR" = "LIMEMINI" ]; then
+    GAIN=0.5
+  if [ "$FREQ_OUTPUT" -gt 440.0 ] && [ "$SDR" = "LIMEMINI" ]; then
+    GAIN=1
+  fi
+
   if [ "$SYMBOLRATEK" -lt 251 ]; then
     SR_RTLSDR=300000
   elif [ "$SYMBOLRATEK" -gt 250 ] && [ "$SYMBOLRATEK" -lt 500 ] && [ "$SDR" = "RTLSDR" ]; then
@@ -62,7 +70,7 @@ if [ "$SDR" = "RTLSDR" ]; then
   B=""
 fi
 if [ "$SDR" = "LIMEMINI" ]; then
-  KEY="sudo /home/pi/rpidatv/bin/limesdr_dump -f $FreqHz -b 5e6 -s $SR_RTLSDR -g 1 -l 256*256 |buffer"
+  KEY="sudo /home/pi/rpidatv/bin/limesdr_dump -f $FreqHz -b 5e6 -s $SR_RTLSDR -g $GAIN -l 512*512 |buffer"
   B="--s12"
 fi
 

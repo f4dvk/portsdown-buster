@@ -74,6 +74,7 @@ do_stop_receiver()
   sudo killall -9 rx_gpio >/dev/null 2>/dev/null
   sudo killall -9 leandvb >/dev/null 2>/dev/null
   sudo killall -9 hello_video.bin >/dev/null 2>/dev/null
+  sudo killall -9 rtl_sdr >/dev/null 2>/dev/null
   if [ "$RXKEY" == "LIMEMINI" ]; then
    sudo killall limesdr_dump >/dev/null 2>/dev/null
    /home/pi/rpidatv/bin/limesdr_stopchannel
@@ -113,18 +114,22 @@ do_process_button()
 	 if [ `gpio -g read $button_SR` = 1 ]&&[ "$SYMBOLRATEK" != 333 ]&&[ "$FREQ" != 145.9 ] ; then
 
                         NEW_SR=333;
+                        NEW_FEC=7;
 
                 set_config_var rx0sr "$NEW_SR" $RXPRESETSFILE
+                set_config_var rx0fec "$NEW_FEC" $RXPRESETSFILE
 
                 echo $NEW_SR
                 do_refresh_config
         fi
 
-        if [ `gpio -g read $button_SR` = 0 ]&&[ "$SYMBOLRATEK" != 800 ]&&[ "$FREQ" != 145.9 ] ; then
+        if [ `gpio -g read $button_SR` = 0 ]&&[ "$SYMBOLRATEK" != 250 ]&&[ "$FREQ" != 145.9 ] ; then
 
-                        NEW_SR=800;
+                        NEW_SR=250;
+                        NEW_FEC=1;
 
                 set_config_var rx0sr "$NEW_SR" $RXPRESETSFILE
+                set_config_var rx0fec "$NEW_FEC" $RXPRESETSFILE
 
                 echo $NEW_SR
                 do_refresh_config

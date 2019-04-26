@@ -3373,14 +3373,14 @@ while [ "$status" -eq 0 ]
 
      menuchoice=$(whiptail --title "$StrMainMenuTitle" --menu "$INFO" 16 82 9 \
 	"0 Transmit" $FREQ_OUTPUT" MHz, "$MODULATION", "$SYMBOLRATEK" KS, FEC "$FECNUM"/"$FECDEN"." \
-  "1 Source" "$StrMainMenuSource"" ("$MODE_INPUT" selected)" \
+	"1 Source" "$StrMainMenuSource"" ("$MODE_INPUT" selected)" \
 	"2 Output" "$StrMainMenuOutput"" ("$MODE_OUTPUT" selected)" \
 	"3 Station" "$StrMainMenuCall" \
 	"4 Receive" "$StrMainMenuReceive" \
 	"5 System" "$StrMainMenuSystem" \
-  "6 System 2" "$StrMainMenuSystem2" \
+	"6 System 2" "$StrMainMenuSystem2" \
 	"7 Language" "$StrMainMenuLanguage" \
-  "8 Shutdown" "$StrMainMenuShutdown" \
+	"8 Shutdown" "$StrMainMenuShutdown" \
  	3>&2 2>&1 1>&3)
 
         case "$menuchoice" in

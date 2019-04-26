@@ -94,21 +94,25 @@ do_refresh_config()
 
 do_process_button()
 {
-	 if [ `gpio -g read $button_SR` = 1 ]&&[ "$SYMBOLRATEK" != 333 ]&&[ "$FREQ" != 145.9 ] ; then
+	     if [ `gpio -g read $button_SR` = 1 ]&&[ "$SYMBOLRATEK" != 333 ]&&[ "$FREQ" != 145.9 ] ; then
 
                         NEW_SR=333;
+                        NEW_FEC=7;
 
                 set_config_var symbolrate "$NEW_SR" $CONFIGFILE
+                set_config_var fec "$NEW_FEC" $CONFIGFILE
 
                 echo $NEW_SR
                 do_refresh_config
         fi
 
-        if [ `gpio -g read $button_SR` = 0 ]&&[ "$SYMBOLRATEK" != 800 ]&&[ "$FREQ" != 145.9 ] ; then
+        if [ `gpio -g read $button_SR` = 0 ]&&[ "$SYMBOLRATEK" != 250 ]&&[ "$FREQ" != 145.9 ] ; then
 
-                        NEW_SR=800;
+                        NEW_SR=250;
+                        NEW_FEC=1;
 
                 set_config_var symbolrate "$NEW_SR" $CONFIGFILE
+                set_config_var fec "$NEW_FEC" $CONFIGFILE
 
                 echo $NEW_SR
                 do_refresh_config
