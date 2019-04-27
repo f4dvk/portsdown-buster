@@ -43,11 +43,11 @@ let SYMBOLRATE=SYMBOLRATEK*1000
 echo Freq = $FreqHz
 
   if [ "$FREQ_OUTPUT" = "145.9" ] && [ "$SDR" = "LIMEMINI" ]; then
-    GAIN=1
+    GAIN="0.8"
   elif [ "$FREQ_OUTPUT" = "437" ] && [ "$SDR" = "LIMEMINI" ]; then
-    GAIN=0.5
+    GAIN="0.7"
   elif [ "$FREQ_OUTPUT" = "1255" ] && [ "$SDR" = "LIMEMINI" ]; then
-    GAIN=1
+    GAIN="1"
   fi
 
   if [ "$SYMBOLRATEK" -lt 251 ]; then
