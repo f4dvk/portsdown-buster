@@ -8,7 +8,6 @@
 
 int8_t IndicationGPIO;
 int8_t KeyGPIO;
-char sdnCommand[32];
 char startCommand[64];
 char stopCommand1[64];
 char stopCommand2[64];
@@ -17,8 +16,6 @@ char rebootCommand2[64];
 _timer_t key_timer;
 time_t rawtime;
 struct tm * timeinfo;
-char previous_hour [8] = "00";
-char hour [8];
 char stream_state [8] = "off";
 char ffmpegPID[256];
 
@@ -30,14 +27,14 @@ void GetffmpegPID(char[256]);
 int main( int argc, char *argv[] )
 {
   /* Set Indication GPIO out of bounds to detect valid user input */
-  IndicationGPIO = -1; 
+  IndicationGPIO = -1;
 
   /* Sort out which GPIO Pins to be used */
   if( argc == 1)
   {
     printf("No arguments, setting key to GPIO 1 on pin 12.\n");
     KeyGPIO = 1;
-  }  
+  }
   else if( argc == 2 )
   {
     /* Key GPIO provided */
@@ -98,21 +95,20 @@ int main( int argc, char *argv[] )
     printf("    http://wiringpi.com/pins/\n");
     return 0;
   }
-    
+
   /* Set up wiringPi module */
   if (wiringPiSetup() < 0)
   {
     return 0;
   }
-  
+
   /* Set up commands in buffers */
-  snprintf(sdnCommand, 32, "shutdown -h now");
   snprintf(startCommand, 64, "/home/pi/rpidatv/scripts/a.sh >/dev/null 2>/dev/null");
   snprintf(stopCommand1, 64 ,"sudo killall ffmpeg >/dev/null 2>/dev/null");
   snprintf(stopCommand2, 64 ,"sudo killall a.sh >/dev/null 2>/dev/null");
   snprintf(rebootCommand1, 64, "sudo swapoff -a");
   snprintf(rebootCommand2, 64, "sudo reboot now");
-  
+
   if(KeyGPIO > 0)
   {
     /* Set up KeyGPIO as Input */
@@ -168,52 +164,24 @@ int main( int argc, char *argv[] )
   system("killall fbcp");
 
   /* Now wait here for interrupts - forever! */
-  /* But stop/start the stream at 0300Z and 1500Z each day */
-    
+  /* Pi is rebooted by cron at 0300Z and 1500Z each day */
+
   /* Spin loop while waiting for interrupt */
-  /* Check time for 12 hour restart        */
   /* and check process still running if    */
   /* required every 10 seconds             */
 
   while(1)
   {
     delay(10000);
-    time ( &rawtime );
-    timeinfo = gmtime ( &rawtime );
-    strftime (hour, 8, "%H", timeinfo);
 
-    if (strcmp(previous_hour, "02") == 0 && strcmp(hour, "03") == 0)
-    {
-      /* 3am, so stop stream and reboot */
-      Stop_Function();
-      delay(10000);
-      system(rebootCommand1);
-      system(rebootCommand2);
-    }
-
-    if (strcmp(previous_hour, "14") == 0 && strcmp(hour, "15") == 0)
-    {
-      /* 3 pm, so stop and restart stream to zero delays */
-      if (strcmp(stream_state, "on") == 0)
-      {
-        Stop_Function();
-        delay(10000);
-        Start_Function();
-        printf("Stream restarted at %s o'clock", hour);
-      }
-      else
-      {
-        Stop_Function();
-      }
-    }
-    strcpy(previous_hour, hour);
     if (strcmp(stream_state, "on") == 0)
     {
       GetffmpegPID(ffmpegPID);
       if (atoi(ffmpegPID) < 1)  // ffmpeg not running when it should be
       {
+        Stop_Function();
+        delay(5000);
         Start_Function();
-        printf("after crashing in the hour after %s o'clock\n", hour);
       }
     }
   }
@@ -247,12 +215,12 @@ void Start_Function(void)
 {
   /* Start the stream */
   system(startCommand);
-    
+
   if(IndicationGPIO >= 0)
   {
     digitalWrite(IndicationGPIO, HIGH);
   }
-  strcpy(stream_state, "on");  
+  strcpy(stream_state, "on");
   printf("Starting stream\n");
 
 }
@@ -267,7 +235,7 @@ void Stop_Function(void)
   {
     digitalWrite(IndicationGPIO, LOW);
   }
-  strcpy(stream_state, "off");  
+  strcpy(stream_state, "off");
   printf("Stopping stream\n");
 }
 
@@ -287,4 +255,3 @@ void GetffmpegPID(char ffmpegPID[256])
   /* close */
   pclose(fp);
 }
-

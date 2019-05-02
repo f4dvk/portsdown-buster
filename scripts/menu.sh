@@ -990,6 +990,7 @@ do_fec_setup()
 	 Radio9=OFF
 	 ;;
 	 esac
+   if [ "$MODULATION" == "S2QPSK" ]; then
 	 FEC=$(whiptail --title "$StrOutputFECTitle" --radiolist \
 		"$StrOutputFECContext" 20 78 9 \
 		"14" "1/4" $Radio1 \
@@ -1001,6 +1002,35 @@ do_fec_setup()
 		"56" "5/6" $Radio7 \
 		"89" "8/9" $Radio8 \
 		"91" "9/10" $Radio9 3>&2 2>&1 1>&3)
+
+  	elif [ "$MODULATION" == "8PSK" ]; then
+    FEC=$(whiptail --title "$StrOutputFECTitle" --radiolist \
+		 "$StrOutputFECContext" 20 78 9 \
+		 "35" "3/5" $Radio4 \
+		 "23" "2/3" $Radio5 \
+		 "34" "3/4" $Radio6 \
+		 "56" "5/6" $Radio7 \
+		 "89" "8/9" $Radio8 \
+		 "91" "9/10" $Radio9 3>&2 2>&1 1>&3)
+
+	 elif [ "$MODULATION" == "16APSK" ]; then
+	 FEC=$(whiptail --title "$StrOutputFECTitle" --radiolist \
+		"$StrOutputFECContext" 20 78 9 \
+		"23" "2/3" $Radio5 \
+		"34" "3/4" $Radio6 \
+		"56" "5/6" $Radio7 \
+		"89" "8/9" $Radio8 \
+		"91" "9/10" $Radio9 3>&2 2>&1 1>&3)
+
+	elif [ "$MODULATION" == "32APSK" ]; then
+	FEC=$(whiptail --title "$StrOutputFECTitle" --radiolist \
+	 "$StrOutputFECContext" 20 78 9 \
+	 "34" "3/4" $Radio6 \
+	 "56" "5/6" $Radio7 \
+	 "89" "8/9" $Radio8 \
+	 "91" "9/10" $Radio9 3>&2 2>&1 1>&3)
+
+	fi
 	fi
 
 if [ $? -eq 0 ]; then
@@ -1976,6 +2006,13 @@ do_autostart_setup()
     if [ $? -eq 0 ]; then
       set_config_var stream0 "$STREAM0" $PATH_STREAMPRESETS
     fi
+  fi
+
+  # If Keyed or Continuous stream selected, set up cron for 12-hourly reboot
+  if [[ "$chstartup" == "Keyed_Stream_boot" || "$chstartup" == "Cont_Stream_boot" ]]; then
+    sudo crontab /home/pi/rpidatv/scripts/configs/rptrcron
+  else
+    sudo crontab /home/pi/rpidatv/scripts/configs/blankcron
   fi
 }
 
