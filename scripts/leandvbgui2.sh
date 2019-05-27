@@ -86,7 +86,11 @@ else
   FASTLOCK=" "
 fi
 
-GAIN_LIME="0.$GAIN"
+if [ "$GAIN" -lt 10 ]; then
+  GAIN_LIME="0.0$GAIN"
+else
+  GAIN_LIME="0.$GAIN"
+fi
 
 if [ "$GAIN" = 100 ] && [ "$SDR" = "LIMEMINI" ]; then
  GAIN_LIME=1
