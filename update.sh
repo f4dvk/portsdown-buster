@@ -45,12 +45,12 @@ GIT_SRC_FILE=".portsdown_gitsrc"
 if [ -e ${GIT_SRC_FILE} ]; then
   GIT_SRC=$(</home/pi/${GIT_SRC_FILE})
 else
-  GIT_SRC="BritishAmateurTelevisionClub"
+  GIT_SRC="f4dvk"
 fi
 
 ## If previous version was Dev (davecrump), load production by default
 if [ "$GIT_SRC" == "davecrump" ]; then
-  GIT_SRC="BritishAmateurTelevisionClub"
+  GIT_SRC="f4dvk"
 fi
 
 if [ "$1" == "-d" ]; then

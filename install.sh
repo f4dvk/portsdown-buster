@@ -3,7 +3,7 @@
 # Stretch Version by davecrump on 201905090
 
 # Check which source needs to be loaded # From M0DNY 201905090
-GIT_SRC="BritishAmateurTelevisionClub"
+GIT_SRC="f4dvk"
 GIT_SRC_FILE=".portsdown_gitsrc"
 
 if [ "$1" == "-d" ]; then
