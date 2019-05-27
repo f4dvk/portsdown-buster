@@ -96,7 +96,7 @@ wget https://github.com/${GIT_SRC}/portsdown/archive/master.zip
 
 # Unzip the rpidatv software and copy to the Pi
 unzip -o master.zip
-mv portsdown_DVK-master rpidatv
+mv portsdown-master rpidatv
 rm master.zip
 chmod -R +x /home/pi/rpidatv/scripts/
 #chmod +x rpibutton_rx.sh

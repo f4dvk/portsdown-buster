@@ -242,14 +242,14 @@ wget https://github.com/${GIT_SRC}/portsdown/archive/master.zip -O master.zip
 
 # Unzip and overwrite where we need to
 unzip -o master.zip
-cp -f -r portsdown_DVK-master/bin rpidatv
-cp -f -r portsdown_DVK-master/scripts rpidatv
-cp -f -r portsdown_DVK-master/src rpidatv
+cp -f -r portsdown-master/bin rpidatv
+cp -f -r portsdown-master/scripts rpidatv
+cp -f -r portsdown-master/src rpidatv
 rm -f rpidatv/video/*.jpg
-cp -f -r portsdown_DVK-master/video rpidatv
-cp -f -r portsdown_DVK-master/version_history.txt rpidatv/version_history.txt
+cp -f -r portsdown-master/video rpidatv
+cp -f -r portsdown-master/version_history.txt rpidatv/version_history.txt
 rm master.zip
-rm -rf portsdown_DVK-master
+rm -rf portsdown-master
 chmod -R +x /home/pi/rpidatv/scripts/
 cd /home/pi
 
