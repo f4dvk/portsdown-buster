@@ -697,6 +697,7 @@ cp -f -r /home/pi/prev_installed_version.txt /home/pi/rpidatv/scripts/prev_insta
 rm -rf /home/pi/prev_installed_version.txt
 
 # Save (overwrite) the git source used
+rm .portsdown_gitsrc
 echo "${GIT_SRC}" >> /home/pi/${GIT_SRC_FILE}
 
 # Reboot
