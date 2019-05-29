@@ -576,9 +576,6 @@ cd /home/pi
 # Install the components for Lime Grove
 cp -r /home/pi/rpidatv/scripts/configs/dvbsdr/ /home/pi/dvbsdr/
 
-# Remove fifo.iq
-sudo rm fifo.iq
-
 # Always auto-logon and run .bashrc (and hence startup.sh) (20180729)
 sudo ln -fs /etc/systemd/system/autologin@.service\
  /etc/systemd/system/getty.target.wants/getty@tty1.service
