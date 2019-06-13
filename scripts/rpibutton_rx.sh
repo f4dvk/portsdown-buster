@@ -1,9 +1,4 @@
-PATHSCRIPT=/home/pi/rpidatv/scripts
-CONFIGFILE=$PATHSCRIPT"/portsdown_config.txt"
 RXPRESETSFILE="/home/pi/rpidatv/scripts/rx_presets.txt"
-PATHRPI=/home/pi/rpidatv/bin
-PATHBIN="/home/pi/rpidatv/bin/"
-
 
 ############### PIN DEFINITION ###########"
 #button_0=GPIO 4 / Header 7
@@ -111,10 +106,11 @@ do_refresh_config()
 
 do_process_button()
 {
-	 if [ `gpio -g read $button_SR` = 1 ]&&[ "$SYMBOLRATEK" != 333 ]&&[ "$FREQ" != 145.9 ] ; then
+	 if [ `gpio -g read $button_SR` = 1 ]&&[ "$SYMBOLRATEK" != 333 ]&&[ "$FREQ" != 145.9 ]&&[ "$FREQ" != 437 ] ; then
 
                         NEW_SR=333;
                         NEW_FEC=7;
+                        MOD=0;
 
                 set_config_var rx0sr "$NEW_SR" $RXPRESETSFILE
                 set_config_var rx0fec "$NEW_FEC" $RXPRESETSFILE
@@ -123,10 +119,11 @@ do_process_button()
                 do_refresh_config
         fi
 
-        if [ `gpio -g read $button_SR` = 0 ]&&[ "$SYMBOLRATEK" != 250 ]&&[ "$FREQ" != 145.9 ] ; then
+        if [ `gpio -g read $button_SR` = 0 ]&&[ "$SYMBOLRATEK" != 250 ]&&[ "$FREQ" != 145.9 ]&&[ "$FREQ" != 437 ] ; then
 
                         NEW_SR=250;
                         NEW_FEC=1;
+                        MOD=0;
 
                 set_config_var rx0sr "$NEW_SR" $RXPRESETSFILE
                 set_config_var rx0fec "$NEW_FEC" $RXPRESETSFILE
@@ -135,13 +132,35 @@ do_process_button()
                 do_refresh_config
         fi
 
-        if [ `gpio -g read $button_0` = 1 ]&&[ `gpio -g read $button_1` = 1 ]&&[ "$FREQ" != 437 ] ; then
+        if [ `gpio -g read $button_0` = 1 ]&&[ `gpio -g read $button_1` = 1 ]&&[ "$MOD" != 10 ]&&[ `gpio -g read $button_SR` = 1 ] ; then
 
                                 NEW_FREQ_RX=437;
                                 MODULATION=DVB-S;
+                                NEW_FEC=7;
+                                NEW_SR=333:
+                                MOD=10;
 
                 set_config_var rx0frequency "$NEW_FREQ_RX" $RXPRESETSFILE
                 set_config_var rx0modulation "$MODULATION" $RXPRESETSFILE
+                set_config_var rx0fec "$NEW_FEC" $RXPRESETSFILE
+                set_config_var rx0sr "$NEW_SR" $RXPRESETSFILE
+
+                echo $NEW_FREQ_RX
+                do_refresh_config
+        fi
+
+        if [ `gpio -g read $button_0` = 1 ]&&[ `gpio -g read $button_1` = 1 ]&&[ "$MOD" != 13 ]&&[ `gpio -g read $button_SR` = 0 ] ; then
+
+                                NEW_FREQ_RX=437;
+                                MODULATION=DVB-S;
+                                NEW_SR=125:
+                                NEW_FEC=7;
+                                MOD=10;
+
+                set_config_var rx0frequency "$NEW_FREQ_RX" $RXPRESETSFILE
+                set_config_var rx0modulation "$MODULATION" $RXPRESETSFILE
+                set_config_var rx0sr "$NEW_SR" $RXPRESETSFILE
+                set_config_var rx0fec "$NEW_FEC" $RXPRESETSFILE
 
                 echo $NEW_FREQ_RX
                 do_refresh_config
@@ -151,11 +170,14 @@ do_process_button()
 
                                 NEW_FREQ_RX=145.9;
                                 NEW_SR=125;
-                                MODULATION=DVB-S2;
+                                MODULATION=DVB-S;
+                                NEW_FEC=7;
+                                MOD=0;
 
                 set_config_var rx0frequency "$NEW_FREQ_RX" $RXPRESETSFILE
                 set_config_var rx0sr "$NEW_SR" $RXPRESETSFILE
                 set_config_var rx0modulation "$MODULATION" $RXPRESETSFILE
+                set_config_var rx0fec "$NEW_FEC" $RXPRESETSFILE
 
                 echo $NEW_FREQ_RX
                 do_refresh_config
@@ -165,6 +187,7 @@ do_process_button()
 
                                 NEW_FREQ_RX=1255;
                                 MODULATION=DVB-S;
+                                MOD=0;
 
                 set_config_var rx0frequency "$NEW_FREQ_RX" $RXPRESETSFILE
                 set_config_var rx0modulation "$MODULATION" $RXPRESETSFILE
@@ -193,6 +216,7 @@ do_process_button()
 ##################### MAIN PROGRAM ##############
 
 do_refresh_config
+MOD=0;
 while true; do
 
         do_process_button
