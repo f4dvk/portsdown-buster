@@ -158,7 +158,7 @@ char FreqLabel[31][255];
 char TabModeAudio[6][15]={"auto", "mic", "video", "bleeps", "no_audio", "webcam"};
 char TabModeSTD[2][7]={"6","0"};
 char TabModeVidIP[2][7]={"0","1"};
-char TabModeOP[15][15]={"IQ", "QPSKRF", "DATVEXPRESS", "LIMEUSB", "STREAMER", "COMPVID", \
+char TabModeOP[15][31]={"IQ", "QPSKRF", "DATVEXPRESS", "LIMEUSB", "STREAMER", "COMPVID", \
   "DTX1", "IP", "LIMEMINI", "JLIME", "JEXPRESS", "EXPRESS2", "PLUTO", "RPI_R", " "};
 char TabModeOPtext[15][31]={"Portsdown", " Ugly ", "Express", "Lime USB", "BATC^Stream", "Comp Vid", \
   " DTX1 ", "IPTS out", "Lime Mini", "Jetson^Lime", "Jetson^Express", "Express S2", "Pluto", "RPI^Remote", " "};
@@ -5443,8 +5443,8 @@ void EnforceValidTXMode()
        && (strcmp(CurrentModeOP, "COMPVID") != 0)
        && (strcmp(CurrentModeOP, "IP") != 0)
        && (strcmp(CurrentModeOP, "JLIME") != 0)
-       && (strcmp(CurrentModeOP, "JEXPRESS") != 0))
-       //&& (strcmp(CurrentModeOP, "RPI_R") != 0)) // not DVB-S2-capable
+       && (strcmp(CurrentModeOP, "JEXPRESS") != 0)
+       && (strcmp(CurrentModeOP, "RPI_R") != 0)) // not DVB-S2-capable
   {
     if ((strcmp(CurrentTXMode, TabTXMode[0]) != 0) && (strcmp(CurrentTXMode, TabTXMode[1]) != 0))  // Not DVB-S and not Carrier
     {
@@ -5609,8 +5609,8 @@ void GreyOut1()
         && (strcmp(CurrentModeOP, "DATVEXPRESS") != 0)
         && (strcmp(CurrentModeOP, TabModeOP[3]) != 0)
         && (strcmp(CurrentModeOP, TabModeOP[8]) != 0)
-        && (strcmp(CurrentModeOP, TabModeOP[9]) != 0))
-        //&& (strcmp(CurrentModeOP, TabModeOP[13]) != 0))
+        && (strcmp(CurrentModeOP, TabModeOP[9]) != 0)
+        && (strcmp(CurrentModeOP, TabModeOP[13]) != 0))
       {
         SetButtonStatus(ButtonNumber(CurrentMenu, 14), 2); // Attenuator Level
       }
@@ -5851,10 +5851,10 @@ void SelectTX(int NoButton)  // TX RF Output Mode
   EnforceValidFEC();
   ApplyTXConfig();
   // RPI remote
-/*  if (strcmp(ModeOutput, "RPI_R") == 0)
+  if (strcmp(ModeOutput, "RPI_R") == 0)
   {
     system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
-  } */
+  }
 }
 
 void SelectPilots()  // Toggle pilots on/off
@@ -5870,10 +5870,10 @@ void SelectPilots()  // Toggle pilots on/off
     SetConfigParam(PATH_PCONFIG, "pilots", "off");
   }
   // RPI remote
-/*  if (strcmp(ModeOutput, "RPI_R") == 0)
+  if (strcmp(ModeOutput, "RPI_R") == 0)
   {
     system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
-  } */
+  }
 }
 
 void SelectFrames()  // Toggle frames long/short
@@ -5889,10 +5889,10 @@ void SelectFrames()  // Toggle frames long/short
     SetConfigParam(PATH_PCONFIG, "frames", "long");
   }
   // RPI remote
-/*  if(strcmp(ModeOutput, "RPI_R") == 0)
+  if(strcmp(ModeOutput, "RPI_R") == 0)
   {
     system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
-  } */
+  }
 }
 
 void SelectEncoding(int NoButton)  // Encoding
@@ -5905,10 +5905,10 @@ void SelectEncoding(int NoButton)  // Encoding
   ApplyTXConfig();
 
   // RPI remote
-/*  if (strcmp(ModeOutput, "RPI_R") == 0)
+  if (strcmp(ModeOutput, "RPI_R") == 0)
   {
     system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
-  } */
+  }
 }
 
 void SelectOP(int NoButton)      // Output device
@@ -5959,10 +5959,10 @@ void SelectFormat(int NoButton)  // Video Format
   ApplyTXConfig();
 
   // RPI remote
-/*  if (strcmp(ModeOutput, "RPI_R") == 0)
+  if (strcmp(ModeOutput, "RPI_R") == 0)
   {
     system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
-  } */
+  }
 }
 
 void SelectSource(int NoButton)  // Video Source
@@ -5998,10 +5998,10 @@ void SelectFreq(int NoButton)  //Frequency
     DoFreqChange();
 
     // RPI remote
-/*    if (strcmp(ModeOutput, "RPI_R") == 0)
+    if (strcmp(ModeOutput, "RPI_R") == 0)
     {
       system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
-    } */
+    }
   }
   else                    // Lean DVB Receive frequency
   {
@@ -6029,10 +6029,10 @@ void SelectSR(int NoButton)  // Symbol Rate
     SetConfigParam(PATH_PCONFIG, "symbolrate", Value);
 
     // RPI remote
-/*    if (strcmp(ModeOutput, "RPI_R") == 0)
+    if (strcmp(ModeOutput, "RPI_R") == 0)
     {
       system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
-    } */
+    }
   }
   else                    // Lean DVB Receive SR
   {
@@ -6056,10 +6056,10 @@ void SelectFec(int NoButton)  // FEC
     SetConfigParam(PATH_PCONFIG, Param, Value);
 
     // RPI remote
-/*    if (strcmp(ModeOutput, "RPI_R") == 0)
+    if (strcmp(ModeOutput, "RPI_R") == 0)
     {
       system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
-    } */
+    }
   }
   else                    // Lean DVB Receive SR
   {
@@ -6091,10 +6091,10 @@ void SelectS2Fec(int NoButton)  // DVB-S2 FEC
   SetConfigParam(PATH_PCONFIG, Param, Value);
 
   // RPI remote
-/*  if (strcmp(ModeOutput, "RPI_R") == 0)
+  if (strcmp(ModeOutput, "RPI_R") == 0)
   {
     system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
-  } */
+  }
 }
 
 void SelectPTT(int NoButton,int Status)  // TX/RX
@@ -6533,7 +6533,7 @@ void SetAttenLevel()
     SetConfigParam(PATH_PCONFIG, Param, KeyboardReturn);
   }
   else if ((strcmp(CurrentModeOP, TabModeOP[3]) == 0) || (strcmp(CurrentModeOP, TabModeOP[8]) == 0)
-        || (strcmp(CurrentModeOP, TabModeOP[9]) == 0)) //|| (strcmp(CurrentModeOP, TabModeOP[13]) == 0))  // Lime Mini or USB or JLIME or RPI_R
+        || (strcmp(CurrentModeOP, TabModeOP[9]) == 0) || (strcmp(CurrentModeOP, TabModeOP[13]) == 0))  // Lime Mini or USB or JLIME or RPI_R
   {
     while ((LimeGain < 0) || (LimeGain > 100))
     {
@@ -6550,10 +6550,10 @@ void SetAttenLevel()
     SetConfigParam(PATH_PCONFIG, Param, KeyboardReturn);
 
     // RPI remote
-/*    if (strcmp(ModeOutput, "RPI_R") == 0)
+    if (strcmp(ModeOutput, "RPI_R") == 0)
     {
       system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
-    } */
+    }
   }
   else
   {
@@ -7179,10 +7179,10 @@ void TransmitStart()
   system(PATH_SCRIPT_A);
 
   // Run RPI remote
-/*  if (strcmp(ModeOutput, "RPI_R") == 0)
+  if (strcmp(ModeOutput, "RPI_R") == 0)
   {
     system("/home/pi/rpidatv/scripts/TX_remote.sh &");
-  } */
+  }
 }
 
 void *Wait3Seconds(void * arg)
@@ -7211,10 +7211,10 @@ void TransmitStop()
   system("/home/pi/rpidatv/scripts/TXstopextras.sh &");
 
   // TX stop RPI Remote
-/*  if (strcmp(ModeOutput, "RPI_R") == 0)
+  if (strcmp(ModeOutput, "RPI_R") == 0)
   {
     system("/home/pi/rpidatv/scripts/STB_remote.sh &");
-  } */
+  }
 
   // Check for C910, C525, C310 or C270 webcam
   WebcamPresent = DetectLogitechWebcam();
@@ -13611,8 +13611,8 @@ void Start_Highlights_Menu1()
   }
   else if ((strcmp(CurrentModeOP, TabModeOP[3]) == 0)
         || (strcmp(CurrentModeOP, TabModeOP[8]) == 0)
-        || (strcmp(CurrentModeOP, TabModeOP[9]) == 0))
-        //|| (strcmp(CurrentModeOP, TabModeOP[13]) == 0))  // Lime
+        || (strcmp(CurrentModeOP, TabModeOP[9]) == 0)
+        || (strcmp(CurrentModeOP, TabModeOP[13]) == 0))  // Lime
   {
     snprintf(Leveltext, 20, "Lime Gain^%d", TabBandLimeGain[CurrentBand]);
   }
