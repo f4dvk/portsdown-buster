@@ -489,6 +489,19 @@ if ! grep -q encoding /home/pi/rpidatv/scripts/portsdown_config.txt; then
   echo "" >> /home/pi/rpidatv/scripts/portsdown_config.txt
 fi
 
+# Update config file with format and encoding          201905090
+if ! grep -q rpi_ip_distant /home/pi/rpidatv/scripts/portsdown_config.txt; then
+  # File needs updating
+  printf "Adding RPI Remote to user's portsdown_config.txt\n"
+  # Delete any blank lines
+  sed -i -e '/^$/d' /home/pi/rpidatv/scripts/portsdown_config.txt
+  # Add the 3 new entries and a new line
+  echo "rpi_user_remote=pi" >> /home/pi/rpidatv/scripts/portsdown_config.txt
+  echo "rpi_pw_remote=raspberry" >> /home/pi/rpidatv/scripts/portsdown_config.txt
+  echo "rpi_ip_distant=172.24.1.1" >> /home/pi/rpidatv/scripts/portsdown_config.txt
+  echo "" >> /home/pi/rpidatv/scripts/portsdown_config.txt
+fi
+
 # Update presets file with limegains for each band
 if ! grep -q d1limegain /home/pi/rpidatv/scripts/portsdown_presets.txt; then
   # File needs updating
