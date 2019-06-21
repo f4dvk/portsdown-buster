@@ -13832,6 +13832,9 @@ void Define_Menu3()
   button = CreateButton(3, 5);
   AddButtonStatus(button, "Lime^Config", &Blue);
 
+  button = CreateButton(3, 6);
+  AddButtonStatus(button, "Jetson^Config", &Blue);
+
   // 3rd line up Menu 3: Amend Sites/Beacons, Set Receive LOs and set Stream Outputs
 
   button = CreateButton(3, 10);
