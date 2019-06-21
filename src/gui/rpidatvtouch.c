@@ -13156,7 +13156,7 @@ void waituntil(int w,int h)
           Start_Highlights_Menu80();
           UpdateWindow();
           break;
-        case 1
+        case 1:
           printf("Changing User\n");
           ChangeUser();
           CurrentMenu=80;
