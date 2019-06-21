@@ -17415,11 +17415,11 @@ void Start_Highlights_Menu80()
 {
   // RPI Remote IP, User and Password
 
-/*  char Buttext[31];
-  color_t Grey;
-  color_t Blue;
-  Blue.r=0; Blue.g=0; Blue.b=128;
-  Grey.r=127; Grey.g=127; Grey.b=127; */
+  //char Buttext[31];
+  //color_t Grey;
+  //color_t Blue;
+  //Blue.r=0; Blue.g=0; Blue.b=128;
+  //Grey.r=127; Grey.g=127; Grey.b=127;
 
   //snprintf(Buttext, 17, "IP^%s", rpi_ip);
   //AmendButtonStatus(ButtonNumber(80, 0), 0, Buttext, &Blue);
