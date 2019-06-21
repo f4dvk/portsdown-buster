@@ -4661,7 +4661,7 @@ int ButtonNumber(int MenuIndex, int Button)
   {
     ButtonNumb = 550 + (MenuIndex - 41) * 50 + Button;
   }
-  if (MenuIndex >= 42)  // 5 x 15-button submenus
+  if ((MenuIndex >= 42) && (MenuIndex <= 79))  // 5 x 15-button submenus
   {
     ButtonNumb = 600 + (MenuIndex - 42) * 15 + Button;
   }
@@ -17876,7 +17876,7 @@ int main(int argc, char **argv)
   Define_Menu42();
   Define_Menu43();
   Define_Menu44();
-  Define_Menu80();
+//  Define_Menu80();
 
   // Start the button Menu
   Start(wscreen,hscreen);
