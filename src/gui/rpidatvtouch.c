@@ -5081,7 +5081,7 @@ void UpdateWindow()
   first = ButtonNumber(CurrentMenu, 0);
   last = ButtonNumber(CurrentMenu + 1 , 0) - 1;
 
-  if ((CurrentMenu >= 11) && (CurrentMenu <= 40))  // 10-button menus
+  if ((CurrentMenu >= 11) && (CurrentMenu <= 40) || (CurrentMenu == 80))  // 10-button menus
   {
     Fill(127, 127, 127, 1);
     Roundrect(10, 10, wscreen-18, hscreen*2/6+10, 10, 10);
