@@ -403,10 +403,15 @@ detect_video()
 
 ############ READ FROM rpidatvconfig.txt and Set PARAMETERS #######################
 
+MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
 MODE_INPUT=$(get_config_var modeinput $PCONFIGFILE)
 TSVIDEOFILE=$(get_config_var tsvideofile $PCONFIGFILE)
 PATERNFILE=$(get_config_var paternfile $PCONFIGFILE)
-UDPOUTADDR=$(get_config_var udpoutaddr $PCONFIGFILE)
+if [ "$MODE_OUTPUT" == "RPI_R" ]; then
+    UDPOUTADDR=$(get_config_var rpi_ip_distant $PCONFIGFILE)
+else
+    UDPOUTADDR=$(get_config_var udpoutaddr $PCONFIGFILE)
+fi
 CALL=$(get_config_var call $PCONFIGFILE)
 CHANNEL=$CALL
 FREQ_OUTPUT=$(get_config_var freqoutput $PCONFIGFILE)
@@ -415,7 +420,9 @@ STREAM_URL=$(get_config_var streamurl $PCONFIGFILE)
 STREAM_KEY=$(get_config_var streamkey $PCONFIGFILE)
 OUTPUT_STREAM="-f flv $STREAM_URL/$STREAM_KEY"
 
-MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
+if [ "$MODE_OUTPUT" == "RPI_R" ]; then
+    MODE_OUTPUT="IP"
+fi
 SYMBOLRATEK=$(get_config_var symbolrate $PCONFIGFILE)
 GAIN=$(get_config_var rfpower $PCONFIGFILE)
 PIDVIDEO=$(get_config_var pidvideo $PCONFIGFILE)
@@ -1207,6 +1214,13 @@ fi
 
   #============================================ ANALOG and WEBCAM H264 =============================================================
   "ANALOGCAM" | "WEBCAMH264")
+
+  # Allow for experimental widescreen
+  FORMAT=$(get_config_var format $PCONFIGFILE)
+  if [ "$FORMAT" == "16:9" ]; then
+    VIDEO_WIDTH=768
+    VIDEO_HEIGHT=400
+  fi
 
     # Turn off the viewfinder (which would show Pi Cam)
     v4l2-ctl --overlay=0
@@ -2048,6 +2062,32 @@ ENDSSH
               -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q 1
       ENDSSH
             ) &
+            EOM
+                ;;
+                "JWEBCAM")
+                  # Write the assembled Jetson command to a temp file
+                  /bin/cat <<EOM >$CMDFILE
+                  (sshpass -p $JETSONPW ssh -o StrictHostKeyChecking=no $JETSONUSER@$JETSONIP 'bash -s' <<'ENDSSH'
+                  cd ~/dvbsdr/scripts
+                  gst-launch-1.0 -vvv -e \
+                    v4l2src device=/dev/video0 do-timestamp=true '!' 'video/x-h264,width=1280,height=720,framerate=30/1' \
+                    '!' h264parse '!' omxh264dec '!' nvvidconv \
+                    '!' "video/x-raw(memory:NVMM), width=(int)$VIDEO_WIDTH, height=(int)$VIDEO_HEIGHT, format=(string)I420" \
+                    '!' omxh265enc control-rate=2 bitrate=$VIDEOBITRATE peak-bitrate=$VIDEOPEAKBITRATE preset-level=3 iframeinterval=100 \
+                    '!' 'video/x-h265,width=(int)$VIDEO_WIDTH,height=(int)$VIDEO_HEIGHT,stream-format=(string)byte-stream' '!' queue \
+                    '!' mux. alsasrc device=hw:2 \
+                    '!' 'audio/x-raw, format=S16LE, layout=interleaved, rate=32000, channels=2' \
+                    '!' audioconvert '!' 'audio/x-raw, channels=1' '!' voaacenc bitrate=20000 \
+                    '!' queue '!' mux. mpegtsmux alignment=7 name=mux '!' fdsink \
+                  | ffmpeg -i - -ss 8 \
+                    -c:v copy -max_delay 200000 -muxrate $BITRATE_TS \
+                    -c:a copy -f mpegts \
+                    -metadata service_provider="$CALL" -metadata service_name="$CALL" \
+                    -mpegts_pmt_start_pid $PIDPMT -streamid 0:"$PIDVIDEO" -streamid 1:"$PIDAUDIO" - \
+                  | ../bin/limesdr_dvb -s "$SYMBOLRATE_K"000 -f $FECNUM/$FECDEN -r $UPSAMPLE -m $MODTYPE -c $CONSTLN $PILOTS $FRAMES \
+                    -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q 1
+            ENDSSH
+                  ) &
       EOM
           ;;
           esac
@@ -2104,6 +2144,33 @@ ENDSSH
               -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q 1
       ENDSSH
             ) &
+            EOM
+                ;;
+                "JWEBCAM")
+                  # Write the assembled Jetson command to a temp file
+                  /bin/cat <<EOM >$CMDFILE
+                  (sshpass -p $JETSONPW ssh -o StrictHostKeyChecking=no $JETSONUSER@$JETSONIP 'bash -s' <<'ENDSSH'
+                  cd ~/dvbsdr/scripts
+                  gst-launch-1.0 -vvv -e \
+                    v4l2src device=/dev/video0 do-timestamp=true '!' 'video/x-h264,width=1280,height=720,framerate=30/1' \
+                    '!' h264parse '!' omxh264dec '!' nvvidconv \
+                    '!' "video/x-raw(memory:NVMM), width=(int)$VIDEO_WIDTH, height=(int)$VIDEO_HEIGHT, format=(string)I420" \
+                    '!' omxh264enc vbv-size=15 control-rate=2 bitrate=$VIDEOBITRATE peak-bitrate=$VIDEOPEAKBITRATE \
+                    insert-sps-pps=1 insert-vui=1 cabac-entropy-coding=1 preset-level=3 profile=8 iframeinterval=100 \
+                    '!' 'video/x-h264, level=(string)4.1, stream-format=(string)byte-stream' '!' queue \
+                    '!' mux. alsasrc device=hw:2 \
+                    '!' 'audio/x-raw, format=S16LE, layout=interleaved, rate=32000, channels=2' \
+                    '!' audioconvert '!' 'audio/x-raw, channels=1' '!' voaacenc bitrate=20000 \
+                    '!' queue '!' mux. mpegtsmux alignment=7 name=mux '!' fdsink \
+                  | ffmpeg -i - -ss 8 \
+                    -c:v copy -max_delay 200000 -muxrate $BITRATE_TS \
+                    -c:a copy -f mpegts \
+                    -metadata service_provider="$CALL" -metadata service_name="$CALL" \
+                    -mpegts_pmt_start_pid $PIDPMT -streamid 0:"$PIDVIDEO" -streamid 1:"$PIDAUDIO" - \
+                  | ../bin/limesdr_dvb -s "$SYMBOLRATE_K"000 -f $FECNUM/$FECDEN -r $UPSAMPLE -m $MODTYPE -c $CONSTLN $PILOTS $FRAMES \
+                    -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q 1
+            ENDSSH
+                  ) &
 EOM
     ;;
     esac
@@ -2113,7 +2180,8 @@ EOM
   source "$CMDFILE"
 
   # Turn the PTT on after a 15 second delay
-  /home/pi/rpidatv/scripts/jetson_lime_ptt.sh &
+  /home/pi/rpidatv/scripts/jetson_lime_ptt.sh &  # PTT on RPi GPIO
+  /home/pi/rpidatv/scripts/jetson_tx_on.sh &     # PTT on Jetson GPIO Pin 40
 ;;
 
 "JEXPRESS")

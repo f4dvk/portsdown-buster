@@ -55,10 +55,12 @@ Rewitten by Dave, G8GKQ
 #define PATH_LOCATORS "/home/pi/rpidatv/scripts/portsdown_locators.txt"
 #define PATH_RXPRESETS "/home/pi/rpidatv/scripts/rx_presets.txt"
 #define PATH_STREAMPRESETS "/home/pi/rpidatv/scripts/stream_presets.txt"
+#define PATH_JCONFIG "/home/pi/rpidatv/scripts/jetson_config.txt"
 
 #define PI 3.14159265358979323846
 #define deg2rad(DEG) ((DEG)*((PI)/(180.0)))
 #define rad2deg(RAD) ((RAD)*180/PI)
+#define DELIM "."
 
 char ImageFolder[63]="/home/pi/rpidatv/image/";
 
@@ -156,10 +158,10 @@ char FreqLabel[31][255];
 char TabModeAudio[6][15]={"auto", "mic", "video", "bleeps", "no_audio", "webcam"};
 char TabModeSTD[2][7]={"6","0"};
 char TabModeVidIP[2][7]={"0","1"};
-char TabModeOP[14][31]={"IQ", "QPSKRF", "DATVEXPRESS", "LIMEUSB", "STREAMER", "COMPVID", \
-  "DTX1", "IP", "LIMEMINI", "JLIME", "JEXPRESS", "EXPRESS2", "PLUTO", " "};
-char TabModeOPtext[14][31]={"Portsdown", " Ugly ", "Express", "Lime USB", "BATC^Stream", "Comp Vid", \
-  " DTX1 ", "IPTS out", "Lime Mini", "Jetson^Lime", "Jetson^Express", "Express S2", "Pluto", " "};
+char TabModeOP[15][31]={"IQ", "QPSKRF", "DATVEXPRESS", "LIMEUSB", "STREAMER", "COMPVID", \
+  "DTX1", "IP", "LIMEMINI", "JLIME", "JEXPRESS", "EXPRESS2", "PLUTO", "RPI_R", " "};
+char TabModeOPtext[15][31]={"Portsdown", " Ugly ", "Express", "Lime USB", "BATC^Stream", "Comp Vid", \
+  " DTX1 ", "IPTS out", "Lime Mini", "Jetson^Lime", "Jetson^Express", "Express S2", "Pluto", "RPI^Remote", " "};
 char TabAtten[4][15] = {"NONE", "PE4312", "PE43713", "HMC1119"};
 char CurrentModeOP[31] = "QPSKRF";
 char CurrentModeOPtext[31] = " UGLY ";
@@ -167,7 +169,7 @@ char TabTXMode[6][255] = {"DVB-S", "Carrier", "S2QPSK", "8PSK", "16APSK", "32APS
 char CurrentTXMode[255] = "DVB-S";
 char CurrentPilots[7] = "off";
 char CurrentFrames[7] = "long";
-char CurrentModeInput[255] = "DESKTOP";
+//char CurrentModeInput[255] = "DESKTOP";
 char TabEncoding[5][15] = {"MPEG-2", "H264", "H265", "IPTS in", "TS File"};
 char CurrentEncoding[255] = "H264";
 char TabSource[10][15] = {"Pi Cam", "CompVid", "TCAnim", "TestCard", "PiScreen", "Contest", "Webcam", "C920", "HDMI", "PC"};
@@ -186,7 +188,7 @@ char MenuText[5][63];
 // "CAMMPEG-2", "CAMH264", "PATERNAUDIO", "ANALOGCAM" ,"CARRIER" ,"CONTEST"
 // "IPTSIN","ANALOGMPEG-2", "CARDMPEG-2", "CAMHDMPEG-2", "DESKTOP", "FILETS"
 // "C920"
-// "JHDMI", "JCAM", "JPC", "JCARD", "JTCANIM"
+// "JHDMI", "JCAM", "JPC", "JCARD", "JTCANIM", "JWEBCAM"
 
 // Composite Video Output variables
 char TabVidSource[8][15] = {"Pi Cam", "CompVid", "TCAnim", "TestCard", "Snap", "Contest", "Webcam", "Movie"};
@@ -266,6 +268,7 @@ void Start_Highlights_Menu4();
 void Start_Highlights_Menu5();
 void Start_Highlights_Menu6();
 void Start_Highlights_Menu7();
+void Start_Highlights_Menu8();
 void Start_Highlights_Menu11();
 void Start_Highlights_Menu12();
 void Start_Highlights_Menu13();
@@ -298,6 +301,8 @@ void Start_Highlights_Menu39();
 void Start_Highlights_Menu40();
 void Start_Highlights_Menu42();
 void Start_Highlights_Menu43();
+void Start_Highlights_Menu44();
+void Start_Highlights_Menu80();
 
 void MsgBox(const char *);
 void MsgBox2(const char *, const char *);
@@ -673,6 +678,125 @@ int CheckGoogle()
 }
 
 /***************************************************************************//**
+ * @brief Checks whether a ping to a connected Jetson works
+ *
+ * @param nil
+ *
+ * @return 0 if it pings OK, 1 if it doesn't
+*******************************************************************************/
+
+int CheckJetson()
+{
+  FILE *fp;
+  char response[127];
+  char pingcommand[127];
+
+  strcpy(pingcommand, "timeout 0.1 ping ");
+  GetConfigParam(PATH_JCONFIG, "jetsonip", response);
+  strcat(pingcommand, response);
+  strcat(pingcommand, " -c1 | head -n 5 | tail -n 1 | grep -o \"1 received,\" | head -c 11");
+
+  /* Open the command for reading. */
+  fp = popen(pingcommand, "r");
+  if (fp == NULL) {
+    printf("Failed to run command\n" );
+    exit(1);
+  }
+
+  /* Read the output a line at a time - output it. */
+  while (fgets(response, 12, fp) != NULL)
+  {
+    printf("%s", response);
+  }
+  //  printf("%s", response);
+  /* close */
+  pclose(fp);
+  if (strcmp (response, "1 received,") == 0)
+  {
+    return 0;
+  }
+  else
+  {
+    return 1;
+  }
+}
+
+/***************************************************************************//**
+ * @brief int is_valid_ip(char *ip_str) Checks whether an IP address is valid
+ *
+ * @param char *ip_str (which gets mangled)
+ *
+ * @return 1 if IP string is valid, else return 0
+*******************************************************************************/
+
+/* return 1 if string contain only digits, else return 0 */
+int valid_digit(char *ip_str)
+{
+  while (*ip_str)
+  {
+    if (*ip_str >= '0' && *ip_str <= '9')
+    {
+      ++ip_str;
+    }
+    else
+    {
+      return 0;
+    }
+  }
+  return 1;
+}
+
+int is_valid_ip(char *ip_str)
+{
+  int num, dots = 0;
+  char *ptr;
+
+  if (ip_str == NULL)
+  {
+    return 0;
+  }
+
+  ptr = strtok(ip_str, DELIM);
+  if (ptr == NULL)
+  {
+    return 0;
+  }
+
+  while (ptr)
+  {
+    // after parsing string, it must contain only digits
+    if (!valid_digit(ptr))
+    {
+      return 0;
+    }
+    num = atoi(ptr);
+
+    // check for valid numbers
+    if (num >= 0 && num <= 255)
+    {
+      // parse remaining string
+      ptr = strtok(NULL, DELIM);
+      if (ptr != NULL)
+      {
+      printf("dots++ \n");
+        ++dots;
+      }
+    }
+    else
+    {
+      return 0;
+    }
+  }
+
+  // valid IP string must contain 3 dots
+  if (dots != 3)
+  {
+    return 0;
+  }
+  return 1;
+}
+
+/***************************************************************************//**
  * @brief Displays a splash screen with update progress
  *
  * @param char Version (Latest or Developement), char Step (centre message)
@@ -739,7 +863,7 @@ void PrepSWUpdate()
   system("rm /home/pi/rpidatv/scripts/latest_version.txt  >/dev/null 2>/dev/null");
 
   // Download new latest version file
-  strcpy(LinuxCommand, "wget -4 --timeout=2 https://raw.githubusercontent.com/BritishAmateurTelevisionClub/");
+  strcpy(LinuxCommand, "wget -4 --timeout=2 https://raw.githubusercontent.com/f4dvk/");
   if (GetLinuxVer() == 8)  // Jessie, so rpidatv repo
   {
     strcat(LinuxCommand, "rpidatv/master/scripts/latest_version.txt ");
@@ -1299,15 +1423,12 @@ void ReadModeInput(char coding[256], char vsource[256])
 	// Read the current vision source and encoding
 	GetConfigParam(PATH_PCONFIG,"modeinput", ModeInput);
 	GetConfigParam(PATH_PCONFIG,"modeoutput", ModeOutput);
+	GetConfigParam(PATH_PCONFIG,"format", CurrentFormat);
 
   // Correct Jetson modes if Jetson not selected
   printf ("Mode Output in ReadModeInput() is %s\n", ModeOutput);
   if ((strcmp(ModeOutput, "JLIME") != 0) && (strcmp(ModeOutput, "JEXPRESS") != 0))
   {
-    // Set format to 4:3
-    strcpy(CurrentFormat, "4:3");
-    SetConfigParam(PATH_PCONFIG, "format", CurrentFormat);
-
     // Set Encoding to H264
     strcpy(CurrentEncoding, "H264");
     strcpy(coding, "H264");
@@ -1365,7 +1486,10 @@ void ReadModeInput(char coding[256], char vsource[256])
     strcpy(coding, "H264");
     strcpy(vsource, "Ext Video Input");
     strcpy(CurrentEncoding, "H264");
-    strcpy(CurrentFormat, "4:3");
+    if(strcmp(CurrentFormat, "16:9") !=0)
+    {
+      strcpy(CurrentFormat, "4:3");
+    }
     strcpy(CurrentSource, TabSource[1]); // EasyCap
   }
   else if (strcmp(ModeInput, "WEBCAMH264") == 0)
@@ -1682,6 +1806,11 @@ void ReadModeOutput(char Moutput[256])
     strcpy(Moutput, "Jetson with DATV Express");
     strcpy(CurrentModeOPtext, TabModeOPtext[10]);
   }
+	else if (strcmp(ModeOutput, "RPI_R") == 0)
+  {
+    strcpy(Moutput, "Remote RPI");
+    strcpy(CurrentModeOPtext, TabModeOPtext[13]);
+  }
   else
   {
     strcpy(Moutput, "notset");
@@ -1929,6 +2058,18 @@ void ReadCallLocPID()
   strcpy(Param, "pidpmt");
   GetConfigParam(PATH_PCONFIG, Param, Value);
   strcpy(PIDpmt, Value);
+
+  strcpy(Param, "rpi_ip_distant");
+  GetConfigParam(PATH_PCONFIG, Param, Value);
+  strcpy(rpi_ip, Value);
+
+  strcpy(Param, "rpi_user_remote");
+  GetConfigParam(PATH_PCONFIG, Param, Value);
+  strcpy(rpi_user, Value);
+
+  strcpy(Param, "rpi_pw_remote");
+  GetConfigParam(PATH_PCONFIG, Param, Value);
+  strcpy(rpi_pw, Value);
 }
 
 
@@ -2386,6 +2527,45 @@ int CheckRTL()
   }
   pclose(fp);
   return(rtlstat);
+}
+
+/***************************************************************************//**
+ * @brief Checks for the presence of an FTDI Device
+ *
+ * @param None
+ *
+ * @return 0 if present, 1 if not present
+*******************************************************************************/
+
+int CheckFTDI()
+{
+  char FTDIStatus[256];
+  FILE *fp;
+  int ftdistat = 1;
+
+  /* Open the command for reading. */
+  fp = popen("/home/pi/rpidatv/scripts/check_ftdi.sh", "r");
+  if (fp == NULL)
+  {
+    printf("Failed to run command\n" );
+    exit(1);
+  }
+
+  // Read the output a line at a time - output it
+  while (fgets(FTDIStatus, sizeof(FTDIStatus)-1, fp) != NULL)
+  {
+    if (FTDIStatus[0] == '0')
+    {
+      printf("FTDI Detected\n" );
+      ftdistat = 0;
+    }
+    else
+    {
+      printf("No FTDI Detected\n" );
+    }
+  }
+  pclose(fp);
+  return(ftdistat);
 }
 
 /***************************************************************************//**
@@ -4940,13 +5120,21 @@ void ApplyTXConfig()
   }
 	else if ((strcmp(CurrentModeOP, "JLIME") == 0) || (strcmp(CurrentModeOP, "JEXPRESS") == 0))
   {
-    if (strcmp(CurrentSource, "HDMI") ==0)
+    if (strcmp(CurrentSource, "HDMI") == 0)
     {
       strcpy(ModeInput, "JHDMI");
     }
-    if (strcmp(CurrentSource, "Pi Cam") ==0)
+    if (strcmp(CurrentSource, "Pi Cam") == 0)
     {
       strcpy(ModeInput, "JCAM");
+    }
+    if (strcmp(CurrentSource, "C920") == 0)
+    {
+      strcpy(ModeInput, "JWEBCAM");
+    }
+    if (strcmp(CurrentSource, "Webcam") == 0)
+    {
+      strcpy(ModeInput, "JWEBCAM");
     }
 
   }
@@ -5000,6 +5188,17 @@ void ApplyTXConfig()
               , "Selecting C920 720p");
             strcpy(ModeInput, "C920HDH264");
             wait_touch();
+          }
+          else
+          {
+            strcpy(CurrentFormat, "4:3");
+          }
+        }
+        else
+        {
+          if (strcmp(CurrentSource, "CompVid") == 0)
+          {
+            strcpy(CurrentFormat, "16:9");
           }
           else
           {
@@ -5217,6 +5416,10 @@ void ApplyTXConfig()
   SetConfigParam(PATH_PCONFIG, Param, ModeInput);
   printf("a.sh will be called with %s\n", ModeInput);
 
+  strcpy(Param, "format");
+  SetConfigParam(PATH_PCONFIG, Param, CurrentFormat);
+  printf("a.sh will be called with format %s\n", CurrentFormat);
+
   // Load the Pi Cam driver for CAMMPEG-2 and Streaming modes
   printf("TESTING FOR STREAMER\n");
   if ((strcmp(ModeInput,"CAMMPEG-2")==0)
@@ -5240,7 +5443,8 @@ void EnforceValidTXMode()
        && (strcmp(CurrentModeOP, "COMPVID") != 0)
        && (strcmp(CurrentModeOP, "IP") != 0)
        && (strcmp(CurrentModeOP, "JLIME") != 0)
-       && (strcmp(CurrentModeOP, "JEXPRESS") != 0)) // not DVB-S2-capable
+       && (strcmp(CurrentModeOP, "JEXPRESS") != 0)
+       && (strcmp(CurrentModeOP, "RPI_R") != 0)) // not DVB-S2-capable
   {
     if ((strcmp(CurrentTXMode, TabTXMode[0]) != 0) && (strcmp(CurrentTXMode, TabTXMode[1]) != 0))  // Not DVB-S and not Carrier
     {
@@ -5261,7 +5465,14 @@ void EnforceValidFEC()
   {
     if (fec > 10)
     {
-      fec = 7;
+      if(fec == 12)
+      {
+        fec = 1;
+      }
+      else
+      {
+        fec = 7;
+      }
       FECChanged = 1;
     }
   }
@@ -5269,7 +5480,14 @@ void EnforceValidFEC()
   {
     if (fec < 9)
     {
-      fec = 91;
+      if(fec == 1)
+      {
+        fec = 12;
+      }
+      else
+      {
+        fec = 91;
+      }
       FECChanged = 1;
     }
   }
@@ -5391,7 +5609,8 @@ void GreyOut1()
         && (strcmp(CurrentModeOP, "DATVEXPRESS") != 0)
         && (strcmp(CurrentModeOP, TabModeOP[3]) != 0)
         && (strcmp(CurrentModeOP, TabModeOP[8]) != 0)
-        && (strcmp(CurrentModeOP, TabModeOP[9]) != 0))
+        && (strcmp(CurrentModeOP, TabModeOP[9]) != 0)
+        && (strcmp(CurrentModeOP, TabModeOP[13]) != 0))
       {
         SetButtonStatus(ButtonNumber(CurrentMenu, 14), 2); // Attenuator Level
       }
@@ -5419,7 +5638,8 @@ void GreyOut11()
    && (strcmp(CurrentModeOP, "COMPVID") != 0)
    && (strcmp(CurrentModeOP, "IP") != 0)
    && (strcmp(CurrentModeOP, "JLIME") != 0)
-   && (strcmp(CurrentModeOP, "JEXPRESS") != 0)) // not DVB-S2-capable
+   && (strcmp(CurrentModeOP, "JEXPRESS") != 0)
+   && (strcmp(CurrentModeOP, "RPI_R") != 0)) // not DVB-S2-capable
   {
     SetButtonStatus(ButtonNumber(CurrentMenu, 0), 2); // grey-out S2 QPSK
     SetButtonStatus(ButtonNumber(CurrentMenu, 1), 2); // grey-out 8PSK
@@ -5539,6 +5759,7 @@ void GreyOutReset42()
   SetButtonStatus(ButtonNumber(CurrentMenu, 3), 0); // Lime Mini
   SetButtonStatus(ButtonNumber(CurrentMenu, 7), 0); // DATV Express
   SetButtonStatus(ButtonNumber(CurrentMenu, 8), 0); // Lime USB
+  SetButtonStatus(ButtonNumber(CurrentMenu, 10), 0); // Jetson
 }
 
 void GreyOut42()
@@ -5554,6 +5775,25 @@ void GreyOut42()
   if (CheckLimeUSBConnect() == 1)  // Lime USB not connected so GreyOut
   {
     SetButtonStatus(ButtonNumber(CurrentMenu, 8), 2); // Lime USB
+  }
+  if (CheckJetson() == 1)  // Jetson not connected so GreyOut
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 10), 2); // Jetson
+  }
+}
+
+void GreyOutReset44()
+{
+  SetButtonStatus(ButtonNumber(CurrentMenu, 0), 0); // Shutdown Jetson
+  SetButtonStatus(ButtonNumber(CurrentMenu, 1), 0); // Reboot Jetson
+}
+
+void GreyOut44()
+{
+  if (CheckJetson() == 1)  // Jetson not connected so GreyOut
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 0), 2); // Shutdown Jetson
+    SetButtonStatus(ButtonNumber(CurrentMenu, 1), 2); // Reboot Jetson
   }
 }
 
@@ -5610,6 +5850,11 @@ void SelectTX(int NoButton)  // TX RF Output Mode
   EnforceValidTXMode();
   EnforceValidFEC();
   ApplyTXConfig();
+  // RPI remote
+  if(strcmp(ModeOutput, "RPI_R") == 0)
+  {
+    system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
+  }
 }
 
 void SelectPilots()  // Toggle pilots on/off
@@ -5623,6 +5868,11 @@ void SelectPilots()  // Toggle pilots on/off
   {
     strcpy(CurrentPilots, "off");
     SetConfigParam(PATH_PCONFIG, "pilots", "off");
+  }
+  // RPI remote
+  if(strcmp(ModeOutput, "RPI_R") == 0)
+  {
+    system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
   }
 }
 
@@ -5638,6 +5888,11 @@ void SelectFrames()  // Toggle frames long/short
     strcpy(CurrentFrames, "long");
     SetConfigParam(PATH_PCONFIG, "frames", "long");
   }
+  // RPI remote
+  if(strcmp(ModeOutput, "RPI_R") == 0)
+  {
+    system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
+  }
 }
 
 void SelectEncoding(int NoButton)  // Encoding
@@ -5648,6 +5903,12 @@ void SelectEncoding(int NoButton)  // Encoding
   SetConfigParam(PATH_PCONFIG, Param, CurrentEncoding);
 
   ApplyTXConfig();
+
+  // RPI remote
+  if(strcmp(ModeOutput, "RPI_R") == 0)
+  {
+    system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
+  }
 }
 
 void SelectOP(int NoButton)      // Output device
@@ -5696,6 +5957,12 @@ void SelectFormat(int NoButton)  // Video Format
   strcpy(CurrentFormat, TabFormat[NoButton - 5]);
   SetConfigParam(PATH_PCONFIG, "format", CurrentFormat);
   ApplyTXConfig();
+
+  // RPI remote
+  if(strcmp(ModeOutput, "RPI_R") == 0)
+  {
+    system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
+  }
 }
 
 void SelectSource(int NoButton)  // Video Source
@@ -5729,6 +5996,12 @@ void SelectFreq(int NoButton)  //Frequency
     SetConfigParam(PATH_PCONFIG, Param, freqtxt);
 
     DoFreqChange();
+
+    // RPI remote
+    if(strcmp(ModeOutput, "RPI_R") == 0)
+    {
+      system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
+    }
   }
   else                    // Lean DVB Receive frequency
   {
@@ -5754,6 +6027,12 @@ void SelectSR(int NoButton)  // Symbol Rate
     sprintf(Value, "%d", SR);
     printf("************** Set Transmit SR = %s\n",Value);
     SetConfigParam(PATH_PCONFIG, "symbolrate", Value);
+
+    // RPI remote
+    if(strcmp(ModeOutput, "RPI_R") == 0)
+    {
+      system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
+    }
   }
   else                    // Lean DVB Receive SR
   {
@@ -5775,6 +6054,12 @@ void SelectFec(int NoButton)  // FEC
     sprintf(Value, "%d", fec);
     printf("************** Set Transmit FEC = %s\n",Value);
     SetConfigParam(PATH_PCONFIG, Param, Value);
+
+    // RPI remote
+    if(strcmp(ModeOutput, "RPI_R") == 0)
+    {
+      system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
+    }
   }
   else                    // Lean DVB Receive SR
   {
@@ -5804,6 +6089,12 @@ void SelectS2Fec(int NoButton)  // DVB-S2 FEC
   sprintf(Value, "%d", fec);
   printf("************** Set FEC = %s\n",Value);
   SetConfigParam(PATH_PCONFIG, Param, Value);
+
+  // RPI remote
+  if(strcmp(ModeOutput, "RPI_R") == 0)
+  {
+    system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
+  }
 }
 
 void SelectPTT(int NoButton,int Status)  // TX/RX
@@ -6242,7 +6533,7 @@ void SetAttenLevel()
     SetConfigParam(PATH_PCONFIG, Param, KeyboardReturn);
   }
   else if ((strcmp(CurrentModeOP, TabModeOP[3]) == 0) || (strcmp(CurrentModeOP, TabModeOP[8]) == 0)
-        || (strcmp(CurrentModeOP, TabModeOP[9]) == 0))  // Lime Mini or USB or JLIME
+        || (strcmp(CurrentModeOP, TabModeOP[9]) == 0) || (strcmp(CurrentModeOP, TabModeOP[13]) == 0))  // Lime Mini or USB or JLIME or RPI_R
   {
     while ((LimeGain < 0) || (LimeGain > 100))
     {
@@ -6257,6 +6548,12 @@ void SetAttenLevel()
     SetConfigParam(PATH_PPRESETS, Param, KeyboardReturn);
     strcpy(Param, "limegain");
     SetConfigParam(PATH_PCONFIG, Param, KeyboardReturn);
+
+    // RPI remote
+    if(strcmp(ModeOutput, "RPI_R") == 0)
+    {
+      system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
+    }
   }
   else
   {
@@ -6880,6 +7177,12 @@ void TransmitStart()
 
   // Call a.sh to transmit
   system(PATH_SCRIPT_A);
+
+  // Run RPI remote
+  if(strcmp(ModeOutput, "RPI_R") == 0)
+  {
+    system("/home/pi/rpidatv/scripts/TX_remote.sh &");
+  }
 }
 
 void *Wait3Seconds(void * arg)
@@ -6903,8 +7206,15 @@ void TransmitStop()
   // Turn the VCO off
   system("sudo /home/pi/rpidatv/bin/adf4351 off");
 
-  // Run the Extra script for TX stop
+  // Run the Extra scripts for TX stop
+  system("/home/pi/rpidatv/scripts/TXstop.sh &");
   system("/home/pi/rpidatv/scripts/TXstopextras.sh &");
+
+  // TX stop RPI Remote
+  if(strcmp(ModeOutput, "RPI_R") == 0)
+  {
+    system("/home/pi/rpidatv/scripts/STB_remote.sh &");
+  }
 
   // Check for C910, C525, C310 or C270 webcam
   WebcamPresent = DetectLogitechWebcam();
@@ -6940,7 +7250,7 @@ void TransmitStop()
   system("sudo killall avc2ts >/dev/null 2>/dev/null");
   system("sudo killall netcat >/dev/null 2>/dev/null");
 
-  if((strcmp(ModeOutput, "IQ") == 0) || (strcmp(ModeOutput, "QPSKRF") == 0))
+  if((strcmp(ModeOutput, "IQ") == 0) || (strcmp(ModeOutput, "RPI_R") == 0) || (strcmp(ModeOutput, "QPSKRF") == 0))
   {
     //  Ensure that Transverter line does not float
     //  As it is released when rpidatv terminates
@@ -9388,7 +9698,7 @@ void ChangePresetFreq(int NoButton)
   float PDfreq;
   char Param[15] = "pfreq";
 
-  //Convert button number to frequency array index
+  // Convert button number to frequency array index
   if (NoButton < 4)
   {
     FreqIndex = NoButton + 5;
@@ -9398,7 +9708,7 @@ void ChangePresetFreq(int NoButton)
     FreqIndex = NoButton - 5;
   }
 
-  //Define request string depending on transverter or not
+  // Define request string depending on transverter or not
   if (((TabBandLO[CurrentBand] < 0.1) && (TabBandLO[CurrentBand] > -0.1)) || (CallingMenu == 5))
   {
     strcpy(RequestText, "Enter new frequency for Button ");
@@ -9411,7 +9721,7 @@ void ChangePresetFreq(int NoButton)
   strcat(RequestText, PresetNo);
   strcat(RequestText, " in MHz:");
 
-  // Calulate initial value
+  // Calculate initial value
   if (((TabBandLO[CurrentBand] < 0.1) && (TabBandLO[CurrentBand] > -0.1)) || (CallingMenu == 5))
   {
     snprintf(InitText, 10, "%s", TabFreq[FreqIndex]);
@@ -9423,7 +9733,7 @@ void ChangePresetFreq(int NoButton)
     {
       TvtrFreq = TvtrFreq * -1;
     }
-    snprintf(InitText, 10, "%.1f", TvtrFreq);
+    snprintf(InitText, 10, "%.2f", TvtrFreq);
   }
 
   Keyboard(RequestText, InitText, 10);
@@ -9443,7 +9753,7 @@ void ChangePresetFreq(int NoButton)
     {
       PDfreq = -1 * (atof(KeyboardReturn) + TabBandLO[CurrentBand]);
     }
-    snprintf(KeyboardReturn, 10, "%.1f", PDfreq);
+    snprintf(KeyboardReturn, 10, "%.2f", PDfreq);
   }
 
   // Write freq to tabfreq
@@ -9549,6 +9859,89 @@ void ChangePresetSR(int NoButton)
 
   // Undo button highlight
   // SetButtonStatus(ButtonNumber(28, NoButton), 0);
+}
+
+void ChangeIP()
+{
+  char RequestText[64];
+  char InitText[64];
+  bool IsValid = FALSE;
+  char RpiIP[31];
+  char RpiIPCopy[31];
+
+  //Retrieve (17 char) Current IP from Config file
+  GetConfigParam(PATH_JCONFIG, "rpi_ip_distant", RpiIP);
+
+  while (IsValid == FALSE)
+  {
+    strcpy(RequestText, "Enter new IP address for RPI");
+    snprintf(InitText, 17, "%s", RpiIP);
+    Keyboard(RequestText, InitText, 17);
+
+    strcpy(RpiIPCopy, KeyboardReturn);
+    if(is_valid_ip(RpiIPCopy) == 1)
+    {
+      IsValid = TRUE;
+    }
+  }
+  printf("RPI IP set to: %s\n", KeyboardReturn);
+
+  // Save IP to config file
+  SetConfigParam(PATH_JCONFIG, "rpi_ip_distant", KeyboardReturn);
+}
+
+void ChangeUser()
+{
+  char RequestText[64];
+  char InitText[64];
+  bool IsValid = FALSE;
+  char RpiUser[15];
+
+  //Retrieve (15 char) Username from Config file
+  GetConfigParam(PATH_JCONFIG, "rpi_user_remote", RpiUser);
+
+  while (IsValid == FALSE)
+  {
+    strcpy(RequestText, "Enter the username for the RPI");
+    snprintf(InitText, 15, "%s", RpiUser);
+    Keyboard(RequestText, InitText, 10);
+
+    if(strlen(KeyboardReturn) > 0)
+    {
+      IsValid = TRUE;
+    }
+  }
+  printf("RPI Username set to: %s\n", KeyboardReturn);
+
+  // Save username to Config File
+  SetConfigParam(PATH_JCONFIG, "rpi_user_remote", KeyboardReturn);
+}
+
+void ChangePW()
+{
+  char RequestText[64];
+  char InitText[64];
+  bool IsValid = FALSE;
+  char RpiPW[31];
+
+  //Retrieve (31 char)Password from Config file
+  GetConfigParam(PATH_JCONFIG, "rpi_pw_remote", RpiPW);
+
+  while (IsValid == FALSE)
+  {
+    strcpy(RequestText, "Enter the password for the RPI");
+    snprintf(InitText, 31, "%s", RpiPW);
+    Keyboard(RequestText, InitText, 10);
+
+    if(strlen(KeyboardReturn) > 0)
+    {
+      IsValid = TRUE;
+    }
+  }
+  printf("RPI password set to: %s\n", KeyboardReturn);
+
+  // Save username to Config File
+  SetConfigParam(PATH_JCONFIG, "rpi_pw_remote", KeyboardReturn);
 }
 
 void ChangeCall()
@@ -9756,13 +10149,179 @@ void ChangePID(int NoButton)
   printf("PID set to: %s\n", KeyboardReturn);
 }
 
+void ChangeJetsonIP()
+{
+  char RequestText[64];
+  char InitText[64];
+  bool IsValid = FALSE;
+  char JetsonIP[31];
+  char JetsonIPCopy[31];
+
+  //Retrieve (17 char) Current IP from Config file
+  GetConfigParam(PATH_JCONFIG, "jetsonip", JetsonIP);
+
+  while (IsValid == FALSE)
+  {
+    strcpy(RequestText, "Enter new IP address for Jetson Nano");
+    snprintf(InitText, 17, "%s", JetsonIP);
+    Keyboard(RequestText, InitText, 17);
+
+    strcpy(JetsonIPCopy, KeyboardReturn);
+    if(is_valid_ip(JetsonIPCopy) == 1)
+    {
+      IsValid = TRUE;
+    }
+  }
+  printf("Jetson IP set to: %s\n", KeyboardReturn);
+
+  // Save IP to config file
+  SetConfigParam(PATH_JCONFIG, "jetsonip", KeyboardReturn);
+}
+
+void ChangeLKVIP()
+{
+  char RequestText[64];
+  char InitText[64];
+  bool IsValid = FALSE;
+  char LKVIP[31];
+  char LKVIPCopy[31];
+
+  //Retrieve (17 char) Current IP from Config file
+  GetConfigParam(PATH_JCONFIG, "lkvudp", LKVIP);
+
+  while (IsValid == FALSE)
+  {
+    strcpy(RequestText, "Enter new UDP IP address for LKV373A");
+    snprintf(InitText, 17, "%s", LKVIP);
+    Keyboard(RequestText, InitText, 17);
+
+    strcpy(LKVIPCopy, KeyboardReturn);
+    if(is_valid_ip(LKVIPCopy) == 1)
+    {
+      IsValid = TRUE;
+    }
+  }
+  printf("LKV UDP IP set to: %s\n", KeyboardReturn);
+
+  // Save IP to Config File
+  SetConfigParam(PATH_JCONFIG, "lkvudp", KeyboardReturn);
+}
+
+void ChangeLKVPort()
+{
+  char RequestText[64];
+  char InitText[64];
+  bool IsValid = FALSE;
+  char LKVPort[15];
+
+  //Retrieve (10 char) Current port from Config file
+  GetConfigParam(PATH_JCONFIG, "lkvport", LKVPort);
+
+  while (IsValid == FALSE)
+  {
+    strcpy(RequestText, "Enter the new UDP port for the LKV373A");
+    snprintf(InitText, 10, "%s", LKVPort);
+    Keyboard(RequestText, InitText, 10);
+
+    if(strlen(KeyboardReturn) > 0)
+    {
+      IsValid = TRUE;
+    }
+  }
+  printf("LKV UDP Port set to: %s\n", KeyboardReturn);
+
+  // Save port to Config File
+  SetConfigParam(PATH_JCONFIG, "lkvport", KeyboardReturn);
+}
+
+void ChangeJetsonUser()
+{
+  char RequestText[64];
+  char InitText[64];
+  bool IsValid = FALSE;
+  char JetsonUser[15];
+
+  //Retrieve (15 char) Username from Config file
+  GetConfigParam(PATH_JCONFIG, "jetsonuser", JetsonUser);
+
+  while (IsValid == FALSE)
+  {
+    strcpy(RequestText, "Enter the username for the Jetson Nano");
+    snprintf(InitText, 15, "%s", JetsonUser);
+    Keyboard(RequestText, InitText, 10);
+
+    if(strlen(KeyboardReturn) > 0)
+    {
+      IsValid = TRUE;
+    }
+  }
+  printf("Jetson Username set to: %s\n", KeyboardReturn);
+
+  // Save username to Config File
+  SetConfigParam(PATH_JCONFIG, "jetsonuser", KeyboardReturn);
+}
+
+void ChangeJetsonPW()
+{
+  char RequestText[64];
+  char InitText[64];
+  bool IsValid = FALSE;
+  char JetsonPW[31];
+
+  //Retrieve (31 char)Password from Config file
+  GetConfigParam(PATH_JCONFIG, "jetsonpw", JetsonPW);
+
+  while (IsValid == FALSE)
+  {
+    strcpy(RequestText, "Enter the password for the Jetson Nano");
+    snprintf(InitText, 31, "%s", JetsonPW);
+    Keyboard(RequestText, InitText, 10);
+
+    if(strlen(KeyboardReturn) > 0)
+    {
+      IsValid = TRUE;
+    }
+  }
+  printf("Jetson password set to: %s\n", KeyboardReturn);
+
+  // Save username to Config File
+  SetConfigParam(PATH_JCONFIG, "jetsonpw", KeyboardReturn);
+}
+
+void ChangeJetsonRPW()
+{
+  char RequestText[64];
+  char InitText[64];
+  bool IsValid = FALSE;
+  char JetsonPW[31];
+
+  //Retrieve (31 char) root password from Config file
+  GetConfigParam(PATH_JCONFIG, "jetsonrootpw", JetsonPW);
+
+  while (IsValid == FALSE)
+  {
+    strcpy(RequestText, "Enter the root password for the Jetson Nano");
+    snprintf(InitText, 31, "%s", JetsonPW);
+    Keyboard(RequestText, InitText, 10);
+
+    if(strlen(KeyboardReturn) > 0)
+    {
+      IsValid = TRUE;
+    }
+  }
+  printf("Jetson root password set to: %s\n", KeyboardReturn);
+
+  // Save username to Config File
+  SetConfigParam(PATH_JCONFIG, "jetsonrootpw", KeyboardReturn);
+}
 
 void waituntil(int w,int h)
 {
   // Wait for a screen touch and act on its position
 
   int rawX, rawY, rawPressure, i;
-
+  rawX = 0;
+  rawY = 0;
   // printf("Entering WaitUntil\n");
   // Start the main loop for the Touchscreen
   for (;;)
@@ -9791,7 +10350,7 @@ void waituntil(int w,int h)
       // SigGen?                                    SigGen      (not implemented yet)
       // WebcamWait                                 Waiting for Webcam reset. Touch listens but does not respond
 
-      //printf("Screenstate is %s \n", ScreenState);
+      // printf("Screenstate is %s \n", ScreenState);
 
      // Sort TXwithImage first:
     if (strcmp(ScreenState, "TXwithImage") == 0)
@@ -10090,10 +10649,20 @@ void waituntil(int w,int h)
           }
           break;
         case 21:                       // RX
-          printf("MENU 5 \n");
-          CurrentMenu=5;
-          BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu5();
+          if (CheckFTDI() == 1)
+          {
+            printf("MENU 5 \n");
+            CurrentMenu=5;
+            BackgroundRGB(0,0,0,255);
+            Start_Highlights_Menu5();
+          }
+          else
+          {
+            printf("MENU 8 \n");
+            CurrentMenu=8;
+            BackgroundRGB(0,0,0,255);
+            Start_Highlights_Menu8();
+          }
           UpdateWindow();
           break;
         case 22:                      // Select Menu 2
@@ -10307,18 +10876,28 @@ void waituntil(int w,int h)
           Start_Highlights_Menu36();
           UpdateWindow();
           break;
-        case 3:                               //
-          break;
+        case 3:                               // RPI Remote Config
+          printf("MENU 80 \n");
+          CurrentMenu=80;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu80();
+          UpdateWindow();
+					break;
         case 4:                               //
           break;
-        case 5:                              //
+        case 5:                              // Lime Config
           printf("MENU 34 \n");
           CurrentMenu=34;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu34();
           UpdateWindow();
           break;
-        case 6:                              //
+        case 6:                              // Jetson Config
+          printf("MENU 44 \n");
+          CurrentMenu=44;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu44();
+          UpdateWindow();
           break;
         case 7:                              //
           break;
@@ -10892,6 +11471,26 @@ void waituntil(int w,int h)
         UpdateWindow();
         continue;   // Completed Menu 7 action, go and wait for touch
       }
+
+      if (CurrentMenu == 8)  // Menu 8
+      {
+        printf("Button Event %d, Entering Menu 8 Case Statement\n",i);
+        CallingMenu = 8;
+        switch (i)
+        {
+        case 22:                                          // Back to Menu 1
+          printf("MENU 1 \n");
+          CurrentMenu=1;
+          BackgroundRGB(255,255,255,255);
+          Start_Highlights_Menu1();
+          UpdateWindow();
+          break;
+        default:
+          printf("Menu 8 Error\n");
+        }
+        continue;   // Completed Menu 8 action, go and wait for touch
+      }
+
 
       if (CurrentMenu == 11)  // Menu 11 TX RF Output Mode
       {
@@ -11762,7 +12361,7 @@ void waituntil(int w,int h)
           UpdateWindow();
           break;
         case 3:
-          break;  // PCR PID can't be changed
+          break;  //
         case 5:
           printf("Changing Call\n");
           ChangeCall();
@@ -12234,6 +12833,11 @@ void waituntil(int w,int h)
           SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 1);
           printf("Encoding Cancel\n");
           break;
+        case 11:                              // RPI Remote
+          SelectOP(i);
+          printf("RPI Remote\n");
+          system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
+          break;
         case 10:                              // Jetson Lime
           SelectOP(i);
           printf("Jetson Lime\n");
@@ -12438,9 +13042,138 @@ void waituntil(int w,int h)
         continue;   // Completed Menu 43 action, go and wait for touch
       }
 
+			if (CurrentMenu == 44)  // Menu 44 Jetson Configuration
+      {
+        printf("Button Event %d, Entering Menu 44 Case Statement\n",i);
+        switch (i)
+        {
+        case 4:                               // Cancel
+          SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 1);
+          printf("Cancelling System Config Menu\n");
+          UpdateWindow();
+          usleep(500000);
+          SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 0); // Reset cancel (even if not selected)
+          printf("Returning to MENU 1 from Menu 44\n");
+          CurrentMenu=1;
+          BackgroundRGB(255,255,255,255);
+          Start_Highlights_Menu1();
+          UpdateWindow();
+          break;
+        case 0:
+          system("/home/pi/rpidatv/scripts/s_jetson.sh");
+          SetButtonStatus(ButtonNumber(CurrentMenu, 0), 2); // Greyout Shutdown Jetson
+          SetButtonStatus(ButtonNumber(CurrentMenu, 1), 2); // Greyout Reboot Jetson
+          UpdateWindow();
+          break;
+        case 1:
+          system("/home/pi/rpidatv/scripts/r_jetson.sh");
+          SetButtonStatus(ButtonNumber(CurrentMenu, 0), 2); // Greyout Shutdown Jetson
+          SetButtonStatus(ButtonNumber(CurrentMenu, 1), 2); // Greyout Reboot Jetson
+          UpdateWindow();
+          break;
+        case 2:
+          printf("Changing Jetson IP\n");
+          ChangeJetsonIP();
+          CurrentMenu=44;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu44();
+          UpdateWindow();
+          break;
+        case 3:
+          printf("Changing LKV373A UDP IP\n");
+          ChangeLKVIP();
+          CurrentMenu=44;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu44();
+          UpdateWindow();
+          break;
+        case 5:
+          printf("Changing Jetson User name\n");
+          ChangeJetsonUser();
+          CurrentMenu=44;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu44();
+          UpdateWindow();
+          break;
+        case 6:
+          printf("Changing Jetson passord\n");
+          ChangeJetsonPW();
+          CurrentMenu=44;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu44();
+          UpdateWindow();
+          break;
+        case 7:
+          printf("Changing Jetson root password\n");
+          ChangeJetsonRPW();
+          CurrentMenu=44;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu44();
+          UpdateWindow();
+          break;
+        case 8:
+          printf("Changing LKV373A UDP Port\n");
+          ChangeLKVPort();
+          CurrentMenu=44;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu44();
+          UpdateWindow();
+          break;
+        default:
+          printf("Menu 44 Error\n");
+        }
+      }
+
       if (CurrentMenu == 41)  // Menu 41 Keyboard (should not get here)
       {
         //break;
+      }
+      if (CurrentMenu == 80)  // Menu 80 Remote IP, user, password
+      {
+        printf("Button Event %d, Entering Menu 80 Case Statement\n",i);
+        switch (i)
+        {
+        case 4:                               // Cancel
+          SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 1);
+          printf("Set IP/User/Password Cancel\n");
+          UpdateWindow();
+          usleep(500000);
+          SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 0); // Reset cancel (even if not selected)
+          printf("Returning to MENU 1 from Menu 80\n");
+          CurrentMenu=1;
+          BackgroundRGB(255,255,255,255);
+          Start_Highlights_Menu1();
+          UpdateWindow();
+          break;
+        case 0:
+          printf("Changing IP\n");
+          ChangeIP(i);
+          CurrentMenu=80;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu80();
+          UpdateWindow();
+          break;
+        case 1
+          printf("Changing User\n");
+          ChangeUser();
+          CurrentMenu=80;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu80();
+          UpdateWindow();
+          break;
+        case 2:
+          printf("Changing Password\n");
+          ChangePW(i);
+          CurrentMenu=80;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu80();
+          UpdateWindow();
+          break;
+        default:
+          printf("Menu 80 Error\n");
+        }
+        // stay in Menu 80 if parameter changed
+        continue;   // Completed Menu 80 action, go and wait for touch
       }
     }
   }
@@ -12766,7 +13499,7 @@ void Start_Highlights_Menu1()
       {
         TvtrFreq = TvtrFreq * -1;
       }
-      snprintf(Value, 10, "%.1f", TvtrFreq);
+      snprintf(Value, 10, "%.2f", TvtrFreq);
       strcat(Freqtext, Value);
     }
   }
@@ -12878,7 +13611,8 @@ void Start_Highlights_Menu1()
   }
   else if ((strcmp(CurrentModeOP, TabModeOP[3]) == 0)
         || (strcmp(CurrentModeOP, TabModeOP[8]) == 0)
-        || (strcmp(CurrentModeOP, TabModeOP[9]) == 0))  // Lime
+        || (strcmp(CurrentModeOP, TabModeOP[9]) == 0)
+        || (strcmp(CurrentModeOP, TabModeOP[13]) == 0))  // Lime
   {
     snprintf(Leveltext, 20, "Lime Gain^%d", TabBandLimeGain[CurrentBand]);
   }
@@ -13089,6 +13823,9 @@ void Define_Menu3()
 
   button = CreateButton(3, 2);
   AddButtonStatus(button, "WiFi^Config", &Blue);
+
+  button = CreateButton(3, 3);
+  AddButtonStatus(button, "RPI Remote^Config", &Blue);
 
   // 2nd line up Menu 3: Lime Config
 
@@ -14248,7 +14985,7 @@ void Define_Menu16()
     {
       TvtrFreq = TvtrFreq * -1;
     }
-    snprintf(Value, 10, "%.1f", TvtrFreq);
+    snprintf(Value, 10, "%.2f", TvtrFreq);
     strcat(Freqtext, Value);
   }
 
@@ -14325,7 +15062,7 @@ void MakeFreqText(int index)
       {
         TvtrFreq = TvtrFreq * -1;
       }
-      snprintf(Value, 10, "%.1f", TvtrFreq);
+      snprintf(Value, 10, "%.2f", TvtrFreq);
       strcat(FreqBtext, Value);
     }
     else
@@ -14338,7 +15075,7 @@ void MakeFreqText(int index)
       {
         TvtrFreq = TvtrFreq * -1;
       }
-      snprintf(Value, 10, "%.1f", TvtrFreq);
+      snprintf(Value, 10, "%.2f", TvtrFreq);
       strcat(FreqBtext, Value);
     }
   }
@@ -16275,6 +17012,11 @@ void Define_Menu42()
   AddButtonStatus(button, TabModeOPtext[9], &Blue);
   AddButtonStatus(button, TabModeOPtext[9], &Green);
   AddButtonStatus(button, TabModeOPtext[9], &Grey);
+
+	button = CreateButton(42, 11);
+  AddButtonStatus(button, TabModeOPtext[13], &Blue);
+  AddButtonStatus(button, TabModeOPtext[13], &Green);
+  AddButtonStatus(button, TabModeOPtext[13], &Grey);
 }
 
 void Start_Highlights_Menu42()
@@ -16329,6 +17071,11 @@ void Start_Highlights_Menu42()
   {
     SelectInGroupOnMenu(42, 5, 10, 10, 1);
     SelectInGroupOnMenu(42, 0, 3, 10, 1);
+  }
+	if(strcmp(CurrentModeOP, TabModeOP[13]) == 0)  //RPI_R
+  {
+    SelectInGroupOnMenu(42, 5, 10, 11, 1);
+    SelectInGroupOnMenu(42, 0, 3, 11, 1);
   }
   GreyOut42();
 }
@@ -16428,15 +17175,144 @@ void Start_Highlights_Menu43()
   {
     SetButtonStatus(ButtonNumber(CurrentMenu, 13), 2); // Grey-out Invert 7 inch
   }
+}
 
-  if (strcmp(DisplayType, "Element14_7") == 0)
-  {
-    SetButtonStatus(ButtonNumber(CurrentMenu, 14), 0); // Display Invert 7 inch
-  }
-  else
-  {
-    SetButtonStatus(ButtonNumber(CurrentMenu, 14), 2); // Grey-out Invert 7 inch
-  }
+void Define_Menu44()
+{
+int button;
+color_t Blue;
+color_t LBlue;
+color_t DBlue;
+color_t Green;
+color_t Grey;
+Blue.r=0; Blue.g=0; Blue.b=128;
+LBlue.r=64; LBlue.g=64; LBlue.b=192;
+DBlue.r=0; DBlue.g=0; DBlue.b=64;
+Green.r=0; Green.g=128; Green.b=0;
+Grey.r=127; Grey.g=127; Grey.b=127;
+
+strcpy(MenuTitle[44], "Jetson Configuration Menu (44)");
+
+// Bottom Row, Menu 44
+
+button = CreateButton(44, 4);
+AddButtonStatus(button, "Exit", &DBlue);
+AddButtonStatus(button, "Exit", &LBlue);
+
+button = CreateButton(44, 0);
+AddButtonStatus(button, "Shutdown^Jetson", &Blue);
+AddButtonStatus(button, "Shutdown^Jetson", &Green);
+AddButtonStatus(button, "Shutdown^Jetson", &Grey);
+
+button = CreateButton(44, 1);
+AddButtonStatus(button, "Reboot^Jetson", &Blue);
+AddButtonStatus(button, "Reboot^Jetson", &Green);
+AddButtonStatus(button, "Reboot^Jetson", &Grey);
+
+button = CreateButton(44, 2);
+AddButtonStatus(button, "Set Jetson^IP address", &Blue);
+
+button = CreateButton(44, 3);
+AddButtonStatus(button, "LKV373^UDP IP", &Blue);
+
+button = CreateButton(44, 8);
+AddButtonStatus(button, "LKV373^UDP port", &Blue);
+
+// 2nd Row, Menu 44
+
+button = CreateButton(44, 5);
+AddButtonStatus(button, "Set Jetson^Username", &Blue);
+
+button = CreateButton(44, 6);
+AddButtonStatus(button, "Set Jetson^Password", &Blue);
+
+button = CreateButton(44, 7);
+AddButtonStatus(button, "Set Jetson^Root PW", &Blue);
+
+//  button = CreateButton(44, 9);
+//  AddButtonStatus(button, "SD Button^Enabled", &Blue);
+//  AddButtonStatus(button, "SD Button^Enabled", &Green);
+//  AddButtonStatus(button, "SD Button^Disabled", &Blue);
+//  AddButtonStatus(button, "SD Button^Disabled", &Green);
+
+// 3rd Row, Menu 44
+
+//  button = CreateButton(44, 10);
+//  AddButtonStatus(button, "", &Blue);
+//  AddButtonStatus(button, "", &Green);
+
+//  button = CreateButton(44, 11);
+//  AddButtonStatus(button, "", &Blue);
+//  AddButtonStatus(button, "", &Green);
+
+//  button = CreateButton(44, 13);
+//  AddButtonStatus(button, "force pwm^open = 0", &Blue);
+//  AddButtonStatus(button, "force pwm^open = 0", &Green);
+//  AddButtonStatus(button, "force pwm^open = 1", &Blue);
+//  AddButtonStatus(button, "force pwm^open = 1", &Green);
+
+//  button = CreateButton(44, 14);
+//  AddButtonStatus(button, "Invert^7 inch", &Blue);
+//  AddButtonStatus(button, "Invert^7 inch", &Green);
+//  AddButtonStatus(button, "Invert^7 inch", &Grey);
+}
+
+void Start_Highlights_Menu44()
+{
+GreyOutReset44();
+GreyOut44();
+}
+
+void Define_Menu80()
+{
+  int button;
+  color_t Blue;
+  color_t LBlue;
+  color_t DBlue;
+  color_t Grey;
+  Blue.r=0; Blue.g=0; Blue.b=128;
+  LBlue.r=64; LBlue.g=64; LBlue.b=192;
+  DBlue.r=0; DBlue.g=0; DBlue.b=64;
+  Grey.r=127; Grey.g=127; Grey.b=127;
+
+  strcpy(MenuTitle[80], "RPI Remote IP, User and Password Setting Menu (80)");
+
+  // Bottom Row, Menu 29
+
+  button = CreateButton(80, 0);
+  AddButtonStatus(button, "Set RPI^IP", &Blue);
+
+  button = CreateButton(80, 1);
+  AddButtonStatus(button, "Set RPI^User", &Blue);
+
+  button = CreateButton(80, 2);
+  AddButtonStatus(button, "Set RPI^Password", &Blue);
+
+  button = CreateButton(80, 4);
+  AddButtonStatus(button, "Exit", &DBlue);
+  AddButtonStatus(button, "Exit", &LBlue);
+
+}
+
+void Start_Highlights_Menu80()
+{
+  // RPI Remote IP, User and Password
+
+  char Buttext[31];
+  color_t Grey;
+  color_t Blue;
+  Blue.r=0; Blue.g=0; Blue.b=128;
+  Grey.r=127; Grey.g=127; Grey.b=127;
+
+  //snprintf(Buttext, 17, "IP^%s", rpi_ip);
+  //AmendButtonStatus(ButtonNumber(80, 0), 0, Buttext, &Blue);
+
+  //snprintf(Buttext, 17, "User^%s", rpi_user);
+  //AmendButtonStatus(ButtonNumber(80, 1), 0, Buttext, &Blue);
+
+  //snprintf(Buttext, 17, "Password^%s", rpi_pw);
+  //AmendButtonStatus(ButtonNumber(80, 2), 0, Buttext, &Blue);
+
 }
 
 void Define_Menu41()
@@ -16860,6 +17736,7 @@ int main(int argc, char **argv)
   Define_Menu5();
   Define_Menu6();
   Define_Menu7();
+	Define_Menu8();
 
   Define_Menu11();
   Define_Menu12();
@@ -16894,6 +17771,8 @@ int main(int argc, char **argv)
   Define_Menu41();
   Define_Menu42();
   Define_Menu43();
+	Define_Menu44();
+	Define_Menu80();
 
   // Start the button Menu
   Start(wscreen,hscreen);

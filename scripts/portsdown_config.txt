@@ -1,6 +1,7 @@
 modulation=DVB-S
 modeinput=DESKTOP
 modeoutput=QPSKRF
+modeoutput_r=LIMEMINI
 freqoutput=437
 symbolrate=333
 fec=7
@@ -44,3 +45,6 @@ pilots=off
 frames=long
 format=4:3
 encoding=H264
+rpi_user_remote=pi
+rpi_pw_remote=raspberry
+rpi_ip_distant=172.24.1.1

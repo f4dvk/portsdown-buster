@@ -1,15 +1,11 @@
 #! /bin/bash
 
-# This script is called when the transmitter is stopped.
-# It can be added to for any purpose, and is not overwritten on software update
-
 ############ Set Environment Variables ###############
 
 PATHSCRIPT=/home/pi/rpidatv/scripts
 PATHRPI=/home/pi/rpidatv/bin
 PCONFIGFILE="/home/pi/rpidatv/scripts/portsdown_config.txt"
 PATHCONFIGS="/home/pi/rpidatv/scripts/configs"  ## Path to config files
-JCONFIGFILE="/home/pi/rpidatv/scripts/jetson_config.txt"
 
 ############ Function to Read from Config File ###############
 
@@ -28,5 +24,20 @@ end
 EOF
 }
 
+###################################################
+  IP_DISTANT=172.24.1.1
+  RPI_USER=pi
+  RPI_PW=raspberry
+###################################################
+
+###################### Commande distante ###########################
+
+sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
+
+ $PATHSCRIPT"/a.sh" >/dev/null 2>/dev/null &
+ $PATHSCRIPT"/TXstartextras.sh" >/dev/null 2>/dev/null &
+ $PATHSCRIPT"/lime_ptt.sh" &
+
+ENDSSH
 
 exit
