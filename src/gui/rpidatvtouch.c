@@ -17386,11 +17386,11 @@ void Define_Menu80()
   color_t Blue;
   color_t LBlue;
   color_t DBlue;
-  color_t Grey;
+  //color_t Grey;
   Blue.r=0; Blue.g=0; Blue.b=128;
   LBlue.r=64; LBlue.g=64; LBlue.b=192;
   DBlue.r=0; DBlue.g=0; DBlue.b=64;
-  Grey.r=127; Grey.g=127; Grey.b=127;
+  //Grey.r=127; Grey.g=127; Grey.b=127;
 
   strcpy(MenuTitle[80], "RPI Remote IP, User and Password Setting Menu (80)");
 
