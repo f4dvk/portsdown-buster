@@ -14535,6 +14535,123 @@ void Start_Highlights_Menu7()
   ;
 }
 
+void Define_Menu8()
+{
+  int button = 0;
+  color_t Green;
+  color_t Blue;
+  color_t Red;
+  color_t Grey;
+  strcpy(MenuTitle[8], "DATV Menu (8)");
+
+  Green.r=0; Green.g=96; Green.b=0;
+  Blue.r=0; Blue.g=0; Blue.b=128;
+  Red.r=255; Red.g=0; Red.b=0;
+  Grey.r=127; Grey.g=127; Grey.b=127;
+
+  // Bottom Row, Menu 8
+
+  button = CreateButton(8, 0);
+  AddButtonStatus(button, " ", &Blue);
+  AddButtonStatus(button, " ", &Green);
+
+  button = CreateButton(8, 1);
+  AddButtonStatus(button, " ", &Blue);
+  AddButtonStatus(button, " ", &Green);
+
+  button = CreateButton(8, 2);
+  AddButtonStatus(button, " ", &Blue);
+  AddButtonStatus(button, " ", &Green);
+
+  button = CreateButton(8, 3);
+  AddButtonStatus(button, " ", &Blue);
+  AddButtonStatus(button, " ", &Green);
+
+  button = CreateButton(8, 4);
+  AddButtonStatus(button, " ", &Blue);
+  AddButtonStatus(button, " ", &Red);
+
+  // 2nd Row, Menu 8.
+
+  button = CreateButton(8, 5);
+  AddButtonStatus(button, " ", &Blue);
+  AddButtonStatus(button, " ", &Green);
+
+  //button = CreateButton(8, 6);
+  //AddButtonStatus(button, " ", &Blue);
+  //AddButtonStatus(button, " ", &Green);
+
+  button = CreateButton(8, 7);
+  AddButtonStatus(button, " ", &Blue);
+  AddButtonStatus(button, " ", &Green);
+
+  //button = CreateButton(8, 8);
+  //AddButtonStatus(button, " ", &Blue);
+  //AddButtonStatus(button, " ", &Green);
+
+  button = CreateButton(8, 9);
+  AddButtonStatus(button, " ", &Blue);
+  AddButtonStatus(button, " ", &Green);
+
+  // 3rd line up Menu 8
+
+  button = CreateButton(8, 10);
+  AddButtonStatus(button, " ", &Blue);
+  AddButtonStatus(button, " ", &Green);
+
+  button = CreateButton(8, 11);
+  AddButtonStatus(button, " ", &Blue);
+  AddButtonStatus(button, " ", &Green);
+
+  button = CreateButton(8, 12);
+  AddButtonStatus(button, " ", &Blue);
+  AddButtonStatus(button, " ", &Green);
+
+  button = CreateButton(8, 13);
+  AddButtonStatus(button," ",&Blue);
+  AddButtonStatus(button," ",&Green);
+
+  button = CreateButton(8, 14);
+  AddButtonStatus(button," ",&Blue);
+  AddButtonStatus(button," ",&Green);
+
+  // 4th line up Menu 8
+
+  button = CreateButton(8, 15);
+  AddButtonStatus(button, " ", &Blue);
+  AddButtonStatus(button, "Modulation^not set", &Green);
+
+  button = CreateButton(8, 16);
+  AddButtonStatus(button, " ", &Blue);
+  AddButtonStatus(button, " ", &Green);
+  AddButtonStatus(button, " ", &Grey);
+
+  button = CreateButton(8, 17);
+  AddButtonStatus(button, " ", &Blue);
+  AddButtonStatus(button, " ", &Blue);
+
+  button = CreateButton(8, 18);
+  AddButtonStatus(button, " ", &Blue);
+  AddButtonStatus(button, " ", &Green);
+
+  button = CreateButton(8, 19);
+  AddButtonStatus(button, " ", &Blue);
+  AddButtonStatus(button, " ", &Green);
+
+  // - Top of Menu 8
+
+  button = CreateButton(8, 21);
+  AddButtonStatus(button,"   ",&Blue);
+  AddButtonStatus(button," ",&Red);
+
+  button = CreateButton(8, 22);
+  AddButtonStatus(button,"EXIT",&Blue);
+  AddButtonStatus(button,"EXIT",&Green);
+}
+
+void Start_Highlights_Menu8()
+{
+}
 
 void Define_Menu11()
 {
