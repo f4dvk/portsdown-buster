@@ -113,9 +113,6 @@ char PIDstart[15];
 char PIDvideo[15];
 char PIDaudio[15];
 char PIDpmt[15];
-//char rpi_ip[255];
-//char rpi_user[255];
-//char rpi_pw[255];
 char ADFRef[3][15];
 char CurrentADFRef[15];
 char UpdateStatus[31] = "NotAvailable";
@@ -1809,7 +1806,7 @@ void ReadModeOutput(char Moutput[256])
     strcpy(Moutput, "Jetson with DATV Express");
     strcpy(CurrentModeOPtext, TabModeOPtext[10]);
   }
-	else if (strcmp(ModeOutput, "RPI_R") == 0)
+  else if (strcmp(ModeOutput, "RPI_R") == 0)
   {
     strcpy(Moutput, "Remote RPI");
     strcpy(CurrentModeOPtext, TabModeOPtext[13]);
@@ -5468,7 +5465,7 @@ void EnforceValidFEC()
   {
     if (fec > 10)
     {
-      if(fec == 12)
+      if (fec == 12)
       {
         fec = 1;
       }
@@ -5483,7 +5480,7 @@ void EnforceValidFEC()
   {
     if (fec < 9)
     {
-      if(fec == 1)
+      if (fec == 1)
       {
         fec = 12;
       }
@@ -5854,7 +5851,7 @@ void SelectTX(int NoButton)  // TX RF Output Mode
   EnforceValidFEC();
   ApplyTXConfig();
   // RPI remote
-  if(strcmp(ModeOutput, "RPI_R") == 0)
+  if (strcmp(ModeOutput, "RPI_R") == 0)
   {
     system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
   }
@@ -5873,7 +5870,7 @@ void SelectPilots()  // Toggle pilots on/off
     SetConfigParam(PATH_PCONFIG, "pilots", "off");
   }
   // RPI remote
-  if(strcmp(ModeOutput, "RPI_R") == 0)
+  if (strcmp(ModeOutput, "RPI_R") == 0)
   {
     system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
   }
@@ -5908,7 +5905,7 @@ void SelectEncoding(int NoButton)  // Encoding
   ApplyTXConfig();
 
   // RPI remote
-  if(strcmp(ModeOutput, "RPI_R") == 0)
+  if (strcmp(ModeOutput, "RPI_R") == 0)
   {
     system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
   }
@@ -5962,7 +5959,7 @@ void SelectFormat(int NoButton)  // Video Format
   ApplyTXConfig();
 
   // RPI remote
-  if(strcmp(ModeOutput, "RPI_R") == 0)
+  if (strcmp(ModeOutput, "RPI_R") == 0)
   {
     system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
   }
@@ -6001,7 +5998,7 @@ void SelectFreq(int NoButton)  //Frequency
     DoFreqChange();
 
     // RPI remote
-    if(strcmp(ModeOutput, "RPI_R") == 0)
+    if (strcmp(ModeOutput, "RPI_R") == 0)
     {
       system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
     }
@@ -6032,7 +6029,7 @@ void SelectSR(int NoButton)  // Symbol Rate
     SetConfigParam(PATH_PCONFIG, "symbolrate", Value);
 
     // RPI remote
-    if(strcmp(ModeOutput, "RPI_R") == 0)
+    if (strcmp(ModeOutput, "RPI_R") == 0)
     {
       system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
     }
@@ -6059,7 +6056,7 @@ void SelectFec(int NoButton)  // FEC
     SetConfigParam(PATH_PCONFIG, Param, Value);
 
     // RPI remote
-    if(strcmp(ModeOutput, "RPI_R") == 0)
+    if (strcmp(ModeOutput, "RPI_R") == 0)
     {
       system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
     }
@@ -6094,7 +6091,7 @@ void SelectS2Fec(int NoButton)  // DVB-S2 FEC
   SetConfigParam(PATH_PCONFIG, Param, Value);
 
   // RPI remote
-  if(strcmp(ModeOutput, "RPI_R") == 0)
+  if (strcmp(ModeOutput, "RPI_R") == 0)
   {
     system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
   }
@@ -6553,7 +6550,7 @@ void SetAttenLevel()
     SetConfigParam(PATH_PCONFIG, Param, KeyboardReturn);
 
     // RPI remote
-    if(strcmp(ModeOutput, "RPI_R") == 0)
+    if (strcmp(ModeOutput, "RPI_R") == 0)
     {
       system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
     }
@@ -7182,7 +7179,7 @@ void TransmitStart()
   system(PATH_SCRIPT_A);
 
   // Run RPI remote
-  if(strcmp(ModeOutput, "RPI_R") == 0)
+  if (strcmp(ModeOutput, "RPI_R") == 0)
   {
     system("/home/pi/rpidatv/scripts/TX_remote.sh &");
   }
@@ -7214,7 +7211,7 @@ void TransmitStop()
   system("/home/pi/rpidatv/scripts/TXstopextras.sh &");
 
   // TX stop RPI Remote
-  if(strcmp(ModeOutput, "RPI_R") == 0)
+  if (strcmp(ModeOutput, "RPI_R") == 0)
   {
     system("/home/pi/rpidatv/scripts/STB_remote.sh &");
   }
