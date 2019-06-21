@@ -13824,8 +13824,8 @@ void Define_Menu3()
   button = CreateButton(3, 2);
   AddButtonStatus(button, "WiFi^Config", &Blue);
 
-/*  button = CreateButton(3, 3);
-  AddButtonStatus(button, "RPI Remote^Config", &Blue); */
+  button = CreateButton(3, 3);
+  AddButtonStatus(button, "RPI Remote^Config", &Blue);
 
   // 2nd line up Menu 3: Lime Config
 
@@ -17189,11 +17189,11 @@ void Start_Highlights_Menu42()
     SelectInGroupOnMenu(42, 5, 10, 10, 1);
     SelectInGroupOnMenu(42, 0, 3, 10, 1);
   }
-/*	if(strcmp(CurrentModeOP, TabModeOP[13]) == 0)  //RPI_R
+	if(strcmp(CurrentModeOP, TabModeOP[13]) == 0)  //RPI_R
   {
     SelectInGroupOnMenu(42, 5, 10, 11, 1);
     SelectInGroupOnMenu(42, 0, 3, 11, 1);
-  } */
+  }
   GreyOut42();
 }
 
