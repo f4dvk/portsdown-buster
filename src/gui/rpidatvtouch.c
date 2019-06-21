@@ -9860,7 +9860,7 @@ void ChangePresetSR(int NoButton)
   // Undo button highlight
   // SetButtonStatus(ButtonNumber(28, NoButton), 0);
 }
-/*
+
 void ChangeIP()
 {
   char RequestText[64];
@@ -9943,7 +9943,7 @@ void ChangePW()
   // Save username to Config File
   SetConfigParam(PATH_JCONFIG, "rpi_pw_remote", KeyboardReturn);
 }
-*/
+
 void ChangeCall()
 {
   char RequestText[64];
@@ -12833,11 +12833,11 @@ void waituntil(int w,int h)
           SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 1);
           printf("Encoding Cancel\n");
           break;
-    /*    case 11:                              // RPI Remote
+        case 11:                              // RPI Remote
           SelectOP(i);
           printf("RPI Remote\n");
           system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
-          break; */
+          break;
         case 10:                              // Jetson Lime
           SelectOP(i);
           printf("Jetson Lime\n");
@@ -17415,11 +17415,11 @@ void Start_Highlights_Menu80()
 {
   // RPI Remote IP, User and Password
 
-  char Buttext[31];
+/*  char Buttext[31];
   color_t Grey;
   color_t Blue;
   Blue.r=0; Blue.g=0; Blue.b=128;
-  Grey.r=127; Grey.g=127; Grey.b=127;
+  Grey.r=127; Grey.g=127; Grey.b=127; */
 
   //snprintf(Buttext, 17, "IP^%s", rpi_ip);
   //AmendButtonStatus(ButtonNumber(80, 0), 0, Buttext, &Blue);
