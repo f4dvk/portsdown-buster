@@ -113,9 +113,9 @@ char PIDstart[15];
 char PIDvideo[15];
 char PIDaudio[15];
 char PIDpmt[15];
-char rpi_ip[255];
-char rpi_user[255];
-char rpi_pw[255];
+//char rpi_ip[255];
+//char rpi_user[255];
+//char rpi_pw[255];
 char ADFRef[3][15];
 char CurrentADFRef[15];
 char UpdateStatus[31] = "NotAvailable";
@@ -2062,17 +2062,17 @@ void ReadCallLocPID()
   GetConfigParam(PATH_PCONFIG, Param, Value);
   strcpy(PIDpmt, Value);
 
-  strcpy(Param, "rpi_ip_distant");
-  GetConfigParam(PATH_PCONFIG, Param, Value);
-  strcpy(rpi_ip, Value);
+//  strcpy(Param, "rpi_ip_distant");
+//  GetConfigParam(PATH_PCONFIG, Param, Value);
+//  strcpy(rpi_ip, Value);
 
-  strcpy(Param, "rpi_user_remote");
-  GetConfigParam(PATH_PCONFIG, Param, Value);
-  strcpy(rpi_user, Value);
+//  strcpy(Param, "rpi_user_remote");
+//  GetConfigParam(PATH_PCONFIG, Param, Value);
+//  strcpy(rpi_user, Value);
 
-  strcpy(Param, "rpi_pw_remote");
-  GetConfigParam(PATH_PCONFIG, Param, Value);
-  strcpy(rpi_pw, Value);
+//  strcpy(Param, "rpi_pw_remote");
+//  GetConfigParam(PATH_PCONFIG, Param, Value);
+//  strcpy(rpi_pw, Value);
 }
 
 
@@ -10885,7 +10885,7 @@ void waituntil(int w,int h)
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu80();
           UpdateWindow();
-					break;
+          break;
         case 4:                               //
           break;
         case 5:                              // Lime Config
@@ -17856,7 +17856,7 @@ int main(int argc, char **argv)
   Define_Menu5();
   Define_Menu6();
   Define_Menu7();
-	Define_Menu8();
+  Define_Menu8();
 
   Define_Menu11();
   Define_Menu12();
@@ -17891,8 +17891,8 @@ int main(int argc, char **argv)
   Define_Menu41();
   Define_Menu42();
   Define_Menu43();
-	Define_Menu44();
-	Define_Menu80();
+  Define_Menu44();
+  Define_Menu80();
 
   // Start the button Menu
   Start(wscreen,hscreen);
