@@ -302,7 +302,7 @@ void Start_Highlights_Menu40();
 void Start_Highlights_Menu42();
 void Start_Highlights_Menu43();
 void Start_Highlights_Menu44();
-void Start_Highlights_Menu80();
+//void Start_Highlights_Menu80();
 
 void MsgBox(const char *);
 void MsgBox2(const char *, const char *);
@@ -17889,7 +17889,7 @@ int main(int argc, char **argv)
   Define_Menu42();
   Define_Menu43();
   Define_Menu44();
-  Define_Menu80();
+//  Define_Menu80();
 
   // Start the button Menu
   Start(wscreen,hscreen);
