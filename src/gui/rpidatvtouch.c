@@ -17889,7 +17889,7 @@ int main(int argc, char **argv)
   Define_Menu42();
   Define_Menu43();
   Define_Menu44();
-//  Define_Menu80();
+  Define_Menu80();
 
   // Start the button Menu
   Start(wscreen,hscreen);
