@@ -302,7 +302,7 @@ void Start_Highlights_Menu40();
 void Start_Highlights_Menu42();
 void Start_Highlights_Menu43();
 void Start_Highlights_Menu44();
-//void Start_Highlights_Menu80();
+void Start_Highlights_Menu80();
 
 void MsgBox(const char *);
 void MsgBox2(const char *, const char *);
@@ -10877,11 +10877,11 @@ void waituntil(int w,int h)
           UpdateWindow();
           break;
         case 3:                               // RPI Remote Config
-        /*  printf("MENU 80 \n");
+          printf("MENU 80 \n");
           CurrentMenu=80;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu80();
-          UpdateWindow(); */
+          UpdateWindow();
           break;
         case 4:                               //
           break;
@@ -13128,7 +13128,7 @@ void waituntil(int w,int h)
       {
         //break;
       }
-  /*    if (CurrentMenu == 80)  // Menu 80 Remote IP, user, password
+      if (CurrentMenu == 80)  // Menu 80 Remote IP, user, password
       {
         printf("Button Event %d, Entering Menu 80 Case Statement\n",i);
         switch (i)
@@ -13174,7 +13174,7 @@ void waituntil(int w,int h)
         }
         // stay in Menu 80 if parameter changed
         continue;   // Completed Menu 80 action, go and wait for touch
-      } */
+      }
     }
   }
 }
@@ -17379,7 +17379,7 @@ void Start_Highlights_Menu44()
 GreyOutReset44();
 GreyOut44();
 }
-/*
+
 void Define_Menu80()
 {
   int button;
@@ -17430,7 +17430,7 @@ void Start_Highlights_Menu80()
   //snprintf(Buttext, 17, "Password^%s", rpi_pw);
   //AmendButtonStatus(ButtonNumber(80, 2), 0, Buttext, &Blue);
 
-} */
+}
 
 void Define_Menu41()
 {
@@ -17889,7 +17889,7 @@ int main(int argc, char **argv)
   Define_Menu42();
   Define_Menu43();
   Define_Menu44();
-//  Define_Menu80();
+  Define_Menu80();
 
   // Start the button Menu
   Start(wscreen,hscreen);
