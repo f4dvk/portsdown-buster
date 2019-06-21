@@ -17130,10 +17130,10 @@ void Define_Menu42()
   AddButtonStatus(button, TabModeOPtext[9], &Green);
   AddButtonStatus(button, TabModeOPtext[9], &Grey);
 
-/*	button = CreateButton(42, 11);
+	button = CreateButton(42, 11);
   AddButtonStatus(button, TabModeOPtext[13], &Blue);
   AddButtonStatus(button, TabModeOPtext[13], &Green);
-  AddButtonStatus(button, TabModeOPtext[13], &Grey); */
+  AddButtonStatus(button, TabModeOPtext[13], &Grey);
 }
 
 void Start_Highlights_Menu42()
