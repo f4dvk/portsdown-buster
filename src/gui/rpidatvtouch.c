@@ -135,7 +135,7 @@ int GPIO_Tverter = 7;
 int GPIO_SD_LED = 2;
 
 char ScreenState[255] = "NormalMenu";  // NormalMenu SpecialMenu TXwithMenu TXwithImage RXwithImage VideoOut SnapView VideoView Snap SigGen
-char MenuTitle[50][127];
+char MenuTitle[90][127];
 
 // Values for buttons
 // May be over-written by values from from portsdown_config.txt:
@@ -13832,8 +13832,8 @@ void Define_Menu3()
   button = CreateButton(3, 5);
   AddButtonStatus(button, "Lime^Config", &Blue);
 
-  //button = CreateButton(3, 6);
-  //AddButtonStatus(button, "Jetson^Config", &Blue);
+  button = CreateButton(3, 6);
+  AddButtonStatus(button, "Jetson^Config", &Blue);
 
   // 3rd line up Menu 3: Amend Sites/Beacons, Set Receive LOs and set Stream Outputs
 
