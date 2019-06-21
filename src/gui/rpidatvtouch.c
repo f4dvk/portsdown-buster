@@ -4653,7 +4653,7 @@ int ButtonNumber(int MenuIndex, int Button)
   {
     ButtonNumb = (MenuIndex - 1) * 25 + Button;
   }
-  if ((MenuIndex >= 11) && (MenuIndex <= 40))  // 30 x 10-button submenus
+  if (((MenuIndex >= 11) && (MenuIndex <= 40)) || (MenuIndex >= 80))  // 30 x 10-button submenus
   {
     ButtonNumb = 250 + (MenuIndex - 11) * 10 + Button;
   }
