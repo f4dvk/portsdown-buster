@@ -302,7 +302,7 @@ void Start_Highlights_Menu40();
 void Start_Highlights_Menu42();
 void Start_Highlights_Menu43();
 void Start_Highlights_Menu44();
-//void Start_Highlights_Menu80();
+void Start_Highlights_Menu80();
 
 void MsgBox(const char *);
 void MsgBox2(const char *, const char *);
@@ -10880,7 +10880,7 @@ void waituntil(int w,int h)
           printf("MENU 80 \n");
           CurrentMenu=80;
           BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu80();
+          //Start_Highlights_Menu80();
           UpdateWindow();
           break;
         case 4:                               //
@@ -13150,7 +13150,7 @@ void waituntil(int w,int h)
           ChangeIP(i);
           CurrentMenu=80;
           BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu80();
+          //Start_Highlights_Menu80();
           UpdateWindow();
           break;
         case 1:
@@ -13158,7 +13158,7 @@ void waituntil(int w,int h)
           ChangeUser();
           CurrentMenu=80;
           BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu80();
+          //Start_Highlights_Menu80();
           UpdateWindow();
           break;
         case 2:
@@ -13166,7 +13166,7 @@ void waituntil(int w,int h)
           ChangePW(i);
           CurrentMenu=80;
           BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu80();
+          //Start_Highlights_Menu80();
           UpdateWindow();
           break;
         default:
@@ -17414,22 +17414,6 @@ void Define_Menu80()
 void Start_Highlights_Menu80()
 {
   // RPI Remote IP, User and Password
-
-  //char Buttext[31];
-  //color_t Grey;
-  //color_t Blue;
-  //Blue.r=0; Blue.g=0; Blue.b=128;
-  //Grey.r=127; Grey.g=127; Grey.b=127;
-
-  //snprintf(Buttext, 17, "IP^%s", rpi_ip);
-  //AmendButtonStatus(ButtonNumber(80, 0), 0, Buttext, &Blue);
-
-  //snprintf(Buttext, 17, "User^%s", rpi_user);
-  //AmendButtonStatus(ButtonNumber(80, 1), 0, Buttext, &Blue);
-
-  //snprintf(Buttext, 17, "Password^%s", rpi_pw);
-  //AmendButtonStatus(ButtonNumber(80, 2), 0, Buttext, &Blue);
-
 }
 
 void Define_Menu41()
