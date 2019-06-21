@@ -9870,7 +9870,7 @@ void ChangeIP()
   char RpiIPCopy[31];
 
   //Retrieve (17 char) Current IP from Config file
-  GetConfigParam(PATH_JCONFIG, "rpi_ip_distant", RpiIP);
+  GetConfigParam(PATH_PCONFIG, "rpi_ip_distant", RpiIP);
 
   while (IsValid == FALSE)
   {
@@ -9887,7 +9887,7 @@ void ChangeIP()
   printf("RPI IP set to: %s\n", KeyboardReturn);
 
   // Save IP to config file
-  SetConfigParam(PATH_JCONFIG, "rpi_ip_distant", KeyboardReturn);
+  SetConfigParam(PATH_PCONFIG, "rpi_ip_distant", KeyboardReturn);
 }
 
 void ChangeUser()
@@ -9898,7 +9898,7 @@ void ChangeUser()
   char RpiUser[15];
 
   //Retrieve (15 char) Username from Config file
-  GetConfigParam(PATH_JCONFIG, "rpi_user_remote", RpiUser);
+  GetConfigParam(PATH_PCONFIG, "rpi_user_remote", RpiUser);
 
   while (IsValid == FALSE)
   {
@@ -9914,7 +9914,7 @@ void ChangeUser()
   printf("RPI Username set to: %s\n", KeyboardReturn);
 
   // Save username to Config File
-  SetConfigParam(PATH_JCONFIG, "rpi_user_remote", KeyboardReturn);
+  SetConfigParam(PATH_PCONFIG, "rpi_user_remote", KeyboardReturn);
 }
 
 void ChangePW()
@@ -9925,7 +9925,7 @@ void ChangePW()
   char RpiPW[31];
 
   //Retrieve (31 char)Password from Config file
-  GetConfigParam(PATH_JCONFIG, "rpi_pw_remote", RpiPW);
+  GetConfigParam(PATH_PCONFIG, "rpi_pw_remote", RpiPW);
 
   while (IsValid == FALSE)
   {
@@ -9941,7 +9941,7 @@ void ChangePW()
   printf("RPI password set to: %s\n", KeyboardReturn);
 
   // Save username to Config File
-  SetConfigParam(PATH_JCONFIG, "rpi_pw_remote", KeyboardReturn);
+  SetConfigParam(PATH_PCONFIG, "rpi_pw_remote", KeyboardReturn);
 }
 
 void ChangeCall()
