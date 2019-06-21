@@ -489,7 +489,7 @@ if ! grep -q encoding /home/pi/rpidatv/scripts/portsdown_config.txt; then
   echo "" >> /home/pi/rpidatv/scripts/portsdown_config.txt
 fi
 
-# Update config file with format and encoding          201905090
+# Update config file with RPI Remote
 if ! grep -q rpi_ip_distant /home/pi/rpidatv/scripts/portsdown_config.txt; then
   # File needs updating
   printf "Adding RPI Remote to user's portsdown_config.txt\n"
