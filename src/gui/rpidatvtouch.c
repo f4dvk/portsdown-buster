@@ -17416,7 +17416,7 @@ void Define_Menu80()
 
 void Start_Highlights_Menu80()
 {
-  // RPI Remote IP, User and Password
+  ;// RPI Remote IP, User and Password
 }
 
 void Define_Menu41()
