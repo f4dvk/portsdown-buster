@@ -13173,6 +13173,16 @@ void waituntil(int w,int h)
           //Start_Highlights_Menu80();
           UpdateWindow();
           break;
+        case 5:
+          break;
+        case 6:
+          break;
+        case 7:
+          break;
+        case 8:
+          break;
+        case 9:
+          break;
         default:
           printf("Menu 80 Error\n");
         }
