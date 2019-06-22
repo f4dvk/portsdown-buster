@@ -4653,15 +4653,19 @@ int ButtonNumber(int MenuIndex, int Button)
   {
     ButtonNumb = (MenuIndex - 1) * 25 + Button;
   }
-  if (((MenuIndex >= 11) && (MenuIndex <= 40)) || (MenuIndex >= 80))  // 30 x 10-button submenus
+  if (((MenuIndex >= 11) && (MenuIndex <= 40)) || (MenuIndex >= 79))  // 30 x 10-button submenus
   {
     ButtonNumb = 250 + (MenuIndex - 11) * 10 + Button;
+    if (MenuIndex >= 79)
+    {
+      ButtonNumb = 250 + (MenuIndex - 79) * 10 + Button;
+    }
   }
   if ((MenuIndex >= 41) && (MenuIndex <= 41))  // keyboard
   {
     ButtonNumb = 550 + (MenuIndex - 41) * 50 + Button;
   }
-  if ((MenuIndex >= 42) && (MenuIndex <= 79))  // 5 x 15-button submenus
+  if ((MenuIndex >= 42) && (MenuIndex <= 78))  // 5 x 15-button submenus
   {
     ButtonNumb = 600 + (MenuIndex - 42) * 15 + Button;
   }
@@ -5081,7 +5085,7 @@ void UpdateWindow()
   first = ButtonNumber(CurrentMenu, 0);
   last = ButtonNumber(CurrentMenu + 1 , 0) - 1;
 
-  if (((CurrentMenu >= 11) && (CurrentMenu <= 40)) || (CurrentMenu >= 80))  // 10-button menus
+  if (((CurrentMenu >= 11) && (CurrentMenu <= 40)) || (CurrentMenu >= 79))  // 10-button menus
   {
     Fill(127, 127, 127, 1);
     Roundrect(10, 10, wscreen-18, hscreen*2/6+10, 10, 10);
@@ -17876,7 +17880,7 @@ int main(int argc, char **argv)
   Define_Menu42();
   Define_Menu43();
   Define_Menu44();
-//  Define_Menu80();
+  Define_Menu80();
 
   // Start the button Menu
   Start(wscreen,hscreen);
