@@ -5085,7 +5085,7 @@ void UpdateWindow()
   first = ButtonNumber(CurrentMenu, 0);
   last = ButtonNumber(CurrentMenu + 1 , 0) - 1;
 
-  if (((CurrentMenu >= 11) && (CurrentMenu <= 40)) || (CurrentMenu >= 79))  // 10-button menus
+  if ((CurrentMenu >= 11) && (CurrentMenu <= 40))  // 10-button menus
   {
     Fill(127, 127, 127, 1);
     Roundrect(10, 10, wscreen-18, hscreen*2/6+10, 10, 10);
@@ -5097,6 +5097,11 @@ void UpdateWindow()
     Roundrect(10, 10, wscreen-18, hscreen*3/6+10, 10, 10);
   }
 
+  if (CurrentMenu >= 79)
+  {
+    Fill(127, 127, 127, 1);
+    Roundrect(10, 10, wscreen-18, hscreen*2/6+10, 10, 10);
+  }
   for(i=first; i<=last; i++)
   {
     // printf("Looking at button %d\n", i);
