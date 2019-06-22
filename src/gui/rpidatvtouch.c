@@ -302,7 +302,7 @@ void Start_Highlights_Menu40();
 void Start_Highlights_Menu42();
 void Start_Highlights_Menu43();
 void Start_Highlights_Menu44();
-void Start_Highlights_Menu79();
+void Start_Highlights_Menu50();
 
 void MsgBox(const char *);
 void MsgBox2(const char *, const char *);
@@ -4665,9 +4665,9 @@ int ButtonNumber(int MenuIndex, int Button)
   {
     ButtonNumb = 600 + (MenuIndex - 42) * 15 + Button;
   }
-  if (MenuIndex >= 79)
+  if (MenuIndex >= 50)
   {
-    ButtonNumb = 250 + (MenuIndex - 79) * 10 + Button;
+    ButtonNumb = 250 + (MenuIndex - 50) * 10 + Button;
   }
   return ButtonNumb;
 }
@@ -5097,7 +5097,7 @@ void UpdateWindow()
     Roundrect(10, 10, wscreen-18, hscreen*3/6+10, 10, 10);
   }
 
-  if (CurrentMenu >= 79)
+  if (CurrentMenu >= 50)
   {
     Fill(127, 127, 127, 1);
     Roundrect(10, 10, wscreen-18, hscreen*2/6+10, 10, 10);
@@ -10886,10 +10886,10 @@ void waituntil(int w,int h)
           UpdateWindow();
           break;
         case 3:                               // RPI Remote Config
-          printf("MENU 79 \n");
-          CurrentMenu=79;
+          printf("MENU 50 \n");
+          CurrentMenu=50;
           BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu79();
+          Start_Highlights_Menu50();
           UpdateWindow();
           break;
         case 4:                               //
@@ -13138,9 +13138,9 @@ void waituntil(int w,int h)
       {
         //break;
       }
-      if (CurrentMenu == 79)  // Menu 80 Remote IP, user, password
+      if (CurrentMenu == 50)  // Menu 80 Remote IP, user, password
       {
-        printf("Button Event %d, Entering Menu 79 Case Statement\n",i);
+        printf("Button Event %d, Entering Menu 50 Case Statement\n",i);
         switch (i)
         {
         case 4:                               // Cancel
@@ -13149,7 +13149,7 @@ void waituntil(int w,int h)
           UpdateWindow();
           usleep(500000);
           SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 0); // Reset cancel (even if not selected)
-          printf("Returning to MENU 1 from Menu 79\n");
+          printf("Returning to MENU 1 from Menu 50\n");
           CurrentMenu=1;
           BackgroundRGB(255,255,255,255);
           Start_Highlights_Menu1();
@@ -13158,25 +13158,25 @@ void waituntil(int w,int h)
         case 0:
           printf("Changing IP\n");
           ChangeIP(i);
-          CurrentMenu=79;
+          CurrentMenu=50;
           BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu79();
+          Start_Highlights_Menu50();
           UpdateWindow();
           break;
         case 1:
           printf("Changing User\n");
           ChangeUser();
-          CurrentMenu=79;
+          CurrentMenu=50;
           BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu79();
+          Start_Highlights_Menu50();
           UpdateWindow();
           break;
         case 2:
           printf("Changing Password\n");
           ChangePW(i);
-          CurrentMenu=79;
+          CurrentMenu=50;
           BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu79();
+          Start_Highlights_Menu50();
           UpdateWindow();
           break;
         case 5:
@@ -13190,7 +13190,7 @@ void waituntil(int w,int h)
         case 9:
           break;
         default:
-          printf("Menu 79 Error\n");
+          printf("Menu 50 Error\n");
         }
       }
     }
@@ -17401,7 +17401,7 @@ GreyOutReset44();
 GreyOut44();
 }
 
-void Define_Menu79()
+void Define_Menu50()
 {
   int button;
   color_t Blue;
@@ -17413,26 +17413,26 @@ void Define_Menu79()
   DBlue.r=0; DBlue.g=0; DBlue.b=64;
   //Grey.r=127; Grey.g=127; Grey.b=127;
 
-  strcpy(MenuTitle[79], "RPI Remote IP, User and Password Setting Menu (79)");
+  strcpy(MenuTitle[50], "RPI Remote IP, User and Password Setting Menu (50)");
 
-  // Bottom Row, Menu 79
+  // Bottom Row, Menu 50
 
-  button = CreateButton(79, 0);
+  button = CreateButton(50, 0);
   AddButtonStatus(button, "Set RPI^IP", &Blue);
 
-  button = CreateButton(79, 1);
+  button = CreateButton(50, 1);
   AddButtonStatus(button, "Set RPI^User", &Blue);
 
-  button = CreateButton(79, 2);
+  button = CreateButton(50, 2);
   AddButtonStatus(button, "Set RPI^Password", &Blue);
 
-  button = CreateButton(79, 4);
+  button = CreateButton(50, 4);
   AddButtonStatus(button, "Exit", &DBlue);
   AddButtonStatus(button, "Exit", &LBlue);
 
 }
 
-void Start_Highlights_Menu79()
+void Start_Highlights_Menu50()
 {
 // RPI Remote IP, User and Password
 }
@@ -17894,7 +17894,7 @@ int main(int argc, char **argv)
   Define_Menu42();
   Define_Menu43();
   Define_Menu44();
-  Define_Menu79();
+  Define_Menu50();
 
   // Start the button Menu
   Start(wscreen,hscreen);
