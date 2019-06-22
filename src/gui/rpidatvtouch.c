@@ -4653,16 +4653,9 @@ int ButtonNumber(int MenuIndex, int Button)
   {
     ButtonNumb = (MenuIndex - 1) * 25 + Button;
   }
-  if (((MenuIndex >= 11) && (MenuIndex <= 40)) || (MenuIndex >= 79))  // 30 x 10-button submenus
+  if ((MenuIndex >= 11) && (MenuIndex <= 40))  // 30 x 10-button submenus
   {
-    if ((MenuIndex >= 11) && (MenuIndex <= 40))
-    {
-      ButtonNumb = 250 + (MenuIndex - 11) * 10 + Button;
-    }
-    else
-    {
-      ButtonNumb = 250 + (MenuIndex - 79) * 10 + Button;
-    }
+    ButtonNumb = 250 + (MenuIndex - 11) * 10 + Button;
   }
   if ((MenuIndex >= 41) && (MenuIndex <= 41))  // keyboard
   {
@@ -4671,6 +4664,10 @@ int ButtonNumber(int MenuIndex, int Button)
   if ((MenuIndex >= 42) && (MenuIndex <= 78))  // 5 x 15-button submenus
   {
     ButtonNumb = 600 + (MenuIndex - 42) * 15 + Button;
+  }
+  if (MenuIndex >= 79)
+  {
+    ButtonNumb = 250 + (MenuIndex - 79) * 10 + Button;
   }
   return ButtonNumb;
 }
