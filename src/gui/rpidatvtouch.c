@@ -4655,8 +4655,11 @@ int ButtonNumber(int MenuIndex, int Button)
   }
   if (((MenuIndex >= 11) && (MenuIndex <= 40)) || (MenuIndex >= 79))  // 30 x 10-button submenus
   {
-    ButtonNumb = 250 + (MenuIndex - 11) * 10 + Button;
-    if (MenuIndex >= 79)
+    if ((MenuIndex >= 11) && (MenuIndex <= 40))
+    {
+      ButtonNumb = 250 + (MenuIndex - 11) * 10 + Button;
+    }
+    else
     {
       ButtonNumb = 250 + (MenuIndex - 79) * 10 + Button;
     }
@@ -13172,6 +13175,12 @@ void waituntil(int w,int h)
           BackgroundRGB(0,0,0,255);
           //Start_Highlights_Menu80();
           UpdateWindow();
+          break;
+        case 3:
+          break;
+        case 4:
+          break;
+        case 5:
           break;
         default:
           printf("Menu 80 Error\n");
