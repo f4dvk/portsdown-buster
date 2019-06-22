@@ -11590,6 +11590,7 @@ void waituntil(int w,int h)
         default:
           printf("Menu 12 Error\n");
         }
+        Start_Highlights_Menu12();
         UpdateWindow();
         usleep(500000);
         SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 0); // Reset cancel (even if not selected)
@@ -13159,7 +13160,7 @@ void waituntil(int w,int h)
           ChangeIP(i);
           CurrentMenu=80;
           BackgroundRGB(0,0,0,255);
-          //Start_Highlights_Menu80();
+          Start_Highlights_Menu80();
           UpdateWindow();
           break;
         case 1:
@@ -13167,7 +13168,7 @@ void waituntil(int w,int h)
           ChangeUser();
           CurrentMenu=80;
           BackgroundRGB(0,0,0,255);
-          //Start_Highlights_Menu80();
+          Start_Highlights_Menu80();
           UpdateWindow();
           break;
         case 2:
@@ -13175,7 +13176,7 @@ void waituntil(int w,int h)
           ChangePW(i);
           CurrentMenu=80;
           BackgroundRGB(0,0,0,255);
-          //Start_Highlights_Menu80();
+          Start_Highlights_Menu80();
           UpdateWindow();
           break;
         case 5:
@@ -13191,8 +13192,6 @@ void waituntil(int w,int h)
         default:
           printf("Menu 80 Error\n");
         }
-        // stay in Menu 80 if parameter changed
-        continue;   // Completed Menu 80 action, go and wait for touch
       }
     }
   }
