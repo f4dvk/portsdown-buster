@@ -43,7 +43,7 @@ EOF
 
 ENDSSH
       ) &
-      EOM
+EOM
 
       source "$CMDFILE"
 
