@@ -382,6 +382,9 @@ cd /home/pi
 # Copy the components to support Lime Grove
 cp -r /home/pi/rpidatv/scripts/configs/dvbsdr/ /home/pi/dvbsdr/
 
+# SSH hostname
+cp /home/pi/rpidatv/scripts/configs/hostname.txt /home/pi/hostname.txt
+
 # Install FreqShow (see https://learn.adafruit.com/freq-show-raspberry-pi-rtl-sdr-scanner/overview)
 
 # Remove the existing version of libsdl1.2debian
