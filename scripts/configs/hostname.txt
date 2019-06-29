@@ -1,0 +1,3 @@
+To get this file and enable SSH key
+sudo scp pi@172.24.1.1:/home/pi/hostname.txt /home/pi/hostname.txt
+If this file is on another Pi, the SSH key is probably already enabled.

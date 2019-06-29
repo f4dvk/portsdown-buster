@@ -670,6 +670,10 @@ if ! grep -q streamurl1 /home/pi/rpidatv/scripts/stream_presets.txt; then
   echo "" >> /home/pi/rpidatv/scripts/stream_presets.txt
 fi
 
+# SSH hostname
+rm /home/pi/hostname.txt
+cp /home/pi/rpidatv/scripts/configs/hostname.txt /home/pi/hostname.txt
+
 # If user is upgrading a repeater streamer, add the cron job for 12-hourly reboot
 if grep -q "startup=Cont_Stream_boot" /home/pi/rpidatv/scripts/portsdown_config.txt; then
   sudo crontab /home/pi/rpidatv/scripts/configs/rptrcron
