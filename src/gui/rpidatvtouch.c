@@ -5805,6 +5805,7 @@ void GreyOutReset42()
   SetButtonStatus(ButtonNumber(CurrentMenu, 7), 0); // DATV Express
   SetButtonStatus(ButtonNumber(CurrentMenu, 8), 0); // Lime USB
   SetButtonStatus(ButtonNumber(CurrentMenu, 10), 0); // Jetson
+  SetButtonStatus(ButtonNumber(CurrentMenu, 14), 0); // RPI Remote
 }
 
 void GreyOut42()
