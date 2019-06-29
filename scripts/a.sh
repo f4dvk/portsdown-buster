@@ -734,6 +734,10 @@ else
     VIDEO_WIDTH=160
     VIDEO_HEIGHT=140
   else
+  if [ "$BITRATE_VIDEO" -lt 150000 ]; then
+    VIDEO_WIDTH=320
+    VIDEO_HEIGHT=280
+  else
     if [ "$BITRATE_VIDEO" -lt 300000 ]; then
       VIDEO_WIDTH=352
       VIDEO_HEIGHT=288
