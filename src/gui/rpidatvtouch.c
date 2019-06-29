@@ -161,7 +161,7 @@ char TabModeVidIP[2][7]={"0","1"};
 char TabModeOP[15][31]={"IQ", "QPSKRF", "DATVEXPRESS", "LIMEUSB", "STREAMER", "COMPVID", \
   "DTX1", "IP", "LIMEMINI", "JLIME", "JEXPRESS", "EXPRESS2", "PLUTO", "RPI_R", " "};
 char TabModeOPtext[15][31]={"Portsdown", " Ugly ", "Express", "Lime USB", "BATC^Stream", "Comp Vid", \
-  " DTX1 ", "IPTS out", "Lime Mini", "Jetson^Lime", "Jetson^Express", "Express S2", "Pluto", "RPI^Remote", " "};
+  " DTX1 ", "IPTS out", "Lime Mini", "Jetson^Lime", "Jetson^Express", "Express S2", "Pluto", "RPI Remote", " "};
 char TabAtten[4][15] = {"NONE", "PE4312", "PE43713", "HMC1119"};
 char CurrentModeOP[31] = "QPSKRF";
 char CurrentModeOPtext[31] = " UGLY ";
@@ -693,6 +693,42 @@ int CheckJetson()
 
   strcpy(pingcommand, "timeout 0.1 ping ");
   GetConfigParam(PATH_JCONFIG, "jetsonip", response);
+  strcat(pingcommand, response);
+  strcat(pingcommand, " -c1 | head -n 5 | tail -n 1 | grep -o \"1 received,\" | head -c 11");
+
+  /* Open the command for reading. */
+  fp = popen(pingcommand, "r");
+  if (fp == NULL) {
+    printf("Failed to run command\n" );
+    exit(1);
+  }
+
+  /* Read the output a line at a time - output it. */
+  while (fgets(response, 12, fp) != NULL)
+  {
+    printf("%s", response);
+  }
+  //  printf("%s", response);
+  /* close */
+  pclose(fp);
+  if (strcmp (response, "1 received,") == 0)
+  {
+    return 0;
+  }
+  else
+  {
+    return 1;
+  }
+}
+
+int CheckRpi()
+{
+  FILE *fp;
+  char response[127];
+  char pingcommand[127];
+
+  strcpy(pingcommand, "timeout 0.1 ping ");
+  GetConfigParam(PATH_PCONFIG, "rpi_ip_distant", response);
   strcat(pingcommand, response);
   strcat(pingcommand, " -c1 | head -n 5 | tail -n 1 | grep -o \"1 received,\" | head -c 11");
 
@@ -5788,6 +5824,10 @@ void GreyOut42()
   if (CheckJetson() == 1)  // Jetson not connected so GreyOut
   {
     SetButtonStatus(ButtonNumber(CurrentMenu, 10), 2); // Jetson
+  }
+  if (CheckRpi() == 1)  // RPI not connected so GreyOut
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 14), 2); // RPI Remote
   }
 }
 
@@ -12843,7 +12883,7 @@ void waituntil(int w,int h)
           SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 1);
           printf("Encoding Cancel\n");
           break;
-        case 11:                              // RPI Remote
+        case 14:                              // RPI Remote
           SelectOP(i);
           printf("RPI Remote\n");
           system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
@@ -17151,7 +17191,7 @@ void Define_Menu42()
   AddButtonStatus(button, TabModeOPtext[9], &Green);
   AddButtonStatus(button, TabModeOPtext[9], &Grey);
 
-	button = CreateButton(42, 11);
+	button = CreateButton(42, 14);
   AddButtonStatus(button, TabModeOPtext[13], &Blue);
   AddButtonStatus(button, TabModeOPtext[13], &Green);
   AddButtonStatus(button, TabModeOPtext[13], &Grey);
@@ -17212,8 +17252,8 @@ void Start_Highlights_Menu42()
   }
 	if(strcmp(CurrentModeOP, TabModeOP[13]) == 0)  //RPI_R
   {
-    SelectInGroupOnMenu(42, 5, 10, 11, 1);
-    SelectInGroupOnMenu(42, 0, 3, 11, 1);
+    SelectInGroupOnMenu(42, 5, 10, 14, 1);
+    SelectInGroupOnMenu(42, 0, 3, 14, 1);
   }
   GreyOut42();
 }
