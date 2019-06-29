@@ -7,28 +7,9 @@ PATHRPI=/home/pi/rpidatv/bin
 PCONFIGFILE="/home/pi/rpidatv/scripts/portsdown_config.txt"
 PATHCONFIGS="/home/pi/rpidatv/scripts/configs"  ## Path to config files
 
-############ Function to Read/Write Config File ###############
+CMDFILE="/home/pi/tmp/rpi_command.txt"
 
-set_config_var() {
-lua - "$1" "$2" "$3"<<EOF > "$3.bak2"
-local key=assert(arg[1])
-local value=assert(arg[2])
-local fn=assert(arg[3])
-local file=assert(io.open(fn))
-local made_change=false
-for line in file:lines() do
-if line:match("^#?%s*"..key.."=.*$") then
-line=key.."="..value
-made_change=true
-end
-print(line)
-end
-if not made_change then
-print(key.."="..value)
-end
-EOF
-mv "$3.bak2" "$3"
-}
+############ Function to Read Config File ###############
 
 get_config_var() {
 lua - "$1" "$2" <<EOF
@@ -61,19 +42,24 @@ EOF
   PILOT=$(get_config_var pilots $PCONFIGFILE)
   FEC=$(get_config_var fec $PCONFIGFILE)
 
-sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
+/bin/cat <<EOM >$CMDFILE
+ (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
 
-  set_config_var modeoutput "$MODE_OUTPUT_R" $PCONFIGFILE
-  set_config_var freqoutput "$FREQ_OUTPUT" $PCONFIGFILE
-  set_config_var symbolrate "$SYMBOLRATEK" $PCONFIGFILE
-  set_config_var modulation "$MODULATION" $PCONFIGFILE
-  set_config_var limegain "$LIME_GAIN" $PCONFIGFILE
-  set_config_var encoding "$ENCODING" $PCONFIGFILE
-  set_config_var format "$FORMAT" $PCONFIGFILE
-  set_config_var frames "$FRAME" $PCONFIGFILE
-  set_config_var pilots "$PILOT" $PCONFIGFILE
-  set_config_var fec "$FEC" $PCONFIGFILE
+ sed -i '/\(^modeoutput=\).*/s//\1$MODE_OUTPUT_R/' $PCONFIGFILE
+ sed -i '/\(^freqoutput=\).*/s//\1$FREQ_OUTPUT/' $PCONFIGFILE
+ sed -i '/\(^symbolrate=\).*/s//\1$SYMBOLRATEK/' $PCONFIGFILE
+ sed -i '/\(^modulation=\).*/s//\1$MODULATION/' $PCONFIGFILE
+ sed -i '/\(^limegain=\).*/s//\1$LIME_GAIN/' $PCONFIGFILE
+ sed -i '/\(^encoding=\).*/s//\1$ENCODING/' $PCONFIGFILE
+ sed -i '/\(^format=\).*/s//\1$FORMAT/' $PCONFIGFILE
+ sed -i '/\(^frames=\).*/s//\1$FRAME/' $PCONFIGFILE
+ sed -i '/\(^pilots=\).*/s//\1$PILOT/' $PCONFIGFILE
+ sed -i '/\(^fec=\).*/s//\1$FEC/' $PCONFIGFILE
 
 ENDSSH
+      ) &
+      EOM
+
+      source "$CMDFILE"
 
 exit

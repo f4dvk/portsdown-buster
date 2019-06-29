@@ -7146,7 +7146,7 @@ void CompVidStop()
 
 void TransmitStart()
 {
-  // printf("Transmit Start\n");
+  // printf("Transmit Startn");
 
   char Param[255];
   char Value[255];
@@ -7158,6 +7158,10 @@ void TransmitStart()
   strcpy(Param,"modeinput");
   GetConfigParam(PATH_PCONFIG,Param,Value);
   strcpy(ModeInput,Value);
+
+  strcpy(Param,"modeoutput");
+  GetConfigParam(PATH_PCONFIG,Param,Value);
+  strcpy(ModeOutput,Value);
 
   // Check if MPEG-2 camera mode selected, or streaming PiCam
   if ((strcmp(ModeInput, "CAMMPEG-2")==0)
@@ -7228,7 +7232,7 @@ void TransmitStart()
   system(PATH_SCRIPT_A);
 
   // Run RPI remote
-  if (strcmp(ModeOutput, "RPI_R") == 0)
+  if (strcmp(ModeOutput,"RPI_R") == 0)
   {
     system("/home/pi/rpidatv/scripts/TX_remote.sh &");
   }
@@ -7249,6 +7253,10 @@ void TransmitStop()
 
   printf("Transmit Stop\n");
 
+  strcpy(Param,"modeoutput");
+  GetConfigParam(PATH_PCONFIG,Param,Value);
+  strcpy(ModeOutput,Value);
+
 	// If transmit menu is displayed, blue-out the TX button here
   // code to be added
 
@@ -7260,7 +7268,7 @@ void TransmitStop()
   system("/home/pi/rpidatv/scripts/TXstopextras.sh &");
 
   // TX stop RPI Remote
-  if (strcmp(ModeOutput, "RPI_R") == 0)
+  if (strcmp(ModeOutput,"RPI_R") == 0)
   {
     system("/home/pi/rpidatv/scripts/STB_remote.sh &");
   }

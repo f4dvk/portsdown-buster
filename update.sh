@@ -490,7 +490,7 @@ if ! grep -q encoding /home/pi/rpidatv/scripts/portsdown_config.txt; then
 fi
 
 # Update config file with RPI Remote
-if ! grep -q rpi_ip_distant /home/pi/rpidatv/scripts/portsdown_config.txt; then
+if ! grep -q modeoutput_r /home/pi/rpidatv/scripts/portsdown_config.txt; then
   # File needs updating
   printf "Adding RPI Remote to user's portsdown_config.txt\n"
   # Delete any blank lines
@@ -499,6 +499,7 @@ if ! grep -q rpi_ip_distant /home/pi/rpidatv/scripts/portsdown_config.txt; then
   echo "rpi_user_remote=pi" >> /home/pi/rpidatv/scripts/portsdown_config.txt
   echo "rpi_pw_remote=raspberry" >> /home/pi/rpidatv/scripts/portsdown_config.txt
   echo "rpi_ip_distant=172.24.1.1" >> /home/pi/rpidatv/scripts/portsdown_config.txt
+  echo "modeoutput_r=LIMEMINI" >> /home/pi/rpidatv/scripts/portsdown_config.txt
   echo "" >> /home/pi/rpidatv/scripts/portsdown_config.txt
 fi
 
