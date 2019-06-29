@@ -31,7 +31,7 @@ EOF
   RPI_USER=$(get_config_var rpi_user_remote $PCONFIGFILE)
   RPI_PW=$(get_config_var rpi_pw_remote $PCONFIGFILE)
 ###################################################
-  MODE_OUTPUT_R=$(get_config_var modeoutput_r $PCONFIGFILE)
+  MODE_OUTPUT_R=$(get_config_var remoteoutput $PCONFIGFILE)
   FREQ_OUTPUT=$(get_config_var freqoutput $PCONFIGFILE)
   SYMBOLRATEK=$(get_config_var symbolrate $PCONFIGFILE)
   MODULATION=$(get_config_var modulation $PCONFIGFILE)

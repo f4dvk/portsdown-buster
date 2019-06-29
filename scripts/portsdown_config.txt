@@ -47,5 +47,5 @@ format=4:3
 encoding=H264
 rpi_user_remote=pi
 rpi_pw_remote=raspberry
-rpi_ip_distant=172.24.1.1
-modeoutput_r=LIMEMINI
+rpi_ip_distant=192.168.1.99
+remoteoutput=LIMEMINI
