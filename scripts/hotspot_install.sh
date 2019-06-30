@@ -28,7 +28,7 @@ MODE=$(get_config_var hw_mode $PCONFIGFILE)
 CHANNEL=$(get_config_var channel $PCONFIGFILE)
 
 # installation de hostapd et dnsmasq
-sudo apt-get install dnsmasq hostapd
+sudo apt-get -y install dnsmasq hostapd
 
 # Désactive le dhcp wlan0
 if ! grep -q denyinterfaces /etc/dhcpcd.conf; then
