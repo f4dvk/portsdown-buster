@@ -156,4 +156,6 @@ printf "WiFi Configured\n"
 
 sleep 2
 
+sudo reboot
+
 exit

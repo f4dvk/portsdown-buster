@@ -124,4 +124,6 @@ sudo systemctl start hostapd
 #sudo service hostapd start
 sudo service dnsmasq start
 
+sudo reboot
+
 exit
