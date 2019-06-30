@@ -671,7 +671,7 @@ if ! grep -q streamurl1 /home/pi/rpidatv/scripts/stream_presets.txt; then
 fi
 
 # SSH hostname
-rm /home/pi/hostname.txt
+sudo rm /home/pi/hostname.txt
 cp /home/pi/rpidatv/scripts/configs/hostname.txt /home/pi/hostname.txt
 
 # If user is upgrading a repeater streamer, add the cron job for 12-hourly reboot
