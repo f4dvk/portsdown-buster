@@ -1,0 +1,124 @@
+#!/bin/bash
+
+# Variables
+PCONFIGFILE="/home/pi/rpidatv/scripts/hotspot_config.txt"
+
+CMDFILE="/home/pi/tmp/wifi_hotspot_config.txt"
+
+# Fonction lecture des paramètres
+get_config_var() {
+lua - "$1" "$2" <<EOF
+local key=assert(arg[1])
+local fn=assert(arg[2])
+local file=assert(io.open(fn))
+for line in file:lines() do
+local val = line:match("^#?%s*"..key.."=(.*)$")
+if (val ~= nil) then
+print(val)
+break
+end
+end
+EOF
+}
+
+# Lecture des paramètres
+SSID=$(get_config_var ssid $PCONFIGFILE)
+PW=$(get_config_var wpa_passphrase $PCONFIGFILE)
+MODE=$(get_config_var hw_mode $PCONFIGFILE)
+CHANNEL=$(get_config_var channel $PCONFIGFILE)
+
+# installation de hostapd et dnsmasq
+sudo apt-get install dnsmasq hostapd
+
+# Désactive le dhcp wlan0
+if ! grep -q denyinterfaces /etc/dhcpcd.conf; then
+  sudo sed -i "/timeout 5/i\denyinterfaces wlan0\n" /etc/dhcpcd.conf
+fi
+
+# Remplacer le fichier denyinterfaces
+sudo cp /home/pi/rpidatv/scripts/configs/hotspot_interfaces.txt /etc/network/interfaces
+
+# Redemarrer dhcp et wifi
+sudo service dhcpcd restart
+sudo ifdown wlan0
+sudo ifup wlan0
+
+# Configuration hostapd.conf
+/bin/cat <<EOM >$CMDFILE
+# This is the name of the WiFi interface we configured above
+interface=wlan0
+
+# Use the nl80211 driver with the brcmfmac driver
+driver=nl80211
+
+# This is the name of the network
+ssid=$SSID
+
+# Use the 2.4GHz band
+hw_mode=$MODE
+
+# Use channel 6
+channel=$CHANNEL
+
+# Enable 802.11n
+ieee80211n=1
+
+# Enable WMM
+wmm_enabled=1
+
+# Enable 40MHz channels with 20ns guard interval
+ht_capab=[HT40][SHORT-GI-20][DSSS_CCK-40]
+
+# Accept all MAC addresses
+macaddr_acl=0
+
+# Use WPA authentication
+auth_algs=1
+
+# Require clients to know the network name
+ignore_broadcast_ssid=0
+
+# Use WPA2
+wpa=2
+
+# Use a pre-shared key
+wpa_key_mgmt=WPA-PSK
+
+# The network passphrase
+wpa_passphrase=$PW
+
+# Use AES, instead of TKIP
+rsn_pairwise=CCMP
+
+EOM
+
+sudo cp $CMDFILE /etc/hostapd/hostapd.conf
+
+# Remplacer #DAEMON_CONF dans hostapd
+sudo sed -i 's\#DAEMON_CONF=""\DAEMON_CONF="/etc/hostapd/hostapd.conf"\' /etc/default/hostapd
+
+# Configuration dnsmasq
+sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
+sudo cp /home/pi/rpidatv/scripts/configs/dnsmasq_config.txt /etc/dnsmasq.conf
+
+# Configuration IPV4
+sudo sed -i 's\#net.ipv4.ip_forward=1\net.ipv4.ip_forward=1\' /etc/sysctl.conf
+sudo sh -c "echo 1 > /proc/sys/net/ipv4/ip_forward"
+
+# Configuration NAT
+sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+sudo iptables -A FORWARD -i eth0 -o wlan0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+sudo iptables -A FORWARD -i wlan0 -o eth0 -j ACCEPT
+
+sudo sh -c "iptables-save > /etc/iptables.ipv4.nat"
+
+# Démarrage auto
+if ! grep -q iptables-restore /etc/rc.local; then
+ sudo sed -i "/exit 0/i\iptables-restore < /etc/iptables.ipv4.nat\n" /etc/rc.local
+fi
+
+# Démarrage des service
+sudo service hostapd start
+sudo service dnsmasq start
+
+exit

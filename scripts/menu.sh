@@ -13,6 +13,7 @@ RXPRESETSFILE="/home/pi/rpidatv/scripts/rx_presets.txt"
 RTLPRESETSFILE="/home/pi/rpidatv/scripts/rtl-fm_presets.txt"
 PATH_PPRESETS="/home/pi/rpidatv/scripts/portsdown_presets.txt"
 PATH_STREAMPRESETS="/home/pi/rpidatv/scripts/stream_presets.txt"
+PATH_HOTSPOT="/home/pi/rpidatv/scripts/hotspot_config.txt"
 
 
 GPIO_PTT=29  ## WiringPi value, not BCM
@@ -2128,6 +2129,39 @@ do_IP_setup()
   whiptail --title "IP" --msgbox "$CURRENTIP" 8 78
 }
 
+do_hotspot_config()
+{
+  H_SSID=$(get_config_var ssid $PATH_HOTSPOT)
+	H_SSID=$(whiptail --inputbox "Entrez le SSID souhaité" 8 78 $H_SSID --title "Hotspot SSID" 3>&1 1>&2 2>&3)
+  if [ $? -eq 0 ]; then
+    set_config_var ssid "$H_SSID" $PATH_HOTSPOT
+  fi
+
+  H_PW=$(get_config_var wpa_passphrase $PATH_HOTSPOT)
+  H_PW=$(whiptail --inputbox "Entrez le mot de passe souhaité" 8 78 $H_PW --title "Hotspot Mot de passe" 3>&1 1>&2 2>&3)
+  if [ $? -eq 0 ]; then
+    set_config_var wpa_passphrase "$H_PW" $PATH_HOTSPOT
+  fi
+
+  H_MODE=$(get_config_var hw_mode $PATH_HOTSPOT)
+  H_MODE=$(whiptail --inputbox "g: 2.4GHz , a: 5GHz" 8 78 $H_MODE --title "Hotspot Bande Wifi" 3>&1 1>&2 2>&3)
+  if [ $? -eq 0 ]; then
+    set_config_var hw_mode "$H_MODE" $PATH_HOTSPOT
+  fi
+
+	H_CHANNEL=$(get_config_var channel $PATH_HOTSPOT)
+  H_CHANNEL=$(whiptail --inputbox "2.4GHz: de 1 à 13 , 5GHz: 36, 40, 44, 48, 52" 8 78 $H_CHANNEL --title "Hotspot Canal Wifi" 3>&1 1>&2 2>&3)
+  if [ $? -eq 0 ]; then
+    set_config_var channel "$H_CHANNEL" $PATH_HOTSPOT
+  fi
+
+  do_hotspot_setup
+}
+
+do_hotspot_setup()
+{
+  $PATHSCRIPT"/hotspot_install.sh"
+}
 do_WiFi_setup()
 {
   $PATHSCRIPT"/wifisetup.sh"
@@ -3095,33 +3129,35 @@ do_load_settings()
 
 do_system_setup()
 {
-menuchoice=$(whiptail --title "$StrSystemTitle" --menu "$StrSystemContext" 20 78 13 \
+menuchoice=$(whiptail --title "$StrSystemTitle" --menu "$StrSystemContext" 20 78 14 \
     "1 Autostart" "$StrAutostartMenu"  \
     "2 Display" "$StrDisplayMenu" \
     "3 Show IP" "$StrIPMenu" \
     "4 WiFi Set-up" "SSID and password"  \
-    "5 WiFi Off" "Turn the WiFi Off" \
-    "6 Enable DigiThin" "Not Implemented Yet" \
-    "7 Set-up EasyCap" "Set input socket and PAL/NTSC"  \
-    "8 Audio Input" "Select USB Dongle or EasyCap"  \
-    "9 Attenuator" "Select Output Attenuator Type"  \
-    "10 Lime Status" "Check the LimeSDR Firmware Version"  \
-    "11 Lime Update" "Update the LimeSDR Firmware Version"  \
-    "12 Update" "Check for Updated rpidatv Software"  \
+    "5 Hotspot Set-up" "SSID, password, band and channel"  \
+    "6 WiFi Off" "Turn the WiFi Off" \
+    "7 Enable DigiThin" "Not Implemented Yet" \
+    "8 Set-up EasyCap" "Set input socket and PAL/NTSC"  \
+    "9 Audio Input" "Select USB Dongle or EasyCap"  \
+    "10 Attenuator" "Select Output Attenuator Type"  \
+    "11 Lime Status" "Check the LimeSDR Firmware Version"  \
+    "12 Lime Update" "Update the LimeSDR Firmware Version"  \
+    "13 Update" "Check for Updated rpidatv Software"  \
     3>&2 2>&1 1>&3)
     case "$menuchoice" in
         1\ *) do_autostart_setup ;;
         2\ *) do_display_setup   ;;
-	3\ *) do_IP_setup ;;
+        3\ *) do_IP_setup ;;
         4\ *) do_WiFi_setup ;;
-        5\ *) do_WiFi_Off   ;;
-        6\ *) do_Enable_DigiThin ;;
-        7\ *) do_EasyCap ;;
-        8\ *) do_audio_switch;;
-        9\ *) do_attenuator;;
-        10\ *) do_LimeStatus;;
-        11\ *) do_LimeUpdate;;
-        12\ *) do_Update ;;
+        5\ *) do_hotspot_config;;
+        6\ *) do_WiFi_Off   ;;
+        7\ *) do_Enable_DigiThin ;;
+        8\ *) do_EasyCap ;;
+        9\ *) do_audio_switch;;
+        10\ *) do_attenuator;;
+        11\ *) do_LimeStatus;;
+        12\ *) do_LimeUpdate;;
+        13\ *) do_Update ;;
      esac
 }
 

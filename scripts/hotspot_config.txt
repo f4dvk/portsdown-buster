@@ -1,0 +1,4 @@
+ssid=Pi3-AP
+wpa_passphrase=raspberry
+hw_mode=g
+channel=6

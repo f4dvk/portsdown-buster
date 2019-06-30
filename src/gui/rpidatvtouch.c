@@ -2095,17 +2095,6 @@ void ReadCallLocPID()
   GetConfigParam(PATH_PCONFIG, Param, Value);
   strcpy(PIDpmt, Value);
 
-//  strcpy(Param, "rpi_ip_distant");
-//  GetConfigParam(PATH_PCONFIG, Param, Value);
-//  strcpy(rpi_ip, Value);
-
-//  strcpy(Param, "rpi_user_remote");
-//  GetConfigParam(PATH_PCONFIG, Param, Value);
-//  strcpy(rpi_user, Value);
-
-//  strcpy(Param, "rpi_pw_remote");
-//  GetConfigParam(PATH_PCONFIG, Param, Value);
-//  strcpy(rpi_pw, Value);
 }
 
 

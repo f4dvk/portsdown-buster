@@ -82,10 +82,16 @@ PATHCONFIGS="/home/pi/rpidatv/scripts/configs"  ## Path to config files
 
 rm $PATHCONFIGS"/wpa_text.txt"
 
-echo -e "country=GB" >> $PATHCONFIGS"/wpa_text.txt"
+echo -e "country=FR" >> $PATHCONFIGS"/wpa_text.txt"
+echo -e "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev" >> $PATHCONFIGS"/wpa_text.txt"
+echo -e "update_config=1" >> $PATHCONFIGS"/wpa_text.txt"
 echo -e "network={" >> $PATHCONFIGS"/wpa_text.txt"
 echo -e "    ssid="\"""$SSID"\"" >> $PATHCONFIGS"/wpa_text.txt"
 echo -e "   "$PSK_TEXT >> $PATHCONFIGS"/wpa_text.txt"
+echo -e "    scan_ssid=1" >> $PATHCONFIGS"/wpa_text.txt"
+echo -e "    proto=RSN" >> $PATHCONFIGS"/wpa_text.txt"
+echo -e "    key_mgmt=WPA-PSK" >> $PATHCONFIGS"/wpa_text.txt"
+echo -e "    auth_alg=OPEN" >> $PATHCONFIGS"/wpa_text.txt"
 echo -e "}" >>  $PATHCONFIGS"/wpa_text.txt"
 
 ## Copy the existing wpa_supplicant file to work on
@@ -122,6 +128,19 @@ sudo cp $PATHCONFIGS"/wpa_supcopy.txt" /etc/wpa_supplicant/wpa_supplicant.conf
 sudo rm $PATHCONFIGS"/wpa_supcopy.txt"
 
 stty echo
+
+# Si présent, suppression démarrage auto hotspot
+if grep -q "iptables-restore < \/etc\/iptables.ipv4.nat" /etc/rc.local; then
+ sudo sed -i "/iptables-restore < \/etc\/iptables.ipv4.nat/d" /etc/rc.local
+fi
+
+# Si présent, suppression inhibition dhcp wlan0
+if grep -q "denyinterfaces wlan0" /etc/dhcpcd.conf; then
+ sudo sed -i "/denyinterfaces wlan0/d" /etc/dhcpcd.conf
+fi
+
+# Remplacer interfaces
+sudo cp /home/pi/rpidatv/scripts/configs/wifi_interfaces.txt /etc/network/interfaces
 
 ##bring wifi down and up again, then reset
 
