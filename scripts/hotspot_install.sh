@@ -39,7 +39,7 @@ fi
 sudo cp /home/pi/rpidatv/scripts/configs/hotspot_interfaces.txt /etc/network/interfaces
 
 # Redemarrer dhcp et wifi
-sudo service dhcpcd restart
+#sudo service dhcpcd restart
 sudo ifdown wlan0
 sudo ifup wlan0
 
@@ -118,7 +118,10 @@ if ! grep -q iptables-restore /etc/rc.local; then
 fi
 
 # Démarrage des service
-sudo service hostapd start
+sudo systemctl unmask hostapd
+sudo systemctl enable hostapd
+sudo systemctl start hostapd
+#sudo service hostapd start
 sudo service dnsmasq start
 
 exit
