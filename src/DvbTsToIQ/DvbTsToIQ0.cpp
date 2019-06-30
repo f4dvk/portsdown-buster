@@ -449,7 +449,7 @@ int main(int argc, char **argv)
 	}
 	if ((ModeDvb == DVBS2)&&(FEC>=0))
 	{
-		Bitrate = Dvbs2Init(SymbolRate, FEC, Constellation, Pilot, RO_0_35, upsample, ShortFrame);
+		Bitrate = Dvbs2Init(SymbolRate, FEC, Constellation, Pilot, RO_0_35, upsample);
 	}
 
 	fprintf(stderr, "Net TS bitrate input should be %d\n", Bitrate);
