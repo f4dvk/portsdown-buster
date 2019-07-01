@@ -2144,13 +2144,13 @@ do_hotspot_config()
   fi
 
   H_MODE=$(get_config_var hw_mode $PATH_HOTSPOT)
-  H_MODE=$(whiptail --inputbox "g: 2.4GHz , a: 5GHz" 8 78 $H_MODE --title "Hotspot Bande Wifi" 3>&1 1>&2 2>&3)
+  H_MODE=$(whiptail --inputbox "g: 2.4GHz , a: 5GHz (PI 3 B+)" 8 78 $H_MODE --title "Hotspot Bande Wifi" 3>&1 1>&2 2>&3)
   if [ $? -eq 0 ]; then
     set_config_var hw_mode "$H_MODE" $PATH_HOTSPOT
   fi
 
 	H_CHANNEL=$(get_config_var channel $PATH_HOTSPOT)
-  H_CHANNEL=$(whiptail --inputbox "2.4GHz: de 1 à 13 , 5GHz: 36, 40, 44, 48, 52" 8 78 $H_CHANNEL --title "Hotspot Canal Wifi" 3>&1 1>&2 2>&3)
+  H_CHANNEL=$(whiptail --inputbox "2.4GHz: de 1 à 13 , 5GHz: 36, 40, 44, 48" 8 78 $H_CHANNEL --title "Hotspot Canal Wifi" 3>&1 1>&2 2>&3)
   if [ $? -eq 0 ]; then
     set_config_var channel "$H_CHANNEL" $PATH_HOTSPOT
   fi

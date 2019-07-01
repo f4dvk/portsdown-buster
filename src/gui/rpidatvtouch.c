@@ -5892,7 +5892,7 @@ void SelectTX(int NoButton)  // TX RF Output Mode
   // RPI remote
   if (strcmp(ModeOutput, "RPI_R") == 0)
   {
-    system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
+    system("sudo /home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
   }
 }
 
@@ -5911,7 +5911,7 @@ void SelectPilots()  // Toggle pilots on/off
   // RPI remote
   if (strcmp(ModeOutput, "RPI_R") == 0)
   {
-    system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
+    system("sudo /home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
   }
 }
 
@@ -5930,7 +5930,7 @@ void SelectFrames()  // Toggle frames long/short
   // RPI remote
   if(strcmp(ModeOutput, "RPI_R") == 0)
   {
-    system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
+    system("sudo /home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
   }
 }
 
@@ -5946,7 +5946,7 @@ void SelectEncoding(int NoButton)  // Encoding
   // RPI remote
   if (strcmp(ModeOutput, "RPI_R") == 0)
   {
-    system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
+    system("sudo /home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
   }
 }
 
@@ -6000,7 +6000,7 @@ void SelectFormat(int NoButton)  // Video Format
   // RPI remote
   if (strcmp(ModeOutput, "RPI_R") == 0)
   {
-    system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
+    system("sudo /home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
   }
 }
 
@@ -6039,7 +6039,7 @@ void SelectFreq(int NoButton)  //Frequency
     // RPI remote
     if (strcmp(ModeOutput, "RPI_R") == 0)
     {
-      system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
+      system("sudo /home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
     }
   }
   else                    // Lean DVB Receive frequency
@@ -6070,7 +6070,7 @@ void SelectSR(int NoButton)  // Symbol Rate
     // RPI remote
     if (strcmp(ModeOutput, "RPI_R") == 0)
     {
-      system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
+      system("sudo /home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
     }
   }
   else                    // Lean DVB Receive SR
@@ -6097,7 +6097,7 @@ void SelectFec(int NoButton)  // FEC
     // RPI remote
     if (strcmp(ModeOutput, "RPI_R") == 0)
     {
-      system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
+      system("sudo /home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
     }
   }
   else                    // Lean DVB Receive SR
@@ -6132,7 +6132,7 @@ void SelectS2Fec(int NoButton)  // DVB-S2 FEC
   // RPI remote
   if (strcmp(ModeOutput, "RPI_R") == 0)
   {
-    system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
+    system("sudo /home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
   }
 }
 
@@ -6591,7 +6591,7 @@ void SetAttenLevel()
     // RPI remote
     if (strcmp(ModeOutput, "RPI_R") == 0)
     {
-      system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
+      system("sudo /home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
     }
   }
   else
@@ -7224,7 +7224,7 @@ void TransmitStart()
   // Run RPI remote
   if (strcmp(ModeOutput,"RPI_R") == 0)
   {
-    system("/home/pi/rpidatv/scripts/TX_remote.sh &");
+    system("sudo /home/pi/rpidatv/scripts/TX_remote.sh &");
   }
 }
 
@@ -7260,7 +7260,7 @@ void TransmitStop()
   // TX stop RPI Remote
   if (strcmp(ModeOutput,"RPI_R") == 0)
   {
-    system("/home/pi/rpidatv/scripts/STB_remote.sh &");
+    system("sudo /home/pi/rpidatv/scripts/STB_remote.sh &");
   }
 
   // Check for C910, C525, C310 or C270 webcam
@@ -12884,7 +12884,7 @@ void waituntil(int w,int h)
         case 14:                              // RPI Remote
           SelectOP(i);
           printf("RPI Remote\n");
-          system("/home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
+          system("sudo /home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
           break;
         case 10:                              // Jetson Lime
           SelectOP(i);
