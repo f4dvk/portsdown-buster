@@ -7224,7 +7224,7 @@ void TransmitStart()
   // Run RPI remote
   if (strcmp(ModeOutput,"RPI_R") == 0)
   {
-    system("sudo /home/pi/rpidatv/scripts/TX_remote.sh &");
+    system("sudo /home/pi/rpidatv/scripts/TX_remote.sh >/dev/null 2>/dev/null &");
   }
 }
 
@@ -7260,7 +7260,7 @@ void TransmitStop()
   // TX stop RPI Remote
   if (strcmp(ModeOutput,"RPI_R") == 0)
   {
-    system("sudo /home/pi/rpidatv/scripts/STB_remote.sh &");
+    system("sudo /home/pi/rpidatv/scripts/STB_remote.sh >/dev/null 2>/dev/null &");
   }
 
   // Check for C910, C525, C310 or C270 webcam
@@ -13176,7 +13176,7 @@ void waituntil(int w,int h)
       {
         //break;
       }
-      if (CurrentMenu == 50)  // Menu 80 Remote IP, user, password
+      if (CurrentMenu == 50)  // Menu 50 Remote IP, user, password
       {
         printf("Button Event %d, Entering Menu 50 Case Statement\n",i);
         switch (i)
@@ -13196,6 +13196,7 @@ void waituntil(int w,int h)
         case 0:
           printf("Changing IP\n");
           ChangeIP(i);
+          system("sudo /home/pi/rpidatv/scripts/sshkey.sh >/dev/null 2>/dev/null &");
           CurrentMenu=50;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu50();
