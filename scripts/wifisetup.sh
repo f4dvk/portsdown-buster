@@ -127,7 +127,7 @@ sudo chown root:root $PATHCONFIGS"/wpa_supcopy.txt"
 sudo cp $PATHCONFIGS"/wpa_supcopy.txt" /etc/wpa_supplicant/wpa_supplicant.conf
 sudo rm $PATHCONFIGS"/wpa_supcopy.txt"
 
-sed -i '/^##STARTNW/,$ !d' /etc/wpa_supplicant/wpa_supplicant.conf
+sudo sed -i '/^##STARTNW/,$ !d' /etc/wpa_supplicant/wpa_supplicant.conf
 
 stty echo
 
