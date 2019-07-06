@@ -1452,7 +1452,7 @@ void ReadModeInput(char coding[256], char vsource[256])
   if (strlen(value) > 1)
   {
     strcpy(CurrentFrames, value);
-  }
+  }menu
 
   strcpy(coding, "notset");
   strcpy(vsource, "notset");
@@ -16926,14 +16926,13 @@ void Start_Highlights_Menu36()
 
   /// Bouton SSID
   system("sudo /home/pi/rpidatv/scripts/wifi_gui_install.sh -get");
+  strcpy(Param,"ssid");
   char getssid[255];
-	strcpy(Param,"ssid");
   GetConfigParam(PATH_WIFIGET, Param, Value);
-
   strcpy(getssid, "SSID^");
   strcpy(getssid, Value);
 
-  if (strcmp(Value, "Non connecté") == 0)
+  if (strcmp(Value, "Non connecté")==0)
   {
     AmendButtonStatus(36, 5, getssid, &Red);
   }
