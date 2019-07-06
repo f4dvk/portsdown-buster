@@ -1452,7 +1452,7 @@ void ReadModeInput(char coding[256], char vsource[256])
   if (strlen(value) > 1)
   {
     strcpy(CurrentFrames, value);
-  }menu
+  }
 
   strcpy(coding, "notset");
   strcpy(vsource, "notset");
