@@ -56,6 +56,7 @@ Rewitten by Dave, G8GKQ
 #define PATH_RXPRESETS "/home/pi/rpidatv/scripts/rx_presets.txt"
 #define PATH_STREAMPRESETS "/home/pi/rpidatv/scripts/stream_presets.txt"
 #define PATH_JCONFIG "/home/pi/rpidatv/scripts/jetson_config.txt"
+#define PATH_WIFIGET "/home/pi/rpidatv/scripts/wifi_get.txt"
 
 #define PI 3.14159265358979323846
 #define deg2rad(DEG) ((DEG)*((PI)/(180.0)))
@@ -16879,11 +16880,13 @@ void Define_Menu36()
 //  color_t Blue;
   color_t LBlue;
   color_t DBlue;
-//  color_t Green;
+  color_t Green;
+  color_t Red;
 //  Blue.r=0; Blue.g=0; Blue.b=128;
   LBlue.r=64; LBlue.g=64; LBlue.b=192;
   DBlue.r=0; DBlue.g=0; DBlue.b=64;
-//  Green.r=0; Green.g=128; Green.b=0;
+  Green.r=0; Green.g=128; Green.b=0;
+  Red.r=255; Red.g=0; Red.b=0;
 
   strcpy(MenuTitle[36], "WiFi Configuration Menu (36)");
 
@@ -16903,9 +16906,9 @@ void Define_Menu36()
 
   // 2nd Row, Menu 36
 
-//  button = CreateButton(36, 6);
-//  AddButtonStatus(button, "Update^Lime FW", &Blue);
-//  AddButtonStatus(button, "Update^Lime FW", &Green);
+  button = CreateButton(36, 6);
+  AddButtonStatus(button, "SSID^None", &Red);
+  AddButtonStatus(button, "SSID^None", &Green);
 
 //  button = CreateButton(36, 7);
 //  AddButtonStatus(button, "Lime^Info", &Blue);
@@ -16914,7 +16917,30 @@ void Define_Menu36()
 
 void Start_Highlights_Menu36()
 {
-  // Nothing here yet
+  char Param[255];
+  char Value[255];
+  color_t Green;
+  color_t Red;
+  Green.r=0; Green.g=128; Green.b=0;
+  Red.r=255; Red.g=0; Red.b=0;
+
+  /// Bouton SSID
+  system("sudo /home/pi/rpidatv/scripts/wifi_gui_install.sh -get &")
+  char getssid[255];
+	strcpy(Param,"ssid");
+  GetConfigParam(PATH_WIFIGET, Param, Value);
+
+  strcpy(getssid, "SSID^");
+  strcpy(getssid, Value);
+
+  if (strcmp(Value, "Non connecté") == 0)
+  {
+    AmendButtonStatus(36, 6, getssid, &Red);
+  }
+  else
+  {
+    AmendButtonStatus(36, 6, getssid, &Green);
+  }
 }
 
 void Define_Menu37()

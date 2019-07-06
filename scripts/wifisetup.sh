@@ -65,7 +65,7 @@ printf "Type the network password and press enter\n"
 printf "Characters will not be displayed\n"
 printf "\n"
 
-stty -echo
+#stty -echo
 
 read PW
 
@@ -155,6 +155,7 @@ sleep 1
 sudo rfkill unblock 0
 
 printf "WiFi Configured\n"
+printf "Rebooting\n\n"
 
 sleep 2
 
