@@ -4,7 +4,7 @@ if [ "$1" == "-get" ]; then
 
 ssid()
 {
-iwgetid >/dev/null 2>/dev/null > ssid1.txt
+iwgetid >/dev/null 2>/dev/null > /home/pi/ssid1.txt
 }
 
 SSID()

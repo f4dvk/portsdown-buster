@@ -16906,7 +16906,7 @@ void Define_Menu36()
 
   // 2nd Row, Menu 36
 
-  button = CreateButton(36, 6);
+  button = CreateButton(36, 5);
   AddButtonStatus(button, "SSID^None", &Red);
   AddButtonStatus(button, "SSID^None", &Green);
 
@@ -16935,11 +16935,11 @@ void Start_Highlights_Menu36()
 
   if (strcmp(Value, "Non connecté") == 0)
   {
-    AmendButtonStatus(36, 6, getssid, &Red);
+    AmendButtonStatus(36, 5, getssid, &Red);
   }
   else
   {
-    AmendButtonStatus(36, 6, getssid, &Green);
+    AmendButtonStatus(36, 5, getssid, &Green);
   }
 }
 
