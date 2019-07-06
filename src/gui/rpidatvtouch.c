@@ -16927,10 +16927,10 @@ void Start_Highlights_Menu36()
   /// Bouton SSID
   system("sudo /home/pi/rpidatv/scripts/wifi_gui_install.sh -get");
   strcpy(Param,"ssid");
-  char getssid[255];
+  char Getssid[255];
   GetConfigParam(PATH_WIFIGET, Param, Value);
-  strcpy(getssid, "SSID^");
-  strcat(getssid, Value);
+  strcpy(Getssid, "SSID^");
+  strcat(Getssid, Value);
 
   AmendButtonStatus(ButtonNumber(36, 5), 0, Getssid, &Red);
   AmendButtonStatus(ButtonNumber(36, 5), 1, Getssid, &Green);
