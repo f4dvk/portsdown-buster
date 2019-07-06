@@ -16876,7 +16876,7 @@ void Start_Highlights_Menu35()
 
 void Define_Menu36()
 {
-  int button;
+  int button = 0;
 //  color_t Blue;
   color_t LBlue;
   color_t DBlue;
@@ -16930,15 +16930,18 @@ void Start_Highlights_Menu36()
   char getssid[255];
   GetConfigParam(PATH_WIFIGET, Param, Value);
   strcpy(getssid, "SSID^");
-  strcpy(getssid, Value);
+  strcat(getssid, Value);
 
-  if (strcmp(Value, "Non connecté")==0)
+  AmendButtonStatus(ButtonNumber(36, 5), 0, Getssid, &Red);
+  AmendButtonStatus(ButtonNumber(36, 5), 1, Getssid, &Green);
+
+  if (strcmp(Value, "Déconnecté") == 0)
   {
-    AmendButtonStatus(36, 5, getssid, &Red);
+    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0);
   }
   else
   {
-    AmendButtonStatus(36, 5, getssid, &Green);
+    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 1);
   }
 }
 

@@ -15,7 +15,7 @@ SSID()
 ssid
 
 if [ $? != 0 ]; then
- echo "ssid=Non connecté" > /home/pi/rpidatv/scripts/wifi_get.txt
+ echo "ssid=Déconnecté" > /home/pi/rpidatv/scripts/wifi_get.txt
  exit
 else
  SSID
