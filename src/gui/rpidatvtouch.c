@@ -12722,11 +12722,11 @@ void waituntil(int w,int h)
           UpdateWindow();
           break;
         case 0:
-          printf("Wifi Config\n");
-          CurrentMenu=51;
-          BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu51();
-          UpdateWindow();
+          //printf("Wifi Config\n");
+          //CurrentMenu=51;
+          //BackgroundRGB(0,0,0,255);
+          //Start_Highlights_Menu51();
+          //UpdateWindow();
           break;
         default:
           printf("Menu 36 Error\n");
@@ -17612,6 +17612,7 @@ void Start_Highlights_Menu51()
 {
 // Wifi Config
 int n;
+int N;
 char Param[255];
 char Value[255];
 color_t Blue;
@@ -17625,7 +17626,8 @@ for(n = 1; n < 6; n = n + 1)
  char GetWifi[255];
  GetConfigParam(PATH_WIFICONF, Param, Value);
  strcat(GetWifi, Value);
- AmendButtonStatus(ButtonNumber(51, ([n] + 4)), 0, GetWifi, &Blue);
+ N=n+4;
+ AmendButtonStatus(ButtonNumber(51, N), 0, GetWifi, &Blue);
 }
 //SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0);
 
