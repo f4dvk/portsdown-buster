@@ -147,7 +147,9 @@ sudo cp /home/pi/rpidatv/scripts/configs/wifi_interfaces.txt /etc/network/interf
 ##bring wifi down and up again, then reset
 
 sudo ip link set wlan0 down
+sleep 1
 sudo ip link set wlan0 up
+sleep 1
 wpa_cli -i wlan0 reconfigure
 
 ## Make sure that it is not soft-blocked
@@ -155,10 +157,7 @@ sleep 1
 sudo rfkill unblock 0
 
 printf "WiFi Configured\n"
-printf "Rebooting\n\n"
 
 sleep 2
-
-sudo reboot
 
 exit

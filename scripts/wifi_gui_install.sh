@@ -36,7 +36,7 @@ elif [ "$1" == "-scan" ]; then
 
 scan()
 {
- sudo iwlist wlan0 scan > scan.txt
+ sudo iwlist wlan0 scan > /home/pi/scan.txt
 }
 
 scan

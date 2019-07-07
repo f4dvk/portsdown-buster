@@ -57,6 +57,7 @@ Rewitten by Dave, G8GKQ
 #define PATH_STREAMPRESETS "/home/pi/rpidatv/scripts/stream_presets.txt"
 #define PATH_JCONFIG "/home/pi/rpidatv/scripts/jetson_config.txt"
 #define PATH_WIFIGET "/home/pi/rpidatv/scripts/wifi_get.txt"
+#define PATH_WIFICONF "/home/pi/rpidatv/scripts/wifi_scan.txt"
 
 #define PI 3.14159265358979323846
 #define deg2rad(DEG) ((DEG)*((PI)/(180.0)))
@@ -304,6 +305,7 @@ void Start_Highlights_Menu42();
 void Start_Highlights_Menu43();
 void Start_Highlights_Menu44();
 void Start_Highlights_Menu50();
+void Start_Highlights_Menu51();
 
 void MsgBox(const char *);
 void MsgBox2(const char *, const char *);
@@ -12719,6 +12721,13 @@ void waituntil(int w,int h)
           Start_Highlights_Menu1();
           UpdateWindow();
           break;
+        case 0:
+          printf("Wifi Config\n");
+          CurrentMenu=51;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu51();
+          UpdateWindow();
+          break;
         default:
           printf("Menu 36 Error\n");
         }
@@ -13232,6 +13241,64 @@ void waituntil(int w,int h)
         default:
           printf("Menu 50 Error\n");
         }
+      }
+      if (CurrentMenu == 51)  // Menu 51 WiFi Configuration
+      {
+        printf("Button Event %d, Entering Menu 51 Case Statement\n",i);
+        switch (i)
+        {
+        case 4:                               // Cancel
+          SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 1);
+          printf("Cancelling WiFi Config Menu\n");
+          UpdateWindow();
+          usleep(500000);
+          SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 0); // Reset cancel (even if not selected)
+          printf("Returning to MENU 1 from Menu 36\n");
+          CurrentMenu=1;
+          BackgroundRGB(255,255,255,255);
+          Start_Highlights_Menu1();
+          UpdateWindow();
+          break;
+        case 5:
+          //printf("Wifi Config\n");
+          //CurrentMenu=51;
+          //BackgroundRGB(0,0,0,255);
+          //Start_Highlights_Menu51();
+          //UpdateWindow();
+          break;
+        case 6:
+          //printf("Wifi Config\n");
+          //CurrentMenu=51;
+          //BackgroundRGB(0,0,0,255);
+          //Start_Highlights_Menu51();
+          //UpdateWindow();
+          break;
+        case 7:
+          //printf("Wifi Config\n");
+          //CurrentMenu=51;
+          //BackgroundRGB(0,0,0,255);
+          //Start_Highlights_Menu51();
+          //UpdateWindow();
+          break;
+        case 8:
+          //printf("Wifi Config\n");
+          //CurrentMenu=51;
+          //BackgroundRGB(0,0,0,255);
+          //Start_Highlights_Menu51();
+          //UpdateWindow();
+          break;
+        case 9:
+          //printf("Wifi Config\n");
+          //CurrentMenu=51;
+          //BackgroundRGB(0,0,0,255);
+          //Start_Highlights_Menu51();
+          //UpdateWindow();
+          break;
+        default:
+          printf("Menu 51 Error\n");
+        }
+        // stay in Menu 51 if parameter changed
+        continue;   // Completed Menu 51 action, go and wait for touch
       }
     }
   }
@@ -16896,9 +16963,9 @@ void Define_Menu36()
   AddButtonStatus(button, "Exit", &DBlue);
   AddButtonStatus(button, "Exit", &LBlue);
 
-//  button = CreateButton(36, 0);
-//  AddButtonStatus(button, "Install^Lime", &Blue);
-//  AddButtonStatus(button, "Install^Lime", &Green);
+  button = CreateButton(36, 0);
+  AddButtonStatus(button, "Wifi^Config", &Blue);
+  AddButtonStatus(button, "Wifi^Config", &Green);
 
 //  button = CreateButton(36, 1);
 //  AddButtonStatus(button, "Update^Lime", &Blue);
@@ -17504,6 +17571,66 @@ void Start_Highlights_Menu50()
 // RPI Remote IP, User and Password
 }
 
+void Define_Menu51()
+{
+  int button;
+  color_t Blue;
+  color_t LBlue;
+  color_t DBlue;
+  //color_t Grey;
+  Blue.r=0; Blue.g=0; Blue.b=128;
+  LBlue.r=64; LBlue.g=64; LBlue.b=192;
+  DBlue.r=0; DBlue.g=0; DBlue.b=64;
+  //Grey.r=127; Grey.g=127; Grey.b=127;
+
+  strcpy(MenuTitle[51], "Wifi Config Menu (51)");
+
+  // Bottom Row, Menu 51
+
+  button = CreateButton(51, 5);
+  AddButtonStatus(button, "None", &Blue);
+
+  button = CreateButton(51, 6);
+  AddButtonStatus(button, "None", &Blue);
+
+  button = CreateButton(51, 7);
+  AddButtonStatus(button, "None", &Blue);
+
+  button = CreateButton(51, 8);
+  AddButtonStatus(button, "None", &Blue);
+
+  button = CreateButton(51, 9);
+  AddButtonStatus(button, "None", &Blue);
+
+  button = CreateButton(51, 4);
+  AddButtonStatus(button, "Exit", &DBlue);
+  AddButtonStatus(button, "Exit", &LBlue);
+
+}
+
+void Start_Highlights_Menu51()
+{
+// Wifi Config
+int n;
+char Param[255];
+char Value[255];
+color_t Blue;
+Blue.r=0; Blue.g=0; Blue.b=128;
+
+system("sudo /home/pi/rpidatv/scripts/wifi_gui_install.sh -scan");
+
+for(n = 1; n < 6; n = n + 1)
+{
+ strcpy(Param,"ssid"[n]);
+ char GetWifi[255];
+ GetConfigParam(PATH_WIFICONF, Param, Value);
+ strcat(GetWifi, Value);
+ AmendButtonStatus(ButtonNumber(51, ([n] + 4)), 0, GetWifi, &Blue);
+}
+//SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0);
+
+}
+
 void Define_Menu41()
 {
   int button;
@@ -17962,6 +18089,7 @@ int main(int argc, char **argv)
   Define_Menu43();
   Define_Menu44();
   Define_Menu50();
+  Define_Menu51();
 
   // Start the button Menu
   Start(wscreen,hscreen);
