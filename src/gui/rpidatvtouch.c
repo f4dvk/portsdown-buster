@@ -57,7 +57,8 @@ Rewitten by Dave, G8GKQ
 #define PATH_STREAMPRESETS "/home/pi/rpidatv/scripts/stream_presets.txt"
 #define PATH_JCONFIG "/home/pi/rpidatv/scripts/jetson_config.txt"
 #define PATH_WIFIGET "/home/pi/rpidatv/scripts/wifi_get.txt"
-#define PATH_WIFICONF "/home/pi/rpidatv/scripts/wifi_scan.txt"
+#define PATH_WIFISCAN "/home/pi/rpidatv/scripts/wifi_scan.txt"
+#define PATH_WIFICONFIG "/home/pi/rpidatv/scripts/wifi_config.txt"
 
 #define PI 3.14159265358979323846
 #define deg2rad(DEG) ((DEG)*((PI)/(180.0)))
@@ -10365,6 +10366,48 @@ void ChangeJetsonRPW()
   SetConfigParam(PATH_JCONFIG, "jetsonrootpw", KeyboardReturn);
 }
 
+void WifiPW(int NoButton)  // Wifi password
+{
+  char Value[255];
+  char Param[255];
+  char n[255];
+  int N;
+  //SelectInGroupOnMenu(CurrentMenu, 5, 9, NoButton, 1);
+
+  N = NoButton - 4;
+  strcpy(n,"");
+  sprintf(n, "%d", N);
+  strcpy(Param,"");
+  strcpy(Param,"ssid");
+  strcat(Param, n);
+  strcpy(Value,"");
+  GetConfigParam(PATH_WIFISCAN, Param, Value);
+  SetConfigParam(PATH_WIFICONFIG, "ssid", Value);
+
+  char RequestText[64];
+  char InitText[64];
+  bool IsValid = FALSE;
+  char wifiPW[31];
+
+  GetConfigParam(PATH_WIFICONFIG, "password", wifiPW);
+
+  while (IsValid == FALSE)
+  {
+    strcpy(RequestText, "Enter the wifi password");
+    snprintf(InitText, 31, "%s", wifiPW);
+    Keyboard(RequestText, InitText, 20);
+
+    if(strlen(KeyboardReturn) > 0)
+    {
+      IsValid = TRUE;
+    }
+  }
+  printf("Wifi password set to: %s\n", KeyboardReturn);
+
+  SetConfigParam(PATH_WIFICONFIG, "password", KeyboardReturn);
+  system("sudo /home/pi/rpidatv/scripts/wifi_gui_install.sh -install");
+}
+
 void waituntil(int w,int h)
 {
   // Wait for a screen touch and act on its position
@@ -13261,38 +13304,43 @@ void waituntil(int w,int h)
           break;
         case 5:
           //printf("Wifi Config\n");
-          //CurrentMenu=51;
-          //BackgroundRGB(0,0,0,255);
-          //Start_Highlights_Menu51();
-          //UpdateWindow();
+          WifiPW(i);
+          CurrentMenu=36;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu36();
+          UpdateWindow();
           break;
         case 6:
           //printf("Wifi Config\n");
-          //CurrentMenu=51;
-          //BackgroundRGB(0,0,0,255);
-          //Start_Highlights_Menu51();
-          //UpdateWindow();
+          WifiPW(i);
+          CurrentMenu=36;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu36();
+          UpdateWindow();
           break;
         case 7:
           //printf("Wifi Config\n");
-          //CurrentMenu=51;
-          //BackgroundRGB(0,0,0,255);
-          //Start_Highlights_Menu51();
-          //UpdateWindow();
+          WifiPW(i);
+          CurrentMenu=36;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu36();
+          UpdateWindow();
           break;
         case 8:
           //printf("Wifi Config\n");
-          //CurrentMenu=51;
-          //BackgroundRGB(0,0,0,255);
-          //Start_Highlights_Menu51();
-          //UpdateWindow();
+          WifiPW(i);
+          CurrentMenu=36;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu36();
+          UpdateWindow();
           break;
         case 9:
           //printf("Wifi Config\n");
-          //CurrentMenu=51;
-          //BackgroundRGB(0,0,0,255);
-          //Start_Highlights_Menu51();
-          //UpdateWindow();
+          WifiPW(i);
+          CurrentMenu=36;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu36();
+          UpdateWindow();
           break;
         default:
           printf("Menu 51 Error\n");
@@ -16995,6 +17043,7 @@ void Start_Highlights_Menu36()
   system("sudo /home/pi/rpidatv/scripts/wifi_gui_install.sh -get");
   strcpy(Param,"ssid");
   char Getssid[255];
+  strcpy(Getssid,"");
   GetConfigParam(PATH_WIFIGET, Param, Value);
   strcpy(Getssid, "SSID^");
   strcat(Getssid, Value);
@@ -17583,7 +17632,7 @@ void Define_Menu51()
   DBlue.r=0; DBlue.g=0; DBlue.b=64;
   //Grey.r=127; Grey.g=127; Grey.b=127;
 
-  strcpy(MenuTitle[51], "Wifi Config Menu (51)");
+  strcpy(MenuTitle[51], "Wifi Scan SSID Menu (51)");
 
   // Bottom Row, Menu 51
 
@@ -17612,7 +17661,7 @@ void Start_Highlights_Menu51()
 {
 // Wifi Config
 int n;
-int N;
+char N[255];
 char Param[255];
 char Value[255];
 color_t Blue;
@@ -17622,15 +17671,16 @@ system("sudo /home/pi/rpidatv/scripts/wifi_gui_install.sh -scan");
 
 for(n = 1; n < 6; n = n + 1)
 {
- strcpy(Param,"ssid"[n]);
+ sprintf(N, "%d", n);
+ strcpy(Param,"");
+ strcpy(Param,"ssid");
+ strcat(Param, N);
  char GetWifi[255];
- GetConfigParam(PATH_WIFICONF, Param, Value);
+ strcpy(GetWifi,"");
+ GetConfigParam(PATH_WIFISCAN, Param, Value);
  strcat(GetWifi, Value);
- N=n+4;
- AmendButtonStatus(ButtonNumber(51, N), 0, GetWifi, &Blue);
+ AmendButtonStatus(ButtonNumber(51, (n+4)), 0, GetWifi, &Blue);
 }
-//SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0);
-
 }
 
 void Define_Menu41()
