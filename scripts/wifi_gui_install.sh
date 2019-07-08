@@ -47,9 +47,15 @@ while [ $? == 0 ]; do
  SSID
 done
 
-cat /home/pi/ssid1.txt | sed 's/.* //;s/ESSID/ssid/g;s/ //g;s/"//g;s/:/=/g' > /home/pi/rpidatv/scripts/wifi_get.txt
+cat /home/pi/ssid1.txt | sed 's/.* //;s/ESSID/ssid/g;s/ //g;s/""/Déconnecté/g;s/"//g;s/:/=/g' > /home/pi/rpidatv/scripts/wifi_get.txt
 
 rm /home/pi/ssid1.txt
+
+if [ -s "/home/pi/rpidatv/scripts/wifi_get.txt" ];then
+  exit
+else
+  echo "ssid=Déconnecté" > /home/pi/rpidatv/scripts/wifi_get.txt
+fi
 
 ########################################################################
 
@@ -148,7 +154,9 @@ elif [ "$1" == "-install" ]; then
   ##bring wifi down and up again, then reset
 
   sudo ip link set wlan0 down
+  sleep 1
   sudo ip link set wlan0 up
+  sleep 1
   wpa_cli -i wlan0 reconfigure
 
   ## Make sure that it is not soft-blocked

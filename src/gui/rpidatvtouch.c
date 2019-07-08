@@ -12765,11 +12765,11 @@ void waituntil(int w,int h)
           UpdateWindow();
           break;
         case 0:
-          //printf("Wifi Config\n");
-          //CurrentMenu=51;
-          //BackgroundRGB(0,0,0,255);
-          //Start_Highlights_Menu51();
-          //UpdateWindow();
+          printf("Wifi Config\n");
+          CurrentMenu=51;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu51();
+          UpdateWindow();
           break;
         default:
           printf("Menu 36 Error\n");
