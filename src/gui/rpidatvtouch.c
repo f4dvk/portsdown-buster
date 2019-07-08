@@ -16992,12 +16992,12 @@ void Start_Highlights_Menu35()
 void Define_Menu36()
 {
   int button = 0;
-//  color_t Blue;
+  color_t Blue;
   color_t LBlue;
   color_t DBlue;
   color_t Green;
   color_t Red;
-//  Blue.r=0; Blue.g=0; Blue.b=128;
+  Blue.r=0; Blue.g=0; Blue.b=128;
   LBlue.r=64; LBlue.g=64; LBlue.b=192;
   DBlue.r=0; DBlue.g=0; DBlue.b=64;
   Green.r=0; Green.g=128; Green.b=0;
