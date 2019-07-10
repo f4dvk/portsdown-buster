@@ -59,6 +59,7 @@ Rewitten by Dave, G8GKQ
 #define PATH_WIFIGET "/home/pi/rpidatv/scripts/wifi_get.txt"
 #define PATH_WIFISCAN "/home/pi/rpidatv/scripts/wifi_scan.txt"
 #define PATH_WIFICONFIG "/home/pi/rpidatv/scripts/wifi_config.txt"
+#define PATH_HOTSPOTCONFIG "/home/pi/rpidatv/scripts/hotspot_config.txt"
 
 #define PI 3.14159265358979323846
 #define deg2rad(DEG) ((DEG)*((PI)/(180.0)))
@@ -310,6 +311,7 @@ void Start_Highlights_Menu51();
 
 void MsgBox(const char *);
 void MsgBox2(const char *, const char *);
+void MsgBox2B(const char *, const char *);
 void MsgBox4(const char *, const char *, const char *, const char *);
 void wait_touch();
 void waituntil(int, int);
@@ -8240,6 +8242,21 @@ void MsgBox2(const char *message1, const char *message2)
   printf("MsgBox2 called and waiting for touch\n");
 }
 
+void MsgBox2B(const char *message1, const char *message2)
+{
+  //init(&wscreen, &hscreen);  // Restart the gui
+  BackgroundRGB(0,0,0,255);  // Black background
+  Fill(255, 255, 255, 1);    // White text
+
+  VGfloat th = TextHeight(SansTypeface, 25);
+
+
+  TextMid(wscreen/2, hscreen/2+th, message1, SansTypeface, 25);
+  TextMid(wscreen/2, hscreen/2-th, message2, SansTypeface, 25);
+
+  End();
+}
+
 void MsgBox4(const char *message1, const char *message2, const char *message3, const char *message4)
 {
   //init(&wscreen, &hscreen);  // Restart the gui
@@ -10405,7 +10422,116 @@ void WifiPW(int NoButton)  // Wifi password
   printf("Wifi password set to: %s\n", KeyboardReturn);
 
   SetConfigParam(PATH_WIFICONFIG, "password", KeyboardReturn);
+
+  MsgBox2B("La configuration peut prendre jusqu'à 1 min", "Veuillez patienter...");
+
   system("sudo /home/pi/rpidatv/scripts/wifi_gui_install.sh -install");
+}
+
+void HotspotConfig()  // Hotspot Config
+{
+  //SelectInGroupOnMenu(CurrentMenu, 5, 9, NoButton, 1);
+
+  char RequestText[64];
+  char InitText[64];
+  bool IsValid = FALSE;
+  char HotspotParam[31];
+
+  GetConfigParam(PATH_HOTSPOTCONFIG, "ssid", HotspotParam);
+
+  while (IsValid == FALSE)
+  {
+    strcpy(RequestText, "Entrez le  du SSID Hotspot");
+    snprintf(InitText, 31, "%s", HotspotParam);
+    Keyboard(RequestText, InitText, 12);
+
+    if(strlen(KeyboardReturn) > 0)
+    {
+      IsValid = TRUE;
+    }
+  }
+  printf("SSID du Hotspot: %s\n", KeyboardReturn);
+
+  SetConfigParam(PATH_HOTSPOTCONFIG, "ssid", KeyboardReturn);
+
+  IsValid = FALSE;
+
+/////////////////////////////////////////////////////////////////////
+
+  strcpy(HotspotParam, "");
+  strcpy(RequestText, "");
+  strcpy(InitText, "");
+
+  GetConfigParam(PATH_HOTSPOTCONFIG, "wpa_passphrase", HotspotParam);
+
+  while (IsValid == FALSE)
+  {
+    strcpy(RequestText, "Mot de passe du Hotspot:");
+    snprintf(InitText, 31, "%s", HotspotParam);
+    Keyboard(RequestText, InitText, 20);
+
+    if(strlen(KeyboardReturn) > 0)
+    {
+      IsValid = TRUE;
+    }
+  }
+  printf("Mot de passe du Hotspot: %s\n", KeyboardReturn);
+
+  SetConfigParam(PATH_HOTSPOTCONFIG, "wpa_passphrase", KeyboardReturn);
+
+  IsValid = FALSE;
+
+/////////////////////////////////////////////////////////////////////
+
+  strcpy(HotspotParam, "");
+  strcpy(RequestText, "");
+  strcpy(InitText, "");
+
+  GetConfigParam(PATH_HOTSPOTCONFIG, "hw_mode", HotspotParam);
+
+  while (IsValid == FALSE)
+  {
+    strcpy(RequestText, "Bande Wifi du Hotspot (g: 2.4GHz , a: 5GHz (PI 3 B+)):");
+    snprintf(InitText, 31, "%s", HotspotParam);
+    Keyboard(RequestText, InitText, 1);
+
+    if(strlen(KeyboardReturn) > 0)
+    {
+      IsValid = TRUE;
+    }
+  }
+  printf("Bande Wifi du Hotspot: %s\n", KeyboardReturn);
+
+  SetConfigParam(PATH_HOTSPOTCONFIG, "hw_mode", KeyboardReturn);
+
+  IsValid = FALSE;
+
+/////////////////////////////////////////////////////////////////////
+
+  strcpy(HotspotParam, "");
+  strcpy(RequestText, "");
+  strcpy(InitText, "");
+
+  GetConfigParam(PATH_HOTSPOTCONFIG, "channel", HotspotParam);
+
+  while (IsValid == FALSE)
+  {
+    strcpy(RequestText, "Canal du Hotspot (2.4GHz: 1 à 13, 5GHz: 36, 40, 44, 48):");
+    snprintf(InitText, 31, "%s", HotspotParam);
+    Keyboard(RequestText, InitText, 3);
+
+    if(strlen(KeyboardReturn) > 0)
+    {
+      IsValid = TRUE;
+    }
+  }
+  printf("Canal Wifi du Hotspot: %s\n", KeyboardReturn);
+
+  SetConfigParam(PATH_HOTSPOTCONFIG, "channel", KeyboardReturn);
+
+  MsgBox2B("La configuration peut prendre jusqu'à 1 min", "Veuillez patienter...");
+
+  system("/home/pi/rpidatv/scripts/hotspot_install.sh");
 }
 
 void waituntil(int w,int h)
@@ -12766,9 +12892,18 @@ void waituntil(int w,int h)
           break;
         case 0:
           printf("Wifi Config\n");
+          MsgBox2B("Recherche en cours", "Veuillez patienter...");
           CurrentMenu=51;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu51();
+          UpdateWindow();
+          break;
+        case 1:
+          printf("Hotspot Config\n");
+          HotspotConfig();
+          CurrentMenu=36;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu36();
           UpdateWindow();
           break;
         default:
@@ -16997,11 +17132,13 @@ void Define_Menu36()
   color_t DBlue;
   color_t Green;
   color_t Red;
+  color_t Orange;
   Blue.r=0; Blue.g=0; Blue.b=128;
   LBlue.r=64; LBlue.g=64; LBlue.b=192;
   DBlue.r=0; DBlue.g=0; DBlue.b=64;
   Green.r=0; Green.g=128; Green.b=0;
   Red.r=255; Red.g=0; Red.b=0;
+  Orange.r=248; Orange.g=185; Orange.b=4;
 
   strcpy(MenuTitle[36], "WiFi Configuration Menu (36)");
 
@@ -17015,15 +17152,16 @@ void Define_Menu36()
   AddButtonStatus(button, "Wifi^Config", &Blue);
   AddButtonStatus(button, "Wifi^Config", &Green);
 
-//  button = CreateButton(36, 1);
-//  AddButtonStatus(button, "Update^Lime", &Blue);
-//  AddButtonStatus(button, "Update^Lime", &Green);
+  button = CreateButton(36, 1);
+  AddButtonStatus(button, "Hotspot^Config", &Blue);
+  AddButtonStatus(button, "Hotspot^Config", &Green);
 
   // 2nd Row, Menu 36
 
   button = CreateButton(36, 5);
   AddButtonStatus(button, "SSID^None", &Red);
   AddButtonStatus(button, "SSID^None", &Green);
+  AddButtonStatus(button, "SSID^None", &Orange);
 
 //  button = CreateButton(36, 7);
 //  AddButtonStatus(button, "Lime^Info", &Blue);
@@ -17036,8 +17174,10 @@ void Start_Highlights_Menu36()
   char Value[255];
   color_t Green;
   color_t Red;
+  color_t Orange;
   Green.r=0; Green.g=128; Green.b=0;
   Red.r=255; Red.g=0; Red.b=0;
+  Orange.r=248; Orange.g=185; Orange.b=4;
 
   /// Bouton SSID
   system("sudo /home/pi/rpidatv/scripts/wifi_gui_install.sh -get");
@@ -17045,20 +17185,36 @@ void Start_Highlights_Menu36()
   char Getssid[255];
   strcpy(Getssid,"");
   GetConfigParam(PATH_WIFIGET, Param, Value);
-  strcpy(Getssid, "SSID^");
-  strcat(Getssid, Value);
 
-  AmendButtonStatus(ButtonNumber(36, 5), 0, Getssid, &Red);
-  AmendButtonStatus(ButtonNumber(36, 5), 1, Getssid, &Green);
-
-  if (strcmp(Value, "Déconnecté") == 0)
+  if (strcmp(Value, "Hotspot") != 0)
   {
-    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0);
+    strcpy(Getssid, "SSID^");
+    strcat(Getssid, Value);
+
+    AmendButtonStatus(ButtonNumber(36, 5), 0, Getssid, &Red);
+    AmendButtonStatus(ButtonNumber(36, 5), 1, Getssid, &Green);
+    AmendButtonStatus(ButtonNumber(36, 5), 2, Getssid, &Orange);
+
+    if (strcmp(Value, "Déconnecté") == 0)
+    {
+      SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0);
+    }
+    else
+    {
+      SetButtonStatus(ButtonNumber(CurrentMenu, 5), 1);
+    }
   }
   else
   {
-    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 1);
+    strcpy(Getssid, "Hotspot^Actif");
+
+    AmendButtonStatus(ButtonNumber(36, 5), 0, Getssid, &Red);
+    AmendButtonStatus(ButtonNumber(36, 5), 1, Getssid, &Green);
+    AmendButtonStatus(ButtonNumber(36, 5), 2, Getssid, &Orange);
+
+    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 2);
   }
+
 }
 
 void Define_Menu37()

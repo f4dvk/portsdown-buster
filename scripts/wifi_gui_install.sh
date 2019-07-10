@@ -19,6 +19,27 @@ end
 EOF
 }
 
+set_config_var() {
+lua - "$1" "$2" "$3"<<EOF > "$3.bak2"
+local key=assert(arg[1])
+local value=assert(arg[2])
+local fn=assert(arg[3])
+local file=assert(io.open(fn))
+local made_change=false
+for line in file:lines() do
+if line:match("^#?%s*"..key.."=.*$") then
+line=key.."="..value
+made_change=true
+end
+print(line)
+end
+if not made_change then
+print(key.."="..value)
+end
+EOF
+mv "$3.bak2" "$3"
+}
+
 ########################################################################
 
 if [ "$1" == "-get" ]; then
@@ -33,10 +54,21 @@ SSID()
  cat /home/pi/ssid1.txt | grep 'ESSID:""' >/dev/null 2>/dev/null
 }
 
+Hotspot()
+{
+sudo service hostapd status >/dev/null 2>/dev/null
+
+if [ $? == 0 ]; then
+  echo "ssid=Hotspot" > /home/pi/rpidatv/scripts/wifi_get.txt
+else
+  echo "ssid=Déconnecté" > /home/pi/rpidatv/scripts/wifi_get.txt
+fi
+}
+
 ssid
 
 if [ $? != 0 ]; then
- echo "ssid=Déconnecté" > /home/pi/rpidatv/scripts/wifi_get.txt
+ Hotspot
  exit
 else
  SSID
@@ -50,6 +82,12 @@ done
 cat /home/pi/ssid1.txt | sed 's/.* //;s/ESSID/ssid/g;s/ //g;s/""/Déconnecté/g;s/"//g;s/:/=/g' > /home/pi/rpidatv/scripts/wifi_get.txt
 
 rm /home/pi/ssid1.txt
+
+sudo service hostapd status >/dev/null 2>/dev/null
+
+if [ $? == 0 ]; then
+  echo "ssid=Hotspot" > /home/pi/rpidatv/scripts/wifi_get.txt
+fi
 
 if [ -s "/home/pi/rpidatv/scripts/wifi_get.txt" ];then
   exit
@@ -79,6 +117,14 @@ rm /home/pi/scan.txt
 ########################################################################
 
 elif [ "$1" == "-install" ]; then
+  ETAT=$(get_config_var hotspot $PCONFIGWIFI)
+  if [ "$ETAT" == "oui" ]; then
+    sudo systemctl disable hostapd
+    sudo systemctl stop hostapd
+    sudo service hostapd stop
+    sudo service dnsmasq stop
+  fi
+
   SSID=$(get_config_var ssid $PCONFIGWIFI)
   PW=$(get_config_var password $PCONFIGWIFI)
 
@@ -89,7 +135,7 @@ elif [ "$1" == "-install" ]; then
   ## Build text for supplicant file
   ## Include Country (required for Stretch)
 
-  rm $PATHCONFIGS"/wpa_text.txt"
+  sudo rm $PATHCONFIGS"/wpa_text.txt"
 
   echo -e "country=FR" >> $PATHCONFIGS"/wpa_text.txt"
   echo -e "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev" >> $PATHCONFIGS"/wpa_text.txt"
@@ -154,10 +200,7 @@ elif [ "$1" == "-install" ]; then
   ##bring wifi down and up again, then reset
 
   sudo ip link set wlan0 down
-  sleep 1
   sudo ip link set wlan0 up
-  sleep 1
-  wpa_cli -i wlan0 reconfigure
 
   ## Make sure that it is not soft-blocked
   sleep 1
@@ -168,7 +211,15 @@ elif [ "$1" == "-install" ]; then
   echo "ssid=" > $PCONFIGWIFI
   echo "password=" >> $PCONFIGWIFI
 
-  sleep 1
+  if [ "$ETAT" == "oui" ]; then
+    sudo service networking restart
+  fi
+
+  echo "ssid=" > $PCONFIGWIFI
+  echo "password=" >> $PCONFIGWIFI
+  echo "hotspot=non" >> $PCONFIGWIFI
+
+  wpa_cli -i wlan0 reconfigure
 
 fi
 

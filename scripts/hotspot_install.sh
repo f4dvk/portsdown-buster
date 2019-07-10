@@ -2,6 +2,7 @@
 
 # Variables
 PCONFIGFILE="/home/pi/rpidatv/scripts/hotspot_config.txt"
+PCONFIGWIFI="/home/pi/rpidatv/scripts/wifi_config.txt"
 
 CMDFILE="/home/pi/tmp/wifi_hotspot_config.txt"
 
@@ -19,6 +20,27 @@ break
 end
 end
 EOF
+}
+
+set_config_var() {
+lua - "$1" "$2" "$3"<<EOF > "$3.bak2"
+local key=assert(arg[1])
+local value=assert(arg[2])
+local fn=assert(arg[3])
+local file=assert(io.open(fn))
+local made_change=false
+for line in file:lines() do
+if line:match("^#?%s*"..key.."=.*$") then
+line=key.."="..value
+made_change=true
+end
+print(line)
+end
+if not made_change then
+print(key.."="..value)
+end
+EOF
+mv "$3.bak2" "$3"
 }
 
 # Lecture des paramètres
@@ -124,10 +146,8 @@ sudo systemctl start hostapd
 #sudo service hostapd start
 sudo service dnsmasq start
 
-printf "Rebooting\n\n"
+set_config_var hotspot "oui" $PCONFIGWIFI
 
 sleep 2
-
-sudo reboot
 
 exit

@@ -80,7 +80,7 @@ PATHCONFIGS="/home/pi/rpidatv/scripts/configs"  ## Path to config files
 ## Build text for supplicant file
 ## Include Country (required for Stretch)
 
-rm $PATHCONFIGS"/wpa_text.txt"
+sudo rm $PATHCONFIGS"/wpa_text.txt"
 
 echo -e "country=FR" >> $PATHCONFIGS"/wpa_text.txt"
 echo -e "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev" >> $PATHCONFIGS"/wpa_text.txt"
