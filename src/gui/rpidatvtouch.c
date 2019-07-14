@@ -18107,7 +18107,7 @@ void Define_Menu36()
   AddButtonStatus(button, "Wifi^Config", &LBlue);
 
   button = CreateButton(36, 1);
-  AddButtonStatus(button, "Hotspot^Config", &Blue);
+  AddButtonStatus(button, "Hotspot^Config", &DBlue);
   AddButtonStatus(button, "Hotspot^Config", &LBlue);
 
   // 2nd Row, Menu 36
