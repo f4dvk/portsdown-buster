@@ -143,7 +143,7 @@ int main(int argc, char** argv)
 		fprintf(stderr, "LMS_SetupStream() : %s\n", LMS_GetLastErrorMessage());
 		return 1;
     	}
- 
+
 	// Make sure PTT is not set
 	if (gpio_band >= 128)
 	{
@@ -180,6 +180,10 @@ int main(int argc, char** argv)
 		return 1;
     	}
 
+  // Set  Fan on
+  LMS_WriteFPGAReg(device, 0xCC, 0x01);  // Enable manual fan control
+  LMS_WriteFPGAReg(device, 0xCD, 0x01);  // Turn fan on
+
 	//LMS_StartStream(&tx_stream);
 	if(rrc>1)
 		LMS_SetGFIR(device, LMS_CH_TX, 0, LMS_GFIR3, true);
@@ -204,7 +208,7 @@ int main(int argc, char** argv)
 	LMS_StartStream(&rx_stream);
 	*/
 
-	
+
 	signal(SIGINT, signal_handler);
         signal(SIGTERM, signal_handler);
         signal(SIGQUIT, signal_handler);
@@ -252,7 +256,7 @@ int main(int argc, char** argv)
 			if(TotalSampleSent>sample_rate) // 1 second
 			{
 				LMS_SetNormalizedGain( device, LMS_CH_TX, channel, gain );
-				Transition=false;		
+				Transition=false;
 			}
 		}
 		tx_meta.timestamp += nb_samples;
@@ -265,6 +269,9 @@ int main(int argc, char** argv)
 	// Set PTT off
 	gpio_band = gpio_band - 128;
 	LMS_GPIOWrite(device, &gpio_band, 1);
+
+  // Set  Fan auto
+  LMS_WriteFPGAReg(device, 0xCC, 0x00);  // Enable auto fan control
 
 	LMS_EnableChannel( device, LMS_CH_TX, channel, false);
 	LMS_Close(device);

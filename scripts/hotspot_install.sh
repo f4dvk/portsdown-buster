@@ -50,7 +50,15 @@ MODE=$(get_config_var hw_mode $PCONFIGFILE)
 CHANNEL=$(get_config_var channel $PCONFIGFILE)
 
 # installation de hostapd et dnsmasq
-sudo apt-get -y install dnsmasq hostapd
+dpkg -l | grep hostadp >/dev/null 2>/dev/null
+if [ $? != 0 ]; then
+ sudo apt-get -y install hostapd
+fi
+
+dpkg -l | grep dnsmasq >/dev/null 2>/dev/null
+if [ $? != 0 ]; then
+  sudo apt-get -y install dnsmasq
+fi
 
 # Désactive le dhcp wlan0
 if ! grep -q denyinterfaces /etc/dhcpcd.conf; then
@@ -88,8 +96,8 @@ ieee80211n=1
 # Enable WMM
 wmm_enabled=1
 
-# Enable 40MHz channels with 20ns guard interval
-ht_capab=[HT40][SHORT-GI-20][DSSS_CCK-40]
+# Enable 20MHz channels with 20ns guard interval
+ht_capab=[HT20][SHORT-GI-20]
 
 # Accept all MAC addresses
 macaddr_acl=0

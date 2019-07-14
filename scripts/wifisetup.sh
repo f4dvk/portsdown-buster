@@ -1,8 +1,54 @@
 #!/bin/bash
+PCONFIGWIFI="/home/pi/rpidatv/scripts/wifi_config.txt"
+
+get_config_var() {
+lua - "$1" "$2" <<EOF
+local key=assert(arg[1])
+local fn=assert(arg[2])
+local file=assert(io.open(fn))
+for line in file:lines() do
+local val = line:match("^#?%s*"..key.."=(.*)$")
+if (val ~= nil) then
+print(val)
+break
+end
+end
+EOF
+}
+
+set_config_var() {
+lua - "$1" "$2" "$3"<<EOF > "$3.bak2"
+local key=assert(arg[1])
+local value=assert(arg[2])
+local fn=assert(arg[3])
+local file=assert(io.open(fn))
+local made_change=false
+for line in file:lines() do
+if line:match("^#?%s*"..key.."=.*$") then
+line=key.."="..value
+made_change=true
+end
+print(line)
+end
+if not made_change then
+print(key.."="..value)
+end
+EOF
+mv "$3.bak2" "$3"
+}
+
+ETAT=$(get_config_var hotspot $PCONFIGWIFI)
 
 # Script used to set up WiFi from rpidatv menu
 # Stretch version
 reset  # Clear the screen
+
+if [ "$ETAT" == "oui" ]; then
+  sudo systemctl disable hostapd
+  sudo systemctl stop hostapd
+  sudo service hostapd stop
+  sudo service dnsmasq stop
+fi
 
 # Check that wifi has not been disabled
 
@@ -147,14 +193,18 @@ sudo cp /home/pi/rpidatv/scripts/configs/wifi_interfaces.txt /etc/network/interf
 ##bring wifi down and up again, then reset
 
 sudo ip link set wlan0 down
-sleep 1
 sudo ip link set wlan0 up
-sleep 1
-wpa_cli -i wlan0 reconfigure
 
 ## Make sure that it is not soft-blocked
 sleep 1
 sudo rfkill unblock 0
+
+if [ "$ETAT" == "oui" ]; then
+  sudo service networking restart
+  set_config_var hotspot "non" $PCONFIGWIFI
+fi
+
+wpa_cli -i wlan0 reconfigure
 
 printf "WiFi Configured\n"
 
