@@ -50,7 +50,7 @@ MODE=$(get_config_var hw_mode $PCONFIGFILE)
 CHANNEL=$(get_config_var channel $PCONFIGFILE)
 
 # installation de hostapd et dnsmasq
-dpkg -l | grep hostadp >/dev/null 2>/dev/null
+dpkg -l | grep hostapd >/dev/null 2>/dev/null
 if [ $? != 0 ]; then
  sudo apt-get -y install hostapd
 fi

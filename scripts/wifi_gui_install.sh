@@ -210,6 +210,8 @@ elif [ "$1" == "-install" ]; then
 
   wpa_cli -i wlan0 reconfigure
 
+  sleep 2
+
 fi
 
 exit

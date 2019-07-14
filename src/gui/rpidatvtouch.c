@@ -13623,6 +13623,9 @@ void waituntil(int w,int h)
       if (CurrentMenu == 36)  // Menu 36 WiFi Configuration
       {
         printf("Button Event %d, Entering Menu 36 Case Statement\n",i);
+        char Value[255];
+        strcpy(Value,"");
+        GetConfigParam(PATH_WIFIGET, "ssid", Value);
         switch (i)
         {
         case 4:                               // Cancel
@@ -13638,7 +13641,11 @@ void waituntil(int w,int h)
           UpdateWindow();
           break;
         case 0:
+          SelectInGroupOnMenu(CurrentMenu, 0, 0, 0, 1);
           printf("Wifi Config\n");
+          UpdateWindow();
+          usleep(500000);
+          SelectInGroupOnMenu(CurrentMenu, 0, 0, 0, 0);
           MsgBox2B("Recherche en cours", "Veuillez patienter...");
           CurrentMenu=51;
           BackgroundRGB(0,0,0,255);
@@ -13646,12 +13653,32 @@ void waituntil(int w,int h)
           UpdateWindow();
           break;
         case 1:
+          SelectInGroupOnMenu(CurrentMenu, 1, 1, 1, 1);
           printf("Hotspot Config\n");
+          UpdateWindow();
+          usleep(500000);
+          SelectInGroupOnMenu(CurrentMenu, 1, 1, 1, 0);
           HotspotConfig();
           CurrentMenu=36;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu36();
           UpdateWindow();
+          break;
+        case 9:
+          if (strcmp(Value, "Hotspot") != 0)
+          {
+            SelectInGroupOnMenu(CurrentMenu, 9, 9, 9, 1);
+            printf("Redémarrage du Wifi\n");
+            UpdateWindow();
+            usleep(500000);
+            SelectInGroupOnMenu(CurrentMenu, 9, 9, 9, 0);
+            MsgBox2B("Redémarrage du Wifi en cours", "Veuillez patienter...");
+            system("sudo service networking restart");
+            CurrentMenu=36;
+            BackgroundRGB(0,0,0,255);
+            Start_Highlights_Menu36();
+            UpdateWindow();
+          }
           break;
         default:
           printf("Menu 36 Error\n");
@@ -18052,16 +18079,18 @@ void Start_Highlights_Menu35()
 void Define_Menu36()
 {
   int button = 0;
-  color_t Blue;
+  //color_t Blue;
   color_t LBlue;
   color_t DBlue;
   color_t Green;
+  color_t Grey;
   color_t Red;
   color_t Orange;
-  Blue.r=0; Blue.g=0; Blue.b=128;
+  //Blue.r=0; Blue.g=0; Blue.b=128;
   LBlue.r=64; LBlue.g=64; LBlue.b=192;
   DBlue.r=0; DBlue.g=0; DBlue.b=64;
   Green.r=0; Green.g=128; Green.b=0;
+  Grey.r=127; Grey.g=127; Grey.b=127;
   Red.r=255; Red.g=0; Red.b=0;
   Orange.r=248; Orange.g=185; Orange.b=4;
 
@@ -18074,12 +18103,12 @@ void Define_Menu36()
   AddButtonStatus(button, "Exit", &LBlue);
 
   button = CreateButton(36, 0);
-  AddButtonStatus(button, "Wifi^Config", &Blue);
-  AddButtonStatus(button, "Wifi^Config", &Green);
+  AddButtonStatus(button, "Wifi^Config", &DBlue);
+  AddButtonStatus(button, "Wifi^Config", &LBlue);
 
   button = CreateButton(36, 1);
   AddButtonStatus(button, "Hotspot^Config", &Blue);
-  AddButtonStatus(button, "Hotspot^Config", &Green);
+  AddButtonStatus(button, "Hotspot^Config", &LBlue);
 
   // 2nd Row, Menu 36
 
@@ -18088,9 +18117,10 @@ void Define_Menu36()
   AddButtonStatus(button, "SSID^None", &Green);
   AddButtonStatus(button, "SSID^None", &Orange);
 
-//  button = CreateButton(36, 7);
-//  AddButtonStatus(button, "Lime^Info", &Blue);
-//  AddButtonStatus(button, "Lime^Info", &Green);
+  button = CreateButton(36, 9);
+  AddButtonStatus(button, "Wifi^Restart", &DBlue);
+  AddButtonStatus(button, "Wifi^Restart", &LBlue);
+  AddButtonStatus(button, "Wifi^Restart", &Grey);
 }
 
 void Start_Highlights_Menu36()
@@ -18120,6 +18150,8 @@ void Start_Highlights_Menu36()
     AmendButtonStatus(ButtonNumber(36, 5), 1, Getssid, &Green);
     AmendButtonStatus(ButtonNumber(36, 5), 2, Getssid, &Orange);
 
+    SetButtonStatus(ButtonNumber(CurrentMenu, 9), 0);
+
     if (strcmp(Value, "Déconnecté") == 0)
     {
       SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0);
@@ -18138,6 +18170,7 @@ void Start_Highlights_Menu36()
     AmendButtonStatus(ButtonNumber(36, 5), 2, Getssid, &Orange);
 
     SetButtonStatus(ButtonNumber(CurrentMenu, 5), 2);
+    SetButtonStatus(ButtonNumber(CurrentMenu, 9), 2);
   }
 
 }
