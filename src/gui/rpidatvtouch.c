@@ -14421,6 +14421,11 @@ void Start_Highlights_Menu1()
   // Call to Check Grey buttons
   GreyOut1();
 
+  system("sudo /home/pi/rpidatv/scripts/wifi_gui_install.sh -get");
+  GetConfigParam(PATH_WIFIGET, "ssid", Value);
+  strcpy(MenuTitle[1], "BATC Portsdown_DVK. Etat Wifi: ");
+  strcat(MenuTitle[1], Value);
+
   // Presets Buttons 0 - 3
 
   char Presettext[63];
