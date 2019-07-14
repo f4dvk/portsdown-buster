@@ -14424,7 +14424,24 @@ void Start_Highlights_Menu1()
   system("sudo /home/pi/rpidatv/scripts/wifi_gui_install.sh -get");
   GetConfigParam(PATH_WIFIGET, "ssid", Value);
   strcpy(MenuTitle[1], "BATC Portsdown_DVK. Etat Wifi: ");
-  strcat(MenuTitle[1], Value);
+
+  if (strcmp(Value, "Hotspot") == 0)
+  {
+    strcat(MenuTitle[1], "configuré ");
+    strcat(MenuTitle[1], Value);
+    strcat(MenuTitle[1], ".");
+  }
+  else if (strcmp(Value, "Déconnecté") != 0)
+  {
+    strcat(MenuTitle[1], "connecté: ");
+    strcat(MenuTitle[1], Value);
+    strcat(MenuTitle[1], ".");
+  }
+  else
+  {
+    strcat(MenuTitle[1], Value);
+    strcat(MenuTitle[1], ".");
+  }
 
   // Presets Buttons 0 - 3
 
