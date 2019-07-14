@@ -14423,7 +14423,7 @@ void Start_Highlights_Menu1()
 
   system("sudo /home/pi/rpidatv/scripts/wifi_gui_install.sh -get");
   GetConfigParam(PATH_WIFIGET, "ssid", Value);
-  strcpy(MenuTitle[1], "BATC Portsdown_DVK. Etat Wifi: ");
+  strcpy(MenuTitle[1], "BATC Portsdown_DVK. Wifi ");
 
   if (strcmp(Value, "Hotspot") == 0)
   {
