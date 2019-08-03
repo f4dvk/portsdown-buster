@@ -6,10 +6,11 @@ PATHSCRIPT=/home/pi/rpidatv/scripts
 PATHRPI=/home/pi/rpidatv/bin
 PCONFIGFILE="/home/pi/rpidatv/scripts/portsdown_config.txt"
 PATHCONFIGS="/home/pi/rpidatv/scripts/configs"  ## Path to config files
+PATHCONFIGRX="/home/pi/rpidatv/scripts/rx_presets.txt"
 
 CMDFILE="/home/pi/tmp/rpi_command.txt"
 
-############ Function to Read Config File ###############
+############ Function to Read / Write Config File ###############
 
 get_config_var() {
 lua - "$1" "$2" <<EOF
@@ -26,10 +27,82 @@ end
 EOF
 }
 
+set_config_var() {
+lua - "$1" "$2" "$3"<<EOF > "$3.bak2"
+local key=assert(arg[1])
+local value=assert(arg[2])
+local fn=assert(arg[3])
+local file=assert(io.open(fn))
+local made_change=false
+for line in file:lines() do
+if line:match("^#?%s*"..key.."=.*$") then
+line=key.."="..value
+made_change=true
+end
+print(line)
+end
+if not made_change then
+print(key.."="..value)
+end
+EOF
+mv "$3.bak2" "$3"
+}
 ###################################################
   IP_DISTANT=$(get_config_var rpi_ip_distant $PCONFIGFILE)
   RPI_USER=$(get_config_var rpi_user_remote $PCONFIGFILE)
   RPI_PW=$(get_config_var rpi_pw_remote $PCONFIGFILE)
+###################################################
+
+if [ "$1" == "-first" ]; then
+  set_config_var modeoutput "RPI_R" $PCONFIGFILE
+  set_config_var modeinput "CAMH264" $PCONFIGFILE
+
+  /bin/cat <<EOM >$CMDFILE
+   (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
+
+   sed -i '/\(^modeinput=\).*/s//\1"IPTSIN"/' $PCONFIGFILE
+
+  ENDSSH
+        ) &
+  EOM
+
+        source "$CMDFILE"
+
+exit
+fi
+
+if [ "$1" == "-rx" ]; then
+  FREQ_RX=$(get_config_var rx0frequency $PATHCONFIGRX)
+  SR_RX=$(get_config_var rx0sr $PATHCONFIGRX)
+  FEC_RX=$(get_config_var rx0fec $PATHCONFIGRX)
+  SAMPLERATE_RX=$(get_config_var rx0samplerate $PATHCONFIGRX)
+  GAIN_RX=$(get_config_var rx0gain $PATHCONFIGRX)
+  MODULATION_RX=$(get_config_var rx0modulation $PATHCONFIGRX)
+  ENCODING_RX=$(get_config_var rx0encoding $PATHCONFIGRX)
+  GRAPHICS_RX=$(get_config_var rx0graphics $PATHCONFIGRX)
+  FL_RX=$(get_config_var rx0fastlock $PATHCONFIGRX)
+
+  /bin/cat <<EOM >$CMDFILE
+   (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
+
+   sed -i '/\(^rx0frequency=\).*/s//\1$FREQ_RX/' $PATHCONFIGRX
+   sed -i '/\(^rx0sr=\).*/s//\1$SR_RX/' $PATHCONFIGRX
+   sed -i '/\(^rx0fec=\).*/s//\1$FEC_RX/' $PATHCONFIGRX
+   sed -i '/\(^rx0samplerate=\).*/s//\1$SAMPLERATE_RX/' $PATHCONFIGRX
+   sed -i '/\(^rx0gain=\).*/s//\1$GAIN_RX/' $PATHCONFIGRX
+   sed -i '/\(^rx0modulation=\).*/s//\1$MODULATION_RX/' $PATHCONFIGRX
+   sed -i '/\(^rx0encoding=\).*/s//\1$ENCODING_RX/' $PATHCONFIGRX
+   sed -i '/\(^rx0graphics=\).*/s//\1$GRAPHICS_RX/' $PATHCONFIGRX
+   sed -i '/\(^rx0fastlock=\).*/s//\1$FL_RX/' $PATHCONFIGRX
+
+  ENDSSH
+        ) &
+  EOM
+
+        source "$CMDFILE"
+  exit
+fi
+
 ###################################################
   MODE_OUTPUT_R=$(get_config_var remoteoutput $PCONFIGFILE)
   FREQ_OUTPUT=$(get_config_var freqoutput $PCONFIGFILE)
@@ -42,6 +115,7 @@ EOF
   PILOT=$(get_config_var pilots $PCONFIGFILE)
   FEC=$(get_config_var fec $PCONFIGFILE)
 
+##############################################################
 /bin/cat <<EOM >$CMDFILE
  (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
 

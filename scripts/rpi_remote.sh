@@ -15,7 +15,6 @@ PATHSCRIPT=/home/pi/rpidatv/scripts
 PATHRPI=/home/pi/rpidatv/bin
 PCONFIGFILE="/home/pi/rpidatv/scripts/portsdown_config.txt"
 PATHCONFIGS="/home/pi/rpidatv/scripts/configs"  ## Path to config files
-JCONFIGFILE="/home/pi/rpidatv/scripts/jetson_config.txt"
 
 ############ Function to Read from Config File ###############
 
@@ -40,6 +39,9 @@ EOF
   RPI_PW=$(get_config_var rpi_pw_remote $PCONFIGFILE)
 ###################################################
 
+  $PATHSCRIPT"/remote_update.sh -first" >/dev/null 2>/dev/null &
+  $PATHSCRIPT"/remote_update.sh" >/dev/null 2>/dev/null &
+
 do_process_button()
 {
  if [ `gpio -g read $button_0` = 0 ]&&[ "$transmit" = 0 ]; then
@@ -53,7 +55,7 @@ do_process_button()
   $PATHSCRIPT"/TXstartextras.sh" >/dev/null 2>/dev/null &
 
   # Start the Viewfinder display
-  v4l2-ctl --overlay=1 >/dev/null 2>/dev/null
+  #v4l2-ctl --overlay=1 >/dev/null 2>/dev/null
 
  ###################### Commande distante ###########################
 

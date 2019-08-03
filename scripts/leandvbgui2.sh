@@ -26,6 +26,9 @@ end
 EOF
 }
 
+IP_DISTANT=$(get_config_var rpi_ip_distant $PCONFIGFILE)
+PORT=5001
+
 # Look up and calculate the Receive parameters
 
 SYMBOLRATEK=$(get_config_var rx0sr $RXPRESETSFILE)
@@ -170,13 +173,21 @@ fi
 # read videots and output video es
 $PATHBIN"ts2es" -video videots fifo.264 &
 
+#if [ "$1" == "-remote" ]; then
+  #IP=$2
+  #nc -l $PORT < fifo.264 # TX vidéo
+#else
+#nc -l $IP_DISTANT $PORT > fifo.264  # RX vidéo
+#nc -l -p $PORT > /dev/shm/video.264 # Coté écoute
+#nc $IP $PORT # Coté TX vidéo
+
 # Play the es from fifo.264 in either the H264 or MPEG-2 player.
 if [ "$ENCODING" = "H264" ]; then
   $PATHBIN"hello_video.bin" fifo.264 &
 else  # MPEG-2
   $PATHBIN"hello_video2.bin" fifo.264 &
 fi
-
+#fi
 
 # Notes:
 # --fd-pp FDNUM        Dump preprocessed IQ data to file descriptor
