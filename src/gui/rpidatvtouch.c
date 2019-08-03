@@ -6227,7 +6227,7 @@ void SelectOP(int NoButton)      // Output device
   {
     index = NoButton - 5;
   }
-  if (NoButton > 4 ) && (NoButton < 10 )) // 2nd row up
+  if ((NoButton > 4 ) && (NoButton < 10 )) // 2nd row up
   {
     index = NoButton - 5;
   }
@@ -14671,6 +14671,9 @@ void Start_Highlights_Menu1()
 // and then sets the correct highlight and text
 {
 
+  char Param[255];
+  char Value[255];
+
   // Read the Config from file
   char vcoding[256];
   char vsource[256];
@@ -17514,6 +17517,7 @@ void Start_Highlights_Menu26()
 void Define_Menu27()
 {
   int button;
+  int i;
 
   strcpy(MenuTitle[27], "Frequency Preset Setting Menu (27)");
 
