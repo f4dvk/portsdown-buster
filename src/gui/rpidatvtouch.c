@@ -4873,7 +4873,7 @@ int CreateButton(int MenuIndex, int ButtonPosition)
 
   ButtonIndex = ButtonNumber(MenuIndex, ButtonPosition);
 
-  if (MenuIndex != 41) && (MenuIndex != 8))  // All except keyboard and RX Menu
+  if ((MenuIndex != 41) && (MenuIndex != 8))  // All except keyboard and RX Menu
   {
     if (ButtonPosition < 20)  // Bottom 4 rows
     {
