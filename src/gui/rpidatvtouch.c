@@ -6221,11 +6221,11 @@ void SelectOP(int NoButton)      // Output device
     system("sudo rm /tmp/expctrl >/dev/null 2>/dev/null");
   }
 
-  SelectInGroupOnMenu(CurrentMenu, 5, 10, NoButton, 1);
+  SelectInGroupOnMenu(CurrentMenu, 5, 13, NoButton, 1);
   SelectInGroupOnMenu(CurrentMenu, 0, 3, NoButton, 1);
   if (NoButton > 9 ) // 3rd row up
   {
-    index = NoButton - 5;
+    index = NoButton - 1;
   }
   if ((NoButton > 4 ) && (NoButton < 10 )) // 2nd row up
   {
