@@ -103,6 +103,20 @@ if [ "$1" == "-rx" ]; then
   exit
 fi
 
+if [ "$1" == "-init" ]; then
+  /bin/cat <<EOM >$CMDFILE
+   (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
+
+   sed -i '/\(^modeinput=\).*/s//\1"IPTSIN"/' $PCONFIGFILE
+
+  ENDSSH
+        ) &
+  EOM
+
+        source "$CMDFILE"
+
+fi
+
 ###################################################
   MODE_OUTPUT_R=$(get_config_var remoteoutput $PCONFIGFILE)
   FREQ_OUTPUT=$(get_config_var freqoutput $PCONFIGFILE)
