@@ -144,7 +144,9 @@ sudo sh -c "iptables-save > /etc/iptables.ipv4.nat"
 
 # Démarrage auto
 if ! grep -q iptables-restore /etc/rc.local; then
+ sudo sed -i "s/\"exit 0\"/\"exit\"/g" /etc/rc.local
  sudo sed -i "/exit 0/i\iptables-restore < /etc/iptables.ipv4.nat\n" /etc/rc.local
+ sudo sed -i "/^$/d" /etc/rc.local
 fi
 
 # Démarrage des service

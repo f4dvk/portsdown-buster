@@ -179,6 +179,7 @@ elif [ "$1" == "-install" ]; then
   # Si présent, suppression démarrage auto hotspot
   if grep -q "iptables-restore < \/etc\/iptables.ipv4.nat" /etc/rc.local; then
     sudo sed -i "/iptables-restore < \/etc\/iptables.ipv4.nat/d" /etc/rc.local
+    sudo sed -i "/^$/d" /etc/rc.local
   fi
 
   # Si présent, suppression inhibition dhcp wlan0
