@@ -29,7 +29,7 @@
 
 int main(int argc, char **argv)
 {
-	if ( argc < 2 )
+	if (argc < 2)
 	{
 		printf("Usage: %s <OPTIONS>\n", argv[0]);
 		printf("  -f <INPUT_FREQUENCY>\n"
@@ -176,7 +176,7 @@ int main(int argc, char **argv)
 							channel_output,
 							antenna_output,
 							LMS_CH_TX,
-							device, true) < 0)
+							device, true, true) < 0)
 	{
 		return 1;
 	}

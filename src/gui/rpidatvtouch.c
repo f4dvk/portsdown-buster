@@ -64,6 +64,7 @@ Rewitten by Dave, G8GKQ
 #define PATH_WIFICONFIG "/home/pi/rpidatv/scripts/wifi_config.txt"
 #define PATH_HOTSPOTCONFIG "/home/pi/rpidatv/scripts/hotspot_config.txt"
 #define PATH_LMCONFIG "/home/pi/rpidatv/scripts/longmynd_config.txt"
+#define PATH_FORWARDCONFIG "/home/pi/rpidatv/src/limesdr_toolbox/forward_config.txt"
 
 #define PI 3.14159265358979323846
 #define deg2rad(DEG) ((DEG)*((PI)/(180.0)))
@@ -331,6 +332,7 @@ void Start_Highlights_Menu43();
 void Start_Highlights_Menu44();
 void Start_Highlights_Menu50();
 void Start_Highlights_Menu51();
+void Start_Highlights_Menu52();
 
 void MsgBox(const char *);
 void MsgBox2(const char *, const char *);
@@ -11901,8 +11903,12 @@ void waituntil(int w,int h)
           Start_Highlights_Menu6();
           UpdateWindow();
           break;
-        case 19:                              // Not used
-          UpdateWindow();
+        case 19:                              // Menu Forward
+          printf("MENU 52 \n");
+					CurrentMenu=52;
+					BackgroundRGB(0,0,0,255);
+					Start_Highlights_Menu52();
+					UpdateWindow();
           break;
         case 20:                              // Not shown
           break;
@@ -14484,12 +14490,101 @@ void waituntil(int w,int h)
           UpdateWindow();
           usleep(500000);
           SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 0); // Reset cancel (even if not selected)
-          printf("Returning to MENU 1 from Menu 36\n");
+          printf("Returning to MENU 1 from Menu 51\n");
           CurrentMenu=1;
           BackgroundRGB(255,255,255,255);
           Start_Highlights_Menu1();
           UpdateWindow();
           break;
+        case 5:
+          //printf("Wifi Config\n");
+          WifiPW(i);
+          CurrentMenu=36;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu36();
+          UpdateWindow();
+          break;
+        case 6:
+          //printf("Wifi Config\n");
+          WifiPW(i);
+          CurrentMenu=36;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu36();
+          UpdateWindow();
+          break;
+        case 7:
+          //printf("Wifi Config\n");
+          WifiPW(i);
+          CurrentMenu=36;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu36();
+          UpdateWindow();
+          break;
+        case 8:
+          //printf("Wifi Config\n");
+          WifiPW(i);
+          CurrentMenu=36;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu36();
+          UpdateWindow();
+          break;
+        case 9:
+          //printf("Wifi Config\n");
+          WifiPW(i);
+          CurrentMenu=36;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu36();
+          UpdateWindow();
+          break;
+        default:
+          printf("Menu 51 Error\n");
+        }
+        // stay in Menu 51 if parameter changed
+        continue;   // Completed Menu 51 action, go and wait for touch
+      }
+			if (CurrentMenu == 52)  // Menu 52 Forward configuration
+      {
+        printf("Button Event %d, Entering Menu 52 Case Statement\n",i);
+        switch (i)
+        {
+        case 4:                               // Cancel
+          SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 1);
+          printf("Cancelling Forward Config Menu\n");
+          UpdateWindow();
+          usleep(500000);
+          SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 0); // Reset cancel (even if not selected)
+          printf("Returning to MENU 1 from Menu 52\n");
+          CurrentMenu=1;
+          BackgroundRGB(255,255,255,255);
+          Start_Highlights_Menu1();
+          UpdateWindow();
+          break;
+				case 0:
+	         break;
+				case 1:
+	         //printf("Wifi Config\n");
+	         WifiPW(i);
+	         CurrentMenu=36;
+	         BackgroundRGB(0,0,0,255);
+	         Start_Highlights_Menu36();
+	         UpdateWindow();
+	         break;
+				case 2:
+	         //printf("Wifi Config\n");
+	         WifiPW(i);
+	         CurrentMenu=36;
+	         BackgroundRGB(0,0,0,255);
+	         Start_Highlights_Menu36();
+	         UpdateWindow();
+	         break;
+				case 3:
+	         //printf("Wifi Config\n");
+	         WifiPW(i);
+	         CurrentMenu=36;
+	         BackgroundRGB(0,0,0,255);
+	         Start_Highlights_Menu36();
+	         UpdateWindow();
+	         break;
         case 5:
           //printf("Wifi Config\n");
           WifiPW(i);
@@ -15142,9 +15237,9 @@ void Define_Menu2()
   AddButtonStatus(button, "RTL-FM^Receiver", &Blue);
   AddButtonStatus(button, "RTL-FM^Receiver", &Green);
 
-  //button = CreateButton(2, 19);
-  //AddButtonStatus(button, " ", &Blue);
-  //AddButtonStatus(button, " ", &Green);
+  button = CreateButton(2, 19);
+  AddButtonStatus(button, "Forward^LimeSDR", &Blue);
+  AddButtonStatus(button, "Forward^LimeSDR", &Green);
 
   // Top of Menu 2
 
@@ -18734,6 +18829,125 @@ for(n = 1; n < 6; n = n + 1)
 }
 }
 
+void Define_Menu52()
+{
+	int button;
+
+	strcpy(MenuTitle[52], "LimeSDR Forward Menu (52)");
+
+	//button = CreateButton(52, 0);
+  //AddButtonStatus(button, "", &Blue);
+	//AddButtonStatus(button, "", &LBlue);
+
+	button = CreateButton(52, 1);
+  AddButtonStatus(button, "RX^Gain", &Blue);
+	AddButtonStatus(button, "RX^Gain", &LBlue);
+
+	button = CreateButton(52, 2);
+  AddButtonStatus(button, "TX^Gain", &Blue);
+	AddButtonStatus(button, "TX^Gain", &LBlue);
+
+	button = CreateButton(52, 3);
+  AddButtonStatus(button, "Sample^Rate", &Blue);
+	AddButtonStatus(button, "Sample^Rate", &LBlue);
+
+	button = CreateButton(52, 4);
+  AddButtonStatus(button, "Exit", &DBlue);
+  AddButtonStatus(button, "Exit", &LBlue);
+
+	button = CreateButton(52, 5);
+  AddButtonStatus(button, "Forward^ON", &DBlue);
+  AddButtonStatus(button, "Forward^ON", &LBlue);
+	AddButtonStatus(button, "Forward^ON", &Grey);
+
+	button = CreateButton(52, 6);
+  AddButtonStatus(button, "RX^Freq", &DBlue);
+  AddButtonStatus(button, "RX^Freq", &LBlue);
+
+	button = CreateButton(52, 7);
+  AddButtonStatus(button, "TX^Freq", &DBlue);
+  AddButtonStatus(button, "TX^Freq", &LBlue);
+
+	button = CreateButton(52, 8);
+  AddButtonStatus(button, "BW", &DBlue);
+  AddButtonStatus(button, "BW", &LBlue);
+
+	//button = CreateButton(52, 9);
+  //AddButtonStatus(button, "", &DBlue);
+  //AddButtonStatus(button, "", &LBlue);
+
+}
+
+void Start_Highlights_Menu52()
+{
+	char Param[255];
+  char Value[255];
+	char Result[255];
+
+  strcpy(Result,"");
+	strcpy(Param,"rxgain");
+  GetConfigParam(PATH_FORWARDCONFIG, Param, Value);
+	strcpy(Result, "RX Gain^");
+	strcat(Result, Value);
+
+	AmendButtonStatus(ButtonNumber(52, 1), 0, Result, &Blue);
+	AmendButtonStatus(ButtonNumber(52, 1), 1, Result, &LBlue);
+
+	strcpy(Result,"");
+	strcpy(Param,"txgain");
+  GetConfigParam(PATH_FORWARDCONFIG, Param, Value);
+	strcpy(Result, "TX Gain^");
+	strcat(Result, Value);
+
+	AmendButtonStatus(ButtonNumber(52, 2), 0, Result, &Blue);
+	AmendButtonStatus(ButtonNumber(52, 2), 1, Result, &LBlue);
+
+	strcpy(Result,"");
+	strcpy(Param,"samplerate");
+  GetConfigParam(PATH_FORWARDCONFIG, Param, Value);
+	strcpy(Result, "Samplerate^");
+	strcat(Result, Value);
+
+	AmendButtonStatus(ButtonNumber(52, 3), 0, Result, &Blue);
+	AmendButtonStatus(ButtonNumber(52, 3), 1, Result, &LBlue);
+
+	if (CheckLimeMiniConnect() == 0)
+	{
+		SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0);
+	}
+	else
+	{
+		SetButtonStatus(ButtonNumber(CurrentMenu, 5), 2);
+	}
+
+	strcpy(Result,"");
+	strcpy(Param,"freqinput");
+  GetConfigParam(PATH_FORWARDCONFIG, Param, Value);
+	strcpy(Result, "RX Freq^");
+	strcat(Result, Value);
+
+	AmendButtonStatus(ButtonNumber(52, 6), 0, Result, &Blue);
+	AmendButtonStatus(ButtonNumber(52, 6), 1, Result, &LBlue);
+
+	strcpy(Result,"");
+	strcpy(Param,"freqoutput");
+  GetConfigParam(PATH_FORWARDCONFIG, Param, Value);
+	strcpy(Result, "TX Freq^");
+	strcat(Result, Value);
+
+	AmendButtonStatus(ButtonNumber(52, 7), 0, Result, &Blue);
+	AmendButtonStatus(ButtonNumber(52, 7), 1, Result, &LBlue);
+
+	strcpy(Result,"");
+	strcpy(Param,"bwcal");
+  GetConfigParam(PATH_FORWARDCONFIG, Param, Value);
+	strcpy(Result, "BW Cal^");
+	strcat(Result, Value);
+
+	AmendButtonStatus(ButtonNumber(52, 8), 0, Result, &Blue);
+	AmendButtonStatus(ButtonNumber(52, 8), 1, Result, &LBlue);
+}
+
 void Define_Menu41()
 {
   int button;
@@ -19193,6 +19407,7 @@ int main(int argc, char **argv)
   Define_Menu44();
   Define_Menu50();
   Define_Menu51();
+	Define_Menu52();
 
   // Start the button Menu
   Start(wscreen,hscreen);
