@@ -14562,74 +14562,26 @@ void waituntil(int w,int h)
 				case 0:
 	         break;
 				case 1:
-	         //printf("Wifi Config\n");
-	         WifiPW(i);
-	         CurrentMenu=36;
-	         BackgroundRGB(0,0,0,255);
-	         Start_Highlights_Menu36();
-	         UpdateWindow();
 	         break;
 				case 2:
-	         //printf("Wifi Config\n");
-	         WifiPW(i);
-	         CurrentMenu=36;
-	         BackgroundRGB(0,0,0,255);
-	         Start_Highlights_Menu36();
-	         UpdateWindow();
 	         break;
 				case 3:
-	         //printf("Wifi Config\n");
-	         WifiPW(i);
-	         CurrentMenu=36;
-	         BackgroundRGB(0,0,0,255);
-	         Start_Highlights_Menu36();
-	         UpdateWindow();
 	         break;
         case 5:
-          //printf("Wifi Config\n");
-          WifiPW(i);
-          CurrentMenu=36;
-          BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu36();
-          UpdateWindow();
           break;
         case 6:
-          //printf("Wifi Config\n");
-          WifiPW(i);
-          CurrentMenu=36;
-          BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu36();
-          UpdateWindow();
           break;
         case 7:
-          //printf("Wifi Config\n");
-          WifiPW(i);
-          CurrentMenu=36;
-          BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu36();
-          UpdateWindow();
           break;
         case 8:
-          //printf("Wifi Config\n");
-          WifiPW(i);
-          CurrentMenu=36;
-          BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu36();
-          UpdateWindow();
           break;
         case 9:
-          //printf("Wifi Config\n");
-          WifiPW(i);
-          CurrentMenu=36;
-          BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu36();
-          UpdateWindow();
           break;
         default:
-          printf("Menu 51 Error\n");
+          printf("Menu 52 Error\n");
         }
-        // stay in Menu 51 if parameter changed
-        continue;   // Completed Menu 51 action, go and wait for touch
+        // stay in Menu 52 if parameter changed
+        continue;   // Completed Menu 52 action, go and wait for touch
       }
     }
   }
