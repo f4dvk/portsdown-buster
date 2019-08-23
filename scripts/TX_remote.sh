@@ -34,6 +34,22 @@ EOF
 
 ###################### Commande distante ###########################
 
+if [ "$1" == "-forward_TX" ]; then
+
+/bin/cat <<EOM >$CMDFILE
+ (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
+
+ /home/pi/rpidatv/src/limesdr_toolbox/transpondeur.sh >/dev/null 2>/dev/null &
+
+ENDSSH
+      ) &
+EOM
+
+        source "$CMDFILE"
+
+exit
+fi
+
 /bin/cat <<EOM >$CMDFILE
  (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
 

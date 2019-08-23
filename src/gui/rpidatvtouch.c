@@ -14770,19 +14770,29 @@ void waituntil(int w,int h)
            UpdateWindow();
            break;
         case 5:
-           if (CheckLimeMiniConnect() == 0)
+           if (CheckLimeMiniConnect() == 0) || (strcmp(ModeOutput, "RPI_R") == 0)
            {
              SelectInGroupOnMenu(CurrentMenu, 5, 5, 5, 1);
              printf("Forward ON\n");
              UpdateWindow();
              usleep(500000);
              SelectInGroupOnMenu(CurrentMenu, 5, 5, 5, 0);
-             system("/home/pi/rpidatv/src/limesdr_toolbox/transpondeur.sh >/dev/null 2>/dev/null &");
-             MsgBox2("Transpondeur Actif", "Touchez l'écran pour désactiver");
-             wait_touch();
-             system("sudo killall limesdr_forward");
-             system("sleep 0.5");
-             system("/home/pi/rpidatv/bin/limesdr_stopchannel");
+             if (strcmp(ModeOutput, "RPI_R") == 0)
+             {
+               system("sudo /home/pi/rpidatv/scripts/TX_remote.sh -forward_TX >/dev/null 2>/dev/null &");
+               MsgBox2("Transpondeur Actif (RPI Remote)", "Touchez l'écran pour désactiver");
+               wait_touch();
+               system("sudo /home/pi/rpidatv/scripts/STB_remote.sh -forward_STB >/dev/null 2>/dev/null &");
+             }
+             else
+             {
+               system("/home/pi/rpidatv/src/limesdr_toolbox/transpondeur.sh >/dev/null 2>/dev/null &");
+               MsgBox2("Transpondeur Actif", "Touchez l'écran pour désactiver");
+               wait_touch();
+               system("sudo killall limesdr_forward");
+               system("sleep 0.5");
+               system("/home/pi/rpidatv/bin/limesdr_stopchannel");
+             }
              CurrentMenu=52;
              BackgroundRGB(0,0,0,255);
              Start_Highlights_Menu52();
@@ -19125,7 +19135,7 @@ void Start_Highlights_Menu52()
 	AmendButtonStatus(ButtonNumber(52, 3), 0, Result, &DBlue);
 	AmendButtonStatus(ButtonNumber(52, 3), 1, Result, &LBlue);
 
-	if (CheckLimeMiniConnect() == 0)
+	if (CheckLimeMiniConnect() == 0) || (strcmp(ModeOutput, "RPI_R") == 0)
 	{
 		SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0);
 	}

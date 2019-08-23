@@ -34,6 +34,24 @@ EOF
 
 ###################### Commande distante ###########################
 
+if [ "$1" == "-forward_STB" ]; then
+
+/bin/cat <<EOM >$CMDFILE
+ (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
+
+ sudo killall limesdr_forward
+ sleep 0.5
+ /home/pi/rpidatv/bin/limesdr_stopchannel
+
+ENDSSH
+      ) &
+EOM
+
+        source "$CMDFILE"
+
+exit
+fi
+
 /bin/cat <<EOM >$CMDFILE
  (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
 
