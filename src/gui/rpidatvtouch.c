@@ -14721,7 +14721,7 @@ void waituntil(int w,int h)
            SelectInGroupOnMenu(CurrentMenu, 1, 1, 1, 1);
            printf("RX Gain Config\n");
            UpdateWindow();
-					 usleep(500000);
+           usleep(500000);
            SelectInGroupOnMenu(CurrentMenu, 1, 1, 1, 0);
            ChangeForwardRXGain();
            CurrentMenu=52;
@@ -14740,7 +14740,7 @@ void waituntil(int w,int h)
            BackgroundRGB(0,0,0,255);
            Start_Highlights_Menu52();
            UpdateWindow();
-					 break;
+           break;
         case 3:
            SelectInGroupOnMenu(CurrentMenu, 3, 3, 3, 1);
            printf("Samplerate Config\n");
@@ -14761,8 +14761,12 @@ void waituntil(int w,int h)
              UpdateWindow();
              usleep(500000);
              SelectInGroupOnMenu(CurrentMenu, 5, 5, 5, 0);
-             MsgBox("Fonction pas encore active, patience...");
+             system("sudo /home/pi/rpidatv/src/limesdr_toolbox/transpondeur.sh >/dev/null 2>/dev/null &");
+             MsgBox2("Transpondeur Actif", "Touchez l'écran pour désactiver");
              wait_touch();
+             system("sudo killall limesdr_forward");
+             system("sleep 0.5");
+             system("/home/pi/rpidatv/bin/limesdr_stopchannel");
              CurrentMenu=52;
              BackgroundRGB(0,0,0,255);
              Start_Highlights_Menu52();
