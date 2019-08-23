@@ -14287,7 +14287,7 @@ void waituntil(int w,int h)
         case 14:                              // RPI Remote
           SelectOP(i);
           printf("RPI Remote\n");
-          system("sudo /home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
+          system("sudo /home/pi/rpidatv/scripts/remote_update.sh -init >/dev/null 2>/dev/null &");
           break;
         case 5:                               // IQ
           SelectOP(i);

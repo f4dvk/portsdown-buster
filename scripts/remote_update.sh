@@ -134,7 +134,7 @@ if [ "$1" == "-init" ]; then
 /bin/cat <<EOM >$CMDFILE
  (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
 
- sed -i '/\(^modeinput=\).*/s//\1"IPTSIN"/' $PCONFIGFILE
+ sed -i '/\(^modeinput=\).*/s//\1IPTSIN/' $PCONFIGFILE
 
 ENDSSH
       ) &
