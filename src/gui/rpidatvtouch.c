@@ -14723,11 +14723,11 @@ void waituntil(int w,int h)
            UpdateWindow();
 					 usleep(500000);
            SelectInGroupOnMenu(CurrentMenu, 1, 1, 1, 0);
-					 ChangeForwardRXGain();
-					 CurrentMenu=52;
-					 BackgroundRGB(0,0,0,255);
-					 Start_Highlights_Menu52();
-					 UpdateWindow();
+           ChangeForwardRXGain();
+           CurrentMenu=52;
+           BackgroundRGB(0,0,0,255);
+           Start_Highlights_Menu52();
+           UpdateWindow();
            break;
         case 2:
            SelectInGroupOnMenu(CurrentMenu, 2, 2, 2, 1);
@@ -14735,72 +14735,78 @@ void waituntil(int w,int h)
            UpdateWindow();
            usleep(500000);
            SelectInGroupOnMenu(CurrentMenu, 2, 2, 2, 0);
-					 ChangeForwardTXGain();
-					 CurrentMenu=52;
-					 BackgroundRGB(0,0,0,255);
-					 Start_Highlights_Menu52();
-					 UpdateWindow();
+           ChangeForwardTXGain();
+           CurrentMenu=52;
+           BackgroundRGB(0,0,0,255);
+           Start_Highlights_Menu52();
+           UpdateWindow();
 					 break;
         case 3:
-          SelectInGroupOnMenu(CurrentMenu, 3, 3, 3, 1);
-          printf("Samplerate Config\n");
-          UpdateWindow();
-          usleep(500000);
-          SelectInGroupOnMenu(CurrentMenu, 3, 3, 3, 0);
-					ChangeForwardSamplerate();
-					CurrentMenu=52;
-					BackgroundRGB(0,0,0,255);
-					Start_Highlights_Menu52();
-					UpdateWindow();
-          break;
+           SelectInGroupOnMenu(CurrentMenu, 3, 3, 3, 1);
+           printf("Samplerate Config\n");
+           UpdateWindow();
+           usleep(500000);
+           SelectInGroupOnMenu(CurrentMenu, 3, 3, 3, 0);
+           ChangeForwardSamplerate();
+           CurrentMenu=52;
+           BackgroundRGB(0,0,0,255);
+           Start_Highlights_Menu52();
+           UpdateWindow();
+           break;
         case 5:
-          if (CheckLimeMiniConnect() == 0)
-					{
-						SelectInGroupOnMenu(CurrentMenu, 5, 5, 5, 1);
-						printf("Forward ON\n");
-						UpdateWindow();
-						usleep(500000);
-						SelectInGroupOnMenu(CurrentMenu, 5, 5, 5, 0);
-					}
-          break;
+           if (CheckLimeMiniConnect() == 0)
+           {
+             SelectInGroupOnMenu(CurrentMenu, 5, 5, 5, 1);
+             printf("Forward ON\n");
+             UpdateWindow();
+             usleep(500000);
+             SelectInGroupOnMenu(CurrentMenu, 5, 5, 5, 0);
+             MsgBox("Fonction pas encore active, patience...");
+             wait_touch();
+             CurrentMenu=52;
+             BackgroundRGB(0,0,0,255);
+             Start_Highlights_Menu52();
+             UpdateWindow();
+           }
+           break;
         case 6:
-          SelectInGroupOnMenu(CurrentMenu, 6, 6, 6, 1);
-          printf("RX Freq Config\n");
-          UpdateWindow();
-          usleep(500000);
-          SelectInGroupOnMenu(CurrentMenu, 6, 6, 6, 0);
-					ChangeForwardRXFreq();
-					CurrentMenu=52;
-					BackgroundRGB(0,0,0,255);
-					Start_Highlights_Menu52();
-					UpdateWindow();
-          break;
+           SelectInGroupOnMenu(CurrentMenu, 6, 6, 6, 1);
+           printf("RX Freq Config\n");
+           UpdateWindow();
+           usleep(500000);
+           SelectInGroupOnMenu(CurrentMenu, 6, 6, 6, 0);
+           ChangeForwardRXFreq();
+           CurrentMenu=52;
+           BackgroundRGB(0,0,0,255);
+           Start_Highlights_Menu52();
+           UpdateWindow();
+           break;
         case 7:
-          SelectInGroupOnMenu(CurrentMenu, 7, 7, 7, 1);
-          printf("TX Freq Config\n");
-          UpdateWindow();
-          usleep(500000);
-          SelectInGroupOnMenu(CurrentMenu, 7, 7, 7, 0);
-					ChangeForwardTXFreq();
-					CurrentMenu=52;
-					BackgroundRGB(0,0,0,255);
-					Start_Highlights_Menu52();
-					UpdateWindow();
-          break;
+           SelectInGroupOnMenu(CurrentMenu, 7, 7, 7, 1);
+           printf("TX Freq Config\n");
+           UpdateWindow();
+           usleep(500000);
+           SelectInGroupOnMenu(CurrentMenu, 7, 7, 7, 0);
+           ChangeForwardTXFreq();
+           CurrentMenu=52;
+           BackgroundRGB(0,0,0,255);
+           Start_Highlights_Menu52();
+           UpdateWindow();
+           break;
         case 8:
-          SelectInGroupOnMenu(CurrentMenu, 8, 8, 8, 1);
-          printf("Bandwidth Config\n");
-          UpdateWindow();
-          usleep(500000);
-          SelectInGroupOnMenu(CurrentMenu, 8, 8, 8, 0);
-					ChangeForwardBW();
-					CurrentMenu=52;
-					BackgroundRGB(0,0,0,255);
-					Start_Highlights_Menu52();
-					UpdateWindow();
-          break;
+           SelectInGroupOnMenu(CurrentMenu, 8, 8, 8, 1);
+           printf("Bandwidth Config\n");
+           UpdateWindow();
+           usleep(500000);
+           SelectInGroupOnMenu(CurrentMenu, 8, 8, 8, 0);
+           ChangeForwardBW();
+           CurrentMenu=52;
+           BackgroundRGB(0,0,0,255);
+           Start_Highlights_Menu52();
+           UpdateWindow();
+           break;
         case 9:
-          break;
+           break;
         default:
           printf("Menu 52 Error\n");
         }
