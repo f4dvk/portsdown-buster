@@ -14761,7 +14761,7 @@ void waituntil(int w,int h)
              UpdateWindow();
              usleep(500000);
              SelectInGroupOnMenu(CurrentMenu, 5, 5, 5, 0);
-             system("sudo /home/pi/rpidatv/src/limesdr_toolbox/transpondeur.sh >/dev/null 2>/dev/null &");
+             system("/home/pi/rpidatv/src/limesdr_toolbox/transpondeur.sh >/dev/null 2>/dev/null &");
              MsgBox2("Transpondeur Actif", "Touchez l'écran pour désactiver");
              wait_touch();
              system("sudo killall limesdr_forward");
