@@ -14770,7 +14770,7 @@ void waituntil(int w,int h)
            UpdateWindow();
            break;
         case 5:
-           if (CheckLimeMiniConnect() == 0) || (strcmp(ModeOutput, "RPI_R") == 0)
+           if ((CheckLimeMiniConnect() == 0) || (strcmp(ModeOutput, "RPI_R") == 0))
            {
              SelectInGroupOnMenu(CurrentMenu, 5, 5, 5, 1);
              printf("Forward ON\n");
@@ -19135,7 +19135,7 @@ void Start_Highlights_Menu52()
 	AmendButtonStatus(ButtonNumber(52, 3), 0, Result, &DBlue);
 	AmendButtonStatus(ButtonNumber(52, 3), 1, Result, &LBlue);
 
-	if (CheckLimeMiniConnect() == 0) || (strcmp(ModeOutput, "RPI_R") == 0)
+	if ((CheckLimeMiniConnect() == 0) || (strcmp(ModeOutput, "RPI_R") == 0))
 	{
 		SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0);
 	}
