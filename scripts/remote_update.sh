@@ -131,10 +131,13 @@ EOM
 fi
 
 if [ "$1" == "-init" ]; then
+  MODE_OUTPUT_R=$(get_config_var remoteoutput $PCONFIGFILE)
+
 /bin/cat <<EOM >$CMDFILE
  (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
 
  sed -i '/\(^modeinput=\).*/s//\1IPTSIN/' $PCONFIGFILE
+ sed -i '/\(^modeoutput=\).*/s//\1$MODE_OUTPUT_R/' $PCONFIGFILE
 
 ENDSSH
       ) &
@@ -145,7 +148,6 @@ EOM
 fi
 
 ###################################################
-  MODE_OUTPUT_R=$(get_config_var remoteoutput $PCONFIGFILE)
   FREQ_OUTPUT=$(get_config_var freqoutput $PCONFIGFILE)
   SYMBOLRATEK=$(get_config_var symbolrate $PCONFIGFILE)
   MODULATION=$(get_config_var modulation $PCONFIGFILE)
@@ -160,7 +162,6 @@ fi
 /bin/cat <<EOM >$CMDFILE
  (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
 
- sed -i '/\(^modeoutput=\).*/s//\1$MODE_OUTPUT_R/' $PCONFIGFILE
  sed -i '/\(^freqoutput=\).*/s//\1$FREQ_OUTPUT/' $PCONFIGFILE
  sed -i '/\(^symbolrate=\).*/s//\1$SYMBOLRATEK/' $PCONFIGFILE
  sed -i '/\(^modulation=\).*/s//\1$MODULATION/' $PCONFIGFILE
