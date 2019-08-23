@@ -58,14 +58,14 @@ if [ "$1" == "-first" ]; then
   set_config_var modeoutput "RPI_R" $PCONFIGFILE
   set_config_var modeinput "CAMH264" $PCONFIGFILE
 
-  /bin/cat <<EOM >$CMDFILE
-   (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
+/bin/cat <<EOM >$CMDFILE
+ (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
 
-   sed -i '/\(^modeinput=\).*/s//\1"IPTSIN"/' $PCONFIGFILE
+ sed -i '/\(^modeinput=\).*/s//\1"IPTSIN"/' $PCONFIGFILE
 
-  ENDSSH
-        ) &
-  EOM
+ENDSSH
+      ) &
+EOM
 
         source "$CMDFILE"
 
@@ -83,22 +83,22 @@ if [ "$1" == "-rx" ]; then
   GRAPHICS_RX=$(get_config_var rx0graphics $PATHCONFIGRX)
   FL_RX=$(get_config_var rx0fastlock $PATHCONFIGRX)
 
-  /bin/cat <<EOM >$CMDFILE
-   (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
+/bin/cat <<EOM >$CMDFILE
+ (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
 
-   sed -i '/\(^rx0frequency=\).*/s//\1$FREQ_RX/' $PATHCONFIGRX
-   sed -i '/\(^rx0sr=\).*/s//\1$SR_RX/' $PATHCONFIGRX
-   sed -i '/\(^rx0fec=\).*/s//\1$FEC_RX/' $PATHCONFIGRX
-   sed -i '/\(^rx0samplerate=\).*/s//\1$SAMPLERATE_RX/' $PATHCONFIGRX
-   sed -i '/\(^rx0gain=\).*/s//\1$GAIN_RX/' $PATHCONFIGRX
-   sed -i '/\(^rx0modulation=\).*/s//\1$MODULATION_RX/' $PATHCONFIGRX
-   sed -i '/\(^rx0encoding=\).*/s//\1$ENCODING_RX/' $PATHCONFIGRX
-   sed -i '/\(^rx0graphics=\).*/s//\1$GRAPHICS_RX/' $PATHCONFIGRX
-   sed -i '/\(^rx0fastlock=\).*/s//\1$FL_RX/' $PATHCONFIGRX
+ sed -i '/\(^rx0frequency=\).*/s//\1$FREQ_RX/' $PATHCONFIGRX
+ sed -i '/\(^rx0sr=\).*/s//\1$SR_RX/' $PATHCONFIGRX
+ sed -i '/\(^rx0fec=\).*/s//\1$FEC_RX/' $PATHCONFIGRX
+ sed -i '/\(^rx0samplerate=\).*/s//\1$SAMPLERATE_RX/' $PATHCONFIGRX
+ sed -i '/\(^rx0gain=\).*/s//\1$GAIN_RX/' $PATHCONFIGRX
+ sed -i '/\(^rx0modulation=\).*/s//\1$MODULATION_RX/' $PATHCONFIGRX
+ sed -i '/\(^rx0encoding=\).*/s//\1$ENCODING_RX/' $PATHCONFIGRX
+ sed -i '/\(^rx0graphics=\).*/s//\1$GRAPHICS_RX/' $PATHCONFIGRX
+ sed -i '/\(^rx0fastlock=\).*/s//\1$FL_RX/' $PATHCONFIGRX
 
-  ENDSSH
-        ) &
-  EOM
+ENDSSH
+      ) &
+EOM
 
         source "$CMDFILE"
   exit
@@ -112,33 +112,33 @@ if [ "$1" == "-forward_update" ]; then
   SAMPLER=$(get_config_var samplerate $PATHCONFIGFORWARD)
   BW=$(get_config_var bwcal $PATHCONFIGFORWARD)
 
-  /bin/cat <<EOM >$CMDFILE
-   (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
+/bin/cat <<EOM >$CMDFILE
+ (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
 
-   sed -i '/\(^freqinput=\).*/s//\1$RX_FREQ/' $PATHCONFIGFORWARD
-   sed -i '/\(^rxgain=\).*/s//\1$RX_GAIN/' $PATHCONFIGFORWARD
-   sed -i '/\(^freqoutput=\).*/s//\1$TX_FREQ/' $PATHCONFIGFORWARD
-   sed -i '/\(^txgain=\).*/s//\1$TX_GAIN/' $PATHCONFIGFORWARD
-   sed -i '/\(^samplerate=\).*/s//\1$SAMPLER/' $PATHCONFIGFORWARD
-   sed -i '/\(^bwcal=\).*/s//\1$BW/' $PATHCONFIGFORWARD
+ sed -i '/\(^freqinput=\).*/s//\1$RX_FREQ/' $PATHCONFIGFORWARD
+ sed -i '/\(^rxgain=\).*/s//\1$RX_GAIN/' $PATHCONFIGFORWARD
+ sed -i '/\(^freqoutput=\).*/s//\1$TX_FREQ/' $PATHCONFIGFORWARD
+ sed -i '/\(^txgain=\).*/s//\1$TX_GAIN/' $PATHCONFIGFORWARD
+ sed -i '/\(^samplerate=\).*/s//\1$SAMPLER/' $PATHCONFIGFORWARD
+ sed -i '/\(^bwcal=\).*/s//\1$BW/' $PATHCONFIGFORWARD
 
-  ENDSSH
-        ) &
-  EOM
+ENDSSH
+      ) &
+EOM
 
         source "$CMDFILE"
   exit
 fi
 
 if [ "$1" == "-init" ]; then
-  /bin/cat <<EOM >$CMDFILE
-   (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
+/bin/cat <<EOM >$CMDFILE
+ (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
 
-   sed -i '/\(^modeinput=\).*/s//\1"IPTSIN"/' $PCONFIGFILE
+ sed -i '/\(^modeinput=\).*/s//\1"IPTSIN"/' $PCONFIGFILE
 
-  ENDSSH
-        ) &
-  EOM
+ENDSSH
+      ) &
+EOM
 
         source "$CMDFILE"
 
