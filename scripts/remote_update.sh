@@ -7,6 +7,7 @@ PATHRPI=/home/pi/rpidatv/bin
 PCONFIGFILE="/home/pi/rpidatv/scripts/portsdown_config.txt"
 PATHCONFIGS="/home/pi/rpidatv/scripts/configs"  ## Path to config files
 PATHCONFIGRX="/home/pi/rpidatv/scripts/rx_presets.txt"
+PATHCONFIGFORWARD="/home/pi/rpidatv/src/limesdr_toolbox/forward_config.txt"
 
 CMDFILE="/home/pi/tmp/rpi_command.txt"
 
@@ -94,6 +95,32 @@ if [ "$1" == "-rx" ]; then
    sed -i '/\(^rx0encoding=\).*/s//\1$ENCODING_RX/' $PATHCONFIGRX
    sed -i '/\(^rx0graphics=\).*/s//\1$GRAPHICS_RX/' $PATHCONFIGRX
    sed -i '/\(^rx0fastlock=\).*/s//\1$FL_RX/' $PATHCONFIGRX
+
+  ENDSSH
+        ) &
+  EOM
+
+        source "$CMDFILE"
+  exit
+fi
+
+if [ "$1" == "-forward_update" ]; then
+  RX_FREQ=$(get_config_var freqinput $PATHCONFIGFORWARD)
+  RX_GAIN=$(get_config_var rxgain $PATHCONFIGFORWARD)
+  TX_FREQ=$(get_config_var freqoutput $PATHCONFIGFORWARD)
+  TX_GAIN=$(get_config_var txgain $PATHCONFIGFORWARD)
+  SAMPLER=$(get_config_var samplerate $PATHCONFIGFORWARD)
+  BW=$(get_config_var bwcal $PATHCONFIGFORWARD)
+
+  /bin/cat <<EOM >$CMDFILE
+   (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
+
+   sed -i '/\(^freqinput=\).*/s//\1$RX_FREQ/' $PATHCONFIGFORWARD
+   sed -i '/\(^rxgain=\).*/s//\1$RX_GAIN/' $PATHCONFIGFORWARD
+   sed -i '/\(^freqoutput=\).*/s//\1$TX_FREQ/' $PATHCONFIGFORWARD
+   sed -i '/\(^txgain=\).*/s//\1$TX_GAIN/' $PATHCONFIGFORWARD
+   sed -i '/\(^samplerate=\).*/s//\1$SAMPLER/' $PATHCONFIGFORWARD
+   sed -i '/\(^bwcal=\).*/s//\1$BW/' $PATHCONFIGFORWARD
 
   ENDSSH
         ) &

@@ -12061,6 +12061,10 @@ void waituntil(int w,int h)
           break;
         case 19:                              // Menu Forward
           printf("MENU 52 \n");
+          if (strcmp(ModeOutput, "RPI_R") == 0)
+          {
+            system("/home/pi/rpidatv/scripts/remote_update.sh -forward_update >/dev/null 2>/dev/null &");
+          }
 					CurrentMenu=52;
 					BackgroundRGB(0,0,0,255);
 					Start_Highlights_Menu52();
@@ -14724,6 +14728,10 @@ void waituntil(int w,int h)
            usleep(500000);
            SelectInGroupOnMenu(CurrentMenu, 1, 1, 1, 0);
            ChangeForwardRXGain();
+           if (strcmp(ModeOutput, "RPI_R") == 0)
+           {
+             system("/home/pi/rpidatv/scripts/remote_update.sh -forward_update >/dev/null 2>/dev/null &");
+           }
            CurrentMenu=52;
            BackgroundRGB(0,0,0,255);
            Start_Highlights_Menu52();
@@ -14736,6 +14744,10 @@ void waituntil(int w,int h)
            usleep(500000);
            SelectInGroupOnMenu(CurrentMenu, 2, 2, 2, 0);
            ChangeForwardTXGain();
+           if (strcmp(ModeOutput, "RPI_R") == 0)
+           {
+             system("/home/pi/rpidatv/scripts/remote_update.sh -forward_update >/dev/null 2>/dev/null &");
+           }
            CurrentMenu=52;
            BackgroundRGB(0,0,0,255);
            Start_Highlights_Menu52();
@@ -14748,6 +14760,10 @@ void waituntil(int w,int h)
            usleep(500000);
            SelectInGroupOnMenu(CurrentMenu, 3, 3, 3, 0);
            ChangeForwardSamplerate();
+           if (strcmp(ModeOutput, "RPI_R") == 0)
+           {
+             system("/home/pi/rpidatv/scripts/remote_update.sh -forward_update >/dev/null 2>/dev/null &");
+           }
            CurrentMenu=52;
            BackgroundRGB(0,0,0,255);
            Start_Highlights_Menu52();
@@ -14780,6 +14796,10 @@ void waituntil(int w,int h)
            usleep(500000);
            SelectInGroupOnMenu(CurrentMenu, 6, 6, 6, 0);
            ChangeForwardRXFreq();
+           if (strcmp(ModeOutput, "RPI_R") == 0)
+           {
+             system("/home/pi/rpidatv/scripts/remote_update.sh -forward_update >/dev/null 2>/dev/null &");
+           }
            CurrentMenu=52;
            BackgroundRGB(0,0,0,255);
            Start_Highlights_Menu52();
@@ -14792,6 +14812,10 @@ void waituntil(int w,int h)
            usleep(500000);
            SelectInGroupOnMenu(CurrentMenu, 7, 7, 7, 0);
            ChangeForwardTXFreq();
+           if (strcmp(ModeOutput, "RPI_R") == 0)
+           {
+             system("/home/pi/rpidatv/scripts/remote_update.sh -forward_update >/dev/null 2>/dev/null &");
+           }
            CurrentMenu=52;
            BackgroundRGB(0,0,0,255);
            Start_Highlights_Menu52();
@@ -14804,6 +14828,10 @@ void waituntil(int w,int h)
            usleep(500000);
            SelectInGroupOnMenu(CurrentMenu, 8, 8, 8, 0);
            ChangeForwardBW();
+           if (strcmp(ModeOutput, "RPI_R") == 0)
+           {
+             system("/home/pi/rpidatv/scripts/remote_update.sh -forward_update >/dev/null 2>/dev/null &");
+           }
            CurrentMenu=52;
            BackgroundRGB(0,0,0,255);
            Start_Highlights_Menu52();
