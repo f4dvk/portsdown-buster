@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PCONFIGFORWARD="/home/pi/limesdr_toolbox/forward_config.txt"
+PCONFIGFORWARD="/home/pi/rpidatv/src/limesdr_toolbox/forward_config.txt"
 status="0"
 
 get_config_var() {
@@ -95,23 +95,23 @@ do_stop()
 {
   sudo killall limesdr_forward 2>/dev/null
   sleep 1
-  /home/pi/limesdr_toolbox/limesdr_stopchannel >/dev/null 2>/dev/null
+  /home/pi/rpidatv/bin/limesdr_stopchannel >/dev/null 2>/dev/null
 }
 
 do_status()
 {
-	whiptail --title "Transpondeur ""$FREQ_INPUT""MHZ ""$FREQ_OUTPUT""MHZ" --msgbox "Actif" 8 78
+	whiptail --title "Transpondeur ""$FREQ_INPUT""MHZ => ""$FREQ_OUTPUT""MHZ" --msgbox "Actif" 8 78
 	do_stop
 }
 
 do_start_gpio()
 {
-  /home/pi/limesdr_toolbox/cmd_gpio_deamon.sh 1
+  /home/pi/rpidatv/src/limesdr_toolbox/cmd_gpio_deamon.sh 1
 }
 
 do_stop_gpio()
 {
-  /home/pi/limesdr_toolbox/cmd_gpio_deamon.sh 0
+  /home/pi/rpidatv/src/limesdr_toolbox/cmd_gpio_deamon.sh 0
 }
 
 while [ "$status" -eq 0 ]
@@ -125,7 +125,7 @@ menuchoice=$(whiptail --title "Transpondeur" --menu "Menu" 20 102 12 \
  3>&2 2>&1 1>&3)
 
        case "$menuchoice" in
-   0\ *) "/home/pi/limesdr_toolbox/transpondeur.sh" >/dev/null 2>/dev/null &
+   0\ *) "/home/pi/rpidatv/src/limesdr_toolbox/transpondeur.sh" >/dev/null 2>/dev/null &
    do_status;;
    1\ *)
    do_forward_setup;;

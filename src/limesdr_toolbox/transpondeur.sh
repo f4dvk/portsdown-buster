@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PCONFIGFORWARD="/home/pi/limesdr_toolbox/forward_config.txt"
+PCONFIGFORWARD="/home/pi/rpidatv/src/limesdr_toolbox/forward_config.txt"
 
 get_config_var() {
 lua - "$1" "$2" <<EOF
@@ -24,6 +24,6 @@ TX_GAIN=$(get_config_var txgain $PCONFIGFORWARD)
 BW_CAL=$(get_config_var bwcal $PCONFIGFORWARD)
 SAMPLERATE=$(get_config_var samplerate $PCONFIGFORWARD)
 
-sudo /home/pi/limesdr_toolbox/limesdr_forward -b $BW_CAL -s $SAMPLERATE -g $RX_GAIN -f $FREQ_INPUT"e6" -G $TX_GAIN -F $FREQ_OUTPUT"e6" >/dev/null 2>/dev/null
+sudo /home/pi/rpidatv/bin/limesdr_forward -b $BW_CAL -s $SAMPLERATE -g $RX_GAIN -f $FREQ_INPUT"e6" -G $TX_GAIN -F $FREQ_OUTPUT"e6" >/dev/null 2>/dev/null
 
 exit

@@ -11247,6 +11247,162 @@ void ChangeJetsonRPW()
   SetConfigParam(PATH_JCONFIG, "jetsonrootpw", KeyboardReturn);
 }
 
+void ChangeForwardRXGain()
+{
+  char RequestText[64];
+  char InitText[64];
+  bool IsValid = FALSE;
+  char RxGain[31];
+
+  GetConfigParam(PATH_FORWARDCONFIG, "rxgain", RxGain);
+
+  while (IsValid == FALSE)
+  {
+    strcpy(RequestText, "Enter the RX Gain for Forward (0.00 to 1, -1 for unused)");
+    snprintf(InitText, 5, "%s", RxGain);
+    Keyboard(RequestText, InitText, 5);
+
+    if(strlen(KeyboardReturn) > 0)
+    {
+      IsValid = TRUE;
+    }
+  }
+  printf("Forward RX Gain set to: %s\n", KeyboardReturn);
+
+  // Save username to Config File
+  SetConfigParam(PATH_FORWARDCONFIG, "rxgain", KeyboardReturn);
+}
+
+void ChangeForwardTXGain()
+{
+  char RequestText[64];
+  char InitText[64];
+  bool IsValid = FALSE;
+  char TxGain[31];
+
+  GetConfigParam(PATH_FORWARDCONFIG, "txgain", TxGain);
+
+  while (IsValid == FALSE)
+  {
+    strcpy(RequestText, "Enter the TX Gain for Forward (0.00 to 1)");
+    snprintf(InitText, 5, "%s", TxGain);
+    Keyboard(RequestText, InitText, 5);
+
+    if(strlen(KeyboardReturn) > 0)
+    {
+      IsValid = TRUE;
+    }
+  }
+  printf("Forward TX Gain set to: %s\n", KeyboardReturn);
+
+  // Save username to Config File
+  SetConfigParam(PATH_FORWARDCONFIG, "txgain", KeyboardReturn);
+}
+
+void ChangeForwardSamplerate()
+{
+  char RequestText[64];
+  char InitText[64];
+  bool IsValid = FALSE;
+  char SampleRate[31];
+
+  GetConfigParam(PATH_FORWARDCONFIG, "samplerate", SampleRate);
+
+  while (IsValid == FALSE)
+  {
+    strcpy(RequestText, "Enter the Samplerate for Forward (Default: 1.2e6)");
+    snprintf(InitText, 8, "%s", SampleRate);
+    Keyboard(RequestText, InitText, 8);
+
+    if(strlen(KeyboardReturn) > 0)
+    {
+      IsValid = TRUE;
+    }
+  }
+  printf("Forward Samplerate set to: %s\n", KeyboardReturn);
+
+  // Save username to Config File
+  SetConfigParam(PATH_FORWARDCONFIG, "samplerate", KeyboardReturn);
+}
+
+void ChangeForwardRXFreq()
+{
+  char RequestText[64];
+  char InitText[64];
+  bool IsValid = FALSE;
+  char RxFreq[31];
+
+  GetConfigParam(PATH_FORWARDCONFIG, "freqinput", RxFreq);
+
+  while (IsValid == FALSE)
+  {
+    strcpy(RequestText, "Enter the RX Frequency (MHz) for Forward");
+    snprintf(InitText, 8, "%s", RxFreq);
+    Keyboard(RequestText, InitText, 8);
+
+    if(strlen(KeyboardReturn) > 0)
+    {
+      IsValid = TRUE;
+    }
+  }
+  printf("Forward RX Frequency set to: %s\n", KeyboardReturn);
+
+  // Save username to Config File
+  SetConfigParam(PATH_FORWARDCONFIG, "freqinput", KeyboardReturn);
+}
+
+void ChangeForwardTXFreq()
+{
+  char RequestText[64];
+  char InitText[64];
+  bool IsValid = FALSE;
+  char TxFreq[31];
+
+  GetConfigParam(PATH_FORWARDCONFIG, "freqoutput", TxFreq);
+
+  while (IsValid == FALSE)
+  {
+    strcpy(RequestText, "Enter the TX Frequency (MHz) for Forward");
+    snprintf(InitText, 8, "%s", TxFreq);
+    Keyboard(RequestText, InitText, 8);
+
+    if(strlen(KeyboardReturn) > 0)
+    {
+      IsValid = TRUE;
+    }
+  }
+  printf("Forward TX Frequency set to: %s\n", KeyboardReturn);
+
+  // Save username to Config File
+  SetConfigParam(PATH_FORWARDCONFIG, "freqoutput", KeyboardReturn);
+}
+
+void ChangeForwardBW()
+{
+  char RequestText[64];
+  char InitText[64];
+  bool IsValid = FALSE;
+  char Bw[31];
+
+  GetConfigParam(PATH_FORWARDCONFIG, "bwcal", Bw);
+
+  while (IsValid == FALSE)
+  {
+    strcpy(RequestText, "Enter the Banwidth calibrating for Forward (Default: 8e6)");
+    snprintf(InitText, 8, "%s", Bw);
+    Keyboard(RequestText, InitText, 8);
+
+    if(strlen(KeyboardReturn) > 0)
+    {
+      IsValid = TRUE;
+    }
+  }
+  printf("Forward Bandwidth calibrating set to: %s\n", KeyboardReturn);
+
+  // Save username to Config File
+  SetConfigParam(PATH_FORWARDCONFIG, "bwcal", KeyboardReturn);
+}
+
 void WifiPW(int NoButton)  // Wifi password
 {
   char Value[255];
@@ -14559,21 +14715,89 @@ void waituntil(int w,int h)
           Start_Highlights_Menu1();
           UpdateWindow();
           break;
-				case 0:
-	         break;
-				case 1:
-	         break;
-				case 2:
-	         break;
-				case 3:
-	         break;
+        case 0:
+           break;
+        case 1:
+           SelectInGroupOnMenu(CurrentMenu, 1, 1, 1, 1);
+           printf("RX Gain Config\n");
+           UpdateWindow();
+					 usleep(500000);
+           SelectInGroupOnMenu(CurrentMenu, 1, 1, 1, 0);
+					 ChangeForwardRXGain();
+					 CurrentMenu=52;
+					 BackgroundRGB(0,0,0,255);
+					 Start_Highlights_Menu52();
+					 UpdateWindow();
+           break;
+        case 2:
+           SelectInGroupOnMenu(CurrentMenu, 2, 2, 2, 1);
+           printf("TX Gain Config\n");
+           UpdateWindow();
+           usleep(500000);
+           SelectInGroupOnMenu(CurrentMenu, 2, 2, 2, 0);
+					 ChangeForwardTXGain();
+					 CurrentMenu=52;
+					 BackgroundRGB(0,0,0,255);
+					 Start_Highlights_Menu52();
+					 UpdateWindow();
+					 break;
+        case 3:
+          SelectInGroupOnMenu(CurrentMenu, 3, 3, 3, 1);
+          printf("Samplerate Config\n");
+          UpdateWindow();
+          usleep(500000);
+          SelectInGroupOnMenu(CurrentMenu, 3, 3, 3, 0);
+					ChangeForwardSamplerate();
+					CurrentMenu=52;
+					BackgroundRGB(0,0,0,255);
+					Start_Highlights_Menu52();
+					UpdateWindow();
+          break;
         case 5:
+          if (CheckLimeMiniConnect() == 0)
+					{
+						SelectInGroupOnMenu(CurrentMenu, 5, 5, 5, 1);
+						printf("Forward ON\n");
+						UpdateWindow();
+						usleep(500000);
+						SelectInGroupOnMenu(CurrentMenu, 5, 5, 5, 0);
+					}
           break;
         case 6:
+          SelectInGroupOnMenu(CurrentMenu, 6, 6, 6, 1);
+          printf("RX Freq Config\n");
+          UpdateWindow();
+          usleep(500000);
+          SelectInGroupOnMenu(CurrentMenu, 6, 6, 6, 0);
+					ChangeForwardRXFreq();
+					CurrentMenu=52;
+					BackgroundRGB(0,0,0,255);
+					Start_Highlights_Menu52();
+					UpdateWindow();
           break;
         case 7:
+          SelectInGroupOnMenu(CurrentMenu, 7, 7, 7, 1);
+          printf("TX Freq Config\n");
+          UpdateWindow();
+          usleep(500000);
+          SelectInGroupOnMenu(CurrentMenu, 7, 7, 7, 0);
+					ChangeForwardTXFreq();
+					CurrentMenu=52;
+					BackgroundRGB(0,0,0,255);
+					Start_Highlights_Menu52();
+					UpdateWindow();
           break;
         case 8:
+          SelectInGroupOnMenu(CurrentMenu, 8, 8, 8, 1);
+          printf("Bandwidth Config\n");
+          UpdateWindow();
+          usleep(500000);
+          SelectInGroupOnMenu(CurrentMenu, 8, 8, 8, 0);
+					ChangeForwardBW();
+					CurrentMenu=52;
+					BackgroundRGB(0,0,0,255);
+					Start_Highlights_Menu52();
+					UpdateWindow();
           break;
         case 9:
           break;
@@ -18792,15 +19016,15 @@ void Define_Menu52()
 	//AddButtonStatus(button, "", &LBlue);
 
 	button = CreateButton(52, 1);
-  AddButtonStatus(button, "RX^Gain", &Blue);
+  AddButtonStatus(button, "RX^Gain", &DBlue);
 	AddButtonStatus(button, "RX^Gain", &LBlue);
 
 	button = CreateButton(52, 2);
-  AddButtonStatus(button, "TX^Gain", &Blue);
+  AddButtonStatus(button, "TX^Gain", &DBlue);
 	AddButtonStatus(button, "TX^Gain", &LBlue);
 
 	button = CreateButton(52, 3);
-  AddButtonStatus(button, "Sample^Rate", &Blue);
+  AddButtonStatus(button, "Sample^Rate", &DBlue);
 	AddButtonStatus(button, "Sample^Rate", &LBlue);
 
 	button = CreateButton(52, 4);
@@ -18842,7 +19066,7 @@ void Start_Highlights_Menu52()
 	strcpy(Result, "RX Gain^");
 	strcat(Result, Value);
 
-	AmendButtonStatus(ButtonNumber(52, 1), 0, Result, &Blue);
+	AmendButtonStatus(ButtonNumber(52, 1), 0, Result, &DBlue);
 	AmendButtonStatus(ButtonNumber(52, 1), 1, Result, &LBlue);
 
 	strcpy(Result,"");
@@ -18851,7 +19075,7 @@ void Start_Highlights_Menu52()
 	strcpy(Result, "TX Gain^");
 	strcat(Result, Value);
 
-	AmendButtonStatus(ButtonNumber(52, 2), 0, Result, &Blue);
+	AmendButtonStatus(ButtonNumber(52, 2), 0, Result, &DBlue);
 	AmendButtonStatus(ButtonNumber(52, 2), 1, Result, &LBlue);
 
 	strcpy(Result,"");
@@ -18860,7 +19084,7 @@ void Start_Highlights_Menu52()
 	strcpy(Result, "Samplerate^");
 	strcat(Result, Value);
 
-	AmendButtonStatus(ButtonNumber(52, 3), 0, Result, &Blue);
+	AmendButtonStatus(ButtonNumber(52, 3), 0, Result, &DBlue);
 	AmendButtonStatus(ButtonNumber(52, 3), 1, Result, &LBlue);
 
 	if (CheckLimeMiniConnect() == 0)
@@ -18878,7 +19102,7 @@ void Start_Highlights_Menu52()
 	strcpy(Result, "RX Freq^");
 	strcat(Result, Value);
 
-	AmendButtonStatus(ButtonNumber(52, 6), 0, Result, &Blue);
+	AmendButtonStatus(ButtonNumber(52, 6), 0, Result, &DBlue);
 	AmendButtonStatus(ButtonNumber(52, 6), 1, Result, &LBlue);
 
 	strcpy(Result,"");
@@ -18887,7 +19111,7 @@ void Start_Highlights_Menu52()
 	strcpy(Result, "TX Freq^");
 	strcat(Result, Value);
 
-	AmendButtonStatus(ButtonNumber(52, 7), 0, Result, &Blue);
+	AmendButtonStatus(ButtonNumber(52, 7), 0, Result, &DBlue);
 	AmendButtonStatus(ButtonNumber(52, 7), 1, Result, &LBlue);
 
 	strcpy(Result,"");
@@ -18896,7 +19120,7 @@ void Start_Highlights_Menu52()
 	strcpy(Result, "BW Cal^");
 	strcat(Result, Value);
 
-	AmendButtonStatus(ButtonNumber(52, 8), 0, Result, &Blue);
+	AmendButtonStatus(ButtonNumber(52, 8), 0, Result, &DBlue);
 	AmendButtonStatus(ButtonNumber(52, 8), 1, Result, &LBlue);
 }
 
