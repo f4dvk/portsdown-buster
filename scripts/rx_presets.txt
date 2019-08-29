@@ -72,3 +72,4 @@ t1lo=0
 t2lo=0
 t3lo=0
 t4lo=0
+etat=OFF

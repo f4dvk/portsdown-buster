@@ -34,6 +34,15 @@ PORT=5001
 SYMBOLRATEK=$(get_config_var rx0sr $RXPRESETSFILE)
 let SYMBOLRATE=SYMBOLRATEK*1000
 
+FREQ_TX=$(get_config_var freqoutput $PCONFIGFILE)
+LIME_TX_GAIN=$(get_config_var limegain $PCONFIGFILE)
+
+LIME_TX_GAINA=`echo - | awk '{print '$LIME_TX_GAIN' / 100}'`
+
+if [ "$LIME_TX_GAIN" -lt 6 ]; then
+  LIME_TX_GAINA=`echo - | awk '{print ( '$LIME_TX_GAIN' - 6 ) / 100}'`
+fi
+
 FREQ_OUTPUT=$(get_config_var rx0frequency $RXPRESETSFILE)
 FreqHz=$(echo "($FREQ_OUTPUT*1000000)/1" | bc )
 #echo Freq = $FreqHz
@@ -45,6 +54,7 @@ if [ "$FEC" != "Auto" ]; then
  let FECNUM=FEC
  let FECDEN=FEC+1
  FECDVB="--cr $FECNUM"/"$FECDEN"
+ FECIQ="$FECNUM"/"$FECDEN"
 else
  FECDVB=""
 fi
@@ -53,9 +63,9 @@ SDR=$(get_config_var rx0sdr $RXPRESETSFILE)
 
 SAMPLERATEK=$(get_config_var rx0samplerate $RXPRESETSFILE)
 if [ "$SAMPLERATEK" = "0" ]; then
-  if [ "$SYMBOLRATEK" -lt 251 ]; then
+  if [ "$SYMBOLRATEK" -lt 250 ]; then
     SR_RTLSDR=300000
-  elif [ "$SYMBOLRATEK" -gt 250 ] && [ "$SYMBOLRATEK" -lt 500 ] && [ "$SDR" = "RTLSDR" ]; then
+  elif [ "$SYMBOLRATEK" -gt 249 ] && [ "$SYMBOLRATEK" -lt 500 ] && [ "$SDR" = "RTLSDR" ]; then
     SR_RTLSDR=1000000
   elif [ "$SYMBOLRATEK" -gt 499 ] && [ "$SYMBOLRATEK" -lt 1000 ]; then
     SR_RTLSDR=1200000
@@ -69,6 +79,12 @@ if [ "$SAMPLERATEK" = "0" ]; then
 else
   let SR_RTLSDR=SAMPLERATEK*1000
 fi
+
+#############################################
+
+ETAT=$(get_config_var etat $RXPRESETSFILE)
+
+#############################################
 
 GAIN=$(get_config_var rx0gain $RXPRESETSFILE)
 
@@ -114,16 +130,23 @@ fi
 if [ "$MODULATION" != "DVB-S" ] && [ "$MODULATION" != "DVB-S2" ]; then
   if [ "$MODULATION" = "8PSK" ]; then
     MODULATION="DVB-S2"
+    MODULATION_TX="DVBS2"
     CONST="8PSK"
   elif [ "$MODULATION" = "16APSK" ]; then
     MODULATION="DVB-S2"
+    MODULATION_TX="DVBS2"
     CONST="16APSK"
   elif [ "$MODULATION" = "32APSK" ]; then
     MODULATION="DVB-S2"
+    MODULATION_TX="DVBS2"
     CONST="32APSK"
   fi
 else
   CONST="QPSK"
+fi
+
+if [ "$MODULATION" = "DVB-S" ]; then
+  MODULATION_TX="DVBS"
 fi
 
 # Clean up
@@ -147,31 +170,28 @@ sudo fbi -T 1 -noverbose -a $PATHSCRIPT"/images/Blank_Black.png"
 # Treat each display case differently
 
 # Constellation and Parameters on
-if [ "$GRAPHICS" = "ON" ] && [ "$PARAMS" = "ON" ]; then
+if [ "$GRAPHICS" = "ON" ] && [ "$PARAMS" = "ON" ] && [ "$ETAT" = "OFF" ]; then
   sudo $KEY\
     | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 $FECDVB --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
 fi
 
 # Constellation on, Parameters off
-if [ "$GRAPHICS" = "ON" ] && [ "$PARAMS" = "OFF" ]; then
+if [ "$GRAPHICS" = "ON" ] && [ "$PARAMS" = "OFF" ] && [ "$ETAT" = "OFF" ]; then
   sudo $KEY\
     | $PATHBIN"leandvb" $B --fd-pp 3 --fd-const 2 $FECDVB --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
 fi
 
 # Constellation off, Parameters on
-if [ "$GRAPHICS" = "OFF" ] && [ "$PARAMS" = "ON" ]; then
+if [ "$GRAPHICS" = "OFF" ] && [ "$PARAMS" = "ON" ] && [ "$ETAT" = "OFF" ]; then
   sudo $KEY\
     | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
 fi
 
 # Constellation and Parameters off
-if [ "$GRAPHICS" = "OFF" ] && [ "$PARAMS" = "OFF" ]; then
+if [[ "$GRAPHICS" = "OFF" && "$PARAMS" = "OFF" ]] || [ "$ETAT" = "ON" ]; then
   sudo $KEY\
     | $PATHBIN"leandvb" $B $FECDVB --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>/dev/null &
 fi
-
-# read videots and output video es
-$PATHBIN"ts2es" -video videots fifo.264 &
 
 #if [ "$1" == "-remote" ]; then
   #IP=$2
@@ -181,12 +201,21 @@ $PATHBIN"ts2es" -video videots fifo.264 &
 #nc -l -p $PORT > /dev/shm/video.264 # Coté écoute
 #nc $IP $PORT # Coté TX vidéo
 
+if [ "$ETAT" = "OFF" ]; then
+  # read videots and output video es
+  $PATHBIN"ts2es" -video videots fifo.264 &
 # Play the es from fifo.264 in either the H264 or MPEG-2 player.
-if [ "$ENCODING" = "H264" ]; then
-  $PATHBIN"hello_video.bin" fifo.264 &
-else  # MPEG-2
-  $PATHBIN"hello_video2.bin" fifo.264 &
+  if [ "$ENCODING" = "H264" ]; then
+    $PATHBIN"hello_video.bin" fifo.264 &
+  else  # MPEG-2
+    $PATHBIN"hello_video2.bin" fifo.264 &
+  fi
+else
+  $PATHBIN/"dvb2iq2" -i videots -s $SYMBOLRATEK -f $FECIQ \
+            -r 4 -m $MODULATION_TX -c $CONST \
+  |sudo $PATHBIN/"limesdr_send" -b 2.5e6 -r 4 -s $SYMBOLRATE -g $LIME_TX_GAINA -f $FREQ_TX"e6" &
 fi
+
 #fi
 
 # Notes:

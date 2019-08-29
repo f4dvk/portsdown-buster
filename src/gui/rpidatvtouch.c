@@ -248,6 +248,10 @@ fftwf_complex *fftout=NULL; // FFT for RX
 char RXKEY[256];
 char RXMOD[256];
 char RXFEC[256];
+char FREQTX[256];
+char FREQRX[256];
+int FREQTX2;
+int FREQRX2;
 
 // LongMynd RX Parameters. [0] is current.
 int LMRXfreq[22];           // Integer frequency in kHz 0 current, 1-10 q, 11-20 t, 21 second tuner current
@@ -7443,6 +7447,20 @@ void CompVidStop()
 
 }
 
+void ForwardLeandvbStart()
+{
+  SetConfigParam(PATH_RXPRESETS, "etat", "ON");
+  system("sudo /home/pi/rpidatv/scripts/leandvbgui2.sh 2>&1");
+  strcpy(ScreenState, "RXtoTX");
+}
+
+void ForwardLeandvbStop()
+{
+  system("(sudo killall -9 leandvb >/dev/null 2>/dev/null) &");
+  system("(sudo killall rtl_sdr >/dev/null 2>/dev/null) &");
+  SetConfigParam(PATH_RXPRESETS, "etat", "OFF");
+}
+
 void TransmitStart()
 {
   // printf("Transmit Startn");
@@ -11607,6 +11625,17 @@ void waituntil(int w,int h)
       continue;  // All reset, and Menu displayed so go back and wait for next touch
      }
 
+     if (strcmp(ScreenState, "RXtoTX") == 0)
+     {
+       SetButtonStatus(ButtonNumber(CurrentMenu, 20), 0);
+       strcpy(ScreenState, "NormalMenu");
+       UpdateWindow();
+       TransmitStop();
+       ReceiveStop();
+       ForwardLeandvbStop();
+       continue;
+     }
+
     // Now Sort TXwithMenu:
     if (strcmp(ScreenState, "TXwithMenu") == 0)
     {
@@ -11892,6 +11921,7 @@ void waituntil(int w,int h)
           {
             printf("MENU 5 \n");
             CurrentMenu=5;
+            SetConfigParam(PATH_RXPRESETS, "etat", "OFF");
             BackgroundRGB(0,0,0,255);
             Start_Highlights_Menu5();
           }
@@ -12370,6 +12400,8 @@ void waituntil(int w,int h)
           UpdateWindow();
           SetConfigParam(PATH_RXPRESETS, "rx0sound", RXsound[0]);
           break;
+        case 8:
+          break;
         case 9:                                            // SetRXLikeTX
           SetButtonStatus(ButtonNumber(CurrentMenu, i), 1);
           SetRXLikeTX();
@@ -12465,22 +12497,24 @@ void waituntil(int w,int h)
           UpdateWindow();
           SetConfigParam(PATH_RXPRESETS, "rx0parameters", RXparams[0]);
           break;
+        case 20:                                            // Forward Leandvb
+          if ((((strcmp(ModeOutput, "LIMEMINI") == 0) && (CheckLimeMiniConnect() == 0)) && ((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))) && (((FREQTX2 - FREQRX2) > 50) || ((- FREQTX2 - - FREQRX2) > 50)))
+          {
+            system("/home/pi/rpidatv/scripts/lime_ptt.sh &");
+            SetButtonStatus(ButtonNumber(CurrentMenu, 20), 1);
+            UpdateWindow();
+            ForwardLeandvbStart();
+          }
+          break;
         case 21: // RX
-	  //GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY);
-          if ((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))
+          //GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY);
+          if (((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0)) || ((strcmp(RXKEY, "LIMEMINI") == 0) && (CheckLimeMiniConnect() == 0)))
           {
             BackgroundRGB(0,0,0,255);
             Start(wscreen,hscreen);
             ReceiveStart2();
             break;
           }
-	  if ((strcmp(RXKEY, "LIMEMINI") == 0) && (CheckLimeMiniConnect() == 0))
-	  {
-	    BackgroundRGB(0,0,0,255);
-            Start(wscreen,hscreen);
-            ReceiveStart2();
-            break;
-	  }
           else
           {
             MsgBox("No RX Key Connected");
@@ -15740,6 +15774,11 @@ void Define_Menu5()
 
   //RECEIVE and Exit - Top of Menu 5
 
+  button = CreateButton(5, 20);
+  AddButtonStatus(button, "Forward^RX => TX", &Blue);
+  AddButtonStatus(button, "Forward^RX => TX", &Red);
+  AddButtonStatus(button, "Forward^RX => TX", &Grey);
+
   button = CreateButton(5, 21);
   AddButtonStatus(button," RX  ",&Blue);
   AddButtonStatus(button,"RX ON",&Red);
@@ -15901,6 +15940,20 @@ void Start_Highlights_Menu5()
   strcat(RXBtext, RXparams[0]);
   AmendButtonStatus(ButtonNumber(5, 19), 0, RXBtext, &Blue);
   AmendButtonStatus(ButtonNumber(5, 19), 1, RXBtext, &Green);
+
+  // Forward Leandvb Button 20
+  GetConfigParam(PATH_RXPRESETS, "rx0frequency", FREQRX);
+  GetConfigParam(PATH_PCONFIG, "freqoutput", FREQTX);
+  FREQTX2 = atoi(FREQTX);
+  FREQRX2 = atoi(FREQRX);
+  if ((((strcmp(ModeOutput, "LIMEMINI") == 0) && (CheckLimeMiniConnect() == 0)) && ((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))) && (((FREQTX2 - FREQRX2) > 50) || ((- FREQTX2 - - FREQRX2) > 50)))
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 20), 0);
+  }
+  else
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 20), 2);
+  }
 
   // Make the RX button red if RX on
   SetButtonStatus(ButtonNumber(5, 21), RTLactive);

@@ -664,6 +664,13 @@ if ! grep -q r0gain /home/pi/rpidatv/scripts/rtl-fm_presets.txt; then
   echo "" >> /home/pi/rpidatv/scripts/rtl-fm_presets.txt
 fi
 
+if ! grep -q etat /home/pi/rpidatv/scripts/rx_presets.txt; then
+  printf "Adding etat to user's rx_presets.txt\n"
+  sed -i -e '/^$/d' /home/pi/rpidatv/scripts/rx_presets.txt
+  echo "etat=OFF" >> /home/pi/rpidatv/scripts/rx_presets.txt
+  echo "" >> /home/pi/rpidatv/scripts/rx_presets.txt
+fi
+
 # Restore the user's original portsdown_locators.txt
 cp -f -r "$PATHUBACKUP"/portsdown_locators.txt "$PATHSCRIPT"/portsdown_locators.txt
 
