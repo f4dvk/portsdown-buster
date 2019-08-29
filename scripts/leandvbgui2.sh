@@ -216,6 +216,52 @@ else
   |sudo $PATHBIN/"limesdr_send" -b 2.5e6 -r 4 -s $SYMBOLRATE -g $LIME_TX_GAINA -f $FREQ_TX"e6" &
 fi
 
+if [ "$1" == "-remote_rxtotx_on" ]; then
+
+  CMDFILE="/home/pi/tmp/rpi_command.txt"
+
+  ###################################################
+    IP_DISTANT=$(get_config_var rpi_ip_distant $PCONFIGFILE)
+    RPI_USER=$(get_config_var rpi_user_remote $PCONFIGFILE)
+    RPI_PW=$(get_config_var rpi_pw_remote $PCONFIGFILE)
+  ###################################################
+
+/bin/cat <<EOM >$CMDFILE
+ (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
+
+ sudo /home/pi/rpidatv/scripts/leandvbgui2.sh 2>&1
+
+ENDSSH
+      ) &
+EOM
+
+        source "$CMDFILE"
+  exit
+fi
+
+if [ "$1" == "-remote_rxtotx_off" ]; then
+
+  CMDFILE="/home/pi/tmp/rpi_command.txt"
+
+  ###################################################
+    IP_DISTANT=$(get_config_var rpi_ip_distant $PCONFIGFILE)
+    RPI_USER=$(get_config_var rpi_user_remote $PCONFIGFILE)
+    RPI_PW=$(get_config_var rpi_pw_remote $PCONFIGFILE)
+  ###################################################
+
+/bin/cat <<EOM >$CMDFILE
+ (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
+
+ sudo /home/pi/rpidatv/scripts/b.sh 2>&1
+
+ENDSSH
+      ) &
+EOM
+
+        source "$CMDFILE"
+  exit
+fi
+
 #fi
 
 # Notes:
