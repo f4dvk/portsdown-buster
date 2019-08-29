@@ -6176,7 +6176,7 @@ void SelectPilots()  // Toggle pilots on/off
     SetConfigParam(PATH_PCONFIG, "pilots", "off");
   }
   // RPI remote
-  if ((trcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() == 0))
+  if ((strcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() == 0))
   {
     system("sudo /home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
   }
@@ -12527,7 +12527,7 @@ void waituntil(int w,int h)
             UpdateWindow();
             ForwardLeandvbStart();
           }
-          else ((((strcmp(ModeOutput, "LIMEMINI") == 0) && (CheckLimeMiniConnect() == 0)) && ((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))) && (((FREQTX2 - FREQRX2) > 50) || ((- FREQTX2 - - FREQRX2) > 50)))
+          else if ((((strcmp(ModeOutput, "LIMEMINI") == 0) && (CheckLimeMiniConnect() == 0)) && ((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))) && (((FREQTX2 - FREQRX2) > 50) || ((- FREQTX2 - - FREQRX2) > 50)))
           {
             system("/home/pi/rpidatv/scripts/lime_ptt.sh &");
             SetButtonStatus(ButtonNumber(CurrentMenu, 20), 1);
