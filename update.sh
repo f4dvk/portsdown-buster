@@ -664,18 +664,18 @@ if ! grep -q r0gain /home/pi/rpidatv/scripts/rtl-fm_presets.txt; then
   echo "" >> /home/pi/rpidatv/scripts/rtl-fm_presets.txt
 fi
 
+# Restore the user's original portsdown_locators.txt
+cp -f -r "$PATHUBACKUP"/portsdown_locators.txt "$PATHSCRIPT"/portsdown_locators.txt
+
+# Restore the user's original rx_presets.txt
+cp -f -r "$PATHUBACKUP"/rx_presets.txt "$PATHSCRIPT"/rx_presets.txt
+
 if ! grep -q etat /home/pi/rpidatv/scripts/rx_presets.txt; then
   printf "Adding etat to user's rx_presets.txt\n"
   sed -i -e '/^$/d' /home/pi/rpidatv/scripts/rx_presets.txt
   echo "etat=OFF" >> /home/pi/rpidatv/scripts/rx_presets.txt
   echo "" >> /home/pi/rpidatv/scripts/rx_presets.txt
 fi
-
-# Restore the user's original portsdown_locators.txt
-cp -f -r "$PATHUBACKUP"/portsdown_locators.txt "$PATHSCRIPT"/portsdown_locators.txt
-
-# Restore the user's original rx_presets.txt
-cp -f -r "$PATHUBACKUP"/rx_presets.txt "$PATHSCRIPT"/rx_presets.txt
 
 # Restore the user's original stream presets
 cp -f -r "$PATHUBACKUP"/stream_presets.txt "$PATHSCRIPT"/stream_presets.txt

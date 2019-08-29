@@ -82,6 +82,7 @@ if [ "$1" == "-rx" ]; then
   ENCODING_RX=$(get_config_var rx0encoding $PATHCONFIGRX)
   GRAPHICS_RX=$(get_config_var rx0graphics $PATHCONFIGRX)
   FL_RX=$(get_config_var rx0fastlock $PATHCONFIGRX)
+  ETAT=$(get_config_var etat $PATHCONFIGRX)
 
 /bin/cat <<EOM >$CMDFILE
  (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
@@ -95,6 +96,7 @@ if [ "$1" == "-rx" ]; then
  sed -i '/\(^rx0encoding=\).*/s//\1$ENCODING_RX/' $PATHCONFIGRX
  sed -i '/\(^rx0graphics=\).*/s//\1$GRAPHICS_RX/' $PATHCONFIGRX
  sed -i '/\(^rx0fastlock=\).*/s//\1$FL_RX/' $PATHCONFIGRX
+ sed -i '/\(^etat=\).*/s//\1$ETAT/' $PATHCONFIGRX
 
 ENDSSH
       ) &
