@@ -15987,17 +15987,15 @@ void Start_Highlights_Menu5()
     SetButtonStatus(ButtonNumber(CurrentMenu, 20), 2);
   }
 
-  if (strcmp(ModeOutput, "RPI_R") != 0)
-  {
-		SetButtonStatus(ButtonNumber(CurrentMenu, 21), 0);
-  }
-  else
+  if (strcmp(ModeOutput, "RPI_R") == 0)
   {
     SetButtonStatus(ButtonNumber(CurrentMenu, 21), 2);
   }
-
-  // Make the RX button red if RX on
-  SetButtonStatus(ButtonNumber(5, 21), RTLactive);
+  else
+  {
+    // Make the RX button red if RX on
+    SetButtonStatus(ButtonNumber(5, 21), RTLactive);
+  }
 
 }
 
