@@ -19377,7 +19377,7 @@ void Define_Menu53()
 void Start_Highlights_Menu53()
 {
 
-  GetConfigParam(PATH_PCONFIG, "remoteoutput", RemoteOuput);
+  GetConfigParam(PATH_PCONFIG, "remoteoutput", RemoteOutput);
 
 	if (strcmp(RemoteOutput, "LIMEMINI") == 0)
 	{
