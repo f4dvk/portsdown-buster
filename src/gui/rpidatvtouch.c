@@ -7577,7 +7577,7 @@ void TransmitStart()
   {
     system("sudo /home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
     system("sudo /home/pi/rpidatv/scripts/TX_remote.sh >/dev/null 2>/dev/null &");
-	}
+  }
 }
 
 void *Wait3Seconds(void * arg)
@@ -11928,7 +11928,7 @@ void waituntil(int w,int h)
           }
           else     // Transmit, but not if audio has been used and would not work
           {
-            if ((!((IQAvailable == 0) && (Getforce_pwm_open() == 1) && ((strcmp(CurrentModeOP, "QPSKRF") == 0) || (strcmp(CurrentModeOP, "IQ") == 0)))) || ((strcmp(ModeOutput,"RPI_R") == 0) && (CheckRpi() == 0)))
+            if ((!(((IQAvailable == 0) && (Getforce_pwm_open() == 1) && ((strcmp(CurrentModeOP, "QPSKRF") == 0) || (strcmp(CurrentModeOP, "IQ") == 0)))) && (strcmp(ModeOutput,"RPI_R") != 0)) || ((strcmp(ModeOutput,"RPI_R") == 0) && (CheckRpi() == 0)))
             {
               if ((strcmp(CurrentModeOP, "LIMEMINI") == 0) || (strcmp(CurrentModeOP, "LIMEUSB") == 0))
               {
@@ -11937,6 +11937,12 @@ void waituntil(int w,int h)
               SelectPTT(i,1);
               UpdateWindow();
               TransmitStart();
+            }
+            else if (strcmp(ModeOutput,"RPI_R") == 0)
+            {
+              MsgBox2("Connexion perdue avec le RPI distant", "Touchez l'écran pour sortir");
+              wait_touch();
+              UpdateWindow();
             }
             else
             {
