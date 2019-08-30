@@ -7573,9 +7573,11 @@ void TransmitStart()
   system(PATH_SCRIPT_A);
 
   // Run RPI remote
-  if ((strcmp(ModeOutput,"RPI_R") == 0) && (CheckRpi() == 0))
+  if (strcmp(ModeOutput,"RPI_R") == 0)
   {
+    system("sudo /home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
     system("sudo /home/pi/rpidatv/scripts/TX_remote.sh >/dev/null 2>/dev/null &");
+	}
   }
 }
 
@@ -11927,7 +11929,7 @@ void waituntil(int w,int h)
           }
           else     // Transmit, but not if audio has been used and would not work
           {
-            if (!((IQAvailable == 0) && (Getforce_pwm_open() == 1) && ((strcmp(CurrentModeOP, "QPSKRF") == 0) || (strcmp(CurrentModeOP, "IQ") == 0))))
+            if ((!((IQAvailable == 0) && (Getforce_pwm_open() == 1) && ((strcmp(CurrentModeOP, "QPSKRF") == 0) || (strcmp(CurrentModeOP, "IQ") == 0)))) || ((strcmp(ModeOutput,"RPI_R") == 0) && (CheckRpi() == 0)))
             {
               if ((strcmp(CurrentModeOP, "LIMEMINI") == 0) || (strcmp(CurrentModeOP, "LIMEUSB") == 0))
               {
@@ -12531,7 +12533,7 @@ void waituntil(int w,int h)
           SetConfigParam(PATH_RXPRESETS, "rx0parameters", RXparams[0]);
           break;
         case 20:                                            // Forward Leandvb
-          if (((strcmp(ModeOutput, "RPI_R") == 0) && (strcmp(RemoteOutput, "LIMEMINI") == 0)) && (CheckRpi() == 0))
+          if ((((strcmp(ModeOutput, "RPI_R") == 0) && (strcmp(RemoteOutput, "LIMEMINI") == 0)) && (CheckRpi() == 0)) && (((FREQTX2 - FREQRX2) > 50) || ((- FREQTX2 - - FREQRX2) > 50)))
           {
             SetButtonStatus(ButtonNumber(CurrentMenu, 20), 1);
             UpdateWindow();
@@ -14860,6 +14862,7 @@ void waituntil(int w,int h)
              SelectInGroupOnMenu(CurrentMenu, 5, 5, 5, 0);
              if ((strcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() == 0))
              {
+               system("sudo /home/pi/rpidatv/scripts/remote_update.sh -forward_update >/dev/null 2>/dev/null &");
                system("sudo /home/pi/rpidatv/scripts/TX_remote.sh -forward_TX >/dev/null 2>/dev/null &");
                MsgBox2("Transpondeur Actif (RPI Remote)", "Touchez l'écran pour désactiver");
                wait_touch();
