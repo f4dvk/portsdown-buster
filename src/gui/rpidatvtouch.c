@@ -120,6 +120,7 @@ char ModeInput[255];
 // char freqtxt[255]; not global
 char ModeAudio[255];
 char ModeOutput[255];
+char RemoteOutput[255];
 char ModeSTD[255];
 char ModeVidIP[255];
 char ModeOP[255];
@@ -337,6 +338,7 @@ void Start_Highlights_Menu44();
 void Start_Highlights_Menu50();
 void Start_Highlights_Menu51();
 void Start_Highlights_Menu52();
+void Start_Highlights_Menu53();
 
 void MsgBox(const char *);
 void MsgBox2(const char *, const char *);
@@ -1494,6 +1496,7 @@ void ReadModeInput(char coding[256], char vsource[256])
 	// Read the current vision source and encoding
 	GetConfigParam(PATH_PCONFIG,"modeinput", ModeInput);
 	GetConfigParam(PATH_PCONFIG,"modeoutput", ModeOutput);
+  GetConfigParam(PATH_PCONFIG,"remoteoutput", RemoteOutput);
 	GetConfigParam(PATH_PCONFIG,"format", CurrentFormat);
 
   // Correct Jetson modes if Jetson not selected
@@ -1814,7 +1817,9 @@ void ReadModeInput(char coding[256], char vsource[256])
 void ReadModeOutput(char Moutput[256])
 {
   char ModeOutput[256];
+  char RemoteOutput[256];
   GetConfigParam(PATH_PCONFIG,"modeoutput", ModeOutput);
+  GetConfigParam(PATH_PCONFIG,"remoteoutput", RemoteOutput);
   strcpy(CurrentModeOP, ModeOutput);
   strcpy(Moutput, "notset");
 
@@ -5670,7 +5675,7 @@ void EnforceValidTXMode()
        && (strcmp(CurrentModeOP, "IP") != 0)
        && (strcmp(CurrentModeOP, "JLIME") != 0)
        && (strcmp(CurrentModeOP, "JEXPRESS") != 0)
-       && (strcmp(CurrentModeOP, "RPI_R") != 0)) // not DVB-S2-capable
+       && ((strcmp(CurrentModeOP, "RPI_R") != 0) && (strcmp(RemoteOutput, "LIMEMINI") != 0))) // not DVB-S2-capable
   {
     if ((strcmp(CurrentTXMode, TabTXMode[0]) != 0) && (strcmp(CurrentTXMode, TabTXMode[1]) != 0))  // Not DVB-S and not Carrier
     {
@@ -5937,7 +5942,7 @@ void GreyOut11()
    && (strcmp(CurrentModeOP, "IP") != 0)
    && (strcmp(CurrentModeOP, "JLIME") != 0)
    && (strcmp(CurrentModeOP, "JEXPRESS") != 0)
-   && (strcmp(CurrentModeOP, "RPI_R") != 0)) // not DVB-S2-capable
+   && ((strcmp(CurrentModeOP, "RPI_R") != 0) && (strcmp(RemoteOutput, "LIMEMINI") != 0))) // not DVB-S2-capable
   {
     SetButtonStatus(ButtonNumber(CurrentMenu, 0), 2); // grey-out S2 QPSK
     SetButtonStatus(ButtonNumber(CurrentMenu, 1), 2); // grey-out 8PSK
@@ -6885,7 +6890,7 @@ void SetAttenLevel()
     SetConfigParam(PATH_PCONFIG, Param, KeyboardReturn);
   }
   else if ((strcmp(CurrentModeOP, TabModeOP[3]) == 0) || (strcmp(CurrentModeOP, TabModeOP[8]) == 0)
-        || (strcmp(CurrentModeOP, TabModeOP[9]) == 0) || (strcmp(CurrentModeOP, TabModeOP[13]) == 0))  // Lime Mini or USB or JLIME or RPI_R
+        || (strcmp(CurrentModeOP, TabModeOP[9]) == 0) || ((strcmp(CurrentModeOP, TabModeOP[13]) == 0) && (strcmp(RemoteOutput, "LIMEMINI"))))  // Lime Mini or USB or JLIME or RPI_R
   {
     while ((LimeGain < 0) || (LimeGain > 100))
     {
@@ -7134,6 +7139,7 @@ void RecallPreset(int PresetButton)
   snprintf(Param, 15, "p%doutput", PresetButton + 1);
   GetConfigParam(PATH_PPRESETS, Param, Value);
   SetConfigParam(PATH_PCONFIG, "modeoutput", Value);
+  GetConfigParam(PATH_PCONFIG,"remoteoutput", RemoteOutput);
   strcpy(Value, "");
   ReadModeOutput(Value);  // Set CurrentModeOP and CurrentModeOPtest
 
@@ -7494,6 +7500,7 @@ void TransmitStart()
 
   strcpy(Param,"modeoutput");
   GetConfigParam(PATH_PCONFIG,Param,Value);
+  GetConfigParam(PATH_PCONFIG,"remoteoutput", RemoteOutput);
   strcpy(ModeOutput,Value);
 
   // Check if MPEG-2 camera mode selected, or streaming PiCam
@@ -7588,6 +7595,7 @@ void TransmitStop()
 
   strcpy(Param,"modeoutput");
   GetConfigParam(PATH_PCONFIG,Param,Value);
+  GetConfigParam(PATH_PCONFIG,"remoteoutput", RemoteOutput);
   strcpy(ModeOutput,Value);
 
 	// If transmit menu is displayed, blue-out the TX button here
@@ -7613,6 +7621,7 @@ void TransmitStop()
   char expressrx[50];
   strcpy(Param,"modeoutput");
   GetConfigParam(PATH_PCONFIG,Param,Value);
+  GetConfigParam(PATH_PCONFIG,"remoteoutput", RemoteOutput);
   strcpy(ModeOutput,Value);
   if(strcmp(ModeOutput,"DATVEXPRESS")==0)
   {
@@ -12521,7 +12530,7 @@ void waituntil(int w,int h)
           SetConfigParam(PATH_RXPRESETS, "rx0parameters", RXparams[0]);
           break;
         case 20:                                            // Forward Leandvb
-          if ((strcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() == 0))
+          if (((strcmp(ModeOutput, "RPI_R") == 0) && (strcmp(RemoteOutput, "LIMEMINI") == 0)) && (CheckRpi() == 0))
           {
             SetButtonStatus(ButtonNumber(CurrentMenu, 20), 1);
             UpdateWindow();
@@ -14835,7 +14844,7 @@ void waituntil(int w,int h)
            UpdateWindow();
            break;
         case 5:
-           if ((CheckLimeMiniConnect() == 0) || ((strcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() == 0)))
+           if ((CheckLimeMiniConnect() == 0) || (((strcmp(ModeOutput, "RPI_R") == 0) && (strcmp(RemoteOutput, "LIMEMINI") == 0)) && (CheckRpi() == 0)))
            {
              SelectInGroupOnMenu(CurrentMenu, 5, 5, 5, 1);
              printf("Forward ON\n");
@@ -14919,6 +14928,59 @@ void waituntil(int w,int h)
         }
         // stay in Menu 52 if parameter changed
         continue;   // Completed Menu 52 action, go and wait for touch
+      }
+			if (CurrentMenu == 53)  // Menu 53 Modeouput RPI Remote
+      {
+        printf("Button Event %d, Entering Menu 53 Case Statement\n",i);
+        switch (i)
+        {
+        case 4:                               // Cancel
+          SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 1);
+          printf("Cancelling Modeouput RPI Remote Menu\n");
+          UpdateWindow();
+          usleep(500000);
+          SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 0); // Reset cancel (even if not selected)
+          printf("Returning to MENU 1 from Menu 53\n");
+          CurrentMenu=1;
+          BackgroundRGB(255,255,255,255);
+          Start_Highlights_Menu1();
+          UpdateWindow();
+          break;
+        case 0:
+           break;
+        case 1:
+           break;
+        case 2:
+           break;
+        case 3:
+           break;
+        case 5:
+           printf("RPI Remote => Lime Mini\n");
+           SetConfigParam(PATH_PCONFIG, "remoteoutput", "LIMEMINI");
+           CurrentMenu=1;
+           BackgroundRGB(255,255,255,255);
+           Start_Highlights_Menu1();
+           UpdateWindow();
+           break;
+        case 6:
+           printf("RPI Remote => Portsdown\n");
+           SetConfigParam(PATH_PCONFIG, "remoteoutput", "IQ");
+           CurrentMenu=1;
+           BackgroundRGB(255,255,255,255);
+           Start_Highlights_Menu1();
+           UpdateWindow();
+           break;
+        case 7:
+           break;
+        case 8:
+           break;
+        case 9:
+           break;
+        default:
+          printf("Menu 53 Error\n");
+        }
+        // stay in Menu 53 if parameter changed
+        continue;   // Completed Menu 53 action, go and wait for touch
       }
     }
   }
@@ -15978,7 +16040,7 @@ void Start_Highlights_Menu5()
   GetConfigParam(PATH_PCONFIG, "freqoutput", FREQTX);
   FREQTX2 = atoi(FREQTX);
   FREQRX2 = atoi(FREQRX);
-  if (((((strcmp(ModeOutput, "LIMEMINI") == 0) && (CheckLimeMiniConnect() == 0)) && ((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))) || ((strcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() == 0))) && (((FREQTX2 - FREQRX2) > 50) || ((- FREQTX2 - - FREQRX2) > 50)))
+  if (((((strcmp(ModeOutput, "LIMEMINI") == 0) && (CheckLimeMiniConnect() == 0)) && ((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))) || (((strcmp(ModeOutput, "RPI_R") == 0) && (strcmp(RemoteOutput, "LIMEMINI") == 0)) && (CheckRpi() == 0))) && (((FREQTX2 - FREQRX2) > 50) || ((- FREQTX2 - - FREQRX2) > 50)))
   {
     SetButtonStatus(ButtonNumber(CurrentMenu, 20), 0);
   }
@@ -19227,7 +19289,7 @@ void Start_Highlights_Menu52()
 	AmendButtonStatus(ButtonNumber(52, 3), 0, Result, &DBlue);
 	AmendButtonStatus(ButtonNumber(52, 3), 1, Result, &LBlue);
 
-	if ((CheckLimeMiniConnect() == 0) || ((strcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() == 0)))
+	if ((CheckLimeMiniConnect() == 0) || (((strcmp(ModeOutput, "RPI_R") == 0) && (strcmp(RemoteOutput, "LIMEMINI") == 0)) && (CheckRpi() == 0)))
 	{
 		SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0);
 	}
@@ -19262,6 +19324,80 @@ void Start_Highlights_Menu52()
 
 	AmendButtonStatus(ButtonNumber(52, 8), 0, Result, &DBlue);
 	AmendButtonStatus(ButtonNumber(52, 8), 1, Result, &LBlue);
+}
+
+void Define_Menu53()
+{
+	int button;
+
+	strcpy(MenuTitle[53], "Mode Output RPI Remote (53)");
+
+	//button = CreateButton(53, 0);
+  //AddButtonStatus(button, "", &Blue);
+	//AddButtonStatus(button, "", &Green);
+
+	//button = CreateButton(53, 1);
+  //AddButtonStatus(button, "", &Blue);
+	//AddButtonStatus(button, "", &Green);
+
+	//button = CreateButton(53, 2);
+  //AddButtonStatus(button, "", &Blue);
+	//AddButtonStatus(button, "", &Green);
+
+	//button = CreateButton(53, 3);
+  //AddButtonStatus(button, "", &Blue);
+	//AddButtonStatus(button, "", &Green);
+
+	button = CreateButton(53, 4);
+  AddButtonStatus(button, "Exit", &DBlue);
+  AddButtonStatus(button, "Exit", &LBlue);
+
+	button = CreateButton(53, 5);
+  AddButtonStatus(button, "Lime Mini", &Blue);
+  AddButtonStatus(button, "Lime Mini", &Green);
+
+	button = CreateButton(53, 6);
+  AddButtonStatus(button, "Portsdown", &Blue);
+  AddButtonStatus(button, "Portsdown", &Green);
+
+	//button = CreateButton(53, 7);
+  //AddButtonStatus(button, "", &Blue);
+  //AddButtonStatus(button, "", &Green);
+
+	//button = CreateButton(53, 8);
+  //AddButtonStatus(button, "", &Blue);
+  //AddButtonStatus(button, "", &Green);
+
+	//button = CreateButton(53, 9);
+  //AddButtonStatus(button, "", &Blue);
+  //AddButtonStatus(button, "", &Green);
+
+}
+
+void Start_Highlights_Menu53()
+{
+
+  GetConfigParam(PATH_PCONFIG, "remoteoutput", RemoteOuput);
+
+	if (strcmp(RemoteOutput, "LIMEMINI") == 0)
+	{
+		SetButtonStatus(ButtonNumber(CurrentMenu, 5), 1);
+	}
+  else
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0);
+  }
+
+	if (strcmp(RemoteOutput, "IQ") == 0)
+	{
+		SetButtonStatus(ButtonNumber(CurrentMenu, 6), 1);
+	}
+  else
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 6), 0);
+  }
+
+
 }
 
 void Define_Menu41()
@@ -19724,6 +19860,7 @@ int main(int argc, char **argv)
   Define_Menu50();
   Define_Menu51();
 	Define_Menu52();
+	Define_Menu53();
 
   // Start the button Menu
   Start(wscreen,hscreen);
