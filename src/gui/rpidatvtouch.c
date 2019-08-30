@@ -7578,7 +7578,6 @@ void TransmitStart()
     system("sudo /home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
     system("sudo /home/pi/rpidatv/scripts/TX_remote.sh >/dev/null 2>/dev/null &");
 	}
-  }
 }
 
 void *Wait3Seconds(void * arg)
