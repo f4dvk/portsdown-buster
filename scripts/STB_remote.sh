@@ -55,29 +55,7 @@ fi
 /bin/cat <<EOM >$CMDFILE
  (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
 
- /home/pi/rpidatv/scripts/TXstopextras.sh >/dev/null 2>/dev/null &
- sudo killall -9 rpidatv >/dev/null 2>/dev/null
- sudo killall -9 ffmpeg >/dev/null 2>/dev/null
- sudo killall -9 tcanim1v16 >/dev/null 2>/dev/null
- sudo killall -9 avc2ts >/dev/null 2>/dev/null
- sudo killall -9 netcat >/dev/null 2>/dev/null
- sudo killall -9 dvb2iq >/dev/null 2>/dev/null
- sudo killall -9 dvb2iq2 >/dev/null 2>/dev/null
- sudo killall -9 limesdr_send >/dev/null 2>/dev/null
- sleep 0.1
- sudo killall -9 avc2ts >/dev/null 2>/dev/null
- sudo killall -9 rpidatv >/dev/null 2>/dev/null
- sudo killall -9 limesdr_send >/dev/null 2>/dev/null
- sudo killall arecord >/dev/null 2>/dev/null
- gpio mode 29 out
- gpio write 29 0
- sudo killall a.sh >/dev/null 2>/dev/null
- sudo rm videoes >/dev/null 2>/dev/null
- sudo rm videots >/dev/null 2>/dev/null
- sudo rm netfifo >/dev/null 2>/dev/null
- sudo rm audioin.wav >/dev/null 2>/dev/null
- sleep 1
- /home/pi/rpidatv/bin/limesdr_stopchannel
+ /home/pi/rpidatv/scripts/b.sh >/dev/null 2>/dev/null &
 
 ENDSSH
       ) &

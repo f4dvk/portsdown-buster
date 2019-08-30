@@ -5934,7 +5934,7 @@ void GreyOutReset11()
 
 void GreyOut11()
 {
-	if ((strcmp(CurrentModeOP, "LIMEUSB") != 0)
+	if (((strcmp(CurrentModeOP, "LIMEUSB") != 0)
    && (strcmp(CurrentModeOP, "LIMEMINI") != 0)
    && (strcmp(CurrentModeOP, "LIMEFPGA") != 0)
    && (strcmp(CurrentModeOP, "STREAMER") != 0)
@@ -5942,7 +5942,8 @@ void GreyOut11()
    && (strcmp(CurrentModeOP, "IP") != 0)
    && (strcmp(CurrentModeOP, "JLIME") != 0)
    && (strcmp(CurrentModeOP, "JEXPRESS") != 0)
-   && ((strcmp(CurrentModeOP, "RPI_R") != 0) && (strcmp(RemoteOutput, "LIMEMINI") != 0))) // not DVB-S2-capable
+   && (strcmp(CurrentModeOP, "RPI_R") != 0))
+   || ((strcmp(CurrentModeOP, "RPI_R") == 0) && (strcmp(RemoteOutput, "LIMEMINI") != 0))) // not DVB-S2-capable
   {
     SetButtonStatus(ButtonNumber(CurrentMenu, 0), 2); // grey-out S2 QPSK
     SetButtonStatus(ButtonNumber(CurrentMenu, 1), 2); // grey-out 8PSK
@@ -6890,7 +6891,7 @@ void SetAttenLevel()
     SetConfigParam(PATH_PCONFIG, Param, KeyboardReturn);
   }
   else if ((strcmp(CurrentModeOP, TabModeOP[3]) == 0) || (strcmp(CurrentModeOP, TabModeOP[8]) == 0)
-        || (strcmp(CurrentModeOP, TabModeOP[9]) == 0) || ((strcmp(CurrentModeOP, TabModeOP[13]) == 0) && (strcmp(RemoteOutput, "LIMEMINI"))))  // Lime Mini or USB or JLIME or RPI_R
+        || (strcmp(CurrentModeOP, TabModeOP[9]) == 0) || ((strcmp(CurrentModeOP, TabModeOP[13]) == 0) && (strcmp(RemoteOutput, "LIMEMINI") == 0)))  // Lime Mini or USB or JLIME or RPI_R
   {
     while ((LimeGain < 0) || (LimeGain > 100))
     {
@@ -14361,7 +14362,10 @@ void waituntil(int w,int h)
         case 14:                              // RPI Remote
           SelectOP(i);
           printf("RPI Remote\n");
-          system("sudo /home/pi/rpidatv/scripts/remote_update.sh -init >/dev/null 2>/dev/null &");
+          CurrentMenu=53;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu53();
+          UpdateWindow();
           break;
         case 5:                               // IQ
           SelectOP(i);
@@ -14410,15 +14414,18 @@ void waituntil(int w,int h)
         default:
           printf("Menu 42 Error\n");
         }
-        Start_Highlights_Menu42();  // Update Menu appearance
-        UpdateWindow();             // and display for half a second
-        usleep(500000);
-        SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 0); // Reset cancel (even if not selected)
-        printf("Returning to MENU 1 from Menu 42\n");
-        CurrentMenu=1;
-        BackgroundRGB(255,255,255,255);
-        Start_Highlights_Menu1();
-        UpdateWindow();
+        if (strcmp(CurrentModeOP, "RPI_R") != 0)
+        {
+          Start_Highlights_Menu42();  // Update Menu appearance
+          UpdateWindow();             // and display for half a second
+          usleep(500000);
+          SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 0); // Reset cancel (even if not selected)
+          printf("Returning to MENU 1 from Menu 42\n");
+          CurrentMenu=1;
+          BackgroundRGB(255,255,255,255);
+          Start_Highlights_Menu1();
+          UpdateWindow();
+        }
         continue;   // Completed Menu 42 action, go and wait for touch
       }
 
@@ -14929,7 +14936,7 @@ void waituntil(int w,int h)
         // stay in Menu 52 if parameter changed
         continue;   // Completed Menu 52 action, go and wait for touch
       }
-			if (CurrentMenu == 53)  // Menu 53 Modeouput RPI Remote
+      if (CurrentMenu == 53)  // Menu 53 Modeouput RPI Remote
       {
         printf("Button Event %d, Entering Menu 53 Case Statement\n",i);
         switch (i)
@@ -14957,6 +14964,7 @@ void waituntil(int w,int h)
         case 5:
            printf("RPI Remote => Lime Mini\n");
            SetConfigParam(PATH_PCONFIG, "remoteoutput", "LIMEMINI");
+           system("sudo /home/pi/rpidatv/scripts/remote_update.sh -init >/dev/null 2>/dev/null &");
            CurrentMenu=1;
            BackgroundRGB(255,255,255,255);
            Start_Highlights_Menu1();
@@ -14965,6 +14973,7 @@ void waituntil(int w,int h)
         case 6:
            printf("RPI Remote => Portsdown\n");
            SetConfigParam(PATH_PCONFIG, "remoteoutput", "IQ");
+           system("sudo /home/pi/rpidatv/scripts/remote_update.sh -init >/dev/null 2>/dev/null &");
            CurrentMenu=1;
            BackgroundRGB(255,255,255,255);
            Start_Highlights_Menu1();
@@ -15425,7 +15434,7 @@ void Start_Highlights_Menu1()
   else if ((strcmp(CurrentModeOP, TabModeOP[3]) == 0)
         || (strcmp(CurrentModeOP, TabModeOP[8]) == 0)
         || (strcmp(CurrentModeOP, TabModeOP[9]) == 0)
-        || (strcmp(CurrentModeOP, TabModeOP[13]) == 0))  // Lime
+        || ((strcmp(CurrentModeOP, TabModeOP[13]) == 0) && (strcmp(RemoteOutput, "LIMEMINI") == 0)))  // Lime
   {
     snprintf(Leveltext, 20, "Lime Gain^%d", TabBandLimeGain[CurrentBand]);
   }
@@ -19332,43 +19341,44 @@ void Define_Menu53()
 
 	strcpy(MenuTitle[53], "Mode Output RPI Remote (53)");
 
-	//button = CreateButton(53, 0);
+  //button = CreateButton(53, 0);
   //AddButtonStatus(button, "", &Blue);
 	//AddButtonStatus(button, "", &Green);
 
-	//button = CreateButton(53, 1);
+  //button = CreateButton(53, 1);
   //AddButtonStatus(button, "", &Blue);
 	//AddButtonStatus(button, "", &Green);
 
-	//button = CreateButton(53, 2);
+  //button = CreateButton(53, 2);
   //AddButtonStatus(button, "", &Blue);
 	//AddButtonStatus(button, "", &Green);
 
-	//button = CreateButton(53, 3);
+  //button = CreateButton(53, 3);
   //AddButtonStatus(button, "", &Blue);
 	//AddButtonStatus(button, "", &Green);
 
-	button = CreateButton(53, 4);
+  button = CreateButton(53, 4);
   AddButtonStatus(button, "Exit", &DBlue);
   AddButtonStatus(button, "Exit", &LBlue);
 
-	button = CreateButton(53, 5);
+  button = CreateButton(53, 5);
+  AddButtonStatus(button, "Lime Mini", &Grey);
   AddButtonStatus(button, "Lime Mini", &Blue);
   AddButtonStatus(button, "Lime Mini", &Green);
 
-	button = CreateButton(53, 6);
+  button = CreateButton(53, 6);
   AddButtonStatus(button, "Portsdown", &Blue);
   AddButtonStatus(button, "Portsdown", &Green);
 
-	//button = CreateButton(53, 7);
+  //button = CreateButton(53, 7);
   //AddButtonStatus(button, "", &Blue);
   //AddButtonStatus(button, "", &Green);
 
-	//button = CreateButton(53, 8);
+  //button = CreateButton(53, 8);
   //AddButtonStatus(button, "", &Blue);
   //AddButtonStatus(button, "", &Green);
 
-	//button = CreateButton(53, 9);
+  //button = CreateButton(53, 9);
   //AddButtonStatus(button, "", &Blue);
   //AddButtonStatus(button, "", &Green);
 
@@ -19379,25 +19389,18 @@ void Start_Highlights_Menu53()
 
   GetConfigParam(PATH_PCONFIG, "remoteoutput", RemoteOutput);
 
-	if (strcmp(RemoteOutput, "LIMEMINI") == 0)
-	{
-		SetButtonStatus(ButtonNumber(CurrentMenu, 5), 1);
-	}
-  else
+  SetButtonStatus(ButtonNumber(CurrentMenu, 5), 1);
+  SetButtonStatus(ButtonNumber(CurrentMenu, 6), 0);
+
+  if (strcmp(RemoteOutput, "LIMEMINI") == 0)
   {
-    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0);
+    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 2);
   }
 
-	if (strcmp(RemoteOutput, "IQ") == 0)
-	{
-		SetButtonStatus(ButtonNumber(CurrentMenu, 6), 1);
-	}
-  else
+  if (strcmp(RemoteOutput, "IQ") == 0)
   {
-    SetButtonStatus(ButtonNumber(CurrentMenu, 6), 0);
+    SetButtonStatus(ButtonNumber(CurrentMenu, 6), 1);
   }
-
-
 }
 
 void Define_Menu41()
