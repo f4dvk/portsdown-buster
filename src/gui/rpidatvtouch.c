@@ -12551,6 +12551,12 @@ void waituntil(int w,int h)
             UpdateWindow();
             ForwardLeandvbStart();
           }
+          else if ((strcmp(ModeOutput,"RPI_R") == 0) && (CheckRpi() != 0))
+          {
+            MsgBox2("Connexion perdue avec le RPI distant", "Touchez l'écran pour sortir");
+            wait_touch();
+            UpdateWindow();
+          }
           break;
         case 21: // RX
           if (strcmp(ModeOutput, "RPI_R") != 0)
@@ -14872,6 +14878,12 @@ void waituntil(int w,int h)
                MsgBox2("Transpondeur Actif (RPI Remote)", "Touchez l'écran pour désactiver");
                wait_touch();
                system("sudo /home/pi/rpidatv/scripts/STB_remote.sh -forward_STB >/dev/null 2>/dev/null &");
+             }
+             else if ((strcmp(ModeOutput,"RPI_R") == 0) && (CheckRpi() != 0))
+             {
+               MsgBox2("Connexion perdue avec le RPI distant", "Touchez l'écran pour sortir");
+               wait_touch();
+               UpdateWindow();
              }
              else
              {
