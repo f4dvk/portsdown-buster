@@ -269,7 +269,6 @@ cp -f -r portsdown-master/video rpidatv
 cp -f -r portsdown-master/version_history.txt rpidatv/version_history.txt
 rm master.zip
 rm -rf portsdown-master
-chmod -R +x /home/pi/rpidatv/scripts/
 cd /home/pi
 
 # Check if avc2ts dependencies need to be installed 20190420

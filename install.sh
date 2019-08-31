@@ -99,11 +99,6 @@ wget https://github.com/${GIT_SRC}/portsdown/archive/master.zip
 unzip -o master.zip
 mv portsdown-master rpidatv
 rm master.zip
-chmod -R +x /home/pi/rpidatv/scripts/
-#chmod +x rpibutton_rx.sh
-#chmod +x rpibutton_tx.sh
-#chmod +x leandvb_rx.sh
-#chmod +x ctlSR.sh
 cd /home/pi
 
 # Download the previously selected version of avc2ts

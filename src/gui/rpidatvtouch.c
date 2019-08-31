@@ -12555,6 +12555,8 @@ void waituntil(int w,int h)
           {
             MsgBox2("Connexion perdue avec le RPI distant", "Touchez l'écran pour sortir");
             wait_touch();
+            BackgroundRGB(0,0,0,255);
+            Start_Highlights_Menu5();
             UpdateWindow();
           }
           break;
@@ -14864,7 +14866,7 @@ void waituntil(int w,int h)
            UpdateWindow();
            break;
         case 5:
-           if ((CheckLimeMiniConnect() == 0) || (((strcmp(ModeOutput, "RPI_R") == 0) && (strcmp(RemoteOutput, "LIMEMINI") == 0)) && (CheckRpi() == 0)))
+           if (((CheckLimeMiniConnect() == 0) && (strcmp(ModeOutput, "RPI_R") != 0)) || (((strcmp(ModeOutput, "RPI_R") == 0) && (strcmp(RemoteOutput, "LIMEMINI") == 0)) && (CheckRpi() == 0)))
            {
              SelectInGroupOnMenu(CurrentMenu, 5, 5, 5, 1);
              printf("Forward ON\n");
@@ -14879,12 +14881,6 @@ void waituntil(int w,int h)
                wait_touch();
                system("sudo /home/pi/rpidatv/scripts/STB_remote.sh -forward_STB >/dev/null 2>/dev/null &");
              }
-             else if ((strcmp(ModeOutput,"RPI_R") == 0) && (CheckRpi() != 0))
-             {
-               MsgBox2("Connexion perdue avec le RPI distant", "Touchez l'écran pour sortir");
-               wait_touch();
-               UpdateWindow();
-             }
              else
              {
                system("/home/pi/rpidatv/src/limesdr_toolbox/transpondeur.sh >/dev/null 2>/dev/null &");
@@ -14894,11 +14890,16 @@ void waituntil(int w,int h)
                system("sleep 0.5");
                system("/home/pi/rpidatv/bin/limesdr_stopchannel");
              }
-             CurrentMenu=52;
-             BackgroundRGB(0,0,0,255);
-             Start_Highlights_Menu52();
-             UpdateWindow();
            }
+           else ((strcmp(ModeOutput,"RPI_R") == 0) && (CheckRpi() != 0))
+           {
+             MsgBox2("Connexion perdue avec le RPI distant", "Touchez l'écran pour sortir");
+             wait_touch();
+           }
+           CurrentMenu=52;
+           BackgroundRGB(0,0,0,255);
+           Start_Highlights_Menu52();
+           UpdateWindow();
            break;
         case 6:
            SelectInGroupOnMenu(CurrentMenu, 6, 6, 6, 1);
