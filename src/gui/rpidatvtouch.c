@@ -14891,7 +14891,7 @@ void waituntil(int w,int h)
                system("/home/pi/rpidatv/bin/limesdr_stopchannel");
              }
            }
-           else ((strcmp(ModeOutput,"RPI_R") == 0) && (CheckRpi() != 0))
+           else if ((strcmp(ModeOutput,"RPI_R") == 0) && (CheckRpi() != 0))
            {
              MsgBox2("Connexion perdue avec le RPI distant", "Touchez l'écran pour sortir");
              wait_touch();
