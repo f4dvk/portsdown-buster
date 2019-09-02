@@ -11682,8 +11682,8 @@ void waituntil(int w,int h)
      {
        //MsgBox2("Connexion perdue avec le RPI distant", "Touchez l'écran pour sortir");
        //wait_touch();
-       //UpdateWindow();
        //BackgroundRGB(255,255,255,255);
+       //UpdateWindow();
        continue;
      }
 
@@ -11699,8 +11699,8 @@ void waituntil(int w,int h)
      {
        MsgBox2("Connexion perdue avec le RPI distant", "Touchez l'écran pour sortir");
        wait_touch();
-       UpdateWindow();
        BackgroundRGB(0,0,0,255);
+       UpdateWindow();
        continue;
      }
 
@@ -11721,8 +11721,8 @@ void waituntil(int w,int h)
      {
        MsgBox2("Connexion perdue avec le RPI distant", "Touchez l'écran pour sortir");
        wait_touch();
-       UpdateWindow();
        BackgroundRGB(0,0,0,255);
+       UpdateWindow();
        continue;
      }
 
@@ -11742,8 +11742,8 @@ void waituntil(int w,int h)
     {
       MsgBox2("Connexion perdue avec le RPI distant", "Touchez l'écran pour sortir");
       wait_touch();
-      UpdateWindow();
       BackgroundRGB(255,255,255,255);
+      UpdateWindow();
       continue;
     }
 
