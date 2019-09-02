@@ -793,6 +793,9 @@ rm -rf /home/pi/prev_installed_version.txt
 # Save (overwrite) the git source used
 echo "${GIT_SRC}" > /home/pi/${GIT_SRC_FILE}
 
+# Réduction temps démarrage sans ethernet
+sudo sed -i 's/^TimeoutStartSec.*/TimeoutStartSec=5/' /etc/systemd/system/network-online.target.wants/networking.service
+
 # Reboot
 DisplayRebootMsg "Step 10 of 10\nRebooting\n\nUpdate Complete"
 printf "\nRebooting\n"

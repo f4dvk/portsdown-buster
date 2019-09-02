@@ -420,6 +420,9 @@ else
   echo "Completed English Install"
 fi
 
+# Réduction temps démarrage sans ethernet
+sudo sed -i 's/^TimeoutStartSec.*/TimeoutStartSec=5/' /etc/systemd/system/network-online.target.wants/networking.service
+
 # Save git source used
 echo "${GIT_SRC}" > /home/pi/${GIT_SRC_FILE}
 
