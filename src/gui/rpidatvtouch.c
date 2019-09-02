@@ -7454,6 +7454,33 @@ void CompVidStop()
 
 }
 
+void ForwardStart()
+{
+  if (strcmp(ModeOutput, "RPI_R") == 0)
+  {
+    system("sudo /home/pi/rpidatv/scripts/remote_update.sh -forward_update >/dev/null 2>/dev/null &");
+    system("sudo /home/pi/rpidatv/scripts/TX_remote.sh -forward_TX >/dev/null 2>/dev/null &");
+  }
+  else
+  {
+    system("/home/pi/rpidatv/scripts/lime_ptt.sh &");
+    system("/home/pi/rpidatv/src/limesdr_toolbox/transpondeur.sh >/dev/null 2>/dev/null &");
+  }
+  strcpy(ScreenState, "LinearRXtoTX");
+}
+
+void ForwardStop()
+{
+  if (strcmp(ModeOutput, "RPI_R") == 0)
+  {
+    system("sudo /home/pi/rpidatv/scripts/STB_remote.sh -forward_STB >/dev/null 2>/dev/null &");
+  }
+  else
+  {
+    system("sudo /home/pi/rpidatv/scripts/b.sh >/dev/null 2>/dev/null &");
+  }
+}
+
 void ForwardLeandvbStart()
 {
   SetConfigParam(PATH_RXPRESETS, "etat", "ON");
@@ -11637,7 +11664,7 @@ void waituntil(int w,int h)
       // printf("Screenstate is %s \n", ScreenState);
 
      // Sort TXwithImage first:
-    if (strcmp(ScreenState, "TXwithImage") == 0)
+    if ((strcmp(ScreenState, "TXwithImage") == 0) && ((strcmp(ModeOutput, "RPI_R") != 0) || ((strcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() == 0))))
     {
       TransmitStop();
       // ReceiveStop();
@@ -11651,23 +11678,56 @@ void waituntil(int w,int h)
       UpdateWindow();
       continue;  // All reset, and Menu displayed so go back and wait for next touch
      }
+     else if ((strcmp(ScreenState, "TXwithImage") == 0) && (strcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() != 0))
+     {
+       //MsgBox2("Connexion perdue avec le RPI distant", "Touchez l'écran pour sortir");
+       //wait_touch();
+       //UpdateWindow();
+       //BackgroundRGB(255,255,255,255);
+       continue;
+     }
 
-     if (strcmp(ScreenState, "RXtoTX") == 0)
+     if ((strcmp(ScreenState, "LinearRXtoTX") == 0) && ((strcmp(ModeOutput, "RPI_R") != 0) || ((strcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() == 0))))
+     {
+       SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0);
+       strcpy(ScreenState, "NormalMenu");
+       UpdateWindow();
+       ForwardStop();
+       continue;
+     }
+     else if ((strcmp(ScreenState, "LinearRXtoTX") == 0) && (strcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() != 0))
+     {
+       MsgBox2("Connexion perdue avec le RPI distant", "Touchez l'écran pour sortir");
+       wait_touch();
+       UpdateWindow();
+       BackgroundRGB(0,0,0,255);
+       continue;
+     }
+
+     if ((strcmp(ScreenState, "RXtoTX") == 0) && ((strcmp(ModeOutput, "RPI_R") != 0) || ((strcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() == 0))))
      {
        SetButtonStatus(ButtonNumber(CurrentMenu, 20), 0);
        strcpy(ScreenState, "NormalMenu");
        UpdateWindow();
        if (strcmp(ModeOutput, "RPI_R") != 0)
-		   {
+       {
          TransmitStop();
          ReceiveStop();
        }
        ForwardLeandvbStop();
        continue;
      }
+     else if ((strcmp(ScreenState, "RXtoTX") == 0) && (strcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() != 0))
+     {
+       MsgBox2("Connexion perdue avec le RPI distant", "Touchez l'écran pour sortir");
+       wait_touch();
+       UpdateWindow();
+       BackgroundRGB(0,0,0,255);
+       continue;
+     }
 
     // Now Sort TXwithMenu:
-    if (strcmp(ScreenState, "TXwithMenu") == 0)
+    if ((strcmp(ScreenState, "TXwithMenu") == 0) && ((strcmp(ModeOutput, "RPI_R") != 0) || ((strcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() == 0))))
     {
       SelectPTT(20, 0);  // Update screen first
       UpdateWindow();
@@ -11676,6 +11736,14 @@ void waituntil(int w,int h)
       {
         strcpy(ScreenState, "NormalMenu");
       }
+      continue;
+    }
+    else if ((strcmp(ScreenState, "TXwithMenu") == 0) && (strcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() != 0))
+    {
+      MsgBox2("Connexion perdue avec le RPI distant", "Touchez l'écran pour sortir");
+      wait_touch();
+      UpdateWindow();
+      BackgroundRGB(255,255,255,255);
       continue;
     }
 
@@ -11961,6 +12029,11 @@ void waituntil(int w,int h)
             if ((strcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() == 0))
             {
               system("sudo /home/pi/rpidatv/scripts/remote_update.sh -rx >/dev/null 2>/dev/null &");
+            }
+            if ((strcmp(ModeOutput, "RPI_R") == 0) && (strcmp(RemoteOutput, "LIMEMINI") != 0) && (strcmp(RXMOD, "DVB-S") != 0))
+            {
+              SetConfigParam(PATH_RXPRESETS, "rx0modulation", "DVB-S");
+              SetConfigParam(PATH_RXPRESETS, "rx0fec", "7");
             }
             BackgroundRGB(0,0,0,255);
             Start_Highlights_Menu5();
@@ -12538,13 +12611,13 @@ void waituntil(int w,int h)
           SetConfigParam(PATH_RXPRESETS, "rx0parameters", RXparams[0]);
           break;
         case 20:                                            // Forward Leandvb
-          if ((((strcmp(ModeOutput, "RPI_R") == 0) && (strcmp(RemoteOutput, "LIMEMINI") == 0)) && (CheckRpi() == 0)) && (((FREQTX2 - FREQRX2) > 50) || ((- FREQTX2 - - FREQRX2) > 50)))
+          if (((strcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() == 0)) && (((FREQTX2 - FREQRX2) > 50) || ((- FREQTX2 - - FREQRX2) > 50)))
           {
             SetButtonStatus(ButtonNumber(CurrentMenu, 20), 1);
             UpdateWindow();
             ForwardLeandvbStart();
           }
-          else if ((((strcmp(ModeOutput, "LIMEMINI") == 0) && (CheckLimeMiniConnect() == 0)) && ((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))) && (((FREQTX2 - FREQRX2) > 50) || ((- FREQTX2 - - FREQRX2) > 50)))
+          else if (((((strcmp(ModeOutput, "LIMEMINI") == 0) && (CheckLimeMiniConnect() == 0)) || (strcmp(ModeOutput, "IQ") == 0)) && ((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))) && (((FREQTX2 - FREQRX2) > 50) || ((- FREQTX2 - - FREQRX2) > 50)))
           {
             system("/home/pi/rpidatv/scripts/lime_ptt.sh &");
             SetButtonStatus(ButtonNumber(CurrentMenu, 20), 1);
@@ -14328,20 +14401,26 @@ void waituntil(int w,int h)
           UpdateWindow();
           break;
         case 6:                               // DVB-S2
-          SetConfigParam(PATH_RXPRESETS, "rx0modulation", "DVB-S2");
-          SetConfigParam(PATH_RXPRESETS, "rx0fec", "Auto");
-          CurrentMenu=5;
-          BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu5();
-          UpdateWindow();
+          if ((strcmp(ModeOutput, "RPI_R") != 0) || ((strcmp(ModeOutput, "RPI_R") == 0) && (strcmp(RemoteOutput, "LIMEMINI") == 0)))
+          {
+            SetConfigParam(PATH_RXPRESETS, "rx0modulation", "DVB-S2");
+            SetConfigParam(PATH_RXPRESETS, "rx0fec", "Auto");
+            CurrentMenu=5;
+            BackgroundRGB(0,0,0,255);
+            Start_Highlights_Menu5();
+            UpdateWindow();
+          }
           break;
         case 7:                               // 8PSK
-          SetConfigParam(PATH_RXPRESETS, "rx0modulation", "8PSK");
-          SetConfigParam(PATH_RXPRESETS, "rx0fec", "Auto");
-          CurrentMenu=5;
-          BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu5();
-          UpdateWindow();
+          if ((strcmp(ModeOutput, "RPI_R") != 0) || ((strcmp(ModeOutput, "RPI_R") == 0) && (strcmp(RemoteOutput, "LIMEMINI") == 0)))
+          {
+            SetConfigParam(PATH_RXPRESETS, "rx0modulation", "8PSK");
+            SetConfigParam(PATH_RXPRESETS, "rx0fec", "Auto");
+            CurrentMenu=5;
+            BackgroundRGB(0,0,0,255);
+            Start_Highlights_Menu5();
+            UpdateWindow();
+          }
           break;
         //case 8:                               // 16APSK
           //SetConfigParam(PATH_RXPRESETS, "rx0modulation", "16APSK");
@@ -14868,38 +14947,19 @@ void waituntil(int w,int h)
         case 5:
            if (((CheckLimeMiniConnect() == 0) && (strcmp(ModeOutput, "RPI_R") != 0)) || (((strcmp(ModeOutput, "RPI_R") == 0) && (strcmp(RemoteOutput, "LIMEMINI") == 0)) && (CheckRpi() == 0)))
            {
-             SelectInGroupOnMenu(CurrentMenu, 5, 5, 5, 1);
              printf("Forward ON\n");
+             SetButtonStatus(ButtonNumber(CurrentMenu, 5), 1);
+             ForwardStart();
              UpdateWindow();
-             usleep(500000);
-             SelectInGroupOnMenu(CurrentMenu, 5, 5, 5, 0);
-             if ((strcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() == 0))
-             {
-               system("sudo /home/pi/rpidatv/scripts/remote_update.sh -forward_update >/dev/null 2>/dev/null &");
-               system("sudo /home/pi/rpidatv/scripts/TX_remote.sh -forward_TX >/dev/null 2>/dev/null &");
-               MsgBox2("Transpondeur Actif (RPI Remote)", "Touchez l'écran pour désactiver");
-               wait_touch();
-               system("sudo /home/pi/rpidatv/scripts/STB_remote.sh -forward_STB >/dev/null 2>/dev/null &");
-             }
-             else
-             {
-               system("/home/pi/rpidatv/src/limesdr_toolbox/transpondeur.sh >/dev/null 2>/dev/null &");
-               MsgBox2("Transpondeur Actif", "Touchez l'écran pour désactiver");
-               wait_touch();
-               system("sudo killall limesdr_forward");
-               system("sleep 0.5");
-               system("/home/pi/rpidatv/bin/limesdr_stopchannel");
-             }
            }
            else if ((strcmp(ModeOutput,"RPI_R") == 0) && (CheckRpi() != 0))
            {
              MsgBox2("Connexion perdue avec le RPI distant", "Touchez l'écran pour sortir");
              wait_touch();
+             BackgroundRGB(0,0,0,255);
+             Start_Highlights_Menu52();
+             UpdateWindow();
            }
-           CurrentMenu=52;
-           BackgroundRGB(0,0,0,255);
-           Start_Highlights_Menu52();
-           UpdateWindow();
            break;
         case 6:
            SelectInGroupOnMenu(CurrentMenu, 6, 6, 6, 1);
@@ -16070,7 +16130,7 @@ void Start_Highlights_Menu5()
   GetConfigParam(PATH_PCONFIG, "freqoutput", FREQTX);
   FREQTX2 = atoi(FREQTX);
   FREQRX2 = atoi(FREQRX);
-  if (((((strcmp(ModeOutput, "LIMEMINI") == 0) && (CheckLimeMiniConnect() == 0)) && ((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))) || (((strcmp(ModeOutput, "RPI_R") == 0) && (strcmp(RemoteOutput, "LIMEMINI") == 0)) && (CheckRpi() == 0))) && (((FREQTX2 - FREQRX2) > 50) || ((- FREQTX2 - - FREQRX2) > 50)))
+  if ((((((strcmp(ModeOutput, "LIMEMINI") == 0) && (CheckLimeMiniConnect() == 0)) || (strcmp(ModeOutput, "IQ") == 0)) && ((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))) || ((strcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() == 0))) && (((FREQTX2 - FREQRX2) > 50) || ((- FREQTX2 - - FREQRX2) > 50)))
   {
     SetButtonStatus(ButtonNumber(CurrentMenu, 20), 0);
   }
@@ -18845,6 +18905,12 @@ void Start_Highlights_Menu40()
     SetButtonStatus(ButtonNumber(CurrentMenu, 7), 1); // 8PSK
   }
 
+  if ((strcmp(ModeOutput, "RPI_R") == 0) && (strcmp(RemoteOutput, "LIMEMINI") != 0))
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 6), 2); // DVB-S2 Grey
+    SetButtonStatus(ButtonNumber(CurrentMenu, 7), 2); // 8PSK Grey
+  }
+
   //if (strcmp(RXMOD, "16APSK") == 0) // 16APSK
   //{
     //SetButtonStatus(ButtonNumber(CurrentMenu, 8), 1); // 16APSK
@@ -19265,7 +19331,7 @@ void Define_Menu52()
 
 	button = CreateButton(52, 5);
   AddButtonStatus(button, "Forward^ON", &DBlue);
-  AddButtonStatus(button, "Forward^ON", &LBlue);
+  AddButtonStatus(button, "Forward^ON", &Red);
 	AddButtonStatus(button, "Forward^ON", &Grey);
 
 	button = CreateButton(52, 6);

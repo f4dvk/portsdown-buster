@@ -34,6 +34,11 @@ PORT=5001
 SYMBOLRATEK=$(get_config_var rx0sr $RXPRESETSFILE)
 let SYMBOLRATE=SYMBOLRATEK*1000
 
+MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
+PIN_I=$(get_config_var gpio_i $PCONFIGFILE)
+PIN_Q=$(get_config_var gpio_q $PCONFIGFILE)
+RF_GAIN=$(get_config_var rfpower $PCONFIGFILE)
+
 FREQ_TX=$(get_config_var freqoutput $PCONFIGFILE)
 LIME_TX_GAIN=$(get_config_var limegain $PCONFIGFILE)
 
@@ -210,10 +215,16 @@ if [ "$ETAT" = "OFF" ]; then
   else  # MPEG-2
     $PATHBIN"hello_video2.bin" fifo.264 &
   fi
-else
-  $PATHBIN/"dvb2iq2" -i videots -s $SYMBOLRATEK -f $FECIQ \
+elif [ "$ETAT" = "ON" ] && [ "$MODE_OUTPUT" != "RPI_R" ]; then
+  if [ "$MODE_OUTPUT" = "LIMEMINI" ]; then
+    $PATHBIN/"dvb2iq2" -i videots -s $SYMBOLRATEK -f $FECIQ \
             -r 4 -m $MODULATION_TX -c $CONST \
-  |sudo $PATHBIN/"limesdr_send" -b 2.5e6 -r 4 -s $SYMBOLRATE -g $LIME_TX_GAINA -f $FREQ_TX"e6" &
+    |sudo $PATHBIN/"limesdr_send" -b 2.5e6 -r 4 -s $SYMBOLRATE -g $LIME_TX_GAINA -f $FREQ_TX"e6" &
+  elif [ "$MODE_OUTPUT" = "IQ" ]; then
+    $PATHSCRIPT"/ctlfilter.sh"
+    $PATHSCRIPT"/ctlvco.sh"
+    sudo $PATHBIN"/rpidatv" -i videots -s $SYMBOLRATEK -c $FECNUM"/"$FECDEN -f $FREQTX -p $RF_GAIN -m $MODE_OUTPUT -x $PIN_I -y $PIN_Q &
+  fi
 fi
 
 if [ "$1" == "-remote_rxtotx_on" ]; then
