@@ -253,6 +253,8 @@ char FREQTX[256];
 char FREQRX[256];
 int FREQTX2;
 int FREQRX2;
+char wlan0[255];
+char wlan1[255];
 
 // LongMynd RX Parameters. [0] is current.
 int LMRXfreq[22];           // Integer frequency in kHz 0 current, 1-10 q, 11-20 t, 21 second tuner current
@@ -18814,8 +18816,6 @@ void Start_Highlights_Menu36()
 {
   char Param[255];
   char Value[255];
-  char wlan0[255];
-  char wlan1[255];
   char Card[255];
   color_t Red;
   color_t Orange;
@@ -18867,8 +18867,6 @@ void Start_Highlights_Menu36()
   /// Boutons wlan
   GetConfigParam(PATH_WIFICONFIG, "wifi", Card);
   strcpy(Param,"card1");
-  char Nwifi[255];
-  strcpy(Nwifi,"");
   strcpy(wlan0,"");
   GetConfigParam(PATH_WIFIGET, Param, wlan0);
 
@@ -18877,9 +18875,7 @@ void Start_Highlights_Menu36()
     SetButtonStatus(ButtonNumber(CurrentMenu, 7), 0);
   }
 
-  strcpy(Param,"card2");
-  char Nwifi[255];
-  strcpy(Nwifi,"");
+  strcpy(Param,"card2");;
   strcpy(wlan1,"");
   GetConfigParam(PATH_WIFIGET, Param, wlan1);
 
