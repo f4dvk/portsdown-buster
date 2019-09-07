@@ -18797,14 +18797,16 @@ void Define_Menu36()
   AddButtonStatus(button, "SSID^None", &Orange);
 
   button = CreateButton(36, 7);
-  AddButtonStatus(button, "Wlan0", &DBlue);
-  AddButtonStatus(button, "Wlan0", &Green);
-  AddButtonStatus(button, "Wlan0", &Grey);
+  AddButtonStatus(button, "Wlan0^Détecté", &DBlue);
+  AddButtonStatus(button, "Wlan0^Utilisé", &DBlue);
+  AddButtonStatus(button, "Wlan0^Actif", &Green);
+  AddButtonStatus(button, "Wlan0^Out", &Grey);
 
   button = CreateButton(36, 8);
-  AddButtonStatus(button, "Wlan1", &DBlue);
-  AddButtonStatus(button, "Wlan1", &Green);
-  AddButtonStatus(button, "Wlan1", &Grey);
+  AddButtonStatus(button, "Wlan1^Détecté", &DBlue);
+  AddButtonStatus(button, "Wlan1^Utilisé", &LBlue);
+  AddButtonStatus(button, "Wlan1^Actif", &Green);
+  AddButtonStatus(button, "Wlan1^Out", &Grey);
 
   button = CreateButton(36, 9);
   AddButtonStatus(button, "Wifi^Restart", &DBlue);
@@ -18817,6 +18819,7 @@ void Start_Highlights_Menu36()
   char Param[255];
   char Value[255];
   char Card[255];
+  char Used[255];
   color_t Red;
   color_t Orange;
   Red.r=255; Red.g=0; Red.b=0;
@@ -18861,11 +18864,12 @@ void Start_Highlights_Menu36()
     SetButtonStatus(ButtonNumber(CurrentMenu, 9), 2);
   }
 
-  SetButtonStatus(ButtonNumber(CurrentMenu, 7), 2);
-  SetButtonStatus(ButtonNumber(CurrentMenu, 8), 2);
+  SetButtonStatus(ButtonNumber(CurrentMenu, 7), 3);
+  SetButtonStatus(ButtonNumber(CurrentMenu, 8), 3);
 
   /// Boutons wlan
   GetConfigParam(PATH_WIFICONFIG, "wifi", Card);
+  GetConfigParam(PATH_WIFIGET, "used", Used);
   strcpy(Param,"card1");
   strcpy(wlan0,"");
   GetConfigParam(PATH_WIFIGET, Param, wlan0);
@@ -18892,6 +18896,15 @@ void Start_Highlights_Menu36()
   if (strcmp(Card, "wlan1") == 0)
   {
     SetButtonStatus(ButtonNumber(CurrentMenu, 8), 1);
+  }
+
+  if (strcmp(Used, "wlan0") == 0)
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 7), 2);
+  }
+  if (strcmp(Used, "wlan1") == 0)
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 8), 2);
   }
 
 }

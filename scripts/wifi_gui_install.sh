@@ -55,6 +55,10 @@ Nwifi()
 {
 iwconfig >/dev/null 2>/dev/null > /home/pi/Nwifi.txt
 cat /home/pi/Nwifi.txt | grep wlan | awk '/wlan/ {i=i+1} {print "card"i"="$1}' >> /home/pi/rpidatv/scripts/wifi_get.txt
+sudo rm /home/pi/Nwifi.txt
+ifconfig >/dev/null 2>/dev/null > /home/pi/Nwifi.txt
+cat /home/pi/Nwifi.txt | grep wlan | sed 's/://g' | awk '/wlan/ {print "used="$1}' >> /home/pi/rpidatv/scripts/wifi_get.txt
+sudo rm /home/pi/Nwifi.txt
 }
 
 Hotspot()
@@ -73,7 +77,6 @@ ssid
 if [ $? != 0 ]; then
  Hotspot
  Nwifi
- sudo rm /home/pi/Nwifi.txt
  sudo rm /home/pi/ssid1.txt
  exit
 fi
@@ -93,7 +96,6 @@ else
 fi
 
 Nwifi
-sudo rm /home/pi/Nwifi.txt
 
 ########################################################################
 
