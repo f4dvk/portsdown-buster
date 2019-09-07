@@ -15436,12 +15436,12 @@ void Start_Highlights_Menu1()
   strcpy(Param,"upsample");
   GetConfigParam(PATH_PCONFIG,Param,Value);
   printf("Value=%s %s\n", Value, " UpSample Value");
-  strcpy (Attentext, "UpSample^");
-  strcat (Attentext, Value);
+  strcpy (UpSample, "UpSample^");
+  strcat (UpSample, Value);
 
-  AmendButtonStatus(9, 0, Attentext, &Blue);
-  AmendButtonStatus(9, 1, Attentext, &Green);
-  AmendButtonStatus(9, 2, Attentext, &Grey);
+  AmendButtonStatus(9, 0, UpSample, &Blue);
+  AmendButtonStatus(9, 1, UpSample, &Green);
+  AmendButtonStatus(9, 2, UpSample, &Grey);
 
 	if ((strcmp(CurrentModeOP, TabModeOP[3]) == 0) || (strcmp(CurrentModeOP, TabModeOP[8]) == 0)
       || (strcmp(CurrentModeOP, TabModeOP[9]) == 0) || ((strcmp(CurrentModeOP, TabModeOP[13]) == 0) && (strcmp(RemoteOutput, "LIMEMINI") == 0)))
