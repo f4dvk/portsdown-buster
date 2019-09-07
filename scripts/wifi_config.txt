@@ -1,3 +1,4 @@
 ssid=
 password=
 hotspot=oui
+wifi=wlan0

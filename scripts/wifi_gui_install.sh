@@ -41,12 +41,19 @@ mv "$3.bak2" "$3"
 }
 
 ########################################################################
+WLAN=$(get_config_var wifi $PCONFIGWIFI)
+########################################################################
 
 if [ "$1" == "-get" ]; then
 
 ssid()
 {
 iwgetid >/dev/null 2>/dev/null > /home/pi/ssid1.txt
+}
+
+Nwifi()
+{
+iwconfig >/dev/null 2>/dev/null > /home/pi/Nwifi.txt
 }
 
 Hotspot()
@@ -60,6 +67,7 @@ else
 fi
 }
 
+Nwifi
 ssid
 
 if [ $? != 0 ]; then
@@ -72,8 +80,10 @@ while [ $? == 0 ] && [ -z "/home/pi/ssid1.txt" ]; do
 done
 
 cat /home/pi/ssid1.txt | sed 's/.* //;s/ESSID/ssid/g;s/ //g;s/""/Déconnecté/g;s/"//g;s/:/=/g' > /home/pi/rpidatv/scripts/wifi_get.txt
+cat /home/pi/Nwifi.txt | grep wlan | awk '/wlan/ {i=i+1} {print "card"i"="$1}' >> /home/pi/rpidatv/scripts/wifi_get.txt
 
 rm /home/pi/ssid1.txt
+rm /home/pi/Nwifi.txt
 
 sudo service hostapd status >/dev/null 2>/dev/null
 
@@ -93,7 +103,8 @@ elif [ "$1" == "-scan" ]; then
 
 scan()
 {
- sudo iwlist wlan0 scan > /home/pi/scan.txt
+ sudo ip link set $WLAN up
+ sudo iwlist $WLAN scan > /home/pi/scan.txt
 }
 
 scan
@@ -182,18 +193,18 @@ elif [ "$1" == "-install" ]; then
     sudo sed -i "/^$/d" /etc/rc.local
   fi
 
-  # Si présent, suppression inhibition dhcp wlan0
-  if grep -q "denyinterfaces wlan0" /etc/dhcpcd.conf; then
-   sudo sed -i "/denyinterfaces wlan0/d" /etc/dhcpcd.conf
+  # Si présent, suppression inhibition dhcp wlan0 / wlan1
+  if grep -q "denyinterfaces $WLAN" /etc/dhcpcd.conf; then
+   sudo sed -i "/denyinterfaces $WLAN/d" /etc/dhcpcd.conf
   fi
 
   # Remplacer interfaces
-  sudo cp /home/pi/rpidatv/scripts/configs/wifi_interfaces.txt /etc/network/interfaces
+  sudo cp /home/pi/rpidatv/scripts/configs/wifi_interfaces_$WLAN.txt /etc/network/interfaces
 
   ##bring wifi down and up again, then reset
 
-  sudo ip link set wlan0 down
-  sudo ip link set wlan0 up
+  sudo ip link set $WLAN down
+  sudo ip link set $WLAN up
 
   ## Make sure that it is not soft-blocked
   sleep 1
@@ -205,11 +216,11 @@ elif [ "$1" == "-install" ]; then
     sudo service networking restart
   fi
 
-  echo "ssid=" > $PCONFIGWIFI
-  echo "password=" >> $PCONFIGWIFI
-  echo "hotspot=non" >> $PCONFIGWIFI
+  set_config_var ssid "" $PCONFIGWIFI
+  set_config_var password "" $PCONFIGWIFI
+  set_config_var hotspot "non" $PCONFIGWIFI
 
-  wpa_cli -i wlan0 reconfigure
+  wpa_cli -i $WLAN reconfigure
 
   sleep 2
 

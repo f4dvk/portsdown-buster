@@ -14273,6 +14273,28 @@ void waituntil(int w,int h)
           Start_Highlights_Menu36();
           UpdateWindow();
           break;
+        case 7:
+          if (strcmp(wlan0, "wlan0") == 0)
+          {
+            printf("Wifi Card wlan0\n");
+            SetConfigParam(PATH_WIFICONFIG, "wifi", "wlan0");
+            CurrentMenu=36;
+            BackgroundRGB(0,0,0,255);
+            Start_Highlights_Menu36();
+            UpdateWindow();
+          }
+          break;
+        case 8:
+          if (strcmp(wlan1, "wlan1") == 0)
+          {
+            printf("Wifi Card wlan1\n");
+            SetConfigParam(PATH_WIFICONFIG, "wifi", "wlan1");
+            CurrentMenu=36;
+            BackgroundRGB(0,0,0,255);
+            Start_Highlights_Menu36();
+            UpdateWindow();
+          }
+          break;
         case 9:
           if (strcmp(Value, "Hotspot") != 0)
           {
@@ -18772,6 +18794,16 @@ void Define_Menu36()
   AddButtonStatus(button, "SSID^None", &Green);
   AddButtonStatus(button, "SSID^None", &Orange);
 
+  button = CreateButton(36, 7);
+  AddButtonStatus(button, "Wlan0", &DBlue);
+  AddButtonStatus(button, "Wlan0", &Green);
+  AddButtonStatus(button, "Wlan0", &Grey);
+
+  button = CreateButton(36, 8);
+  AddButtonStatus(button, "Wlan1", &DBlue);
+  AddButtonStatus(button, "Wlan1", &Green);
+  AddButtonStatus(button, "Wlan1", &Grey);
+
   button = CreateButton(36, 9);
   AddButtonStatus(button, "Wifi^Restart", &DBlue);
   AddButtonStatus(button, "Wifi^Restart", &LBlue);
@@ -18782,6 +18814,9 @@ void Start_Highlights_Menu36()
 {
   char Param[255];
   char Value[255];
+  char wlan0[255];
+  char wlan1[255];
+  char Card[255];
   color_t Red;
   color_t Orange;
   Red.r=255; Red.g=0; Red.b=0;
@@ -18824,6 +18859,43 @@ void Start_Highlights_Menu36()
 
     SetButtonStatus(ButtonNumber(CurrentMenu, 5), 2);
     SetButtonStatus(ButtonNumber(CurrentMenu, 9), 2);
+  }
+
+  SetButtonStatus(ButtonNumber(CurrentMenu, 7), 2);
+  SetButtonStatus(ButtonNumber(CurrentMenu, 8), 2);
+
+  /// Boutons wlan
+  GetConfigParam(PATH_WIFICONFIG, "wifi", Card);
+  strcpy(Param,"card1");
+  char Nwifi[255];
+  strcpy(Nwifi,"");
+  strcpy(wlan0,"");
+  GetConfigParam(PATH_WIFIGET, Param, wlan0);
+
+  if (strcmp(wlan0, "wlan0") == 0)
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 7), 0);
+  }
+
+  strcpy(Param,"card2");
+  char Nwifi[255];
+  strcpy(Nwifi,"");
+  strcpy(wlan1,"");
+  GetConfigParam(PATH_WIFIGET, Param, wlan1);
+
+  if (strcmp(wlan1, "wlan1") == 0)
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 8), 0);
+  }
+
+  if (strcmp(Card, "wlan0") == 0)
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 7), 1);
+  }
+
+  if (strcmp(Card, "wlan1") == 0)
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 8), 1);
   }
 
 }
