@@ -11893,11 +11893,11 @@ void waituntil(int w,int h)
           UpdateWindow();
           break;
         case 9:                       // UpSample
-          printf("MENU 54 \n");
-          CurrentMenu=54;
-          BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu54();
-          UpdateWindow();
+//          printf("MENU 54 \n");
+//          CurrentMenu=54;
+//          BackgroundRGB(0,0,0,255);
+//          Start_Highlights_Menu54();
+//          UpdateWindow();
           break;
         case 10:
           if (strcmp(CurrentModeOP, TabModeOP[4]) != 0)  // not Streaming
@@ -19511,25 +19511,25 @@ void Start_Highlights_Menu52()
 
 void Define_Menu53()
 {
-	int button;
+  int button;
 
-	strcpy(MenuTitle[53], "Mode Output RPI Remote (53)");
+  strcpy(MenuTitle[53], "Mode Output RPI Remote (53)");
 
   //button = CreateButton(53, 0);
   //AddButtonStatus(button, "", &Blue);
-	//AddButtonStatus(button, "", &Green);
+  //AddButtonStatus(button, "", &Green);
 
   //button = CreateButton(53, 1);
   //AddButtonStatus(button, "", &Blue);
-	//AddButtonStatus(button, "", &Green);
+  //AddButtonStatus(button, "", &Green);
 
   //button = CreateButton(53, 2);
   //AddButtonStatus(button, "", &Blue);
-	//AddButtonStatus(button, "", &Green);
+  //AddButtonStatus(button, "", &Green);
 
   //button = CreateButton(53, 3);
   //AddButtonStatus(button, "", &Blue);
-	//AddButtonStatus(button, "", &Green);
+  //AddButtonStatus(button, "", &Green);
 
   button = CreateButton(53, 4);
   AddButtonStatus(button, "Exit", &DBlue);
@@ -19579,9 +19579,9 @@ void Start_Highlights_Menu53()
 
 void Define_Menu54()
 {
-	int button;
+  int button;
 
-	strcpy(MenuTitle[54], "UpSample Selection (54)");
+  strcpy(MenuTitle[54], "UpSample Selection (54)");
 
   button = CreateButton(54, 4);
   AddButtonStatus(button, "Exit", &DBlue);
@@ -20085,9 +20085,9 @@ int main(int argc, char **argv)
   Define_Menu44();
   Define_Menu50();
   Define_Menu51();
-	Define_Menu52();
-	Define_Menu53();
-	Define_Menu54();
+  Define_Menu52();
+  Define_Menu53();
+//  Define_Menu54();
 
   // Start the button Menu
   Start(wscreen,hscreen);
