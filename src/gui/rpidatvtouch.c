@@ -105,7 +105,7 @@ color_t Grey   = {.r = 127, .g = 127, .b = 127};
 color_t Red    = {.r = 255, .g = 0  , .b = 0  };
 color_t Orange = {.r = 248, .g = 185, .b = 4  };
 
-#define MAX_BUTTON 675
+#define MAX_BUTTON 975
 int IndexButtonInArray=0;
 button_t ButtonArray[MAX_BUTTON];
 #define TIME_ANTI_BOUNCE 500
@@ -11893,11 +11893,11 @@ void waituntil(int w,int h)
           UpdateWindow();
           break;
         case 9:                       // UpSample
-//          printf("MENU 54 \n");
-//          CurrentMenu=54;
-//          BackgroundRGB(0,0,0,255);
-//          Start_Highlights_Menu54();
-//          UpdateWindow();
+          printf("MENU 54 \n");
+          CurrentMenu=54;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu54();
+          UpdateWindow();
           break;
         case 10:
           if (strcmp(CurrentModeOP, TabModeOP[4]) != 0)  // not Streaming
@@ -20087,7 +20087,7 @@ int main(int argc, char **argv)
   Define_Menu51();
   Define_Menu52();
   Define_Menu53();
-//  Define_Menu54();
+  Define_Menu54();
 
   // Start the button Menu
   Start(wscreen,hscreen);
