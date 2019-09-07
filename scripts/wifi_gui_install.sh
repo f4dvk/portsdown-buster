@@ -74,6 +74,7 @@ if [ $? != 0 ]; then
  Hotspot
  Nwifi
  sudo rm /home/pi/Nwifi.txt
+ sudo rm /home/pi/ssid1.txt
  exit
 fi
 
