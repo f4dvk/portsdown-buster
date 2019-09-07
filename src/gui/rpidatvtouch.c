@@ -18798,7 +18798,7 @@ void Define_Menu36()
 
   button = CreateButton(36, 7);
   AddButtonStatus(button, "Wlan0^Détecté", &DBlue);
-  AddButtonStatus(button, "Wlan0^Utilisé", &DBlue);
+  AddButtonStatus(button, "Wlan0^Utilisé", &LBlue);
   AddButtonStatus(button, "Wlan0^Actif", &Green);
   AddButtonStatus(button, "Wlan0^Out", &Grey);
 
