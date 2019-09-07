@@ -130,7 +130,7 @@ sudo sed -i 's\#DAEMON_CONF=""\DAEMON_CONF="/etc/hostapd/hostapd.conf"\' /etc/de
 
 # Configuration dnsmasq
 sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
-sudo cp /home/pi/rpidatv/scripts/configs/dnsmasq_config.txt /etc/dnsmasq.conf
+sudo cp /home/pi/rpidatv/scripts/configs/dnsmasq_config_$WLAN.txt /etc/dnsmasq.conf
 
 # Configuration IPV4
 sudo sed -i 's\#net.ipv4.ip_forward=1\net.ipv4.ip_forward=1\' /etc/sysctl.conf

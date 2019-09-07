@@ -11520,7 +11520,7 @@ void WifiPW(int NoButton)  // Wifi password
 
   MsgBox2B("La configuration peut prendre jusqu'à 1 min", "Veuillez patienter...");
 
-  system("sudo /home/pi/rpidatv/scripts/wifi_gui_install.sh -install");
+  system("/home/pi/rpidatv/scripts/wifi_gui_install.sh -install");
 }
 
 void HotspotConfig()  // Hotspot Config
@@ -15309,7 +15309,7 @@ void Start_Highlights_Menu1()
   // Call to Check Grey buttons
   GreyOut1();
 
-  system("sudo /home/pi/rpidatv/scripts/wifi_gui_install.sh -get");
+  system("/home/pi/rpidatv/scripts/wifi_gui_install.sh -get");
   GetConfigParam(PATH_WIFIGET, "ssid", Value);
   strcpy(MenuTitle[1], "BATC Portsdown_DVK. Wifi ");
 
@@ -18823,7 +18823,7 @@ void Start_Highlights_Menu36()
   Orange.r=248; Orange.g=185; Orange.b=4;
 
   /// Bouton SSID
-  system("sudo /home/pi/rpidatv/scripts/wifi_gui_install.sh -get");
+  system("/home/pi/rpidatv/scripts/wifi_gui_install.sh -get");
   strcpy(Param,"ssid");
   char Getssid[255];
   strcpy(Getssid,"");

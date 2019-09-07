@@ -54,6 +54,7 @@ iwgetid >/dev/null 2>/dev/null > /home/pi/ssid1.txt
 Nwifi()
 {
 iwconfig >/dev/null 2>/dev/null > /home/pi/Nwifi.txt
+cat /home/pi/Nwifi.txt | grep wlan | awk '/wlan/ {i=i+1} {print "card"i"="$1}' >> /home/pi/rpidatv/scripts/wifi_get.txt
 }
 
 Hotspot()
@@ -67,11 +68,12 @@ else
 fi
 }
 
-Nwifi
 ssid
 
 if [ $? != 0 ]; then
  Hotspot
+ Nwifi
+ sudo rm /home/pi/Nwifi.txt
  exit
 fi
 
@@ -80,22 +82,17 @@ while [ $? == 0 ] && [ -z "/home/pi/ssid1.txt" ]; do
 done
 
 cat /home/pi/ssid1.txt | sed 's/.* //;s/ESSID/ssid/g;s/ //g;s/""/Déconnecté/g;s/"//g;s/:/=/g' > /home/pi/rpidatv/scripts/wifi_get.txt
-cat /home/pi/Nwifi.txt | grep wlan | awk '/wlan/ {i=i+1} {print "card"i"="$1}' >> /home/pi/rpidatv/scripts/wifi_get.txt
 
-rm /home/pi/ssid1.txt
-rm /home/pi/Nwifi.txt
-
-sudo service hostapd status >/dev/null 2>/dev/null
-
-if [ $? == 0 ]; then
-  echo "ssid=Hotspot" > /home/pi/rpidatv/scripts/wifi_get.txt
-fi
+sudo rm /home/pi/ssid1.txt
 
 if [ -s "/home/pi/rpidatv/scripts/wifi_get.txt" ];then
   exit
 else
   echo "ssid=Déconnecté" > /home/pi/rpidatv/scripts/wifi_get.txt
 fi
+
+Nwifi
+sudo rm /home/pi/Nwifi.txt
 
 ########################################################################
 
@@ -115,7 +112,7 @@ done
 
 cat /home/pi/scan.txt | grep 'ESSID' | sed 's/ESSID/ssid/g;s/ //g;s/"//g;s/:/ =/g;$assid =' | awk '/ssid/ {i=i+1} {print "ssid"i$2}' > /home/pi/rpidatv/scripts/wifi_scan.txt
 
-rm /home/pi/scan.txt
+sudo rm /home/pi/scan.txt
 
 ########################################################################
 
