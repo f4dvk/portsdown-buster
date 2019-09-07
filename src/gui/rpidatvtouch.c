@@ -339,6 +339,7 @@ void Start_Highlights_Menu50();
 void Start_Highlights_Menu51();
 void Start_Highlights_Menu52();
 void Start_Highlights_Menu53();
+void Start_Highlights_Menu54();
 
 void MsgBox(const char *);
 void MsgBox2(const char *, const char *);
@@ -11891,7 +11892,11 @@ void waituntil(int w,int h)
           Start_Highlights_Menu24();
           UpdateWindow();
           break;
-        case 9:                       // Spare
+        case 9:                       // UpSample
+          printf("MENU 54 \n");
+          CurrentMenu=54;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu54();
           UpdateWindow();
           break;
         case 10:
@@ -15072,6 +15077,65 @@ void waituntil(int w,int h)
         // stay in Menu 53 if parameter changed
         continue;   // Completed Menu 53 action, go and wait for touch
       }
+      if (CurrentMenu == 54)  // Menu 54 UpSample
+      {
+        printf("Button Event %d, Entering Menu 54 Case Statement\n",i);
+        switch (i)
+        {
+        case 4:                               // Cancel
+          SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 1);
+          printf("Cancelling UpSample Menu\n");
+          UpdateWindow();
+          usleep(500000);
+          SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 0); // Reset cancel (even if not selected)
+          printf("Returning to MENU 1 from Menu 54\n");
+          CurrentMenu=1;
+          BackgroundRGB(255,255,255,255);
+          Start_Highlights_Menu1();
+          UpdateWindow();
+          break;
+        case 0:
+           break;
+        case 1:
+           break;
+        case 2:
+           break;
+        case 3:
+           break;
+        case 5:
+           printf("UpSample = 1\n");
+           SetConfigParam(PATH_PCONFIG, "upsample", "1");
+           CurrentMenu=1;
+           BackgroundRGB(255,255,255,255);
+           Start_Highlights_Menu1();
+           UpdateWindow();
+           break;
+        case 6:
+           printf("UpSample = 2\n");
+           SetConfigParam(PATH_PCONFIG, "upsample", "2");
+           CurrentMenu=1;
+           BackgroundRGB(255,255,255,255);
+           Start_Highlights_Menu1();
+           UpdateWindow();
+           break;
+        case 7:
+           printf("UpSample = 4\n");
+           SetConfigParam(PATH_PCONFIG, "upsample", "4");
+           CurrentMenu=1;
+           BackgroundRGB(255,255,255,255);
+           Start_Highlights_Menu1();
+           UpdateWindow();
+           break;
+        case 8:
+           break;
+        case 9:
+           break;
+        default:
+          printf("Menu 54 Error\n");
+        }
+        // stay in Menu 54 if parameter changed
+        continue;   // Completed Menu 54 action, go and wait for touch
+      }
     }
   }
 }
@@ -15125,9 +15189,10 @@ void Define_Menu1()
   AddButtonStatus(button, "Atten^not set", &Green);
   AddButtonStatus(button, "Atten^not set", &Grey);
 
-  //button = CreateButton(1, 9);                       // Spare!
-  //AddButtonStatus(button, " ", &Blue);
-  //AddButtonStatus(button, " ", &Green);
+  button = CreateButton(1, 9);                       // UpSample
+  AddButtonStatus(button, "UpSample^not set", &Blue);
+  AddButtonStatus(button, "UpSample^not set", &Green);
+  AddButtonStatus(button, "UpSample^not set", &Grey);
 
   // Freq, SR, FEC, Transverter and Level - 3rd line up Menu 1
 
@@ -15364,7 +15429,29 @@ void Start_Highlights_Menu1()
   AmendButtonStatus(8, 1, Attentext, &Green);
   AmendButtonStatus(8, 2, Attentext, &Grey);
 
-  // Spare Button 9
+  // UpSample Button 9
+
+	char UpSample[255];
+  strcpy(Value, "None");
+  strcpy(Param,"upsample");
+  GetConfigParam(PATH_PCONFIG,Param,Value);
+  printf("Value=%s %s\n", Value, " UpSample Value");
+  strcpy (Attentext, "UpSample^");
+  strcat (Attentext, Value);
+
+  AmendButtonStatus(9, 0, Attentext, &Blue);
+  AmendButtonStatus(9, 1, Attentext, &Green);
+  AmendButtonStatus(9, 2, Attentext, &Grey);
+
+	if ((strcmp(CurrentModeOP, TabModeOP[3]) == 0) || (strcmp(CurrentModeOP, TabModeOP[8]) == 0)
+      || (strcmp(CurrentModeOP, TabModeOP[9]) == 0) || ((strcmp(CurrentModeOP, TabModeOP[13]) == 0) && (strcmp(RemoteOutput, "LIMEMINI") == 0)))
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 9), 0);
+  }
+  else
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 9), 2);
+  }
 
   // Frequency Button 10
 
@@ -19490,6 +19577,55 @@ void Start_Highlights_Menu53()
   }
 }
 
+void Define_Menu54()
+{
+	int button;
+
+	strcpy(MenuTitle[54], "UpSample Selection (54)");
+
+  button = CreateButton(54, 4);
+  AddButtonStatus(button, "Exit", &DBlue);
+  AddButtonStatus(button, "Exit", &LBlue);
+
+  button = CreateButton(54, 5);
+  AddButtonStatus(button, "1", &Blue);
+  AddButtonStatus(button, "1", &Green);
+
+  button = CreateButton(54, 6);
+  AddButtonStatus(button, "2", &Blue);
+  AddButtonStatus(button, "2", &Green);
+
+  button = CreateButton(54, 7);
+  AddButtonStatus(button, "4", &Blue);
+  AddButtonStatus(button, "4", &Green);
+
+}
+
+void Start_Highlights_Menu54()
+{
+  char Upsample[255];
+  GetConfigParam(PATH_PCONFIG, "upsample", Upsample);
+
+  SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0);
+  SetButtonStatus(ButtonNumber(CurrentMenu, 6), 0);
+  SetButtonStatus(ButtonNumber(CurrentMenu, 7), 0);
+
+  if (strcmp(Upsample, "1") == 0)
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 1);
+  }
+
+  if (strcmp(Upsample, "2") == 0)
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 6), 1);
+  }
+
+	if (strcmp(Upsample, "4") == 0)
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 7), 1);
+  }
+}
+
 void Define_Menu41()
 {
   int button;
@@ -19951,6 +20087,7 @@ int main(int argc, char **argv)
   Define_Menu51();
 	Define_Menu52();
 	Define_Menu53();
+	Define_Menu54();
 
   // Start the button Menu
   Start(wscreen,hscreen);

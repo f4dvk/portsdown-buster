@@ -541,6 +541,17 @@ if ! grep -q remoteoutput /home/pi/rpidatv/scripts/portsdown_config.txt; then
   echo "" >> /home/pi/rpidatv/scripts/portsdown_config.txt
 fi
 
+# Update config file with Upsample
+if ! grep -q upsample /home/pi/rpidatv/scripts/portsdown_config.txt; then
+  # File needs updating
+  printf "Adding Upsample to user's portsdown_config.txt\n"
+  # Delete any blank lines
+  sed -i -e '/^$/d' /home/pi/rpidatv/scripts/portsdown_config.txt
+  # Add the 1 new entrie and a new line
+  echo "upsample=2" >> /home/pi/rpidatv/scripts/portsdown_config.txt
+  echo "" >> /home/pi/rpidatv/scripts/portsdown_config.txt
+fi
+
 # Update presets file with limegains for each band
 if ! grep -q d1limegain /home/pi/rpidatv/scripts/portsdown_presets.txt; then
   # File needs updating

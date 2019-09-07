@@ -423,6 +423,7 @@ OUTPUT_STREAM="-f flv $STREAM_URL/$STREAM_KEY"
 if [ "$MODE_OUTPUT" == "RPI_R" ]; then
     MODE_OUTPUT="IP"
 fi
+UPSAMPLE=$(get_config_var upsample $PCONFIGFILE)
 SYMBOLRATEK=$(get_config_var symbolrate $PCONFIGFILE)
 GAIN=$(get_config_var rfpower $PCONFIGFILE)
 PIDVIDEO=$(get_config_var pidvideo $PCONFIGFILE)
@@ -787,13 +788,13 @@ IDRPERIOD=100
 case "$MODE_OUTPUT" in
   "LIMEMINI" | "LIMEUSB" | "JLIME" | "JEXPRESS")
     if [ "$SYMBOLRATE_K" -lt 990 ] ; then
-      UPSAMPLE=2
+#      UPSAMPLE=2
       LIME_GAINF=`echo - | awk '{print '$LIME_GAIN' / 100}'`
     elif [ "$SYMBOLRATE_K" -lt 1501 ] && [ "$MODULATION" == "DVB-S" ] ; then
-      UPSAMPLE=2
+#      UPSAMPLE=2
       LIME_GAINF=`echo - | awk '{print '$LIME_GAIN' / 100}'`
-    else
-      UPSAMPLE=1
+    elif [ "$UPSAMPLE" == "1" ]; then
+#      UPSAMPLE=1
       if [ "$LIME_GAIN" -lt 6 ]; then
         LIMEGAIN=6
       fi

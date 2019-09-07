@@ -34,6 +34,7 @@ PORT=5001
 SYMBOLRATEK=$(get_config_var rx0sr $RXPRESETSFILE)
 let SYMBOLRATE=SYMBOLRATEK*1000
 
+UPSAMPLE=$(get_config_var upsample $PCONFIGFILE)
 MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
 PIN_I=$(get_config_var gpio_i $PCONFIGFILE)
 PIN_Q=$(get_config_var gpio_q $PCONFIGFILE)
@@ -219,7 +220,7 @@ elif [ "$ETAT" = "ON" ] && [ "$MODE_OUTPUT" != "RPI_R" ]; then
   if [ "$MODE_OUTPUT" = "LIMEMINI" ]; then
     $PATHBIN/"dvb2iq2" -i videots -s $SYMBOLRATEK -f $FECIQ \
             -r 4 -m $MODULATION_TX -c $CONST \
-    |sudo $PATHBIN/"limesdr_send" -b 2.5e6 -r 4 -s $SYMBOLRATE -g $LIME_TX_GAINA -f $FREQ_TX"e6" &
+    |sudo $PATHBIN/"limesdr_send" -b 2.5e6 -r $UPSAMPLE -s $SYMBOLRATE -g $LIME_TX_GAINA -f $FREQ_TX"e6" &
   elif [ "$MODE_OUTPUT" = "IQ" ]; then
     $PATHSCRIPT"/ctlfilter.sh"
     $PATHSCRIPT"/ctlvco.sh"
