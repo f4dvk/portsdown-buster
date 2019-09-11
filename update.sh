@@ -734,17 +734,6 @@ cp -f -r "$PATHUBACKUP"/jetson_config.txt "$PATHSCRIPT"/jetson_config.txt
 cp -f -r "$PATHUBACKUP"/wifi_config.txt "$PATHSCRIPT"/wifi_config.txt
 cp -f -r "$PATHUBACKUP"/hotspot_config.txt "$PATHSCRIPT"/hotspot_config.txt
 
-# Update config file with wifi card
-if ! grep -q wifi /home/pi/rpidatv/scripts/wifi_config.txt; then
-  # File needs updating
-  printf "Adding wifi card to user's wifi_config.txt\n"
-  # Delete any blank lines
-  sed -i -e '/^$/d' /home/pi/rpidatv/scripts/wifi_config.txt
-  # Add the 1 new entrie and a new line
-  echo "wifi=wlan0" >> /home/pi/rpidatv/scripts/wifi_config.txt
-  echo "" >> /home/pi/rpidatv/scripts/wifi_config.txt
-fi
-
 # Restore the user's original User Button scripts
 cp -f -r "$PATHUBACKUP"/user_button1.sh "$PATHSCRIPT"/user_button1.sh
 cp -f -r "$PATHUBACKUP"/user_button2.sh "$PATHSCRIPT"/user_button2.sh

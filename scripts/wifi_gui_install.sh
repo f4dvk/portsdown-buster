@@ -41,24 +41,12 @@ mv "$3.bak2" "$3"
 }
 
 ########################################################################
-WLAN=$(get_config_var wifi $PCONFIGWIFI)
-########################################################################
 
 if [ "$1" == "-get" ]; then
 
 ssid()
 {
-iwgetid $WLAN >/dev/null 2>/dev/null > /home/pi/ssid1.txt
-}
-
-Nwifi()
-{
-iwconfig >/dev/null 2>/dev/null > /home/pi/Nwifi.txt
-cat /home/pi/Nwifi.txt | grep wlan | awk '/wlan/ {i=i+1} {print "card"i"="$1}' >> /home/pi/rpidatv/scripts/wifi_get.txt
-sudo rm /home/pi/Nwifi.txt
-ifconfig >/dev/null 2>/dev/null > /home/pi/Nwifi.txt
-cat /home/pi/Nwifi.txt | grep wlan | sed 's/://g' | awk '/wlan/ {print "used="$1}' >> /home/pi/rpidatv/scripts/wifi_get.txt
-sudo rm /home/pi/Nwifi.txt
+iwgetid wlan0 >/dev/null 2>/dev/null > /home/pi/ssid1.txt
 }
 
 Hotspot()
@@ -72,11 +60,12 @@ else
 fi
 }
 
+sudo rm /home/pi/rpidatv/scripts/wifi_get.txt
+
 ssid
 
 if [ $? != 0 ]; then
  Hotspot
- Nwifi
  sudo rm /home/pi/ssid1.txt
  exit
 fi
@@ -90,11 +79,9 @@ cat /home/pi/ssid1.txt | sed 's/.* //;s/ESSID/ssid/g;s/ //g;s/""/Déconnecté/g;
 sudo rm /home/pi/ssid1.txt
 
 if [ -s "/home/pi/rpidatv/scripts/wifi_get.txt" ];then
-  Nwifi
   exit
 else
   echo "ssid=Déconnecté" > /home/pi/rpidatv/scripts/wifi_get.txt
-  Nwifi
 fi
 
 ########################################################################
@@ -103,8 +90,8 @@ elif [ "$1" == "-scan" ]; then
 
 scan()
 {
- sudo ip link set $WLAN up
- sudo iwlist $WLAN scan > /home/pi/scan.txt
+ sudo ip link set wlan0 up
+ sudo iwlist wlan0 scan > /home/pi/scan.txt
 }
 
 scan
@@ -194,17 +181,17 @@ elif [ "$1" == "-install" ]; then
   fi
 
   # Si présent, suppression inhibition dhcp wlan0 / wlan1
-  if grep -q "denyinterfaces $WLAN" /etc/dhcpcd.conf; then
-   sudo sed -i "/denyinterfaces $WLAN/d" /etc/dhcpcd.conf
+  if grep -q "denyinterfaces wlan0" /etc/dhcpcd.conf; then
+   sudo sed -i "/denyinterfaces wlan0/d" /etc/dhcpcd.conf
   fi
 
   # Remplacer interfaces
-  sudo cp /home/pi/rpidatv/scripts/configs/wifi_interfaces_$WLAN.txt /etc/network/interfaces
+  sudo cp /home/pi/rpidatv/scripts/configs/wifi_interfaces.txt /etc/network/interfaces
 
   ##bring wifi down and up again, then reset
 
-  sudo ip link set $WLAN down
-  sudo ip link set $WLAN up
+  sudo ip link set wlan0 down
+  sudo ip link set wlan0 up
 
   ## Make sure that it is not soft-blocked
   sleep 1
@@ -220,9 +207,9 @@ elif [ "$1" == "-install" ]; then
   set_config_var password "" $PCONFIGWIFI
   set_config_var hotspot "non" $PCONFIGWIFI
 
-  wpa_cli -i $WLAN reconfigure
+  wpa_cli -i wlan0 reconfigure
 
-  sleep 2
+  sleep 3
 
 fi
 

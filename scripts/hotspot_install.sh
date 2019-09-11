@@ -48,7 +48,15 @@ SSID=$(get_config_var ssid $PCONFIGFILE)
 PW=$(get_config_var wpa_passphrase $PCONFIGFILE)
 MODE=$(get_config_var hw_mode $PCONFIGFILE)
 CHANNEL=$(get_config_var channel $PCONFIGFILE)
-WLAN=$(get_config_var wifi $PCONFIGWIFI)
+
+sudo service hostapd status >/dev/null 2>/dev/null
+
+if [ $? == 0 ]; then
+  sudo systemctl disable hostapd
+  sudo systemctl stop hostapd
+  sudo service hostapd stop
+  sudo service dnsmasq stop
+fi
 
 # installation de hostapd et dnsmasq
 dpkg -l | grep hostapd >/dev/null 2>/dev/null
@@ -61,23 +69,23 @@ if [ $? != 0 ]; then
   sudo apt-get -f -y install dnsmasq
 fi
 
-# Désactive le dhcp wlan0 / wlan1
+# Désactive le dhcp wlan0
 if ! grep -q denyinterfaces /etc/dhcpcd.conf; then
-  sudo sed -i "/timeout 5/i\denyinterfaces $WLAN\n" /etc/dhcpcd.conf
+  sudo sed -i "/timeout 5/i\denyinterfaces wlan0\n" /etc/dhcpcd.conf
 fi
 
 # Remplacer le fichier denyinterfaces
-sudo cp /home/pi/rpidatv/scripts/configs/hotspot_interfaces_$WLAN.txt /etc/network/interfaces
+sudo cp /home/pi/rpidatv/scripts/configs/hotspot_interfaces.txt /etc/network/interfaces
 
 # Redemarrer dhcp et wifi
 #sudo service dhcpcd restart
-sudo ifdown $WLAN
-sudo ifup $WLAN
+sudo ifdown wlan0
+sudo ifup wlan0
 
 # Configuration hostapd.conf
 /bin/cat <<EOM >$CMDFILE
 # This is the name of the WiFi interface we configured above
-interface=$WLAN
+interface=wlan0
 
 # Use the nl80211 driver with the brcmfmac driver
 driver=nl80211
@@ -130,7 +138,7 @@ sudo sed -i 's\#DAEMON_CONF=""\DAEMON_CONF="/etc/hostapd/hostapd.conf"\' /etc/de
 
 # Configuration dnsmasq
 sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
-sudo cp /home/pi/rpidatv/scripts/configs/dnsmasq_config_$WLAN.txt /etc/dnsmasq.conf
+sudo cp /home/pi/rpidatv/scripts/configs/dnsmasq_config.txt /etc/dnsmasq.conf
 
 # Configuration IPV4
 sudo sed -i 's\#net.ipv4.ip_forward=1\net.ipv4.ip_forward=1\' /etc/sysctl.conf
@@ -138,7 +146,7 @@ sudo sh -c "echo 1 > /proc/sys/net/ipv4/ip_forward"
 
 # Configuration NAT
 sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-sudo iptables -A FORWARD -i eth0 -o $WLAN -m state --state RELATED,ESTABLISHED -j ACCEPT
+sudo iptables -A FORWARD -i eth0 -o wlan0 -m state --state RELATED,ESTABLISHED -j ACCEPT
 sudo iptables -A FORWARD -i wlan0 -o eth0 -j ACCEPT
 
 sudo sh -c "iptables-save > /etc/iptables.ipv4.nat"
