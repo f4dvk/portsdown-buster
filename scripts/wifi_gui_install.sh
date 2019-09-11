@@ -48,7 +48,7 @@ if [ "$1" == "-get" ]; then
 
 ssid()
 {
-iwgetid >/dev/null 2>/dev/null > /home/pi/ssid1.txt
+iwgetid $WLAN >/dev/null 2>/dev/null > /home/pi/ssid1.txt
 }
 
 Nwifi()
@@ -90,12 +90,12 @@ cat /home/pi/ssid1.txt | sed 's/.* //;s/ESSID/ssid/g;s/ //g;s/""/Déconnecté/g;
 sudo rm /home/pi/ssid1.txt
 
 if [ -s "/home/pi/rpidatv/scripts/wifi_get.txt" ];then
+  Nwifi
   exit
 else
   echo "ssid=Déconnecté" > /home/pi/rpidatv/scripts/wifi_get.txt
+  Nwifi
 fi
-
-Nwifi
 
 ########################################################################
 
