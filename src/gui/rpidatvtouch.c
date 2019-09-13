@@ -104,6 +104,7 @@ color_t DBlue  = {.r = 0  , .g = 0  , .b = 64 };
 color_t Grey   = {.r = 127, .g = 127, .b = 127};
 color_t Red    = {.r = 255, .g = 0  , .b = 0  };
 color_t Orange = {.r = 248, .g = 185, .b = 4  };
+color_t Rose  = {.r = 255 , .g = 192 , .b = 203};
 
 #define MAX_BUTTON 975
 int IndexButtonInArray=0;
@@ -793,6 +794,30 @@ int CheckRpi()
   {
     return 1;
   }
+}
+
+int CheckInternalWifi()
+{
+  FILE *fp;
+  char response[255];
+  int responseint;
+
+  /* Open the command for reading. */
+  fp = popen("dmesg | grep brcmfmac ; echo $?", "r");
+  if (fp == NULL) {
+    printf("Failed to run command\n" );
+    exit(1);
+  }
+
+  /* Read the output a line at a time - output it. */
+  while (fgets(response, 7, fp) != NULL)
+  {
+    responseint = atoi(response);
+  }
+
+  /* close */
+  pclose(fp);
+  return responseint;
 }
 
 /***************************************************************************//**
@@ -14274,8 +14299,43 @@ void waituntil(int w,int h)
           UpdateWindow();
           break;
         case 7:
+          if (CheckInternalWifi() == 0)
+          {
+            SelectInGroupOnMenu(CurrentMenu, 7, 7, 7, 1);
+            printf("Désactivation wifi interne\n");
+            UpdateWindow();
+            usleep(500000);
+            SelectInGroupOnMenu(CurrentMenu, 7, 7, 7, 0);
+            system("/home/pi/rpidatv/scripts/internal_wifi.sh -disable >/dev/null 2>/dev/null");
+            MsgBox2B("Redémarrage nécessaire", "Touchez l'écran pour redémarrer");
+            wait_touch();
+            system("sudo reboot");
+          }
+          if (CheckInternalWifi() == 1)
+          {
+            SelectInGroupOnMenu(CurrentMenu, 7, 7, 7, 3);
+            printf("Activation wifi interne\n");
+            UpdateWindow();
+            usleep(500000);
+            SelectInGroupOnMenu(CurrentMenu, 7, 7, 7, 2);
+            system("/home/pi/rpidatv/scripts/internal_wifi.sh -enable >/dev/null 2>/dev/null");
+            MsgBox2B("Redémarrage nécessaire", "Touchez l'écran pour redémarrer");
+            wait_touch();
+            system("sudo reboot");
+          }
+          CurrentMenu=36;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu36();
+          UpdateWindow();
           break;
         case 8:
+          SelectInGroupOnMenu(CurrentMenu, 8, 8, 8, 1);
+          printf("Rafraichissement affichage\n");
+          UpdateWindow();
+          usleep(500000);
+          SelectInGroupOnMenu(CurrentMenu, 8, 8, 8, 0);
+          Start_Highlights_Menu36();
+          UpdateWindow();
           break;
         case 9:
           if (strcmp(Value, "Hotspot") != 0)
@@ -18776,15 +18836,23 @@ void Define_Menu36()
   AddButtonStatus(button, "SSID^None", &Green);
   AddButtonStatus(button, "SSID^None", &Orange);
 
-  //button = CreateButton(36, 7);
-  //AddButtonStatus(button, "", &DBlue);
-  //AddButtonStatus(button, "", &LBlue);
+  button = CreateButton(36, 6);
+  AddButtonStatus(button, "Internal^Disabled", &Red);
+  AddButtonStatus(button, "Internal^Enabled", &Rose);
+  AddButtonStatus(button, "Internal^Used", &Green);
+  //AddButtonStatus(button, "", &Grey);
+
+  button = CreateButton(36, 7);
+  AddButtonStatus(button, "Disable^Internal", &DBlue);
+  AddButtonStatus(button, "Disable^Internal", &LBlue);
+  AddButtonStatus(button, "Enable^Internal", &DBlue);
+  AddButtonStatus(button, "Enable^Internal", &LBlue);
   //AddButtonStatus(button, "", &Green);
   //AddButtonStatus(button, "", &Grey);
 
-  //button = CreateButton(36, 8);
-  //AddButtonStatus(button, "", &DBlue);
-  //AddButtonStatus(button, "", &LBlue);
+  button = CreateButton(36, 8);
+  AddButtonStatus(button, "Refresh^Display", &DBlue);
+  AddButtonStatus(button, "Refresh^Display", &LBlue);
   //AddButtonStatus(button, "", &Green);
   //AddButtonStatus(button, "", &Grey);
 
@@ -18840,6 +18908,17 @@ void Start_Highlights_Menu36()
 
     SetButtonStatus(ButtonNumber(CurrentMenu, 5), 2);
     SetButtonStatus(ButtonNumber(CurrentMenu, 9), 2);
+  }
+
+  if (CheckInternalWifi() == 0)
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 6), 1);
+    SetButtonStatus(ButtonNumber(CurrentMenu, 7), 0);
+  }
+  else if (CheckInternalWifi() == 1)
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 6), 0);
+    SetButtonStatus(ButtonNumber(CurrentMenu, 7), 2);
   }
 }
 

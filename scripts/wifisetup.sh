@@ -37,7 +37,6 @@ EOF
 mv "$3.bak2" "$3"
 }
 
-WLAN=$(get_config_var wifi $PCONFIGWIFI)
 ETAT=$(get_config_var hotspot $PCONFIGWIFI)
 
 # Script used to set up WiFi from rpidatv menu
@@ -100,7 +99,7 @@ fi
 
 printf "\nThe following networks are available:\n"
 printf "\n"
-sudo iwlist $WLAN scan | grep 'ESSID'
+sudo iwlist wlan0 scan | grep 'ESSID'
 printf "\n"
 printf "Type the SSID of the network that you want to connect to (without qoutes) and press enter\n"
 printf "\n"
@@ -184,17 +183,17 @@ if grep -q "iptables-restore < \/etc\/iptables.ipv4.nat" /etc/rc.local; then
 fi
 
 # Si présent, suppression inhibition dhcp wlan0
-if grep -q "denyinterfaces $WLAN" /etc/dhcpcd.conf; then
- sudo sed -i "/denyinterfaces $WLAN/d" /etc/dhcpcd.conf
+if grep -q "denyinterfaces wlan0" /etc/dhcpcd.conf; then
+ sudo sed -i "/denyinterfaces wlan0/d" /etc/dhcpcd.conf
 fi
 
 # Remplacer interfaces
-sudo cp /home/pi/rpidatv/scripts/configs/wifi_interfaces_$WLAN.txt /etc/network/interfaces
+sudo cp /home/pi/rpidatv/scripts/configs/wifi_interfaces.txt /etc/network/interfaces
 
 ##bring wifi down and up again, then reset
 
-sudo ip link set $WLAN down
-sudo ip link set $WLAN up
+sudo ip link set wlan0 down
+sudo ip link set wlan0 up
 
 ## Make sure that it is not soft-blocked
 sleep 1
@@ -205,7 +204,7 @@ if [ "$ETAT" == "oui" ]; then
   set_config_var hotspot "non" $PCONFIGWIFI
 fi
 
-wpa_cli -i $WLAN reconfigure
+wpa_cli -i wlan0 reconfigure
 
 printf "WiFi Configured\n"
 
