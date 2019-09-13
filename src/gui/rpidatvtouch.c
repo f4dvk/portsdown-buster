@@ -104,7 +104,7 @@ color_t DBlue  = {.r = 0  , .g = 0  , .b = 64 };
 color_t Grey   = {.r = 127, .g = 127, .b = 127};
 color_t Red    = {.r = 255, .g = 0  , .b = 0  };
 color_t Orange = {.r = 248, .g = 185, .b = 4  };
-color_t Rose  = {.r = 255 , .g = 192 , .b = 203};
+color_t Rose  = {.r = 255 , .g = 105 , .b = 180};
 
 #define MAX_BUTTON 975
 int IndexButtonInArray=0;
