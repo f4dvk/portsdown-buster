@@ -219,7 +219,7 @@ if [ "$ETAT" = "OFF" ]; then
 elif [ "$ETAT" = "ON" ] && [ "$MODE_OUTPUT" != "RPI_R" ]; then
   if [ "$MODE_OUTPUT" = "LIMEMINI" ]; then
     $PATHBIN/"dvb2iq2" -i videots -s $SYMBOLRATEK -f $FECIQ \
-            -r 4 -m $MODULATION_TX -c $CONST \
+            -r $UPSAMPLE -m $MODULATION_TX -c $CONST \
     |sudo $PATHBIN/"limesdr_send" -b 2.5e6 -r $UPSAMPLE -s $SYMBOLRATE -g $LIME_TX_GAINA -f $FREQ_TX"e6" &
   elif [ "$MODE_OUTPUT" = "IQ" ]; then
     $PATHSCRIPT"/ctlfilter.sh"
