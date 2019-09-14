@@ -3127,6 +3127,21 @@ do_load_settings()
   fi
 }
 
+do_Install_BrosTrend()
+{
+  $PATHSCRIPT"/brostrend_ac1200.sh"
+}
+
+do_drivers()
+{
+menuchoice=$(whiptail --title "Installation Drivers" --menu "Liste des drivers disponibles" 20 78 14 \
+    "1 BrosTrend" "AC1200 Wifi"  \
+    3>&2 2>&1 1>&3)
+    case "$menuchoice" in
+        1\ *) do_Install_BrosTrend ;;
+     esac
+}
+
 do_system_setup()
 {
 menuchoice=$(whiptail --title "$StrSystemTitle" --menu "$StrSystemContext" 20 78 14 \
@@ -3163,7 +3178,7 @@ menuchoice=$(whiptail --title "$StrSystemTitle" --menu "$StrSystemContext" 20 78
 
 do_system_setup_2()
 {
-  menuchoice=$(whiptail --title "$StrSystemTitle" --menu "$StrSystemContext" 20 78 13 \
+  menuchoice=$(whiptail --title "$StrSystemTitle" --menu "$StrSystemContext" 20 78 14 \
     "1 Set Freq Presets" "For Touchscreen Frequencies"  \
     "2 Set SR Presets" "For Touchscreen Symbol Rates"  \
     "3 ADF4351 Ref Freq" "Set ADF4351 Reference Freq and Cal" \
@@ -3176,6 +3191,7 @@ do_system_setup_2()
     "10 Reset Touch Cal" "Reset Touchscreen Calibration to zero" \
     "11 Back-up Settings" "Save Settings to a USB drive" \
     "12 Load Settings" "Load settings from a USB Drive" \
+    "13 Drivers" "Installation drivers divers" \
     3>&2 2>&1 1>&3)
   case "$menuchoice" in
     1\ *) do_presets ;;
@@ -3190,6 +3206,7 @@ do_system_setup_2()
     10\ *) do_touch_factory;;
     11\ *) do_back_up;;
     12\ *) do_load_settings;;
+    13\ *) do_drivers;;
   esac
 }
 
