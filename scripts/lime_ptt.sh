@@ -5,7 +5,7 @@
 ############### PIN AND TIMING DEFINITIONS ###########
 
 # DELAY_TIME in seconds
-DELAY_TIME=7
+DELAY_TIME=8
 
 # PTT_BIT: 0 for Receive, 1 for (delayed) transmit = BCM 21 / Header pin 40
 PTT_BIT=21
