@@ -242,6 +242,7 @@ if [ "$1" == "-remote_rxtotx_on" ]; then
  (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
 
  sudo /home/pi/rpidatv/scripts/leandvbgui2.sh 2>&1
+ $PATHSCRIPT"/lime_ptt.sh" &
 
 ENDSSH
       ) &
