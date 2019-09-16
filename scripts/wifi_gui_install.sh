@@ -209,6 +209,9 @@ elif [ "$1" == "-install" ]; then
 
   wpa_cli -i wlan0 reconfigure
 
+  # Suppression lignes known_hosts
+  echo "" | sudo tee /root/.ssh/known_hosts >/dev/null 2>/dev/null
+
   sleep 3
 
 fi

@@ -20206,6 +20206,9 @@ int main(int argc, char **argv)
   // Start the receive downconverter LO if required
   ReceiveLOStart();
 
+  // Suppression lignes known_hosts
+  system("echo "" | sudo tee /root/.ssh/known_hosts >/dev/null 2>/dev/null");
+
   // Determine button highlights
   Start_Highlights_Menu1();
   printf("Entering Update Window\n");
