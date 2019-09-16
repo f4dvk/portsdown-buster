@@ -12040,6 +12040,8 @@ void waituntil(int w,int h)
             {
               MsgBox2("Connexion perdue avec le RPI distant", "Touchez l'écran pour sortir");
               wait_touch();
+              BackgroundRGB(255,255,255,255);
+              Start_Highlights_Menu1();
               UpdateWindow();
             }
             else
@@ -14347,9 +14349,9 @@ void waituntil(int w,int h)
             SelectInGroupOnMenu(CurrentMenu, 9, 9, 9, 0);
             MsgBox2B("Redémarrage du Wifi en cours", "Veuillez patienter...");
             system("sudo /sbin/ifdown 'wlan0'");
-            system("sleep 5");
-            system("sudo /sbin/ifup --force 'wlan0'");
             system("sleep 4");
+            system("sudo /sbin/ifup --force 'wlan0'");
+            system("sleep 3");
             CurrentMenu=36;
             BackgroundRGB(0,0,0,255);
             Start_Highlights_Menu36();
