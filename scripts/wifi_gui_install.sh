@@ -46,7 +46,7 @@ if [ "$1" == "-get" ]; then
 
 ssid()
 {
-iwgetid wlan0 >/dev/null 2>/dev/null > /home/pi/ssid1.txt
+iwgetid >/dev/null 2>/dev/null > /home/pi/ssid1.txt
 }
 
 Hotspot()

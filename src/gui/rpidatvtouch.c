@@ -14346,7 +14346,10 @@ void waituntil(int w,int h)
             usleep(500000);
             SelectInGroupOnMenu(CurrentMenu, 9, 9, 9, 0);
             MsgBox2B("Redémarrage du Wifi en cours", "Veuillez patienter...");
-            system("sudo service networking restart");
+            system("sudo /sbin/ifdown 'wlan0'");
+            system("sleep 5");
+            system("sudo /sbin/ifup --force 'wlan0'");
+            system("sleep 4");
             CurrentMenu=36;
             BackgroundRGB(0,0,0,255);
             Start_Highlights_Menu36();
