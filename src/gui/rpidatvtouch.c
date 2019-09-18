@@ -14905,6 +14905,38 @@ void waituntil(int w,int h)
           Start_Highlights_Menu1();
           UpdateWindow();
           break;
+        case 0:
+          //printf("Wifi Config\n");
+          WifiPW(i);
+          CurrentMenu=36;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu36();
+          UpdateWindow();
+          break;
+        case 1:
+          //printf("Wifi Config\n");
+          WifiPW(i);
+          CurrentMenu=36;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu36();
+          UpdateWindow();
+          break;
+        case 2:
+          //printf("Wifi Config\n");
+          WifiPW(i);
+          CurrentMenu=36;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu36();
+          UpdateWindow();
+          break;
+        case 3:
+          //printf("Wifi Config\n");
+          WifiPW(i);
+          CurrentMenu=36;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu36();
+          UpdateWindow();
+          break;
         case 5:
           //printf("Wifi Config\n");
           WifiPW(i);
@@ -19444,6 +19476,19 @@ void Define_Menu51()
 
   // Bottom Row, Menu 51
 
+  button = CreateButton(51, 0);
+  AddButtonStatus(button, "None", &Blue);
+
+  button = CreateButton(51, 1);
+  AddButtonStatus(button, "None", &Blue);
+
+  button = CreateButton(51, 2);
+  AddButtonStatus(button, "None", &Blue);
+
+  button = CreateButton(51, 3);
+  AddButtonStatus(button, "None", &Blue);
+
+
   button = CreateButton(51, 5);
   AddButtonStatus(button, "None", &Blue);
 
@@ -19475,7 +19520,7 @@ char Value[255];
 
 system("sudo /home/pi/rpidatv/scripts/wifi_gui_install.sh -scan");
 
-for(n = 1; n < 6; n = n + 1)
+for(n = 1; n < 10; n = n + 1)
 {
  sprintf(N, "%d", n);
  strcpy(Param,"");
@@ -19485,7 +19530,14 @@ for(n = 1; n < 6; n = n + 1)
  strcpy(GetWifi,"");
  GetConfigParam(PATH_WIFISCAN, Param, Value);
  strcat(GetWifi, Value);
- AmendButtonStatus(ButtonNumber(51, (n+4)), 0, GetWifi, &Blue);
+ if (n<=5)
+ {
+   AmendButtonStatus(ButtonNumber(51, (n+4)), 0, GetWifi, &Blue);
+ }
+ if (n>5)
+ {
+   AmendButtonStatus(ButtonNumber(51, (n-6)), 0, GetWifi, &Blue);
+ }
 }
 }
 
