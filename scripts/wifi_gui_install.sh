@@ -88,6 +88,15 @@ fi
 
 elif [ "$1" == "-scan" ]; then
 
+sudo service hostapd status >/dev/null 2>/dev/null
+
+if [ $? == 0 ]; then
+  sudo systemctl disable hostapd
+  sudo systemctl stop hostapd
+  sudo service hostapd stop
+  sudo service dnsmasq stop
+fi
+
 scan()
 {
  sudo ip link set wlan0 up

@@ -11509,7 +11509,14 @@ void WifiPW(int NoButton)  // Wifi password
   int N;
   //SelectInGroupOnMenu(CurrentMenu, 5, 9, NoButton, 1);
 
-  N = NoButton - 4;
+  if (NoButton>4)
+  {
+    N = NoButton - 4;
+  }
+  if (NoButton<4)
+  {
+    N = NoButton + 6;
+  }
   strcpy(n,"");
   sprintf(n, "%d", N);
   strcpy(Param,"");
