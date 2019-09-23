@@ -20430,6 +20430,13 @@ int main(int argc, char **argv)
     getTouchScreenDetails(&screenXmin,&screenXmax,&screenYmin,&screenYmax);
     ProcessLeandvb2(); // For FrMenu and no
   }
+  if(ReceiveDirect==2)
+  {
+    getTouchScreenDetails(&screenXmin,&screenXmax,&screenYmin,&screenYmax);
+    BackgroundRGB(0,0,0,255);
+    Start(wscreen,hscreen);
+    LMRX(1);
+  }
 
   // Check for presence of touchscreen
   for(NoDeviceEvent=0;NoDeviceEvent<5;NoDeviceEvent++)

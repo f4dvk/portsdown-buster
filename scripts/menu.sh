@@ -14,6 +14,7 @@ RTLPRESETSFILE="/home/pi/rpidatv/scripts/rtl-fm_presets.txt"
 PATH_PPRESETS="/home/pi/rpidatv/scripts/portsdown_presets.txt"
 PATH_STREAMPRESETS="/home/pi/rpidatv/scripts/stream_presets.txt"
 PATH_HOTSPOT="/home/pi/rpidatv/scripts/hotspot_config.txt"
+RCONFIGFILE="/home/pi/rpidatv/scripts/longmynd_config.txt"
 
 
 GPIO_PTT=29  ## WiringPi value, not BCM
@@ -1465,6 +1466,29 @@ do_display_off()
   v4l2-ctl --overlay=0 >/dev/null 2>/dev/null
 }
 
+do_receive_status_longmynd()
+{
+  whiptail --title "Minitiouner RECEIVE" --msgbox "$FREQ_KHZ_T MHz, $SYMBOLRATEK_T KS." 8 78
+  sudo killall -9 lmhv2.sh >/dev/null 2>/dev/null
+  sudo killall -9 rpidatvgui >/dev/null 2>/dev/null
+  sudo killall -9 hello_video.bin >/dev/null 2>/dev/null
+  sudo killall -9 hello_video2.bin >/dev/null 2>/dev/null
+  sudo killall fbi >/dev/null 2>/dev/null
+
+  sudo fbi -T 1 -noverbose -a /home/pi/rpidatv/scripts/images/BATC_Black.png
+}
+
+do_receive_longmynd()
+{
+  if ! pgrep -x "fbcp" > /dev/null; then
+    # fbcp is not running, so start it
+    fbcp &
+  fi
+
+    /home/pi/rpidatv/bin/rpidatvgui 0 2  >/dev/null 2>/dev/null &
+   do_receive_status_longmynd
+}
+
 do_receive_status()
 {
   whiptail --title "RECEIVE" --msgbox "$RXKEY, $RXfreq MHz, $RXModulation, $RXsr KS, FEC $FECDVB." 8 78
@@ -1544,12 +1568,39 @@ do_RX_Frequency()
    fi
 }
 
+do_RX_Frequency_longmynd()
+{
+   freq_rx_longmynd=$(get_config_var freq1 $RCONFIGFILE)
+   Frequency_rx_longmynd=$(whiptail --inputbox "Frequency KHz" 8 78 $freq_rx_longmynd --title "Minitiouner RX Frequency" 3>&1 1>&2 2>&3)
+   if [ $? -eq 0 ]; then
+     set_config_var freq1 "$Frequency_rx_longmynd" $RCONFIGFILE
+   fi
+}
+
 do_RX_SR()
 {
    sr_rx=$(get_config_var rx0sr $RXPRESETSFILE)
    SR_rx=$(whiptail --inputbox "SR KS" 8 78 $sr_rx --title "Symbol Rate" 3>&1 1>&2 2>&3)
    if [ $? -eq 0 ]; then
      set_config_var rx0sr "$SR_rx" $RXPRESETSFILE
+   fi
+}
+
+do_RX_SR_longmynd()
+{
+   sr_rx_longmynd=$(get_config_var sr1 $RCONFIGFILE)
+   SR_rx_longmynd=$(whiptail --inputbox "SR KS" 8 78 $sr_rx_longmynd --title "Minitiouner Symbol Rate" 3>&1 1>&2 2>&3)
+   if [ $? -eq 0 ]; then
+     set_config_var sr1 "$SR_rx_longmynd" $RCONFIGFILE
+   fi
+}
+
+do_RX_INPUT_longmynd()
+{
+  rx_input_longmynd=$(get_config_var input $RCONFIGFILE)
+   RX_input_longmynd=$(whiptail --inputbox "Sélection de l'entrée a ou b" 8 78 $rx_input_longmynd --title "Minitiouner Entrée" 3>&1 1>&2 2>&3)
+   if [ $? -eq 0 ]; then
+     set_config_var input "$RX_input_longmynd" $RCONFIGFILE
    fi
 }
 
@@ -1679,18 +1730,24 @@ do_RX_Modulation()
 do_RX_Config()
 {
   menuchoice=$(whiptail --title "Select RX Configuration" --menu "RX Menu" 20 78 13 \
-    "1 Frequency" $RXfreq" MHz"  \
-    "2 Modulation" "$RXModulation" \
-    "3 Symbol Rate" $RXsr" KS"  \
-    "4 FEC" "FEC "$FECDVB  \
-    "5 RX Key" "$Key_Rx"  \
+    "1 Minitiouner Frequency" "$FREQ_KHZ_T KHz"  \
+    "2 Minitiouner Symbol Rate" "$SYMBOLRATEK_T KS"  \
+    "3 Minitiouner Sélection entrée" "Entrée: $INPUT_SEL"  \
+    "4 Leandvb Frequency" "$RXfreq MHz"  \
+    "5 Leandvb Modulation" "$RXModulation" \
+    "6 Leandvb Symbol Rate" "$RXsr KS"  \
+    "7 Leandvb FEC" "FEC "$FECDVB  \
+    "8 Leandvb RX Key" "$Key_Rx"  \
     3>&2 2>&1 1>&3)
   case "$menuchoice" in
-    1\ *) do_RX_Frequency ;;
-    2\ *) do_RX_Modulation ;;
-    3\ *) do_RX_SR ;;
-    4\ *) do_RX_FEC ;;
-    5\ *) do_rx_select ;;
+    1\ *) do_RX_Frequency_longmynd ;;
+    2\ *) do_RX_SR_longmynd ;;
+    3\ *) do_RX_INPUT_longmynd ;;
+    4\ *) do_RX_Frequency ;;
+    5\ *) do_RX_Modulation ;;
+    6\ *) do_RX_SR ;;
+    7\ *) do_RX_FEC ;;
+    8\ *) do_rx_select ;;
   esac
   do_receive_menu
 }
@@ -1868,6 +1925,15 @@ do_receive_menu()
   RXfec=$(get_config_var rx0fec $RXPRESETSFILE)
   RXsr=$(get_config_var rx0sr $RXPRESETSFILE)
   RXModulation=$(get_config_var rx0modulation $RXPRESETSFILE)
+  FREQ_KHZ_T=$(get_config_var freq1 $RCONFIGFILE)
+  SYMBOLRATEK_T=$(get_config_var sr1 $RCONFIGFILE)
+  INPUT_SEL=$(get_config_var input $RCONFIGFILE)
+  RX_MODE=$(get_config_var mode $RCONFIGFILE)
+
+  if [ "$RX_MODE" == "sat" ]; then
+    set_config_var mode "terr" $RCONFIGFILE
+  fi
+
   if [ "$RXfec" != "Auto" ]; then
    let FECNUM_RX=RXfec
    let FECDEN_RX=RXfec+1
@@ -1877,22 +1943,24 @@ do_receive_menu()
   fi
 
   menuchoice=$(whiptail --title "Select Receive Option" --menu "RTL Menu" 20 78 13 \
-    "1 Receive DATV" "$Key_Rx, "$RXfreq" MHz, "$RXModulation", "$RXsr" KS, FEC "$FECDVB"."  \
-    "2 RX Configuration" "Configure Freq, Modulation, SR, FEC"  \
-    "3 RTL FM" "Receiver with RTL-SDR"  \
-    "4 Start RTL-TCP" "Start the RTL-TCP Server for use with SDR Sharp"  \
-    "5 Stop RTL-TCP" "Stop the RTL-TCP Server" \
-    "6 Start Stream RX" "Display the Selected Stream" \
-    "7 Stop Stream RX" "Stop Displaying the Selected Stream" \
+    "1 Receive DATV Leandvb" "$Key_Rx, "$RXfreq" MHz, "$RXModulation", "$RXsr" KS, FEC "$FECDVB"."  \
+    "2 Receive DATV Minitiouner" "$FREQ_KHZ_T KHz, "$SYMBOLRATEK_T" KS, Entrée: $INPUT_SEL "  \
+    "3 RX Configuration" "Configure Freq, Modulation, SR, FEC"  \
+    "4 RTL FM" "Receiver with RTL-SDR"  \
+    "5 Start RTL-TCP" "Start the RTL-TCP Server for use with SDR Sharp"  \
+    "6 Stop RTL-TCP" "Stop the RTL-TCP Server" \
+    "7 Start Stream RX" "Display the Selected Stream" \
+    "8 Stop Stream RX" "Stop Displaying the Selected Stream" \
     3>&2 2>&1 1>&3)
   case "$menuchoice" in
     1\ *) do_receive ;;
-    2\ *) do_RX_Config ;;
-    3\ *) do_RTL_FM_Menu ;;
-    4\ *) do_start_rtl_tcp ;;
-    5\ *) do_stop_rtl_tcp  ;;
-    6\ *) do_streamrx  ;;
-    7\ *) do_stop_streamrx  ;;
+    2\ *) do_receive_longmynd ;;
+    3\ *) do_RX_Config ;;
+    4\ *) do_RTL_FM_Menu ;;
+    5\ *) do_start_rtl_tcp ;;
+    6\ *) do_stop_rtl_tcp  ;;
+    7\ *) do_streamrx  ;;
+    8\ *) do_stop_streamrx  ;;
   esac
 }
 
