@@ -102,6 +102,7 @@ AutostartSetupTX_boot="Boot-up to Transmit"
 AutostartSetupDisplay_boot="Boot-up to Graphique(avec ecran tactile)"
 AutostartSetupButton_tx_boot="Boot-up to Boutons poussoires TX"
 AutostartSetupButton_rx_boot="Boot-up to Boutons poussoires RX"
+AutostartSetupButton_rx_minitiouner_boot="Boot-up to Boutons poussoires RX Minitiouner"
 
 ######## TOUCHSCREEN MENU #########
 
@@ -139,8 +140,3 @@ StrMainMenuExitContext="Merci d'avoir utilisé RpiDATV..73's de F5OEO(evaristec@
 
 FileMenuTitle="! ERREUR !"
 FileMenuContext="Error setting path to image file"
-
-
-
-
-
