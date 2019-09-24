@@ -2007,6 +2007,7 @@ do_autostart_setup()
   Radio10=OFF
   Radio11=OFF
   Radio12=OFF
+  Radio13=OFF
 
   case "$MODE_STARTUP" in
     Prompt)
@@ -2045,6 +2046,9 @@ do_autostart_setup()
     StreamRX_boot)
       Radio12=ON
     ;;
+    Button_rx_minitiouner_boot)
+      Radio13=ON
+    ;;
     *)
       Radio1=ON
     ;;
@@ -2059,6 +2063,7 @@ do_autostart_setup()
    "TestRig_boot" "Boot-up to Test Rig for F-M Boards" $Radio5 \
    "Button_tx_boot" "$AutostartSetupButton_tx_boot" $Radio6 \
    "Button_rx_boot" "$AutostartSetupButton_rx_boot" $Radio7 \
+   "Button_rx_minitiouner_boot" "$AutostartSetupButton_rx_minitiouner_boot" $Radio13 \
    "Keyed_Stream_boot" "Boot up to Keyed Repeater Streamer" $Radio8 \
    "Cont_Stream_boot" "Boot up to Always-on Repeater Streamer" $Radio9 \
    "Keyed_TX_boot" "Boot up to GPIO Keyed Transmitter" $Radio10 \

@@ -455,6 +455,13 @@ case "$MODE_STARTUP" in
     fi
     return
   ;;
+  Button_rx_minitiouner_boot)
+    # Start Button
+    if [ "$SESSION_TYPE" == "boot" ]; then
+      /home/pi/rpidatv/scripts/rpibutton_rx_minitiouner.sh
+    fi
+    return
+  ;;
   *)
     return
   ;;

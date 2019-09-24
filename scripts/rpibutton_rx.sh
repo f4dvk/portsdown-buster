@@ -106,9 +106,9 @@ do_refresh_config()
 
 do_process_button()
 {
-	 if [ `gpio -g read $button_SR` = 1 ]&&[ "$SYMBOLRATEK" != 333 ]&&[ "$FREQ" != 145.9 ]&&[ "$FREQ" != 437 ] ; then
+         if [ `gpio -g read $button_SR` = 1 ]&&[ "$SYMBOLRATEK" != 250 ]&&[ "$FREQ" != 145.9 ]&&[ "$FREQ" != 1255 ] ; then
 
-                        NEW_SR=333;
+                        NEW_SR=250;
                         NEW_FEC=7;
                         MOD=0;
 
@@ -119,10 +119,10 @@ do_process_button()
                 do_refresh_config
         fi
 
-        if [ `gpio -g read $button_SR` = 0 ]&&[ "$SYMBOLRATEK" != 250 ]&&[ "$FREQ" != 145.9 ]&&[ "$FREQ" != 437 ] ; then
+        if [ `gpio -g read $button_SR` = 0 ]&&[ "$SYMBOLRATEK" != 125 ]&&[ "$FREQ" != 145.9 ]&&[ "$FREQ" != 1255 ] ; then
 
-                        NEW_SR=250;
-                        NEW_FEC=1;
+                        NEW_SR=125;
+                        NEW_FEC=7;
                         MOD=0;
 
                 set_config_var rx0sr "$NEW_SR" $RXPRESETSFILE
@@ -132,47 +132,28 @@ do_process_button()
                 do_refresh_config
         fi
 
-        if [ `gpio -g read $button_0` = 1 ]&&[ `gpio -g read $button_1` = 1 ]&&[ "$MOD" != 10 ]&&[ `gpio -g read $button_SR` = 1 ] ; then
+        if [ `gpio -g read $button_0` = 1 ]&&[ `gpio -g read $button_1` = 1 ]&&[ "$FREQ" != 437 ] ; then
 
                                 NEW_FREQ_RX=437;
                                 MODULATION=DVB-S;
                                 NEW_FEC=7;
-                                NEW_SR=333:
-                                MOD=10;
+                                MOD=0;
 
                 set_config_var rx0frequency "$NEW_FREQ_RX" $RXPRESETSFILE
                 set_config_var rx0modulation "$MODULATION" $RXPRESETSFILE
-                set_config_var rx0fec "$NEW_FEC" $RXPRESETSFILE
-                set_config_var rx0sr "$NEW_SR" $RXPRESETSFILE
-
-                echo $NEW_FREQ_RX
-                do_refresh_config
-        fi
-
-        if [ `gpio -g read $button_0` = 1 ]&&[ `gpio -g read $button_1` = 1 ]&&[ "$MOD" != 13 ]&&[ `gpio -g read $button_SR` = 0 ] ; then
-
-                                NEW_FREQ_RX=437;
-                                MODULATION=DVB-S;
-                                NEW_SR=125:
-                                NEW_FEC=7;
-                                MOD=10;
-
-                set_config_var rx0frequency "$NEW_FREQ_RX" $RXPRESETSFILE
-                set_config_var rx0modulation "$MODULATION" $RXPRESETSFILE
-                set_config_var rx0sr "$NEW_SR" $RXPRESETSFILE
                 set_config_var rx0fec "$NEW_FEC" $RXPRESETSFILE
 
                 echo $NEW_FREQ_RX
                 do_refresh_config
         fi
 
-        if [ `gpio -g read $button_0` = 0 ]&&[ `gpio -g read $button_1` = 1 ]&&[ "$FREQ" != 145.9 ] ; then
+        if [ `gpio -g read $button_0` = 0 ]&&[ `gpio -g read $button_1` = 1 ]&&[ "$MOD" != 1 ] ; then
 
                                 NEW_FREQ_RX=145.9;
                                 NEW_SR=125;
                                 MODULATION=DVB-S;
                                 NEW_FEC=7;
-                                MOD=0;
+                                MOD=1;
 
                 set_config_var rx0frequency "$NEW_FREQ_RX" $RXPRESETSFILE
                 set_config_var rx0sr "$NEW_SR" $RXPRESETSFILE
@@ -183,14 +164,35 @@ do_process_button()
                 do_refresh_config
         fi
 
-        if [ `gpio -g read $button_0` = 1 ]&&[ `gpio -g read $button_1` = 0 ]&&[ "$FREQ" != 1255 ] ; then
+        if [ `gpio -g read $button_0` = 1 ]&&[ `gpio -g read $button_1` = 0 ]&&[ `gpio -g read $button_SR` = 1 ]&&[ "$MOD" != 2 ] ; then
+
+                                NEW_FREQ_RX=145.9;
+                                NEW_SR=250;
+                                MODULATION=DVB-S;
+                                NEW_FEC=7;
+                                MOD=2;
+
+                set_config_var rx0frequency "$NEW_FREQ_RX" $RXPRESETSFILE
+                set_config_var rx0sr "$NEW_SR" $RXPRESETSFILE
+                set_config_var rx0modulation "$MODULATION" $RXPRESETSFILE
+                set_config_var rx0fec "$NEW_FEC" $RXPRESETSFILE
+
+                echo $NEW_FREQ_RX
+                do_refresh_config
+        fi
+
+        if [ `gpio -g read $button_0` = 1 ]&&[ `gpio -g read $button_1` = 0 ]&&[ "$FREQ" != 1255 ]&&[ `gpio -g read $button_SR` = 0 ] ; then
 
                                 NEW_FREQ_RX=1255;
+                                NEW_SR=250;
                                 MODULATION=DVB-S;
+                                NEW_FEC=7;
                                 MOD=0;
 
                 set_config_var rx0frequency "$NEW_FREQ_RX" $RXPRESETSFILE
+                set_config_var rx0sr "$NEW_SR" $RXPRESETSFILE
                 set_config_var rx0modulation "$MODULATION" $RXPRESETSFILE
+                set_config_var rx0fec "$NEW_FEC" $RXPRESETSFILE
 
                 echo $NEW_FREQ_RX
                 do_refresh_config
