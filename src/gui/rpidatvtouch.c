@@ -3052,11 +3052,25 @@ void ReadLMRXPresets()
   LMRXqoffset = atoi(Value);
 
   // Start up frequency
-  GetConfigParam(PATH_LMCONFIG, "freq0", Value);
+  if (strcmp(LMRXmode, "sat") == 0)
+  {
+    GetConfigParam(PATH_LMCONFIG, "freq0", Value);
+  }
+  else
+  {
+    GetConfigParam(PATH_LMCONFIG, "freq1", Value);
+  }
   LMRXfreq[0] = atoi(Value);
 
   // Start up SR
-  GetConfigParam(PATH_LMCONFIG, "sr0", Value);
+  if (strcmp(LMRXmode, "sat") == 0)
+  {
+    GetConfigParam(PATH_LMCONFIG, "sr0", Value);
+  }
+  else
+  {
+    GetConfigParam(PATH_LMCONFIG, "sr1", Value);
+  }
   LMRXsr[0] = atoi(Value);
 
   // Frequencies
@@ -11019,6 +11033,7 @@ void ChangeLMPresetFreq(int NoButton)
       FreqIndex = NoButton - 4;
     }
   }
+  snprintf(PresetNo, 3, "%d", FreqIndex);
   if (strcmp(LMRXmode, "terr") == 0) // Add index for second set of freqs
   {
     FreqIndex = FreqIndex + 10;
@@ -11046,13 +11061,19 @@ void ChangeLMPresetFreq(int NoButton)
 
   // Write freq to memory
   LMRXfreq[FreqIndex] = CheckValue;
-
-  // write freq to Presets file
-  snprintf(PresetNo, 3, "%d", FreqIndex);
+  //LMRXfreq[1] = CheckValue;
 
   strcat(Param, PresetNo);
   printf("Store Preset %s %s\n", Param, KeyboardReturn);
   SetConfigParam(PATH_LMCONFIG, Param, KeyboardReturn);
+  if (strcmp(LMRXmode, "sat") == 0)
+  {
+    SetConfigParam(PATH_LMCONFIG, "freq0", KeyboardReturn);
+  }
+  else
+  {
+    SetConfigParam(PATH_LMCONFIG, "freq1", KeyboardReturn);
+  }
 }
 
 void ChangePresetSR(int NoButton)
@@ -11172,7 +11193,14 @@ void ChangeLMPresetSR(int NoButton)
     strcat(Param, PresetNo);
     printf("Store Preset %s %s\n", Param, KeyboardReturn);
     SetConfigParam(PATH_LMCONFIG, Param, KeyboardReturn);
-    SetConfigParam(PATH_LMCONFIG, "sr0", KeyboardReturn);
+    if (strcmp(LMRXmode, "sat") == 0)
+    {
+      SetConfigParam(PATH_LMCONFIG, "sr0", KeyboardReturn);
+    }
+    else
+    {
+      SetConfigParam(PATH_LMCONFIG, "sr1", KeyboardReturn);
+    }
   }
 }
 
