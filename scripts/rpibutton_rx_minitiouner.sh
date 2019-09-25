@@ -1,3 +1,4 @@
+#!/bin/bash
 RXPRESETSFILE="/home/pi/rpidatv/scripts/longmynd_config.txt"
 
 ############### PIN DEFINITION ###########"
@@ -142,7 +143,7 @@ do_process_button()
         if [ `gpio -g read $button_0` = 1 ]&&[ `gpio -g read $button_1` = 0 ]&&[ `gpio -g read $button_SR` = 1 ]&&[ "$MOD" != 2 ] ; then
 
                                 NEW_FREQ_RX=145900;
-                                NEW_SR=250;;
+                                NEW_SR=250;
                                 MOD=2;
 
                 set_config_var freq1 "$NEW_FREQ_RX" $RXPRESETSFILE
@@ -185,7 +186,7 @@ do_process_button()
 ##################### MAIN PROGRAM ##############
 
 do_refresh_config
-RX_MODE=$(get_config_var mode $RCONFIGFILE)
+RX_MODE=$(get_config_var mode $RXPRESETSFILE)
 if [ "$RX_MODE" == "sat" ]; then
   set_config_var mode "terr" $RXPRESETSFILE
 fi

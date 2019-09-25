@@ -137,6 +137,7 @@ char CurrentADFRef[15];
 char UpdateStatus[31] = "NotAvailable";
 char ADF5355Ref[15];
 char DisplayType[31];
+char ModeStartup[31];
 int  scaledX, scaledY;
 VGfloat CalShiftX = 0;
 VGfloat CalShiftY = 0;
@@ -20409,14 +20410,20 @@ int main(int argc, char **argv)
     sigaction(i, &sa, NULL);
   }
 
-  // Set up wiringPi module
-  if (wiringPiSetup() < 0)
-  {
-    return 0;
-  }
+  strcpy(Param,"startup");
+  GetConfigParam(PATH_PCONFIG, Param, Value);
+  strcpy(ModeStartup, Value);
 
-  // Initialise all the spi GPIO ports to the correct state
-  InitialiseGPIO();
+  if ((strcmp(ModeStartup, "Button_rx_boot")!=0) && (strcmp(ModeStartup, "Button_rx_minitiouner_boot")!=0))
+  {
+    // Set up wiringPi module
+    if (wiringPiSetup() < 0)
+    {
+      return 0;
+    }
+    // Initialise all the spi GPIO ports to the correct state
+    InitialiseGPIO();
+  }
 
   // Determine if using waveshare or waveshare B screen
   // Either by first argument or from portsdown_config.txt
