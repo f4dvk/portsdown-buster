@@ -70,14 +70,12 @@ do_transmit()
         sleep 0.5
         sudo $PATHSCRIPT"/a.sh" >/dev/null 2>/dev/null &
         $PATHSCRIPT"/lime_ptt.sh" &
-        sleep 0.5
 }
 
 do_stop_transmit()
 {
- 	sleep 0.5
         sudo $PATHSCRIPT"/b.sh" 2>/dev/null &
-        sleep 0.5
+        sleep 2
 }
 
 do_refresh_config()
@@ -91,9 +89,9 @@ do_refresh_config()
 
 do_process_button()
 {
-	     if [ `gpio -g read $button_SR` = 1 ]&&[ "$SYMBOLRATEK" != 333 ]&&[ "$FREQ" != 145.9 ]&&[ "$FREQ" != 437 ] ; then
+         if [ `gpio -g read $button_SR` = 1 ]&&[ "$SYMBOLRATEK" != 250 ]&&[ "$FREQ" != 145.9 ]&&[ "$FREQ" != 1255 ] ; then
 
-                        NEW_SR=333;
+                        NEW_SR=250;
                         NEW_FEC=7;
                         MOD=0;
 
@@ -104,10 +102,10 @@ do_process_button()
                 do_refresh_config
         fi
 
-        if [ `gpio -g read $button_SR` = 0 ]&&[ "$SYMBOLRATEK" != 250 ]&&[ "$FREQ" != 145.9 ]&&[ "$FREQ" != 437 ] ; then
+        if [ `gpio -g read $button_SR` = 0 ]&&[ "$SYMBOLRATEK" != 125 ]&&[ "$FREQ" != 145.9 ]&&[ "$FREQ" != 1255 ] ; then
 
-                        NEW_SR=250;
-                        NEW_FEC=1;
+                        NEW_SR=125;
+                        NEW_FEC=7;
                         MOD=0;
 
                 set_config_var symbolrate "$NEW_SR" $CONFIGFILE
@@ -117,11 +115,27 @@ do_process_button()
                 do_refresh_config
         fi
 
-        if [ `gpio -g read $button_0` = 1 ]&&[ `gpio -g read $button_1` = 1 ]&&[ "$MOD" != 1 ]&&[ `gpio -g read $button_SR` = 1 ] ; then
+        if [ `gpio -g read $button_0` = 1 ]&&[ `gpio -g read $button_1` = 1 ]&&[ "$FREQ" != 437 ] ; then
 
                                 NEW_FREQ_OUTPUT=437;
                                 MODULATION=DVB-S;
-                                NEW_SR=333;
+                                FEC=7;
+                                MOD=0;
+
+                set_config_var freqoutput "$NEW_FREQ_OUTPUT" $CONFIGFILE
+                set_config_var modulation "$MODULATION" $CONFIGFILE
+                set_config_var symbolrate "$NEW_SR" $CONFIGFILE
+                set_config_var fec "$FEC" $CONFIGFILE
+
+                echo $NEW_FREQ_OUTPUT
+                do_refresh_config
+        fi
+
+        if [ `gpio -g read $button_0` = 0 ]&&[ `gpio -g read $button_1` = 1 ]&&[ "$MOD" != 1 ] ; then
+
+                                NEW_FREQ_OUTPUT=145.9;
+                                NEW_SR=125;
+                                MODULATION=DVB-S;
                                 FEC=7;
                                 MOD=1;
 
@@ -134,31 +148,13 @@ do_process_button()
                 do_refresh_config
         fi
 
-        if [ `gpio -g read $button_0` = 1 ]&&[ `gpio -g read $button_1` = 1 ]&&[ "$MOD" != 4 ]&&[ `gpio -g read $button_SR` = 0 ] ; then
-
-                                NEW_FREQ_OUTPUT=437;
-                                MODULATION=DVB-S;
-                                NEW_SR=125;
-                                FEC=7;
-                                MOD=4;
-
-                set_config_var freqoutput "$NEW_FREQ_OUTPUT" $CONFIGFILE
-                set_config_var symbolrate "$NEW_SR" $CONFIGFILE
-                set_config_var modulation "$MODULATION" $CONFIGFILE
-                set_config_var fec "$FEC" $CONFIGFILE
-
-                echo $NEW_FREQ_OUTPUT
-                do_refresh_config
-        fi
-
-        if [ `gpio -g read $button_0` = 0 ]&&[ `gpio -g read $button_1` = 1 ]&&[ "$FREQ" != 145.9 ] ; then
+        if [ `gpio -g read $button_0` = 1 ]&&[ `gpio -g read $button_1` = 0 ]&&[ `gpio -g read $button_SR` = 1 ]&&[ "$MOD" != 2 ] ; then
 
                                 NEW_FREQ_OUTPUT=145.9;
-                                NEW_SR=125;
+                                NEW_SR=250;
                                 MODULATION=DVB-S;
                                 FEC=7;
-                                MOD=0;
-
+                                MOD=2;
 
                 set_config_var freqoutput "$NEW_FREQ_OUTPUT" $CONFIGFILE
                 set_config_var symbolrate "$NEW_SR" $CONFIGFILE
@@ -169,14 +165,16 @@ do_process_button()
                 do_refresh_config
         fi
 
-        if [ `gpio -g read $button_0` = 1 ]&&[ `gpio -g read $button_1` = 0 ]&&[ "$FREQ" != 1255 ] ; then
+        if [ `gpio -g read $button_0` = 1 ]&&[ `gpio -g read $button_1` = 0 ]&&[ `gpio -g read $button_SR` = 0 ]&&[ "$FREQ" != 1255 ] ; then
 
                                 NEW_FREQ_OUTPUT=1255;
+                                NEW_SR=250;
                                 MODULATION=DVB-S;
                                 FEC=7;
                                 MOD=0;
 
                 set_config_var freqoutput "$NEW_FREQ_OUTPUT" $CONFIGFILE
+                set_config_var symbolrate "$NEW_SR" $CONFIGFILE
                 set_config_var modulation "$MODULATION" $CONFIGFILE
                 set_config_var fec "$FEC" $CONFIGFILE
 
@@ -196,7 +194,7 @@ do_process_button()
                 do_stop_transmit
                 transmit=0;
                 echo "Standby"
-	fi
+        fi
 }
 
 ##################### MAIN PROGRAM ##############
