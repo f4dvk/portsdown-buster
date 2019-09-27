@@ -20463,6 +20463,7 @@ int main(int argc, char **argv)
   if(ReceiveDirect==1)
   {
     getTouchScreenDetails(&screenXmin,&screenXmax,&screenYmin,&screenYmax);
+    ReadRXPresets();
     ProcessLeandvb2(); // For FrMenu and no
   }
   if(ReceiveDirect==2)
