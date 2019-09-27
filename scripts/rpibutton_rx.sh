@@ -66,7 +66,7 @@ EOF
 
 do_stop_receiver()
 {
-  sudo killall -9 rx_gpio >/dev/null 2>/dev/null
+  sudo killall -9 rpidatvgui >/dev/null 2>/dev/null
   sudo killall -9 leandvb >/dev/null 2>/dev/null
   sudo killall -9 hello_video.bin >/dev/null 2>/dev/null
   sudo killall -9 rtl_sdr >/dev/null 2>/dev/null
@@ -92,7 +92,7 @@ do_receive()
     fbcp &
   fi
 
-    /home/pi/rpidatv/bin/rx_gpio 0 1  >/dev/null 2>/dev/null &
+    /home/pi/rpidatv/bin/rpidatvgui 0 1  >/dev/null 2>/dev/null &
 
 }
 
