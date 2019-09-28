@@ -77,7 +77,7 @@ if [ "$SAMPLERATEK" = "0" ]; then
     SR_RTLSDR=1200000
   elif [ "$SYMBOLRATEK" -gt 999 ] && [ "$SYMBOLRATEK" -lt 1101 ]; then
     SR_RTLSDR=1250000
-  elif [ "$SYMBOLRATEK" -gt 250 ] && [ "$SYMBOLRATEK" -lt 500 ] && [ "$SDR" = "LIMEMINI" ]; then
+  elif [ "$SYMBOLRATEK" -gt 249 ] && [ "$SYMBOLRATEK" -lt 500 ] && [ "$SDR" = "LIMEMINI" ]; then
     SR_RTLSDR=850000
   else
     SR_RTLSDR=2400000
@@ -108,7 +108,7 @@ FLOCK=$(get_config_var rx0fastlock $RXPRESETSFILE)
 if [ "$FLOCK" = "ON" ]; then
   FASTLOCK="--fastlock"
 else
-  FASTLOCK=" "
+  FASTLOCK=""
 fi
 
 if [ "$GAIN" -lt 10 ]; then
@@ -119,6 +119,18 @@ fi
 
 if [ "$GAIN" = 100 ] && [ "$SDR" = "LIMEMINI" ]; then
  GAIN_LIME=1
+fi
+
+MODE_STARTUP=$(get_config_var startup $PCONFIGFILE)
+
+if [ "$MODE_STARTUP" == "Button_rx_boot"]; then
+  if [ "$FREQ_OUTPUT" = "145.9" ] && [ "$SDR" = "LIMEMINI" ]; then
+    GAIN_LIME="0.8"
+  elif [ "$FREQ_OUTPUT" = "437" ] && [ "$SDR" = "LIMEMINI" ]; then
+    GAIN_LIME="0.7"
+  elif [ "$FREQ_OUTPUT" = "1255" ] && [ "$SDR" = "LIMEMINI" ]; then
+    GAIN_LIME="1"
+  fi
 fi
 
 # Look up the RTL-SDR Frequency error from the RTL-FM file
@@ -178,13 +190,13 @@ sudo fbi -T 1 -noverbose -a $PATHSCRIPT"/images/Blank_Black.png"
 # Constellation and Parameters on
 if [ "$GRAPHICS" = "ON" ] && [ "$PARAMS" = "ON" ] && [ "$ETAT" = "OFF" ]; then
   sudo $KEY\
-    | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 $FECDVB --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
+    | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
 fi
 
 # Constellation on, Parameters off
 if [ "$GRAPHICS" = "ON" ] && [ "$PARAMS" = "OFF" ] && [ "$ETAT" = "OFF" ]; then
   sudo $KEY\
-    | $PATHBIN"leandvb" $B --fd-pp 3 --fd-const 2 $FECDVB --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
+    | $PATHBIN"leandvb" $B --fd-pp 3 --fd-const 2 $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
 fi
 
 # Constellation off, Parameters on
@@ -196,7 +208,7 @@ fi
 # Constellation and Parameters off
 if [[ "$GRAPHICS" = "OFF" && "$PARAMS" = "OFF" ]] || [ "$ETAT" = "ON" ]; then
   sudo $KEY\
-    | $PATHBIN"leandvb" $B $FECDVB --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>/dev/null &
+    | $PATHBIN"leandvb" $B $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>/dev/null &
 fi
 
 #if [ "$1" == "-remote" ]; then
