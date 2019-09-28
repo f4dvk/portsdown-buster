@@ -20464,7 +20464,9 @@ int main(int argc, char **argv)
   {
     getTouchScreenDetails(&screenXmin,&screenXmax,&screenYmin,&screenYmax);
     ReadRXPresets();
-    ProcessLeandvb2(); // For FrMenu and no
+    BackgroundRGB(0,0,0,255);
+    Start(wscreen,hscreen);
+    ProcessLeandvb2();
   }
   if(ReceiveDirect==2)
   {
