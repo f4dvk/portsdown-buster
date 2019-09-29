@@ -123,7 +123,7 @@ fi
 
 MODE_STARTUP=$(get_config_var startup $PCONFIGFILE)
 
-if [ "$MODE_STARTUP" == "Button_rx_boot"]; then
+if [ "$MODE_STARTUP" == "Button_rx_boot" ]; then
   if [ "$FREQ_OUTPUT" = "145.9" ] && [ "$SDR" = "LIMEMINI" ]; then
     GAIN_LIME="0.8"
   elif [ "$FREQ_OUTPUT" = "437" ] && [ "$SDR" = "LIMEMINI" ]; then
