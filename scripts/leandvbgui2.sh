@@ -77,8 +77,10 @@ if [ "$SAMPLERATEK" = "0" ]; then
     SR_RTLSDR=1200000
   elif [ "$SYMBOLRATEK" -gt 999 ] && [ "$SYMBOLRATEK" -lt 1101 ]; then
     SR_RTLSDR=1250000
-  elif [ "$SYMBOLRATEK" -gt 249 ] && [ "$SYMBOLRATEK" -lt 500 ] && [ "$SDR" = "LIMEMINI" ]; then
+  elif [ "$SYMBOLRATEK" -gt 250 ] && [ "$SYMBOLRATEK" -lt 400 ] && [ "$SDR" = "LIMEMINI" ]; then
     SR_RTLSDR=850000
+  elif [ "$SYMBOLRATEK" == 250 ] && [ "$SDR" = "LIMEMINI" ]; then
+    SR_RTLSDR=550000
   else
     SR_RTLSDR=2400000
   fi
