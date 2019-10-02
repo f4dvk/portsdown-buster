@@ -2008,6 +2008,7 @@ do_autostart_setup()
   Radio11=OFF
   Radio12=OFF
   Radio13=OFF
+  Radio14=OFF
 
   case "$MODE_STARTUP" in
     Prompt)
@@ -2058,7 +2059,7 @@ do_autostart_setup()
   esac
 
   chstartup=$(whiptail --title "$StrAutostartSetupTitle" --radiolist \
-   "$StrAutostartSetupContext" 20 78 12 \
+   "$StrAutostartSetupContext" 20 78 14 \
    "Prompt" "$AutostartSetupPrompt" $Radio1 \
    "Console" "$AutostartSetupConsole" $Radio2 \
    "TX_boot" "$AutostartSetupTX_boot" $Radio3 \
