@@ -5,6 +5,8 @@ RXPRESETSFILE="/home/pi/rpidatv/scripts/rx_presets.txt"
 #SR=GPIO 26 / Header 37
 button=26
 
+receive=0;
+
 rx=1;
 NEW_FREQ_RX=145.9;
 NEW_SR=125;
@@ -78,6 +80,7 @@ do_stop_receiver()
    sudo killall limesdr_dump >/dev/null 2>/dev/null
    /home/pi/rpidatv/bin/limesdr_stopchannel
   fi
+  receive=0;
 }
 
 do_receive()
@@ -96,6 +99,8 @@ do_receive()
   fi
 
     /home/pi/rpidatv/bin/rpidatvgui 0 1  >/dev/null 2>/dev/null &
+
+  receive=1;
 
 }
 
@@ -148,7 +153,9 @@ do_process_button()
 		set_config_var rx0frequency "$NEW_FREQ_RX" $RXPRESETSFILE
     set_config_var rx0sr "$NEW_SR" $RXPRESETSFILE
 
-    do_stop_receiver
+    if [ "$receive" == 1 ]; then
+      do_stop_receiver
+    fi
     do_refresh_config
     do_view_config
 		do_receive
