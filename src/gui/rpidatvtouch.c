@@ -20414,7 +20414,7 @@ int main(int argc, char **argv)
   GetConfigParam(PATH_PCONFIG, Param, Value);
   strcpy(ModeStartup, Value);
 
-  if ((strcmp(ModeStartup, "Button_rx_boot")!=0) && (strcmp(ModeStartup, "Button_rx_minitiouner_boot")!=0))
+  if ((strcmp(ModeStartup, "Button_rx_boot")!=0) && (strcmp(ModeStartup, "Button_rx_minitiouner_boot")!=0) && (strcmp(ModeStartup, "Button_rx_lcd_boot")!=0))
   {
     // Set up wiringPi module
     if (wiringPiSetup() < 0)

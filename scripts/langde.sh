@@ -98,6 +98,10 @@ AutostartSetupConsole="Einloggen zum Portsdown Menu"
 AutostartSetupTX_boot="Booten zum direkten Senden"
 AutostartSetupDisplay_boot="Booten bis zum Touchscreen Display"
 AutostartSetupButton_boot="Booten bis zur Tastenbedienung"
+AutostartSetupButton_tx_boot="Mode relais GPIO TX"
+AutostartSetupButton_rx_boot="Mode relais GPIO RX"
+AutostartSetupButton_rx_minitiouner_boot="Mode relais RX Minitiouner"
+AutostartSetupButton_rx_lcd_boot="Mode poussoire GPIO RX"
 
 ######## TOUCHSCREEN MENU #########
 
@@ -140,8 +144,3 @@ StrMainMenuExitContext="Danke für die Nutzung von RpiDATV... 73's de F5OEO(evar
 
 FileMenuTitle="! Fehler !"
 FileMenuContext="Fehler beim Setzen des Pfades zur Datei"
-
-
-
-
-

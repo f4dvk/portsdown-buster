@@ -99,9 +99,10 @@ AutostartSetupPrompt="Log-on to Linux Command Prompt"
 AutostartSetupConsole="Log-on to Portsdown Console Menu"
 AutostartSetupTX_boot="Boot-up to Transmit"
 AutostartSetupDisplay_boot="Boot-up to Touchscreen Display"
-AutostartSetupButton_tx_boot="Boot-up to Button Control TX"
-AutostartSetupButton_rx_boot="Boot-up to Button Control RX"
-AutostartSetupButton_rx_minitiouner_boot="Boot-up to Button Control RX Minitiouner"
+AutostartSetupButton_tx_boot="Mode relais GPIO TX"
+AutostartSetupButton_rx_boot="Mode relais GPIO RX"
+AutostartSetupButton_rx_minitiouner_boot="Mode relais RX Minitiouner"
+AutostartSetupButton_rx_lcd_boot="Mode poussoire GPIO RX"
 
 ######## TOUCHSCREEN MENU #########
 

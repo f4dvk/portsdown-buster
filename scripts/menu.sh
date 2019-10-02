@@ -2049,6 +2049,9 @@ do_autostart_setup()
     Button_rx_minitiouner_boot)
       Radio13=ON
     ;;
+    Button_rx_lcd_boot)
+      Radio14=ON
+    ;;
     *)
       Radio1=ON
     ;;
@@ -2064,6 +2067,7 @@ do_autostart_setup()
    "Button_tx_boot" "$AutostartSetupButton_tx_boot" $Radio6 \
    "Button_rx_boot" "$AutostartSetupButton_rx_boot" $Radio7 \
    "Button_rx_minitiouner_boot" "$AutostartSetupButton_rx_minitiouner_boot" $Radio13 \
+   "Button_rx_lcd_boot" "$AutostartSetupButton_rx_lcd_boot" $Radio14 \
    "Keyed_Stream_boot" "Boot up to Keyed Repeater Streamer" $Radio8 \
    "Cont_Stream_boot" "Boot up to Always-on Repeater Streamer" $Radio9 \
    "Keyed_TX_boot" "Boot up to GPIO Keyed Transmitter" $Radio10 \
