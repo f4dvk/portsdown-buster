@@ -181,7 +181,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	if(SetGFIR(device,4)<0)
+	if(SetGFIR(device,2)<0)
 	{
 		fprintf(stderr, "SetGFIR() : %s\n", LMS_GetLastErrorMessage());
 		return -1;
