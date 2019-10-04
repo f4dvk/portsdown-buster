@@ -806,6 +806,10 @@ if [ "$DISPLAY" == "Waveshare" ]; then
   fi
 fi
 
+if [ ! -e /boot/overlays/waveshare32b.dtbo ]; then
+  sudo cp /home/pi/rpidatv/scripts/waveshare32b.dtbo /boot/overlays/
+fi
+
 DisplayUpdateMsg "Step 9 of 10\nInstalling FreqShow SW\n\nXXXXXXXXX-"
 
 # Downgrade the sdl version so FreqShow works

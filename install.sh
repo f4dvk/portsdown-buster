@@ -251,6 +251,9 @@ sudo cp ./waveshare35a.dtbo /boot/overlays/
 # Install Waveshare 3.5B DTOVERLAY
 sudo cp ./waveshare35b.dtbo /boot/overlays/
 
+# Install Waveshare 3.2B DTOVERLAY
+sudo cp ./waveshare32b.dtbo /boot/overlays/
+
 # Install the Waveshare 3.5A driver
 sudo bash -c 'cat /home/pi/rpidatv/scripts/configs/waveshare_mkr.txt >> /boot/config.txt'
 

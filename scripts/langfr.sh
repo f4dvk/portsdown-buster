@@ -113,6 +113,7 @@ DisplaySetupTontec="Ecran Tontec 3,5 pouces"
 DisplaySetupHDMI="HDMI tactile"
 DisplaySetupRpiLCD="Waveshare 3,5 A LCD (standard)"
 DisplaySetupRpiBLCD="Waveshare 3,5 B LCD (alternative)"
+DisplaySetupRpi32BLCD="Waveshare 3,2 B LCD (alternative)"
 DisplaySetupRpi4LCD="Waveshare 4 inch LCD (alternative)"
 DisplaySetupConsole="Network Console"
 

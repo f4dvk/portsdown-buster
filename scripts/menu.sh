@@ -2112,6 +2112,7 @@ do_display_setup()
   Radio5=OFF
   Radio6=OFF
   Radio7=OFF
+  Radio8=OFF
   case "$MODE_DISPLAY" in
   Tontec35)
     Radio1=ON
@@ -2134,6 +2135,9 @@ do_display_setup()
   Element14_7)
     Radio7=ON
   ;;
+  Waveshare32B)
+    Radio8=ON
+  ;;
   *)
     Radio1=ON
   ;;
@@ -2145,6 +2149,7 @@ do_display_setup()
     "HDMITouch" "$DisplaySetupHDMI" $Radio2 \
     "Waveshare" "$DisplaySetupRpiLCD" $Radio3 \
     "WaveshareB" "$DisplaySetupRpiBLCD" $Radio4 \
+    "Waveshare32B" "$DisplaySetupRpi32BLCD" $Radio8 \
     "Waveshare4" "$DisplaySetupRpi4LCD" $Radio5 \
     "Console" "$DisplaySetupConsole" $Radio6 \
     "Element14_7" "Element 14 RPi 7 inch Display" $Radio7 \
@@ -2173,6 +2178,7 @@ do_display_setup()
       HDMITouch) INSERTFILE=$PATHCONFIGS"/hdmitouch.txt" ;;
       Waveshare) INSERTFILE=$PATHCONFIGS"/waveshare.txt" ;;
       WaveshareB) INSERTFILE=$PATHCONFIGS"/waveshareb.txt" ;;
+      Waveshare32B) INSERTFILE=$PATHCONFIGS"/waveshare32b.txt" ;;
       Waveshare4) INSERTFILE=$PATHCONFIGS"/waveshare.txt" ;;
       Console)   INSERTFILE=$PATHCONFIGS"/console.txt" ;;
       Element14_7)  INSERTFILE=$PATHCONFIGS"/element14_7.txt" ;;
@@ -2192,6 +2198,7 @@ do_display_setup()
       HDMITouch) sudo cp /home/pi/rpidatv/scripts/configs/freqshow/waveshare_pointercal /etc/pointercal ;;
       Waveshare) sudo cp /home/pi/rpidatv/scripts/configs/freqshow/waveshare_pointercal /etc/pointercal ;;
       WaveshareB) sudo cp /home/pi/rpidatv/scripts/configs/freqshow/waveshare_pointercal /etc/pointercal ;;
+      Waveshare32B) sudo cp /home/pi/rpidatv/scripts/configs/freqshow/waveshare_pointercal /etc/pointercal ;;
       Waveshare4) sudo cp /home/pi/rpidatv/scripts/configs/freqshow/waveshare4_pointercal /etc/pointercal ;;
       Console)   sudo cp /home/pi/rpidatv/scripts/configs/freqshow/waveshare_pointercal /etc/pointercal ;;
       Element14_7)  sudo cp /home/pi/rpidatv/scripts/configs/freqshow/waveshare_pointercal /etc/pointercal ;;
