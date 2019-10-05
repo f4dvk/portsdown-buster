@@ -8322,33 +8322,33 @@ void ProcessLeandvb2()
             strcpy(sLock,"----");
             Fill(255,0,0, 1);
           }
-          Roundrect(200,0,100,50, 10, 10);
+          Roundrect(200,0,100,40, 10, 10);
           Fill(255, 255, 255, 1);
-          Text(200, 20, sLock, SerifTypeface, 25);
+          Text(200, 15, sLock, SerifTypeface, 20);
 
           // Signal Strength: White text to right of Lock status
           char sSignalStrength[100];
           sprintf(sSignalStrength, "%3.0f", SignalStrength);
           Fill(255-SignalStrength, SignalStrength, 0, 1);
-          Roundrect(350, 0, 20+SignalStrength/2, 50, 10, 10);
+          Roundrect(350, 0, 20+SignalStrength/2, 40, 10, 10);
           Fill(255, 255, 255, 1);
-          Text(350, 20, sSignalStrength, SerifTypeface, 25);
+          Text(350, 15, sSignalStrength, SerifTypeface, 20);
 
           //MER: 2-30 to right of Sig Stength.  Bar length indicative.
           char sMER[100];
           sprintf(sMER, "%2.1fdB", MER);
           Fill(255-MER*8, (MER*8), 0, 1);
-          Roundrect(500, 0, (MER*8), 50, 10, 10);
+          Roundrect(500, 0, (MER*8), 40, 10, 10);
           Fill(255, 255, 255, 1);
-          Text(500, 20, sMER, SerifTypeface, 25);
+          Text(500, 15, sMER, SerifTypeface, 20);
 
           // Frequency indicator bar
           Stroke(0, 0, 255, 0.8);
           Line(FFT_SIZE/2, 0, FFT_SIZE/2, 10);
           Stroke(0, 0, 255, 0.8);
-          Line(0,hscreen-300,256,hscreen-300);
+          Line(0,hscreen-300,200,hscreen-300);
           StrokeWidth(10);
-          Line(128+(FREQ/40000.0)*256.0,hscreen-300-20,128+(FREQ/40000.0)*256.0,hscreen-300+20);
+          Line(100+(FREQ/40000.0)*200.0,hscreen-300-20,100+(FREQ/40000.0)*200.0,hscreen-300+20);
 
           // Frequency text
           char sFreq[100];
@@ -8382,11 +8382,11 @@ void ProcessLeandvb2()
             {
               token = strtok(NULL, " ");
               sscanf(token, "%d, %d", &x, &y);
-              coordpoint(x+128, hscreen-(y+128), 5, shapecolor); // dots
+              coordpoint(x+100, hscreen-(y+100), 5, shapecolor); // dots
 
               Stroke(0, 255, 255, 0.8);
-              Line(0, hscreen-128, 256, hscreen-128);
-              Line(128, hscreen, 128, hscreen-256);  // Axis
+              Line(0, hscreen-100, 200, hscreen-100);
+              Line(100, hscreen, 100, hscreen-200);  // Axis
             }
           }
           End();
@@ -8484,11 +8484,11 @@ void ProcessLeandvb2()
           {
             token = strtok(NULL, " ");
             sscanf(token, "%d, %d", &x, &y);
-            coordpoint(x+128, hscreen-(y+128), 5, shapecolor); // dots
+            coordpoint(x+100, hscreen-(y+100), 5, shapecolor); // dots
 
             Stroke(0, 255, 255, 0.8);
-            Line(0, hscreen-128, 256, hscreen-128);
-            Line(128, hscreen, 128, hscreen-256);  // Axis
+            Line(0, hscreen-100, 200, hscreen-100);
+            Line(100, hscreen, 100, hscreen-200);  // Axis
           }
           End();
         }
@@ -8550,33 +8550,33 @@ void ProcessLeandvb2()
             strcpy(sLock,"----");
             Fill(255,0,0, 1);
           }
-          Roundrect(200,0,100,50, 10, 10);
+          Roundrect(200,0,100,40, 10, 10);
           Fill(255, 255, 255, 1);
-          Text(200, 20, sLock, SerifTypeface, 25);
+          Text(200, 15, sLock, SerifTypeface, 20);
 
           // Signal Strength: White text to right of Lock status
           char sSignalStrength[100];
           sprintf(sSignalStrength, "%3.0f", SignalStrength);
           Fill(255-SignalStrength, SignalStrength, 0, 1);
-          Roundrect(350, 0, 20+SignalStrength/2, 50, 10, 10);
+          Roundrect(350, 0, 20+SignalStrength/2, 40, 10, 10);
           Fill(255, 255, 255, 1);
-          Text(350, 20, sSignalStrength, SerifTypeface, 25);
+          Text(350, 15, sSignalStrength, SerifTypeface, 20);
 
           //MER: 2-30 to right of Sig Stength.  Bar length indicative.
           char sMER[100];
           sprintf(sMER, "%2.1fdB", MER);
           Fill(255-MER*8, (MER*8), 0, 1);
-          Roundrect(500, 0, (MER*8), 50, 10, 10);
+          Roundrect(500, 0, (MER*8), 40, 10, 10);
           Fill(255, 255, 255, 1);
-          Text(500, 20, sMER, SerifTypeface, 25);
+          Text(500, 15, sMER, SerifTypeface, 20);
 
           // Frequency indicator bar
           Stroke(0, 0, 255, 0.8);
           Line(FFT_SIZE/2, 0, FFT_SIZE/2, 10);
           Stroke(0, 0, 255, 0.8);
-          Line(0,hscreen-300,256,hscreen-300);
+          Line(0,hscreen-300,200,hscreen-300);
           StrokeWidth(10);
-          Line(128+(FREQ/40000.0)*256.0,hscreen-300-20,128+(FREQ/40000.0)*256.0,hscreen-300+20);
+          Line(100+(FREQ/40000.0)*200.0,hscreen-300-20,100+(FREQ/40000.0)*200.0,hscreen-300+20);
 
           // Frequency text
           char sFreq[100];
