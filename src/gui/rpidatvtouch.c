@@ -8314,82 +8314,112 @@ void ProcessLeandvb2()
           char sLock[100];
           if(Lock == 1)
           {
-            strcpy(sLock,"Lock");
+            /*strcpy(sLock,"Lock");
             Fill(0,255,0, 1);
+            Roundrect(10,0,100,40, 10, 10);
+            Fill(255, 255, 255, 1);
+            Text(10, 15, sLock, SerifTypeface, 20);*/
+
+						//MER: 2-30 to right of Sig Stength.  Bar length indicative.
+            char sMER[100];
+            sprintf(sMER, "%2.1fdB", MER);
+            Fill(255-MER*8, (MER*8), 0, 1);
+            Roundrect(650, 0, 115, 40, 10, 10);
+            Fill(255, 255, 255, 1);
+            Text(650, 15, sMER, SerifTypeface, 20);
           }
           else
           {
             strcpy(sLock,"----");
             Fill(255,0,0, 1);
+            Roundrect(200,0,100,40, 10, 10);
+            Fill(255, 255, 255, 1);
+            Text(200, 15, sLock, SerifTypeface, 20);
+
+            // Signal Strength: White text to right of Lock status
+            char sSignalStrength[100];
+            sprintf(sSignalStrength, "%3.0f", SignalStrength);
+            Fill(255-SignalStrength, SignalStrength, 0, 1);
+            Roundrect(350, 0, 20+SignalStrength/2, 40, 10, 10);
+            Fill(255, 255, 255, 1);
+            Text(350, 15, sSignalStrength, SerifTypeface, 20);
+
+            //MER: 2-30 to right of Sig Stength.  Bar length indicative.
+            char sMER[100];
+            sprintf(sMER, "%2.1fdB", MER);
+            Fill(255-MER*8, (MER*8), 0, 1);
+            Roundrect(500, 0, (MER*8), 40, 10, 10);
+            Fill(255, 255, 255, 1);
+            Text(500, 15, sMER, SerifTypeface, 20);
+
+            // Frequency indicator bar
+            Stroke(0, 0, 255, 0.8);
+            Line(FFT_SIZE/2, 0, FFT_SIZE/2, 10);
+            Stroke(0, 0, 255, 0.8);
+            Line(0,hscreen-300,200,hscreen-300);
+            StrokeWidth(10);
+            Line(100+(FREQ/40000.0)*200.0,hscreen-300-20,100+(FREQ/40000.0)*200.0,hscreen-300+20);
+
+            // Frequency text
+            char sFreq[100];
+            sprintf(sFreq,"%2.1fkHz",FREQ/1000.0);
+            Text(0,hscreen-300+25, sFreq, SerifTypeface, 20);
           }
-          Roundrect(200,0,100,40, 10, 10);
-          Fill(255, 255, 255, 1);
-          Text(200, 15, sLock, SerifTypeface, 20);
-
-          // Signal Strength: White text to right of Lock status
-          char sSignalStrength[100];
-          sprintf(sSignalStrength, "%3.0f", SignalStrength);
-          Fill(255-SignalStrength, SignalStrength, 0, 1);
-          Roundrect(350, 0, 20+SignalStrength/2, 40, 10, 10);
-          Fill(255, 255, 255, 1);
-          Text(350, 15, sSignalStrength, SerifTypeface, 20);
-
-          //MER: 2-30 to right of Sig Stength.  Bar length indicative.
-          char sMER[100];
-          sprintf(sMER, "%2.1fdB", MER);
-          Fill(255-MER*8, (MER*8), 0, 1);
-          Roundrect(500, 0, (MER*8), 40, 10, 10);
-          Fill(255, 255, 255, 1);
-          Text(500, 15, sMER, SerifTypeface, 20);
-
-          // Frequency indicator bar
-          Stroke(0, 0, 255, 0.8);
-          Line(FFT_SIZE/2, 0, FFT_SIZE/2, 10);
-          Stroke(0, 0, 255, 0.8);
-          Line(0,hscreen-300,200,hscreen-300);
-          StrokeWidth(10);
-          Line(100+(FREQ/40000.0)*200.0,hscreen-300-20,100+(FREQ/40000.0)*200.0,hscreen-300+20);
-
-          // Frequency text
-          char sFreq[100];
-          sprintf(sFreq,"%2.1fkHz",FREQ/1000.0);
-          Text(0,hscreen-300+25, sFreq, SerifTypeface, 20);
-        }
 
         if(Decim%25==0)
         {
-          // Draw FFT
-          static VGfloat PowerFFTx[FFT_SIZE];
-          static VGfloat PowerFFTy[FFT_SIZE];
-          StrokeWidth(2);
-          Stroke(150, 150, 200, 0.8);
-          int i;
-          if(fftout != NULL)
-          {
-            for(i = 0; i < FFT_SIZE; i += 2)
-            {
-              PowerFFTx[i] = (i<FFT_SIZE/2)?(FFT_SIZE+i)/2:i/2;
-              PowerFFTy[i] = log10f(sqrt(fftout[i][0]*fftout[i][0]+fftout[i][1]*fftout[i][1])/FFT_SIZE)*100;
-              Line(PowerFFTx[i], 0, PowerFFTx[i], PowerFFTy[i]);
-            }
-
-            // Draw Constellation
-            int x, y;
-            Decim++;
+          if(Lock == 0)
+            // Draw FFT
+            static VGfloat PowerFFTx[FFT_SIZE];
+            static VGfloat PowerFFTy[FFT_SIZE];
             StrokeWidth(2);
-            Stroke(255, 255, 128, 0.8);
-            for(i = 0; i < NbData ; i++)
+            Stroke(150, 150, 200, 0.8);
+            int i;
+            if(fftout != NULL)
             {
-              token = strtok(NULL, " ");
-              sscanf(token, "%d, %d", &x, &y);
-              coordpoint(x+100, hscreen-(y+100), 5, shapecolor); // dots
+              for(i = 0; i < FFT_SIZE; i += 2)
+              {
+                PowerFFTx[i] = (i<FFT_SIZE/2)?(FFT_SIZE+i)/2:i/2;
+                PowerFFTy[i] = log10f(sqrt(fftout[i][0]*fftout[i][0]+fftout[i][1]*fftout[i][1])/FFT_SIZE)*100;
+                Line(PowerFFTx[i], 0, PowerFFTx[i], PowerFFTy[i]);
+              }
 
-              Stroke(0, 255, 255, 0.8);
-              Line(0, hscreen-100, 200, hscreen-100);
-              Line(100, hscreen, 100, hscreen-200);  // Axis
+              // Draw Constellation
+              int x, y;
+              Decim++;
+              StrokeWidth(2);
+              Stroke(255, 255, 128, 0.8);
+              for(i = 0; i < NbData ; i++)
+              {
+                token = strtok(NULL, " ");
+                sscanf(token, "%d, %d", &x, &y);
+                coordpoint(x+100, hscreen-(y+100), 5, shapecolor); // dots
+
+                Stroke(0, 255, 255, 0.8);
+                Line(0, hscreen-100, 200, hscreen-100);
+                Line(100, hscreen, 100, hscreen-200);  // Axis
+              }
             }
+            End();
           }
-          End();
+          else
+          {
+            // Do the data elements of Draw FFT
+
+            int i;
+            if(fftout != NULL)
+            {
+              // Draw Constellation
+              int x, y;
+              Decim++;
+              for(i = 0; i < NbData ; i++)
+              {
+                token = strtok(NULL, " ");
+                sscanf(token, "%d, %d", &x, &y);
+              }
+            }
+            End();
+          }
         }
         else
         {
