@@ -8365,6 +8365,7 @@ void ProcessLeandvb2()
             sprintf(sFreq,"%2.1fkHz",FREQ/1000.0);
             Text(0,hscreen-300+25, sFreq, SerifTypeface, 20);
           }
+        }
 
         if(Decim%25==0)
         {
