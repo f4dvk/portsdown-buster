@@ -8240,6 +8240,10 @@ void AmendStreamerPreset(int NoButton)
 
 void ProcessLeandvb2()
 {
+  int LCK = false;
+  int ok = false;
+  unsigned long time:
+  unsigned long top;
   #define PATH_SCRIPT_LEAN2 "sudo /home/pi/rpidatv/scripts/leandvbgui2.sh 2>&1"
   char *line=NULL;
   size_t len = 0;
@@ -8298,6 +8302,7 @@ void ProcessLeandvb2()
       static float SignalStrength = 0;
       static float MER = 0;
       static float FREQ = 0;
+      time = millis();
 
       // Deal with the Symbol Data
       if(strcmp(strTag, "SYMBOLS")==0)
@@ -8314,27 +8319,52 @@ void ProcessLeandvb2()
           char sLock[100];
           if(Lock == 1)
           {
-            /*strcpy(sLock,"Lock");
-            Fill(0,255,0, 1);
-            Roundrect(10,0,100,40, 10, 10);
-            Fill(255, 255, 255, 1);
-            Text(10, 15, sLock, SerifTypeface, 20);*/
+            if (LCK == false)
+            {
+              LCK=true;
+              top = time;
+            }
+            if ((time - top) > 3000)
+            {
+              ok = true;
+            }
 
-						//MER: 2-30 to right of Sig Stength.  Bar length indicative.
-            char sMER[100];
-            sprintf(sMER, "%2.1fdB", MER);
-            Fill(255-MER*8, (MER*8), 0, 1);
-            Roundrect(650, 0, 115, 40, 10, 10);
-            Fill(255, 255, 255, 1);
-            Text(650, 15, sMER, SerifTypeface, 20);
+            if (ok == false)
+            {
+              strcpy(sLock,"Lock");
+              Fill(0,255,0, 1);
+              Roundrect(200,0,100,40, 10, 10);
+              Fill(255, 255, 255, 1);
+              Text(200, 15, sLock, SerifTypeface, 20);
+            }
+
+            if (ok == true)
+            {
+  						//MER: 2-30 to right of Sig Stength.  Bar length indicative.
+              char sMER[100];
+              sprintf(sMER, "%2.1fdB", MER);
+              Fill(255-MER*8, (MER*8), 0, 1);
+              Roundrect(650, 0, 115, 40, 10, 10);
+              Fill(255, 255, 255, 1);
+              Text(650, 15, sMER, SerifTypeface, 20);
+            }
           }
-          else
+          if((Lock == 0) || ((Lock == 1) && (ok == false)))
           {
-            strcpy(sLock,"----");
-            Fill(255,0,0, 1);
-            Roundrect(200,0,100,40, 10, 10);
-            Fill(255, 255, 255, 1);
-            Text(200, 15, sLock, SerifTypeface, 20);
+            if(((Lock == 0) && (LCK == true)) || ((Lock == 0) && (ok == true)))
+            {
+              LCK=false;
+              ok=false;
+            }
+
+            if (Lock == 0)
+            {
+              strcpy(sLock,"----");
+              Fill(255,0,0, 1);
+              Roundrect(200,0,100,40, 10, 10);
+              Fill(255, 255, 255, 1);
+              Text(200, 15, sLock, SerifTypeface, 20);
+            }
 
             // Signal Strength: White text to right of Lock status
             char sSignalStrength[100];
@@ -8369,7 +8399,7 @@ void ProcessLeandvb2()
 
         if(Decim%25==0)
         {
-          if(Lock == 0)
+          if((Lock == 0) || ((Lock == 1) && (ok == false)))
           {
             // Draw FFT
             static VGfloat PowerFFTx[FFT_SIZE];
