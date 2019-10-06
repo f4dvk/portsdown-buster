@@ -247,7 +247,7 @@ char RXfastlock[5][7];      // Fastlock on/off
 int RXStoreTrigger = 0;     // Set to 1 if ready to store RX preset
 int FinishedButton2 = 1;    // Used to control FFT
 fftwf_complex *fftout=NULL; // FFT for RX
-#define FFT_SIZE 256        // for RX display
+#define FFT_SIZE 200        // for RX display
 char RXKEY[256];
 char RXMOD[256];
 char RXFEC[256];
