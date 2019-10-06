@@ -8369,6 +8369,7 @@ void ProcessLeandvb2()
         if(Decim%25==0)
         {
           if(Lock == 0)
+          {
             // Draw FFT
             static VGfloat PowerFFTx[FFT_SIZE];
             static VGfloat PowerFFTy[FFT_SIZE];
