@@ -383,10 +383,10 @@ void GetConfigParam(char *PathConfigFile, char *Param, char *Value)
   char ParamWithEquals[255];
   strcpy(ParamWithEquals, Param);
   strcat(ParamWithEquals, "=");
-￼
+
   printf("Get Config reads %s for %s ", PathConfigFile , Param);
 
-￼  FILE *fp=fopen(PathConfigFile, "r");
+  FILE *fp=fopen(PathConfigFile, "r");
   if(fp != 0)
   {
     while ((read = getline(&line, &len, fp)) != -1)
@@ -435,7 +435,7 @@ void SetConfigParam(char *PathConfigFile, char *Param, char *Value)
   strcat(ParamWithEquals, "=");
 
   printf("Set Config called %s %s %s\n", PathConfigFile , ParamWithEquals, Value);
-￼
+
   if(fp!=0)
   {
     while ((read = getline(&line, &len, fp)) != -1)
