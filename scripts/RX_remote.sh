@@ -60,7 +60,7 @@ mv "$3.bak2" "$3"
 
 ###################### Commande distante ###########################
 if [ "$1" == "-OFF" ]; then
-  while [ "$N" -lt 3 ] && [ "$ACK" == "KO"]; do
+#  while [ "$N" -lt 3 ] && [ "$ACK" == "KO" ]; do
 /bin/cat <<EOM >$CMDFILE
  (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
 
@@ -73,17 +73,17 @@ EOM
 
       source "$CMDFILE"
 
-sleep 200
-ACK=$(get_config_var ack $ACKFILE)
-if [ "$ACK" == "KO"]; then
-  let N++
-fi
-  done
+#sleep 200
+#ACK=$(get_config_var ack $ACKFILE)
+#if [ "$ACK" == "KO" ]; then
+#  let N++
+#fi
+#  done
 
 exit
 fi
 
-while [ "$N" -lt 3 ] && [ "$ACK" == "KO"]; do
+#while [ "$N" -lt 3 ] && [ "$ACK" == "KO" ]; do
 
 /bin/cat <<EOM >$CMDFILE
  (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
@@ -97,11 +97,11 @@ EOM
 
       source "$CMDFILE"
 
-sleep 200
-ACK=$(get_config_var ack $ACKFILE)
-if [ "$ACK" == "KO"]; then
-  let N++
-fi
-done
+#sleep 200
+#ACK=$(get_config_var ack $ACKFILE)
+#if [ "$ACK" == "KO" ]; then
+#  let N++
+#fi
+#done
 
 exit
