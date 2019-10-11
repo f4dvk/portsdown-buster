@@ -2096,8 +2096,8 @@ do_autostart_setup()
 
   # If Keyed or Continuous stream selected, set up cron for 12-hourly reboot
   # Also do it for keyed or continuous TX
-  if [[ "$chstartup" == "Keyed_Stream_boot" || "$chstartup" == "Cont_Stream_boot" \
-￼     || "$chstartup" == "Keyed_TX_boot" || "$chstartup" == "TX_boot" ]]; then
+  if [ "$chstartup" == "Keyed_Stream_boot" || "$chstartup" == "Cont_Stream_boot" \
+     || "$chstartup" == "Keyed_TX_boot" || "$chstartup" == "TX_boot" ]; then
     sudo crontab /home/pi/rpidatv/scripts/configs/rptrcron
   else
     sudo crontab /home/pi/rpidatv/scripts/configs/blankcron
@@ -2599,41 +2599,41 @@ do_atten_levels()
     set_config_var t4attenlevel "-""$ATTENLEVEL8" $PATH_PPRESETS
   fi
 
-￼  ## Now set the Attenuator Level for the current band
-￼  BAND=$(get_config_var band $PCONFIGFILE)
-￼
-￼  case "$BAND" in
-￼  d1)
-￼    set_config_var attenlevel "$ATTENLEVEL0" $PCONFIGFILE
-￼  ;;
-￼  d2)
-￼    set_config_var attenlevel "$ATTENLEVEL1" $PCONFIGFILE
-￼  ;;
-￼  d3)
-￼    set_config_var attenlevel "$ATTENLEVEL2" $PCONFIGFILE
-￼  ;;
-￼  d4)
-￼    set_config_var attenlevel "$ATTENLEVEL3" $PCONFIGFILE
-￼  ;;
-￼  d5)
-￼    set_config_var attenlevel "$ATTENLEVEL4" $PCONFIGFILE
-￼  ;;
-￼  t1)
-￼    set_config_var attenlevel "$ATTENLEVEL5" $PCONFIGFILE
-￼  ;;
-￼  t2)
-￼    set_config_var attenlevel "$ATTENLEVEL6" $PCONFIGFILE
-￼  ;;
-￼  t3)
-￼    set_config_var attenlevel "$ATTENLEVEL7" $PCONFIGFILE
-￼  ;;
-￼  t4)
-￼    set_config_var attenlevel "$ATTENLEVEL8" $PCONFIGFILE
-￼  ;;
-￼  *)
-￼    set_config_var attenlevel "$ATTENLEVEL0" $PCONFIGFILE
-￼  ;;
-￼  esac
+  ## Now set the Attenuator Level for the current band
+  BAND=$(get_config_var band $PCONFIGFILE)
+
+  case "$BAND" in
+  d1)
+    set_config_var attenlevel "$ATTENLEVEL0" $PCONFIGFILE
+  ;;
+  d2)
+    set_config_var attenlevel "$ATTENLEVEL1" $PCONFIGFILE
+  ;;
+  d3)
+    set_config_var attenlevel "$ATTENLEVEL2" $PCONFIGFILE
+  ;;
+  d4)
+    set_config_var attenlevel "$ATTENLEVEL3" $PCONFIGFILE
+  ;;
+  d5)
+    set_config_var attenlevel "$ATTENLEVEL4" $PCONFIGFILE
+  ;;
+  t1)
+    set_config_var attenlevel "$ATTENLEVEL5" $PCONFIGFILE
+  ;;
+  t2)
+    set_config_var attenlevel "$ATTENLEVEL6" $PCONFIGFILE
+  ;;
+  t3)
+    set_config_var attenlevel "$ATTENLEVEL7" $PCONFIGFILE
+  ;;
+  t4)
+    set_config_var attenlevel "$ATTENLEVEL8" $PCONFIGFILE
+  ;;
+  *)
+    set_config_var attenlevel "$ATTENLEVEL0" $PCONFIGFILE
+  ;;
+  esac
 }
 
 do_set_express()

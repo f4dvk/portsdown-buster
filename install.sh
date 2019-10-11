@@ -389,16 +389,16 @@ cp -f /home/pi/rpidatv/src/xy/xy /home/pi/rpidatv/bin/xy
 cd /home/pi
 
 # Download and compile the components for Comp Vid output whilst using 7 inch screen
-￼wget https://github.com/AndrewFromMelbourne/raspi2raspi/archive/master.zip
-￼unzip master.zip
-￼mv raspi2raspi-master raspi2raspi
-￼rm master.zip
-￼cd raspi2raspi/
-￼mkdir build
-￼cd build
-￼cmake ..
-￼make
-￼sudo make install
+wget https://github.com/AndrewFromMelbourne/raspi2raspi/archive/master.zip
+unzip master.zip
+mv raspi2raspi-master raspi2raspi
+rm master.zip
+cd raspi2raspi/
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
 ￼
 # Copy the components to support Lime Grove
 cp -r /home/pi/rpidatv/scripts/configs/dvbsdr/ /home/pi/dvbsdr/
@@ -427,7 +427,7 @@ cp /home/pi/rpidatv/scripts/configs/freqshow/waveshare_146_model.py /home/pi/Fre
 # Install the menu aliases
 echo "alias menu='/home/pi/rpidatv/scripts/menu.sh menu'" >> /home/pi/.bash_aliases
 echo "alias gui='/home/pi/rpidatv/scripts/utils/guir.sh'"  >> /home/pi/.bash_aliases
-￼echo "alias ugui='/home/pi/rpidatv/scripts/utils/uguir.sh'"  >> /home/pi/.bash_aliases
+echo "alias ugui='/home/pi/rpidatv/scripts/utils/uguir.sh'"  >> /home/pi/.bash_aliases
 
 # Record Version Number
 cd /home/pi/rpidatv/scripts/
