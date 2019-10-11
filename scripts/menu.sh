@@ -2096,8 +2096,8 @@ do_autostart_setup()
 
   # If Keyed or Continuous stream selected, set up cron for 12-hourly reboot
   # Also do it for keyed or continuous TX
-  if [ "$chstartup" == "Keyed_Stream_boot" || "$chstartup" == "Cont_Stream_boot" \
-     || "$chstartup" == "Keyed_TX_boot" || "$chstartup" == "TX_boot" ]; then
+  if [[ "$chstartup" == "Keyed_Stream_boot" || "$chstartup" == "Cont_Stream_boot" \
+     || "$chstartup" == "Keyed_TX_boot" || "$chstartup" == "TX_boot" ]]; then
     sudo crontab /home/pi/rpidatv/scripts/configs/rptrcron
   else
     sudo crontab /home/pi/rpidatv/scripts/configs/blankcron

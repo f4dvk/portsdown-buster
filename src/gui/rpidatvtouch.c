@@ -8306,6 +8306,11 @@ void ProcessLeandvb2()
   fp=popen(PATH_SCRIPT_LEAN2, "r");
   if(fp==NULL) printf("Process error\n");
 
+  if (strcmp(ModeOutput, "RPI_R") == 0)
+  {
+    system("sudo /home/pi/rpidatv/scripts/RX_remote.sh >/dev/null 2>/dev/null &");
+  }
+
   // Deal with each display case differently
 
   // No graphics or parameters
@@ -8322,7 +8327,7 @@ void ProcessLeandvb2()
         system("(sudo killall -9 leandvb >/dev/null 2>/dev/null) &");
         if (strcmp(ModeOutput, "RPI_R") == 0)
         {
-          system("/home/pi/rpidatv/scripts/RX_remote.sh -OFF >/dev/null 2>/dev/null &");
+          system("sudo /home/pi/rpidatv/scripts/RX_remote.sh -OFF >/dev/null 2>/dev/null &");
         }
       }
     }
@@ -13112,7 +13117,7 @@ void waituntil(int w,int h)
             BackgroundRGB(0,0,0,255);
             Start(wscreen,hscreen);
             ReceiveStart2();
-            system("/home/pi/rpidatv/scripts/RX_remote.sh >/dev/null 2>/dev/null &");
+            //system("sudo /home/pi/rpidatv/scripts/RX_remote.sh >/dev/null 2>/dev/null &");
           }
           break;
         case 22:                                          // Back to Menu 1
@@ -16777,27 +16782,27 @@ void Start_Highlights_Menu5()
   FREQRX2 = atoi(FREQRX);
   if ((((((strcmp(ModeOutput, "LIMEMINI") == 0) && (CheckLimeMiniConnect() == 0)) || (strcmp(ModeOutput, "IQ") == 0)) && ((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))) || ((strcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() == 0))) && (((FREQTX2 - FREQRX2) > 50) || ((- FREQTX2 - - FREQRX2) > 50)))
   {
-    SetButtonStatus(ButtonNumber(CurrentMenu, 20), 0);
+    SetButtonStatus(ButtonNumber(CurrentMenu, 20), RTLactive);
   }
   else
   {
     SetButtonStatus(ButtonNumber(CurrentMenu, 20), 2);
   }
 
-  if ((strcmp(ModeOutput, "RPI_R") == 0) && ((strcmp(RXgraphics[0], "OFF") != 0) && (strcmp(RXparams[0], "OFF") != 0)))
+  if ((strcmp(ModeOutput, "RPI_R") == 0) && ((strcmp(RXgraphics[0], "OFF") != 0) || (strcmp(RXparams[0], "OFF") != 0)))
   {
     SetButtonStatus(ButtonNumber(CurrentMenu, 21), 2);
   }
 
   if ((strcmp(ModeOutput, "RPI_R") == 0) && ((strcmp(RXgraphics[0], "OFF") == 0) && (strcmp(RXparams[0], "OFF") == 0)))
   {
-    SetButtonStatus(ButtonNumber(CurrentMenu, 21), 0);
+    SetButtonStatus(ButtonNumber(CurrentMenu, 21), RTLactive);
   }
-  else
-  {
+  //else
+  //{
     // Make the RX button red if RX on
-    SetButtonStatus(ButtonNumber(5, 21), RTLactive);
-  }
+    //SetButtonStatus(ButtonNumber(5, 21), RTLactive);
+  //}
 
 }
 

@@ -223,12 +223,12 @@ if [ "$MODE_OUTPUT" != "RPI_R" ]; then
   fi
 
 else
-  netcat -u -4 -l $PORT > videots & # Côté écoute
+  nc -u -l $PORT > videots & # Côté écoute
   #netcat -u -4 -l $PORT_IQ > fifo.iq & # Côté écoute
 fi
 
 if [ "$1" == "-remote" ]; then
-  netcat -u -4 $CLIENTIP $PORT < videots &
+  nc -u $CLIENTIP $PORT < videots &
   #netcat -u -4 $CLIENTIP $PORT_IQ < fifo.iq &
 fi
 
