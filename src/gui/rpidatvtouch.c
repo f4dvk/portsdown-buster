@@ -264,7 +264,7 @@ char LMRXinput[1];          // Input a or b
 char LMRXudpip[20];         // UDP IP address
 char LMRXudpport[10];       // UDP IP port
 char LMRXmode[10];          // sat or terr
-char LMRXaudio[15];          // rpi or usb
+char LMRXaudio[15];         // rpi or usb
 
 // Stream Display Parameters. [0] is current
 char StreamAddress[9][127];  // Full rtmp address of stream
@@ -377,28 +377,35 @@ int LimeGWRev();
 
 void GetConfigParam(char *PathConfigFile, char *Param, char *Value)
 {
-	char * line = NULL;
-	size_t len = 0;
-	int read;
-	FILE *fp=fopen(PathConfigFile,"r");
-	if(fp!=0)
-	{
-		while ((read = getline(&line, &len, fp)) != -1)
-		{
-			if(strncmp (line,Param,strlen(Param)) == 0)
-			{
-				strcpy(Value,line+strlen(Param)+1);
-				char *p;
-				if((p=strchr(Value,'\n'))!=0) *p=0; //Remove \n
-				break;
-			}
-			//strncpy(Value,line+strlen(Param)+1,strlen(line)-strlen(Param)-1-1/* pour retour chariot*/);
-	    	}
-	}
-	else
-		printf("Config file not found \n");
-	fclose(fp);
-
+  char * line = NULL;
+￼  size_t len = 0;
+￼  int read;
+￼  char ParamWithEquals[255];
+￼  strcpy(ParamWithEquals, Param);
+￼  strcat(ParamWithEquals, "=");
+￼
+￼  printf("Get Config reads %s for %s ", PathConfigFile , Param);
+￼
+￼  FILE *fp=fopen(PathConfigFile, "r");
+￼  if(fp != 0)
+￼  {
+￼    while ((read = getline(&line, &len, fp)) != -1)
+￼    {
+￼      if(strncmp (line, ParamWithEquals, strlen(Param) + 1) == 0)
+￼      {
+￼        strcpy(Value, line+strlen(Param)+1);
+￼        char *p;
+￼        if((p=strchr(Value,'\n')) !=0 ) *p=0; //Remove \n
+￼        break;
+￼      }
+￼    }
+￼    printf("and returns %s\n", Value);
+￼  }
+￼  else
+￼  {
+￼    printf("Config file not found \n");
+￼    fclose(fp);
+  }
 }
 
 /***************************************************************************//**
@@ -423,16 +430,24 @@ void SetConfigParam(char *PathConfigFile, char *Param, char *Value)
   strcat(BackupConfigName,".bak");
   FILE *fp=fopen(PathConfigFile,"r");
   FILE *fw=fopen(BackupConfigName,"w+");
+  char ParamWithEquals[255];
+￼  strcpy(ParamWithEquals, Param);
+￼  strcat(ParamWithEquals, "=");
+￼
+￼  printf("Set Config called %s %s %s\n", PathConfigFile , ParamWithEquals, Value);
+￼
   if(fp!=0)
   {
     while ((read = getline(&line, &len, fp)) != -1)
     {
-      if(strncmp (line,Param,strlen(Param)) == 0)
+      if(strncmp (line, ParamWithEquals, strlen(Param) + 1) == 0)
       {
-        fprintf(fw,"%s=%s\n",Param,Value);
+        fprintf(fw, "%s=%s\n" ,Param, Value);
       }
       else
+      {
         fprintf(fw,line);
+      }
     }
     fclose(fp);
     fclose(fw);
@@ -1525,17 +1540,21 @@ void ReadModeInput(char coding[256], char vsource[256])
 	GetConfigParam(PATH_PCONFIG,"modeoutput", ModeOutput);
   GetConfigParam(PATH_PCONFIG,"remoteoutput", RemoteOutput);
 	GetConfigParam(PATH_PCONFIG,"format", CurrentFormat);
+  GetConfigParam(PATH_PCONFIG,"encoding", CurrentEncoding);
 
   // Correct Jetson modes if Jetson not selected
   printf ("Mode Output in ReadModeInput() is %s\n", ModeOutput);
   if ((strcmp(ModeOutput, "JLIME") != 0) && (strcmp(ModeOutput, "JEXPRESS") != 0))
   {
-    // Set Encoding to H264
-    strcpy(CurrentEncoding, "H264");
-    strcpy(coding, "H264");
-    SetConfigParam(PATH_PCONFIG, "encoding", CurrentEncoding);
+    // If H265 encoding sflected, set Encoding to H264
+￼    if (strcmp(CurrentEncoding, "H265") == 0)
+￼    {
+￼      strcpy(CurrentEncoding, "H264");
+￼      strcpy(coding, "H264");
+￼      SetConfigParam(PATH_PCONFIG, "encoding", CurrentEncoding);
+￼    }
 
-    // Read ModeInput from Config and set
+    // Read ModeInput from Config and correct if required
     if (strcmp(ModeInput, "JHDMI") == 0)
     {
       strcpy(vsource, "Screen");
@@ -2002,6 +2021,7 @@ void ReadAttenState()
 
 /***************************************************************************//**
  * @brief Reads the current band from portsdown_config.txt
+ * and checks and rewrites it if required
  *
  * @param nil
  *
@@ -2012,6 +2032,7 @@ void ReadBand()
 {
   char Param[15];
   char Value[15]="";
+  char BandFromFile[15];
   float CurrentFreq;
 
   // Look up the current frequency
@@ -2021,8 +2042,9 @@ void ReadBand()
   strcpy(Value,"");
 
   // Look up the current band
-  strcpy(Param,"band");
+  strcpy(Param, "band");
   GetConfigParam(PATH_PCONFIG, Param, Value);
+  strcpy(BandFromFile, Value);
 
   if (strcmp(Value, "t1") == 0)
   {
@@ -2073,9 +2095,12 @@ void ReadBand()
       strcpy(Value, "d5");
     }
 
-    // And set the band correctly
-    strcpy(Param,"band");
-    SetConfigParam(PATH_PCONFIG, Param, Value);
+    // And set the band correctly if required
+￼    if (strcmp(BandFromFile, Value) != 0)
+￼    {
+￼      strcpy(Param,"band");
+￼      SetConfigParam(PATH_PCONFIG, Param, Value);
+￼    }
   }
     printf("In ReadBand, CurrentFreq = %f, CurrentBand = %d and band desig = %s\n", CurrentFreq, CurrentBand, Value);
 }
@@ -3036,9 +3061,6 @@ void ReadLMRXPresets()
   // Mode: sat or terr
   GetConfigParam(PATH_LMCONFIG, "mode", LMRXmode);
 
-  // Input: a or b
-  GetConfigParam(PATH_LMCONFIG, "input", LMRXinput);
-
   // UDP output IP address:
   GetConfigParam(PATH_LMCONFIG, "udpip", LMRXudpip);
 
@@ -3052,27 +3074,32 @@ void ReadLMRXPresets()
   GetConfigParam(PATH_LMCONFIG, "qoffset", Value);
   LMRXqoffset = atoi(Value);
 
-  // Start up frequency
   if (strcmp(LMRXmode, "sat") == 0)
-  {
-    GetConfigParam(PATH_LMCONFIG, "freq0", Value);
-  }
-  else
-  {
-    GetConfigParam(PATH_LMCONFIG, "freq1", Value);
-  }
-  LMRXfreq[0] = atoi(Value);
+￼  {
+￼    // Input: a or b
+￼    GetConfigParam(PATH_LMCONFIG, "input", LMRXinput);
 
-  // Start up SR
-  if (strcmp(LMRXmode, "sat") == 0)
-  {
-    GetConfigParam(PATH_LMCONFIG, "sr0", Value);
-  }
-  else
-  {
-    GetConfigParam(PATH_LMCONFIG, "sr1", Value);
-  }
-  LMRXsr[0] = atoi(Value);
+    // Start up frequency
+￼    GetConfigParam(PATH_LMCONFIG, "freq0", Value);
+￼    LMRXfreq[0] = atoi(Value);
+￼
+￼    // Start up SR
+￼    GetConfigParam(PATH_LMCONFIG, "sr0", Value);
+￼    LMRXsr[0] = atoi(Value);
+￼  }
+￼  else    // Terrestrial
+￼  {
+￼    // Input: a or b
+￼    GetConfigParam(PATH_LMCONFIG, "input1", LMRXinput);
+￼
+￼    // Start up frequency
+￼    GetConfigParam(PATH_LMCONFIG, "freq1", Value);
+￼    LMRXfreq[0] = atoi(Value);
+￼
+￼    // Start up SR
+￼    GetConfigParam(PATH_LMCONFIG, "sr1", Value);
+￼    LMRXsr[0] = atoi(Value);
+￼  }
 
   // Frequencies
   for(n = 1; n < 11; n = n + 1)
@@ -3178,7 +3205,7 @@ void ChangeLMRXOffset()
     snprintf(InitText, 10, "%s", LMRXOffset);
     Keyboard(RequestText, InitText, 10);
 
-    if(strlen(KeyboardReturn) > 0)
+    if((atoi(KeyboardReturn) > 1000000) && (atoi(KeyboardReturn) < 76000000))
     {
       IsValid = TRUE;
     }
@@ -6488,6 +6515,8 @@ void ResetLMParams()  // Called after switch between Terrestrial and Sat
     LMRXfreq[0] = atoi(Value);
     GetConfigParam(PATH_LMCONFIG, "sr1", Value);
     LMRXsr[0] = atoi(Value);
+    GetConfigParam(PATH_LMCONFIG, "input1", Value);
+￼    strcpy(LMRXinput, Value);
   }
   else // Sat
   {
@@ -6495,6 +6524,8 @@ void ResetLMParams()  // Called after switch between Terrestrial and Sat
     LMRXfreq[0] = atoi(Value);
     GetConfigParam(PATH_LMCONFIG, "sr0", Value);
     LMRXsr[0] = atoi(Value);
+    GetConfigParam(PATH_LMCONFIG, "input", Value);
+￼    strcpy(LMRXinput, Value);
   }
 }
 
@@ -7871,7 +7902,7 @@ void *WaitButtonLMRX(void * arg)
     TransformTouchMap(rawX, rawY);  // Sorts out orientation and approx scaling of the touch map
     CorrectTouchMap();       // Calibrates each individual screen
 
-    if((scaledX <= 15 * wscreen / 40) && (scaledX >= wscreen / 40) && (scaledY <= hscreen) && (scaledY >= 7 * hscreen / 12))
+    if((scaledX <= 15 * wscreen / 40) && (scaledX >= wscreen / 40) && (scaledY <= hscreen) && (scaledY >= 1 * hscreen / 12))
     {
       printf("in zone\n");
       if (FinishedButton == 2)  // Toggle parameters on/off
@@ -8244,7 +8275,12 @@ void ProcessLeandvb2()
   int ok = false;
   unsigned long time;
   unsigned long top;
-  #define PATH_SCRIPT_LEAN2 "sudo /home/pi/rpidatv/scripts/leandvbgui2.sh 2>&1"
+
+  if (strcmp(ModeOutput, "RPI_R") == 0)
+  {
+    system("sudo /home/pi/rpidatv/scripts/remote_update.sh -rx >/dev/null 2>/dev/null &");
+  }
+
   char *line=NULL;
   size_t len = 0;
   ssize_t read;
@@ -8283,6 +8319,10 @@ void ProcessLeandvb2()
       {
         printf("Trying to kill LeanDVB\n");
         system("(sudo killall -9 leandvb >/dev/null 2>/dev/null) &");
+        if (strcmp(ModeOutput, "RPI_R") == 0)
+        {
+          system("/home/pi/rpidatv/scripts/RX_remote.sh -OFF >/dev/null 2>/dev/null &");
+        }
       }
     }
   }
@@ -8340,7 +8380,7 @@ void ProcessLeandvb2()
 
             if (ok == true)
             {
-  						//MER: 2-30 to right of Sig Stength.  Bar length indicative.
+              //MER: 2-30 to right of Sig Stength.  Bar length indicative.
               char sMER[100];
               sprintf(sMER, "%2.1fdB", MER);
               Fill(255-MER*8, (MER*8), 0, 1);
@@ -13066,6 +13106,13 @@ void waituntil(int w,int h)
               UpdateWindow();
             }
           }
+          else if ((strcmp(RXgraphics[0], "OFF") == 0) && (strcmp(RXparams[0], "OFF") == 0))
+          {
+            BackgroundRGB(0,0,0,255);
+            Start(wscreen,hscreen);
+            ReceiveStart2();
+            system("/home/pi/rpidatv/scripts/RX_remote.sh >/dev/null 2>/dev/null &");
+          }
           break;
         case 22:                                          // Back to Menu 1
           printf("MENU 1 \n");
@@ -13545,7 +13592,14 @@ void waituntil(int w,int h)
           {
             strcpy(LMRXinput, "a");
           }
-          SetConfigParam(PATH_LMCONFIG, "input", LMRXinput);
+					if (strcmp(LMRXmode, "sat") == 0)
+          {
+            SetConfigParam(PATH_LMCONFIG, "input", LMRXinput);
+          }
+          else
+          {
+            SetConfigParam(PATH_LMCONFIG, "input1", LMRXinput);
+          }
           Start_Highlights_Menu13();
           UpdateWindow();
           break;
@@ -15034,6 +15088,9 @@ void waituntil(int w,int h)
           }
           UpdateWindow();
           break;
+        case 3:                               // Restart the GUI
+          cleanexit(129);
+          break;
         case 5:                               // Unmount USB drive
           system("pumount /media/usb");
           MsgBox2("USB drive unmounted", "USB drive can safely be removed");
@@ -15074,6 +15131,21 @@ void waituntil(int w,int h)
           CallingMenu = 437;
           CurrentMenu = 38;
           MsgBox4("Are you sure that you want to overwrite", "any stored settings on the boot drive", "with the current settings?", " ");
+          UpdateWindow();
+          break;
+        case 8:
+          if (strcmp(DisplayType, "Element14_7") == 0)  //  7 inch else do nothing
+          {
+            if(file_exist ("/etc/systemd/system/raspi2raspi.service") == 0)  // Comp Vid Enabled
+            {
+              system("/home/pi/rpidatv/scripts/7_inch_comp_vid_off.sh");
+            }
+            else
+            {
+              system("/home/pi/rpidatv/scripts/7_inch_comp_vid_on.sh");
+            }
+          }
+          Start_Highlights_Menu43();
           UpdateWindow();
           break;
         case 9:                               // Toggle enable of hardware shutdown button
@@ -16711,9 +16783,14 @@ void Start_Highlights_Menu5()
     SetButtonStatus(ButtonNumber(CurrentMenu, 20), 2);
   }
 
-  if (strcmp(ModeOutput, "RPI_R") == 0)
+  if ((strcmp(ModeOutput, "RPI_R") == 0) && ((strcmp(RXgraphics[0], "OFF") != 0) && (strcmp(RXparams[0], "OFF") != 0)))
   {
     SetButtonStatus(ButtonNumber(CurrentMenu, 21), 2);
+  }
+
+	if ((strcmp(ModeOutput, "RPI_R") == 0) && ((strcmp(RXgraphics[0], "OFF") == 0) && (strcmp(RXparams[0], "OFF") == 0)))
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 21), 0);
   }
   else
   {
@@ -17240,11 +17317,17 @@ void Start_Highlights_Menu8()
 
   if (strcmp(LMRXmode, "sat") == 0)
   {
-    AmendButtonStatus(ButtonNumber(8, 21), 0, "  QO-100  ^ ", &Blue);
+		strcpy(LMBtext, "QO-100 (");
+    strcat(LMBtext, LMRXinput);
+    strcat(LMBtext, ")^ ");
+    AmendButtonStatus(ButtonNumber(8, 21), 0, LMBtext, &Blue);
   }
   else
   {
-    AmendButtonStatus(ButtonNumber(8, 21), 0, " ^Terrestrial", &Blue);
+		strcpy(LMBtext, " ^Terrestrial (");
+    strcat(LMBtext, LMRXinput);
+    strcat(LMBtext, ")");
+    AmendButtonStatus(ButtonNumber(8, 21), 0, LMBtext, &Blue);
   }
 }
 
@@ -17471,14 +17554,20 @@ void Define_Menu13()
 
 void Start_Highlights_Menu13()
 {
-  if (strcmp(LMRXinput, "a") == 0)
+	char LMBtext[63];
+
+  if (strcmp(LMRXmode, "sat") == 0)
   {
-    AmendButtonStatus(ButtonNumber(13, 6), 0, "Input^A", &Blue);
+		strcpy(LMBtext, "QO-100^Input ");
+    strcat(LMBtext, LMRXinput);
   }
   else
   {
-    AmendButtonStatus(ButtonNumber(13, 6), 0, "Input^B", &Blue);
+		strcpy(LMBtext, "Terrestrial^Input ");
+    strcat(LMBtext, LMRXinput);
   }
+  AmendButtonStatus(ButtonNumber(13, 6), 0, LMBtext, &Blue);
+
   if (strcmp(LMRXaudio, "rpi") == 0)
   {
     AmendButtonStatus(ButtonNumber(13, 9), 0, "Audio out^RPi Jack", &Blue);
@@ -19685,6 +19774,9 @@ void Define_Menu43()
   AddButtonStatus(button, "Restore^from /boot", &Blue);
   AddButtonStatus(button, "Restore^from /boot", &Green);
 
+	button = CreateButton(43, 3);
+  AddButtonStatus(button, "Restart^Touch", &Blue);
+
   // 2nd Row, Menu 43
 
   button = CreateButton(43, 5);
@@ -19698,6 +19790,11 @@ void Define_Menu43()
   button = CreateButton(43, 7);
   AddButtonStatus(button, "Back-up^to /boot", &Blue);
   AddButtonStatus(button, "Back-up^to /boot", &Green);
+
+	button = CreateButton(43, 8);
+  AddButtonStatus(button, "7 inch vid^Disabled", &Grey);
+  AddButtonStatus(button, "7 inch vid^Enabled", &Blue);
+  AddButtonStatus(button, "7 inch vid^Disabled", &Blue);
 
   button = CreateButton(43, 9);
   AddButtonStatus(button, "SD Button^Enabled", &Blue);
@@ -19729,6 +19826,22 @@ void Define_Menu43()
 
 void Start_Highlights_Menu43()
 {
+	if (strcmp(DisplayType, "Element14_7") != 0)  // Grey-out if not 7 inch
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 8), 0);
+  }
+  else
+  {
+    if (file_exist ("/etc/systemd/system/raspi2raspi.service") == 0)  // Comp Vid Enabled
+    {
+      SetButtonStatus(ButtonNumber(CurrentMenu, 8), 1);
+    }
+    else
+    {
+      SetButtonStatus(ButtonNumber(CurrentMenu, 8), 2);
+    }
+  }
+
   if (file_exist ("/home/pi/.pi-sdn") == 0)  // Hardware Shutdown Enabled
   {
     SetButtonStatus(ButtonNumber(CurrentMenu, 9), 0);

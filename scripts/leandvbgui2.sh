@@ -9,6 +9,7 @@ CONFIGFILE=$PATHSCRIPT"/rpidatvconfig.txt"
 PCONFIGFILE="/home/pi/rpidatv/scripts/portsdown_config.txt"
 RXPRESETSFILE="/home/pi/rpidatv/scripts/rx_presets.txt"
 RTLPRESETSFILE="/home/pi/rpidatv/scripts/rtl-fm_presets.txt"
+ACKFILE="/home/pi/rpidatv/scripts/ack_remote.txt"
 
 # Define proc to look-up with
 get_config_var() {
@@ -26,8 +27,10 @@ end
 EOF
 }
 
+CLIENTIP=$(cat /var/log/auth.log | grep -a 'Accepted password'| sed -n '$p' | sed 's/^.*from/from/' | awk '{print $2}')
 IP_DISTANT=$(get_config_var rpi_ip_distant $PCONFIGFILE)
 PORT=5001
+PORT_IQ=5002
 
 # Look up and calculate the Receive parameters
 
@@ -180,6 +183,11 @@ sudo killall ts2es >/dev/null 2>/dev/null
 mkfifo fifo.264
 mkfifo videots
 
+#if [ "$1" == "-remote" ]; then
+#  sudo rm fifo.iq >/dev/null 2>/dev/null
+#  mkfifo fifo.iq
+#fi
+
 # Make sure that the screen background is all black
 sudo killall fbi >/dev/null 2>/dev/null
 sudo fbi -T 1 -noverbose -a $PATHSCRIPT"/images/Blank_Black.png"
@@ -189,39 +197,42 @@ sudo fbi -T 1 -noverbose -a $PATHSCRIPT"/images/Blank_Black.png"
 
 # Treat each display case differently
 
-# Constellation and Parameters on
-if [ "$GRAPHICS" = "ON" ] && [ "$PARAMS" = "ON" ] && [ "$ETAT" = "OFF" ]; then
-  sudo $KEY\
-    | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
+if [ "$MODE_OUTPUT" != "RPI_R" ]; then
+  # Constellation and Parameters on
+  if [ "$GRAPHICS" = "ON" ] && [ "$PARAMS" = "ON" ] && [ "$ETAT" = "OFF" ]; then
+    sudo $KEY\
+      | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
+  fi
+
+  # Constellation on, Parameters off
+  if [ "$GRAPHICS" = "ON" ] && [ "$PARAMS" = "OFF" ] && [ "$ETAT" = "OFF" ]; then
+    sudo $KEY\
+      | $PATHBIN"leandvb" $B --fd-pp 3 --fd-const 2 $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
+  fi
+
+  # Constellation off, Parameters on
+  if [ "$GRAPHICS" = "OFF" ] && [ "$PARAMS" = "ON" ] && [ "$ETAT" = "OFF" ]; then
+    sudo $KEY\
+      | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
+  fi
+
+  # Constellation and Parameters off
+  if [[ "$GRAPHICS" = "OFF" && "$PARAMS" = "OFF" ]] || [ "$ETAT" = "ON" ]; then
+    sudo $KEY\
+      | $PATHBIN"leandvb" $B $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>/dev/null &
+  fi
+
+else
+  netcat -u -4 -l $PORT > videots & # Côté écoute
+  #netcat -u -4 -l $PORT_IQ > fifo.iq & # Côté écoute
 fi
 
-# Constellation on, Parameters off
-if [ "$GRAPHICS" = "ON" ] && [ "$PARAMS" = "OFF" ] && [ "$ETAT" = "OFF" ]; then
-  sudo $KEY\
-    | $PATHBIN"leandvb" $B --fd-pp 3 --fd-const 2 $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
+if [ "$1" == "-remote" ]; then
+  netcat -u -4 $CLIENTIP $PORT < videots &
+  #netcat -u -4 $CLIENTIP $PORT_IQ < fifo.iq &
 fi
 
-# Constellation off, Parameters on
-if [ "$GRAPHICS" = "OFF" ] && [ "$PARAMS" = "ON" ] && [ "$ETAT" = "OFF" ]; then
-  sudo $KEY\
-    | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
-fi
-
-# Constellation and Parameters off
-if [[ "$GRAPHICS" = "OFF" && "$PARAMS" = "OFF" ]] || [ "$ETAT" = "ON" ]; then
-  sudo $KEY\
-    | $PATHBIN"leandvb" $B $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>/dev/null &
-fi
-
-#if [ "$1" == "-remote" ]; then
-  #IP=$2
-  #nc -l $PORT < fifo.264 # TX vidéo
-#else
-#nc -l $IP_DISTANT $PORT > fifo.264  # RX vidéo
-#nc -l -p $PORT > /dev/shm/video.264 # Coté écoute
-#nc $IP $PORT # Coté TX vidéo
-
-if [ "$ETAT" = "OFF" ]; then
+if [ "$ETAT" = "OFF" ] && [ "$1" != "-remote" ]; then
   # read videots and output video es
   $PATHBIN"ts2es" -video videots fifo.264 &
 # Play the es from fifo.264 in either the H264 or MPEG-2 player.
@@ -250,6 +261,9 @@ if [ "$1" == "-remote_rxtotx_on" ]; then
     IP_DISTANT=$(get_config_var rpi_ip_distant $PCONFIGFILE)
     RPI_USER=$(get_config_var rpi_user_remote $PCONFIGFILE)
     RPI_PW=$(get_config_var rpi_pw_remote $PCONFIGFILE)
+    set_config_var ack "KO" $ACKFILE
+    ACK=$(get_config_var ack $ACKFILE)
+    N=0
   ###################################################
 
 /bin/cat <<EOM >$CMDFILE
@@ -274,6 +288,9 @@ if [ "$1" == "-remote_rxtotx_off" ]; then
     IP_DISTANT=$(get_config_var rpi_ip_distant $PCONFIGFILE)
     RPI_USER=$(get_config_var rpi_user_remote $PCONFIGFILE)
     RPI_PW=$(get_config_var rpi_pw_remote $PCONFIGFILE)
+    set_config_var ack "KO" $ACKFILE
+    ACK=$(get_config_var ack $ACKFILE)
+    N=0
   ###################################################
 
 /bin/cat <<EOM >$CMDFILE
