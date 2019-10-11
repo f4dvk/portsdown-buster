@@ -378,33 +378,33 @@ int LimeGWRev();
 void GetConfigParam(char *PathConfigFile, char *Param, char *Value)
 {
   char * line = NULL;
-￼  size_t len = 0;
-￼  int read;
-￼  char ParamWithEquals[255];
-￼  strcpy(ParamWithEquals, Param);
-￼  strcat(ParamWithEquals, "=");
+  size_t len = 0;
+  int read;
+  char ParamWithEquals[255];
+  strcpy(ParamWithEquals, Param);
+  strcat(ParamWithEquals, "=");
 ￼
-￼  printf("Get Config reads %s for %s ", PathConfigFile , Param);
-￼
+  printf("Get Config reads %s for %s ", PathConfigFile , Param);
+
 ￼  FILE *fp=fopen(PathConfigFile, "r");
-￼  if(fp != 0)
-￼  {
-￼    while ((read = getline(&line, &len, fp)) != -1)
-￼    {
-￼      if(strncmp (line, ParamWithEquals, strlen(Param) + 1) == 0)
-￼      {
-￼        strcpy(Value, line+strlen(Param)+1);
-￼        char *p;
-￼        if((p=strchr(Value,'\n')) !=0 ) *p=0; //Remove \n
-￼        break;
-￼      }
-￼    }
-￼    printf("and returns %s\n", Value);
-￼  }
-￼  else
-￼  {
-￼    printf("Config file not found \n");
-￼    fclose(fp);
+  if(fp != 0)
+  {
+    while ((read = getline(&line, &len, fp)) != -1)
+    {
+      if(strncmp (line, ParamWithEquals, strlen(Param) + 1) == 0)
+      {
+        strcpy(Value, line+strlen(Param)+1);
+        char *p;
+        if((p=strchr(Value,'\n')) !=0 ) *p=0; //Remove \n
+        break;
+      }
+    }
+    printf("and returns %s\n", Value);
+  }
+  else
+  {
+    printf("Config file not found \n");
+    fclose(fp);
   }
 }
 
@@ -431,10 +431,10 @@ void SetConfigParam(char *PathConfigFile, char *Param, char *Value)
   FILE *fp=fopen(PathConfigFile,"r");
   FILE *fw=fopen(BackupConfigName,"w+");
   char ParamWithEquals[255];
-￼  strcpy(ParamWithEquals, Param);
-￼  strcat(ParamWithEquals, "=");
-￼
-￼  printf("Set Config called %s %s %s\n", PathConfigFile , ParamWithEquals, Value);
+  strcpy(ParamWithEquals, Param);
+  strcat(ParamWithEquals, "=");
+
+  printf("Set Config called %s %s %s\n", PathConfigFile , ParamWithEquals, Value);
 ￼
   if(fp!=0)
   {
@@ -1547,12 +1547,12 @@ void ReadModeInput(char coding[256], char vsource[256])
   if ((strcmp(ModeOutput, "JLIME") != 0) && (strcmp(ModeOutput, "JEXPRESS") != 0))
   {
     // If H265 encoding sflected, set Encoding to H264
-￼    if (strcmp(CurrentEncoding, "H265") == 0)
-￼    {
-￼      strcpy(CurrentEncoding, "H264");
-￼      strcpy(coding, "H264");
-￼      SetConfigParam(PATH_PCONFIG, "encoding", CurrentEncoding);
-￼    }
+    if (strcmp(CurrentEncoding, "H265") == 0)
+    {
+      strcpy(CurrentEncoding, "H264");
+      strcpy(coding, "H264");
+      SetConfigParam(PATH_PCONFIG, "encoding", CurrentEncoding);
+    }
 
     // Read ModeInput from Config and correct if required
     if (strcmp(ModeInput, "JHDMI") == 0)
@@ -2096,11 +2096,11 @@ void ReadBand()
     }
 
     // And set the band correctly if required
-￼    if (strcmp(BandFromFile, Value) != 0)
-￼    {
-￼      strcpy(Param,"band");
-￼      SetConfigParam(PATH_PCONFIG, Param, Value);
-￼    }
+    if (strcmp(BandFromFile, Value) != 0)
+    {
+      strcpy(Param,"band");
+      SetConfigParam(PATH_PCONFIG, Param, Value);
+    }
   }
     printf("In ReadBand, CurrentFreq = %f, CurrentBand = %d and band desig = %s\n", CurrentFreq, CurrentBand, Value);
 }
@@ -3075,31 +3075,31 @@ void ReadLMRXPresets()
   LMRXqoffset = atoi(Value);
 
   if (strcmp(LMRXmode, "sat") == 0)
-￼  {
-￼    // Input: a or b
-￼    GetConfigParam(PATH_LMCONFIG, "input", LMRXinput);
+  {
+    // Input: a or b
+    GetConfigParam(PATH_LMCONFIG, "input", LMRXinput);
 
     // Start up frequency
-￼    GetConfigParam(PATH_LMCONFIG, "freq0", Value);
-￼    LMRXfreq[0] = atoi(Value);
-￼
-￼    // Start up SR
-￼    GetConfigParam(PATH_LMCONFIG, "sr0", Value);
-￼    LMRXsr[0] = atoi(Value);
-￼  }
-￼  else    // Terrestrial
-￼  {
-￼    // Input: a or b
-￼    GetConfigParam(PATH_LMCONFIG, "input1", LMRXinput);
-￼
-￼    // Start up frequency
-￼    GetConfigParam(PATH_LMCONFIG, "freq1", Value);
-￼    LMRXfreq[0] = atoi(Value);
-￼
-￼    // Start up SR
-￼    GetConfigParam(PATH_LMCONFIG, "sr1", Value);
-￼    LMRXsr[0] = atoi(Value);
-￼  }
+    GetConfigParam(PATH_LMCONFIG, "freq0", Value);
+    LMRXfreq[0] = atoi(Value);
+
+    // Start up SR
+    GetConfigParam(PATH_LMCONFIG, "sr0", Value);
+    LMRXsr[0] = atoi(Value);
+  }
+  else    // Terrestrial
+  {
+    // Input: a or b
+    GetConfigParam(PATH_LMCONFIG, "input1", LMRXinput);
+
+    // Start up frequency
+    GetConfigParam(PATH_LMCONFIG, "freq1", Value);
+    LMRXfreq[0] = atoi(Value);
+
+    // Start up SR
+    GetConfigParam(PATH_LMCONFIG, "sr1", Value);
+    LMRXsr[0] = atoi(Value);
+  }
 
   // Frequencies
   for(n = 1; n < 11; n = n + 1)
@@ -6516,7 +6516,7 @@ void ResetLMParams()  // Called after switch between Terrestrial and Sat
     GetConfigParam(PATH_LMCONFIG, "sr1", Value);
     LMRXsr[0] = atoi(Value);
     GetConfigParam(PATH_LMCONFIG, "input1", Value);
-￼    strcpy(LMRXinput, Value);
+    strcpy(LMRXinput, Value);
   }
   else // Sat
   {
@@ -6525,7 +6525,7 @@ void ResetLMParams()  // Called after switch between Terrestrial and Sat
     GetConfigParam(PATH_LMCONFIG, "sr0", Value);
     LMRXsr[0] = atoi(Value);
     GetConfigParam(PATH_LMCONFIG, "input", Value);
-￼    strcpy(LMRXinput, Value);
+    strcpy(LMRXinput, Value);
   }
 }
 
@@ -16789,7 +16789,7 @@ void Start_Highlights_Menu5()
     SetButtonStatus(ButtonNumber(CurrentMenu, 21), 2);
   }
 
-	if ((strcmp(ModeOutput, "RPI_R") == 0) && ((strcmp(RXgraphics[0], "OFF") == 0) && (strcmp(RXparams[0], "OFF") == 0)))
+  if ((strcmp(ModeOutput, "RPI_R") == 0) && ((strcmp(RXgraphics[0], "OFF") == 0) && (strcmp(RXparams[0], "OFF") == 0)))
   {
     SetButtonStatus(ButtonNumber(CurrentMenu, 21), 0);
   }
@@ -17318,14 +17318,14 @@ void Start_Highlights_Menu8()
 
   if (strcmp(LMRXmode, "sat") == 0)
   {
-		strcpy(LMBtext, "QO-100 (");
+    strcpy(LMBtext, "QO-100 (");
     strcat(LMBtext, LMRXinput);
     strcat(LMBtext, ")^ ");
     AmendButtonStatus(ButtonNumber(8, 21), 0, LMBtext, &Blue);
   }
   else
   {
-		strcpy(LMBtext, " ^Terrestrial (");
+    strcpy(LMBtext, " ^Terrestrial (");
     strcat(LMBtext, LMRXinput);
     strcat(LMBtext, ")");
     AmendButtonStatus(ButtonNumber(8, 21), 0, LMBtext, &Blue);
