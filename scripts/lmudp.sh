@@ -44,8 +44,8 @@ else
 fi
 
 echo "input ="
-￼echo $INPUT_SEL
-￼echo
+echo $INPUT_SEL
+echo
 
 # Select the correct tuner input
 INPUT_CMD=" "
