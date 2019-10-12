@@ -222,19 +222,20 @@ if [ "$MODE_OUTPUT" != "RPI_R" ]; then
       | $PATHBIN"leandvb" $B $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>/dev/null &
   fi
 
+  # read videots and output video es
+  $PATHBIN"ts2es" -video videots fifo.264 &
+
 else
-  nc -u -l $PORT > videots & # Côté écoute
+  nc -u -4 -l $PORT > fifo.264 & # Côté écoute
   #netcat -u -4 -l $PORT_IQ > fifo.iq & # Côté écoute
 fi
 
 if [ "$1" == "-remote" ]; then
-  nc -u $CLIENTIP $PORT < videots &
+  nc -u -4 $CLIENTIP $PORT < fifo.264 &
   #netcat -u -4 $CLIENTIP $PORT_IQ < fifo.iq &
 fi
 
 if [ "$ETAT" = "OFF" ] && [ "$1" != "-remote" ]; then
-  # read videots and output video es
-  $PATHBIN"ts2es" -video videots fifo.264 &
 # Play the es from fifo.264 in either the H264 or MPEG-2 player.
   if [ "$ENCODING" = "H264" ]; then
     $PATHBIN"hello_video.bin" fifo.264 &

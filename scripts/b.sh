@@ -66,6 +66,7 @@ MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
   sudo killall rtl_sdr >/dev/null 2>/dev/null
   sudo killall rtl_tcp >/dev/null 2>/dev/null
   sudo killall aplay >/dev/null 2>/dev/null
+  sudo killall nc >/dev/null 2>/dev/null
 
   # Then pause and make sure that avc2ts has really been stopped (needed at high SRs)
   sleep 0.1
