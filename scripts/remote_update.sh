@@ -8,6 +8,7 @@ PCONFIGFILE="/home/pi/rpidatv/scripts/portsdown_config.txt"
 PATHCONFIGS="/home/pi/rpidatv/scripts/configs"  ## Path to config files
 PATHCONFIGRX="/home/pi/rpidatv/scripts/rx_presets.txt"
 PATHCONFIGFORWARD="/home/pi/rpidatv/src/limesdr_toolbox/forward_config.txt"
+ACKFILE="/home/pi/rpidatv/scripts/ack_remote.txt"
 
 CMDFILE="/home/pi/tmp/rpi_command.txt"
 
@@ -52,11 +53,16 @@ mv "$3.bak2" "$3"
   IP_DISTANT=$(get_config_var rpi_ip_distant $PCONFIGFILE)
   RPI_USER=$(get_config_var rpi_user_remote $PCONFIGFILE)
   RPI_PW=$(get_config_var rpi_pw_remote $PCONFIGFILE)
+  set_config_var ack "KO" $ACKFILE
+  ACK=$(get_config_var ack $ACKFILE)
+  N=0
 ###################################################
 
 if [ "$1" == "-first" ]; then
   set_config_var modeoutput "RPI_R" $PCONFIGFILE
   set_config_var modeinput "CAMH264" $PCONFIGFILE
+
+#  while [ $N -lt 3 ] && [ $ACK == "KO" ]; do
 
 /bin/cat <<EOM >$CMDFILE
  (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
@@ -69,7 +75,14 @@ EOM
 
         source "$CMDFILE"
 
-exit
+#  sleep 2
+#  ACK=$(get_config_var ack $ACKFILE)
+#  if [ $ACK == "KO" ]; then
+#    let N++
+#  fi
+#  done
+
+  exit
 fi
 
 if [ "$1" == "-rx" ]; then
@@ -81,9 +94,12 @@ if [ "$1" == "-rx" ]; then
   MODULATION_RX=$(get_config_var rx0modulation $PATHCONFIGRX)
   ENCODING_RX=$(get_config_var rx0encoding $PATHCONFIGRX)
   GRAPHICS_RX=$(get_config_var rx0graphics $PATHCONFIGRX)
+  PARAM_RX=$(get_config_var rx0parameters $PATHCONFIGRX)
   FL_RX=$(get_config_var rx0fastlock $PATHCONFIGRX)
   SDR="RTLSDR"
   ETAT=$(get_config_var etat $PATHCONFIGRX)
+
+#  while [ $N -lt 3 ] && [ $ACK == "KO" ]; do
 
 /bin/cat <<EOM >$CMDFILE
  (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
@@ -96,6 +112,7 @@ if [ "$1" == "-rx" ]; then
  sed -i '/\(^rx0modulation=\).*/s//\1$MODULATION_RX/' $PATHCONFIGRX
  sed -i '/\(^rx0encoding=\).*/s//\1$ENCODING_RX/' $PATHCONFIGRX
  sed -i '/\(^rx0graphics=\).*/s//\1$GRAPHICS_RX/' $PATHCONFIGRX
+ sed -i '/\(^rx0parameters=\).*/s//\1$PARAM_RX/' $PATHCONFIGRX
  sed -i '/\(^rx0fastlock=\).*/s//\1$FL_RX/' $PATHCONFIGRX
  sed -i '/\(^rx0sdr=\).*/s//\1$SDR/' $PATHCONFIGRX
  sed -i '/\(^etat=\).*/s//\1$ETAT/' $PATHCONFIGRX
@@ -105,6 +122,14 @@ ENDSSH
 EOM
 
         source "$CMDFILE"
+
+#  sleep 2
+#  ACK=$(get_config_var ack $ACKFILE)
+#  if [ $ACK == "KO" ]; then
+#    let N++
+#  fi
+#  done
+
   exit
 fi
 
@@ -115,6 +140,8 @@ if [ "$1" == "-forward_update" ]; then
   TX_GAIN=$(get_config_var txgain $PATHCONFIGFORWARD)
   SAMPLER=$(get_config_var samplerate $PATHCONFIGFORWARD)
   BW=$(get_config_var bwcal $PATHCONFIGFORWARD)
+
+#  while [ $N -lt 3 ] && [ $ACK == "KO" ]; do
 
 /bin/cat <<EOM >$CMDFILE
  (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
@@ -131,11 +158,21 @@ ENDSSH
 EOM
 
         source "$CMDFILE"
+
+#  sleep 2
+#  ACK=$(get_config_var ack $ACKFILE)
+#  if [ $ACK == "KO" ]; then
+#    let N++
+#  fi
+#  done
+
   exit
 fi
 
 if [ "$1" == "-init" ]; then
   MODE_OUTPUT_R=$(get_config_var remoteoutput $PCONFIGFILE)
+
+#  while [ $N -lt 3 ] && [ $ACK == "KO" ]; do
 
 /bin/cat <<EOM >$CMDFILE
  (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
@@ -149,6 +186,13 @@ EOM
 
         source "$CMDFILE"
 
+#  sleep 2
+#  ACK=$(get_config_var ack $ACKFILE)
+#  if [ $ACK == "KO" ]; then
+#    let N++
+#  fi
+#  done
+
 fi
 
 ###################################################
@@ -156,13 +200,20 @@ fi
   SYMBOLRATEK=$(get_config_var symbolrate $PCONFIGFILE)
   MODULATION=$(get_config_var modulation $PCONFIGFILE)
   LIME_GAIN=$(get_config_var limegain $PCONFIGFILE)
+  UPSAMPLE=$(get_config_var upsample $PCONFIGFILE)
   ENCODING=$(get_config_var encoding $PCONFIGFILE)
   FORMAT=$(get_config_var format $PCONFIGFILE)
   FRAME=$(get_config_var frames $PCONFIGFILE)
   PILOT=$(get_config_var pilots $PCONFIGFILE)
   FEC=$(get_config_var fec $PCONFIGFILE)
+  set_config_var ack "KO" $ACKFILE
+  ACK=$(get_config_var ack $ACKFILE)
+  N=0
 
 ##############################################################
+
+#while [ $N -lt 3 ] && [ $ACK == "KO" ]; do
+
 /bin/cat <<EOM >$CMDFILE
  (sshpass -p $RPI_PW ssh -o StrictHostKeyChecking=no $RPI_USER@$IP_DISTANT 'bash -s' <<'ENDSSH'
 
@@ -170,6 +221,7 @@ fi
  sed -i '/\(^symbolrate=\).*/s//\1$SYMBOLRATEK/' $PCONFIGFILE
  sed -i '/\(^modulation=\).*/s//\1$MODULATION/' $PCONFIGFILE
  sed -i '/\(^limegain=\).*/s//\1$LIME_GAIN/' $PCONFIGFILE
+ sed -i '/\(^upsample=\).*/s//\1$UPSAMPLE/' $PCONFIGFILE
  sed -i '/\(^encoding=\).*/s//\1$ENCODING/' $PCONFIGFILE
  sed -i '/\(^format=\).*/s//\1$FORMAT/' $PCONFIGFILE
  sed -i '/\(^frames=\).*/s//\1$FRAME/' $PCONFIGFILE
@@ -181,5 +233,12 @@ ENDSSH
 EOM
 
       source "$CMDFILE"
+
+#sleep 2
+#ACK=$(get_config_var ack $ACKFILE)
+#if [ $ACK == "KO" ]; then
+#  let N++
+#fi
+#done
 
 exit
