@@ -4755,12 +4755,23 @@ void TransformTouchMap(int x, int y)
   int shiftX, shiftY;
   double factorX, factorY;
 
-  // Adjust registration of touchscreen for Waveshare
-  shiftX=30; // move touch sensitive position left (-) or right (+).  Screen is 700 wide
-  shiftY=-5; // move touch sensitive positions up (-) or down (+).  Screen is 480 high
+  if(Inversed==2) // Waveshare 3.2
+  {
+    shiftX=-22;
+    shiftY=0;
 
-  factorX=-0.4;  // expand (+) or contract (-) horizontal button space from RHS. Screen is 5.6875 wide
-  factorY=-0.3;  // expand or contract vertical button space.  Screen is 8.53125 high
+    factorX=-0.7;
+    factorY=0;
+  }
+  else
+  {
+    // Adjust registration of touchscreen for Waveshare
+    shiftX=30; // move touch sensitive position left (-) or right (+).  Screen is 700 wide
+    shiftY=-5; // move touch sensitive positions up (-) or down (+).  Screen is 480 high
+
+    factorX=-0.4;  // expand (+) or contract (-) horizontal button space from RHS. Screen is 5.6875 wide
+    factorY=-0.3;  // expand or contract vertical button space.  Screen is 8.53125 high
+  }
 
   // Switch axes for normal and waveshare displays
   if(Inversed==0) // Tontec35 or Element14_7
@@ -4770,15 +4781,26 @@ void TransformTouchMap(int x, int y)
   }
   else //Waveshare (inversed)
   {
-    scaledX = shiftX+wscreen-y/(scaleXvalue+factorX);
+    if(Inversed!=2)
+    {
+      scaledX = shiftX+wscreen-y/(scaleXvalue+factorX);
+    }
+    else
+    {
+      scaledX = shiftX+y/(scaleXvalue+factorX);
+    }
 
-    if(strcmp(DisplayType, "Waveshare4") != 0) //Check for Waveshare 4 inch
+    if((strcmp(DisplayType, "Waveshare4") != 0) && (Inversed!=2))//Check for Waveshare 4 inch
     {
       scaledY = shiftY+hscreen-x/(scaleYvalue+factorY);
     }
-    else  // Waveshare 4 inch display so flip vertical axis
+    else if (Inversed!=2)// Waveshare 4 inch display so flip vertical axis
     {
       scaledY = shiftY+x/(scaleYvalue+factorY); // Vertical flip for 4 inch screen
+    }
+    else
+    {
+      scaledY = shiftY+x/(scaleYvalue+factorY);
     }
   }
 }
@@ -20600,6 +20622,11 @@ int main(int argc, char **argv)
     || (strcmp(DisplayType, "Waveshare4")==0))
   {
     Inversed = 1;
+  }
+
+  if (strcmp(DisplayType, "Waveshare32B")==0)
+  {
+    Inversed = 2;
   }
 
   // Set the Analog Capture (input) Standard

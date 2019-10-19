@@ -1,2 +1,2 @@
 dtparam=spi=on
-dtoverlay=waveshare32b
+dtoverlay=waveshare32b:rotate=270,speed=81000000
