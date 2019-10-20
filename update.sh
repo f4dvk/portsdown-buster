@@ -861,6 +861,8 @@ echo "${GIT_SRC}" > /home/pi/${GIT_SRC_FILE}
 
 # Réduction temps démarrage sans ethernet
 sudo sed -i 's/^TimeoutStartSec.*/TimeoutStartSec=5/' /etc/systemd/system/network-online.target.wants/networking.service
+sudo sed -i 's/^#timeout.*/timeout 8;/' /etc/dhcp/dhclient.conf
+sudo sed -i 's/^#retry.*/retry 20;/' /etc/dhcp/dhclient.conf
 
 # Reboot
 DisplayRebootMsg "Step 10 of 10\nRebooting\n\nUpdate Complete"
