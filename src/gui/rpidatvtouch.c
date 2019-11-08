@@ -8833,14 +8833,14 @@ void LMRX(int NoButton)
 
   float MER;
   float refMER;
-￼  int MERcount = 0;
+  int MERcount = 0;
   float FREQ;
   int STATE;
   int SR;
 
   // Global Paramaters:
-￼
-￼  char status_message_char[14];
+
+  char status_message_char[14];
   char stat_string[63];
   char udp_string[63];
   char MERtext[63];
@@ -8848,20 +8848,20 @@ void LMRX(int NoButton)
   char FREQtext[63];
   char SRtext[63];
   char ServiceProvidertext[255] = " ";
-￼  char Servicetext[255] = " ";
-￼  char MODCODtext[63];
-￼  char FECtext[63] = " ";
-￼  char Modulationtext[63] = " ";
-￼  char VidEncodingtext[63] = " ";
-￼  char AudEncodingtext[63] = " ";
-￼  char Encodingtext[63] = " ";
-￼  float MERThreshold = 0;
-￼  int EncodingCode = 0;
-￼  int MODCOD;
-￼  int Parameters_currently_displayed = 1;  // 1 for displayed, 0 for blank
-￼
-￼  // Set globals
-￼  FinishedButton = 1;
+  char Servicetext[255] = " ";
+  char MODCODtext[63];
+  char FECtext[63] = " ";
+  char Modulationtext[63] = " ";
+  char VidEncodingtext[63] = " ";
+  char AudEncodingtext[63] = " ";
+  char Encodingtext[63] = " ";
+  float MERThreshold = 0;
+  int EncodingCode = 0;
+  int MODCOD;
+  int Parameters_currently_displayed = 1;  // 1 for displayed, 0 for blank
+
+  // Set globals
+  FinishedButton = 1;
 
   int pointsize = 25;
   Fontinfo font = SansTypeface;
@@ -8961,7 +8961,7 @@ void LMRX(int NoButton)
             snprintf(SRtext, 15, "%d kS", SR);
           }
 
-					if ((stat_string[0] == '1') && (stat_string[1] == '3'))  // Service Provider
+          if ((stat_string[0] == '1') && (stat_string[1] == '3'))  // Service Provider
           {
             strcpy(ServiceProvidertext, stat_string);
             chopN(ServiceProvidertext, 3);
@@ -9209,7 +9209,7 @@ void LMRX(int NoButton)
               snprintf(MERtext, 24, "MER %.1f (%.1f req)", MER, MERThreshold);
 
               BackgroundRGB(0, 0, 0, 0);
-							Fill(0, 0, 0, 127);
+              Fill(0, 0, 0, 127);
               Rect(wscreen * 1.0 / 40.0, hscreen - 9.2 * linepitch, wscreen * 20.0 / 40.0, hscreen);
               Rect(wscreen * 1.0 / 40.0, hscreen - 11.7 * linepitch, wscreen * 35.0 / 40.0, hscreen - 11.4 * linepitch);
               Fill(255, 255, 255, 255);
@@ -9344,7 +9344,7 @@ void LMRX(int NoButton)
             snprintf(SRtext, 15, "%d kS", SR);
           }
 
-					if ((stat_string[0] == '1') && (stat_string[1] == '3'))  // Service Provider
+          if ((stat_string[0] == '1') && (stat_string[1] == '3'))  // Service Provider
           {
             strcpy(ServiceProvidertext, stat_string);
             chopN(ServiceProvidertext, 3);
@@ -9592,14 +9592,14 @@ void LMRX(int NoButton)
               snprintf(MERtext, 24, "MER %.1f (%.1f req)", MER, MERThreshold);
 
               BackgroundRGB(0, 0, 0, 0);
-							Fill(0, 0, 0, 127);
+              Fill(0, 0, 0, 127);
               Rect(wscreen * 1.0 / 40.0, hscreen - 9.2 * linepitch, wscreen * 20.0 / 40.0, hscreen);
               Rect(wscreen * 1.0 / 40.0, hscreen - 11.7 * linepitch, wscreen * 35.0 / 40.0, hscreen - 11.4 * linepitch);
               Fill(255, 255, 255, 255);
               Text(wscreen * 1.0 / 40.0, hscreen - 1 * linepitch, STATEtext, font, pointsize);
               Text(wscreen * 1.0 / 40.0, hscreen - 2 * linepitch, FREQtext, font, pointsize);
               Text(wscreen * 1.0 / 40.0, hscreen - 3 * linepitch, SRtext, font, pointsize);
-							Text(wscreen * 1.0 / 40.0, hscreen - 4 * linepitch, Modulationtext, font, pointsize);
+              Text(wscreen * 1.0 / 40.0, hscreen - 4 * linepitch, Modulationtext, font, pointsize);
               Text(wscreen * 1.0 / 40.0, hscreen - 5 * linepitch, FECtext, font, pointsize);
               Text(wscreen * 1.0 / 40.0, hscreen - 6 * linepitch, ServiceProvidertext, font, pointsize);
               Text(wscreen * 1.0 / 40.0, hscreen - 7 * linepitch, Servicetext, font, pointsize);
@@ -9727,7 +9727,7 @@ void LMRX(int NoButton)
             snprintf(SRtext, 15, "%d kS", SR);
           }
 
-					if ((stat_string[0] == '1') && (stat_string[1] == '3'))  // Service Provider
+          if ((stat_string[0] == '1') && (stat_string[1] == '3'))  // Service Provider
           {
             strcpy(ServiceProvidertext, stat_string);
             chopN(ServiceProvidertext, 3);
@@ -9975,14 +9975,14 @@ void LMRX(int NoButton)
               snprintf(MERtext, 24, "MER %.1f (%.1f req)", MER, MERThreshold);
 
               BackgroundRGB(0, 0, 0, 0);
-							Fill(0, 0, 0, 127);
+              Fill(0, 0, 0, 127);
               Rect(wscreen * 1.0 / 40.0, hscreen - 9.2 * linepitch, wscreen * 20.0 / 40.0, hscreen);
               Rect(wscreen * 1.0 / 40.0, hscreen - 11.7 * linepitch, wscreen * 35.0 / 40.0, hscreen - 11.4 * linepitch);
               Fill(255, 255, 255, 255);
               Text(wscreen * 1.0 / 40.0, hscreen - 1 * linepitch, STATEtext, font, pointsize);
               Text(wscreen * 1.0 / 40.0, hscreen - 2 * linepitch, FREQtext, font, pointsize);
               Text(wscreen * 1.0 / 40.0, hscreen - 3 * linepitch, SRtext, font, pointsize);
-							Text(wscreen * 1.0 / 40.0, hscreen - 4 * linepitch, Modulationtext, font, pointsize);
+              Text(wscreen * 1.0 / 40.0, hscreen - 4 * linepitch, Modulationtext, font, pointsize);
               Text(wscreen * 1.0 / 40.0, hscreen - 5 * linepitch, FECtext, font, pointsize);
               Text(wscreen * 1.0 / 40.0, hscreen - 6 * linepitch, ServiceProvidertext, font, pointsize);
               Text(wscreen * 1.0 / 40.0, hscreen - 7 * linepitch, Servicetext, font, pointsize);
@@ -10111,7 +10111,7 @@ void LMRX(int NoButton)
             snprintf(SRtext, 15, "%d kS", SR);
           }
 
-					if ((stat_string[0] == '1') && (stat_string[1] == '3'))  // Service Provider
+          if ((stat_string[0] == '1') && (stat_string[1] == '3'))  // Service Provider
           {
             strcpy(ServiceProvidertext, stat_string);
             chopN(ServiceProvidertext, 3);
@@ -10356,13 +10356,13 @@ void LMRX(int NoButton)
             snprintf(MERtext, 24, "MER %.1f (%.1f req)", MER, MERThreshold);
 
             BackgroundRGB(0, 0, 0, 0);
-						Fill(0, 0, 0, 127);
+            Fill(0, 0, 0, 127);
             Rect(wscreen * 1.0 / 40.0, hscreen - 9.2 * linepitch, wscreen * 20.0 / 40.0, hscreen);
             Fill(255, 255, 255, 255);
             Text(wscreen * 1.0 / 40.0, hscreen - 1 * linepitch, STATEtext, font, pointsize);
             Text(wscreen * 1.0 / 40.0, hscreen - 2 * linepitch, FREQtext, font, pointsize);
             Text(wscreen * 1.0 / 40.0, hscreen - 3 * linepitch, SRtext, font, pointsize);
-						Text(wscreen * 1.0 / 40.0, hscreen - 4 * linepitch, Modulationtext, font, pointsize);
+            Text(wscreen * 1.0 / 40.0, hscreen - 4 * linepitch, Modulationtext, font, pointsize);
             Text(wscreen * 1.0 / 40.0, hscreen - 5 * linepitch, FECtext, font, pointsize);
             Text(wscreen * 1.0 / 40.0, hscreen - 6 * linepitch, ServiceProvidertext, font, pointsize);
             Text(wscreen * 1.0 / 40.0, hscreen - 7 * linepitch, Servicetext, font, pointsize);
@@ -10528,7 +10528,7 @@ void LMRX(int NoButton)
     touch_response = 0;
     break;
   }
-	system("sudo killall longmynd >/dev/null 2>/dev/null");
+  system("sudo killall longmynd >/dev/null 2>/dev/null");
   system("sudo killall omxplayer.bin >/dev/null 2>/dev/null");
   system("sudo killall hello_video.bin >/dev/null 2>/dev/null");
   system("sudo killall hello_video2.bin >/dev/null 2>/dev/null");
@@ -14458,16 +14458,16 @@ void waituntil(int w,int h)
           UpdateWindow();
           break;
         case 4:                                           // Beacon MER
-	        if (strcmp(LMRXmode, "sat") == 0)
-	        {
-	          BackgroundRGB(0,0,0,255);
-	          Start(wscreen,hscreen);
-	          LMRX(i);
-	          BackgroundRGB(0, 0, 0, 255);
-	          Start_Highlights_Menu8();
-	          UpdateWindow();
-	        }
-	        break;
+          if (strcmp(LMRXmode, "sat") == 0)
+          {
+            BackgroundRGB(0,0,0,255);
+            Start(wscreen,hscreen);
+            LMRX(i);
+            BackgroundRGB(0, 0, 0, 255);
+            Start_Highlights_Menu8();
+            UpdateWindow();
+          }
+          break;
         case 5:                                          // Change Freq
         case 6:
         case 7:
@@ -14514,7 +14514,7 @@ void waituntil(int w,int h)
           break;
         case 22:                                          // Back to Menu 1
           printf("MENU 1 \n");
-					// Revert to the Normal Desktop Image
+          // Revert to the Normal Desktop Image
           strcpy(LinuxCommand, "sudo fbi -T 1 -noverbose -a /home/pi/rpidatv/scripts/images/BATC_Black.png ");
           strcat(LinuxCommand, ">/dev/null 2>/dev/null");
           system(LinuxCommand);
@@ -21654,7 +21654,7 @@ terminate(int dummy)
   ReceiveStop();
   RTLstop();
   system("killall -9 omxplayer.bin >/dev/null 2>/dev/null");
-	system("sudo killall lmudp.sh");
+  system("sudo killall lmudp.sh");
   system("sudo killall longmynd");
   finish();
   printf("Terminate\n");
