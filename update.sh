@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Updated by davecrump 201910100
+# Updated by davecrump 201910230
 
 DisplayUpdateMsg() {
   # Delete any old update message image  201802040
@@ -187,6 +187,9 @@ sudo apt-get -y install sshpass  # For controlling the Jetson Nano
 
 # --------- Install libbsd-dev ------
 sudo apt-get -y install libbsd-dev  # For raspi2raspi
+
+# --------- Install libasound2-dev ------
+sudo apt-get -y install libasound2-dev  # For LongMynd tone
 
 # Enable USB Storage automount in Stretch (only) 20180704
 cd /lib/systemd/system/
