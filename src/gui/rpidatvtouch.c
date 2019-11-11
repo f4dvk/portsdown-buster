@@ -4947,10 +4947,6 @@ int ButtonNumber(int MenuIndex, int Button)
   {
     ButtonNumb = 600 + (MenuIndex - 42) * 15 + Button;
   }
-  if (MenuIndex >= 50)
-  {
-    ButtonNumb = 250 + (MenuIndex - 11) * 10 + Button;
-  }
   return ButtonNumb;
 }
 
