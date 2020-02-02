@@ -42,7 +42,7 @@ else
     UDPOUTADDR=$(get_config_var udpoutaddr $PCONFIGFILE)
 fi
 CALL=$(get_config_var call $PCONFIGFILE)
-CHANNEL=$CALL
+CHANNEL="Portsdown"
 FREQ_OUTPUT=$(get_config_var freqoutput $PCONFIGFILE)
 
 STREAM_URL=$(get_config_var streamurl $PCONFIGFILE)
@@ -76,6 +76,8 @@ DISPLAY=$(get_config_var display $PCONFIGFILE)
 
 BAND_LABEL=$(get_config_var labelofband $PCONFIGFILE)
 NUMBERS=$(get_config_var numbers $PCONFIGFILE)
+
+MODE_STARTUP=$(get_config_var startup $PCONFIGFILE)
 
 OUTPUT_IP=""
 
@@ -425,6 +427,9 @@ case "$MODE_OUTPUT" in
     # Deal with LIMEDVB Mode
     if [ "$MODE_OUTPUT" == "LIMEDVB" ]; then
       UPSAMPLE=4
+      if [ "$SYMBOLRATE_K" -gt 1010 ] ; then
+        UPSAMPLE=2
+      fi
       CUSTOM_FPGA="-F"
     else
       CUSTOM_FPGA=" "
@@ -565,7 +570,7 @@ case "$MODE_INPUT" in
       ;;
       "LIMEMINI" | "LIMEUSB" | "LIMEDVB")
         $PATHRPI"/limesdr_dvb" -i videots -s "$SYMBOLRATE_K"000 -f $FECNUM/$FECDEN -r $UPSAMPLE -m $MODTYPE -c $CONSTLN $PILOTS $FRAMES \
-          -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q $CAL $CUSTOM_FPGA -D $DIGITAL_GAIN &
+            -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q $CAL $CUSTOM_FPGA -D $DIGITAL_GAIN -e $BAND_GPIO &
       ;;
       "COMPVID")
         OUTPUT_FILE="/dev/null" #Send avc2ts output to /dev/null
@@ -582,20 +587,18 @@ case "$MODE_INPUT" in
       let BITRATE_VIDEO=($BITRATE_TS-12000)*725/1000
 
       sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
-        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 0 -e $ANALOGCAMNAME -p $PIDPMT -s $CHANNEL $OUTPUT_IP \
+        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 0 -e $ANALOGCAMNAME -p $PIDPMT -s $CALL $OUTPUT_IP \
          > /dev/null &
     else
       # ******************************* H264 VIDEO WITH AUDIO ************************************
-      AAC_AUDIO_SAMPLE=23925
-        BITRATE_AUDIO=18000
-        let TS_AUDIO_BITRATE=$BITRATE_AUDIO*12/10
-        let BITRATE_VIDEO=($BITRATE_TS-48000-$TS_AUDIO_BITRATE)*725/1000
+      BITRATE_AUDIO=24000
+      let TS_AUDIO_BITRATE=$BITRATE_AUDIO*12/10
+      let BITRATE_VIDEO=($BITRATE_TS-12000-$TS_AUDIO_BITRATE)*725/1000
 
-      arecord -f S16_LE -r $AUDIO_SAMPLE -c 2 -B $ARECORD_BUF -D plughw:$AUDIO_CARD_NUMBER,0 \
-        | sox --buffer 1024 -t wav - audioin.wav rate $AAC_AUDIO_SAMPLE &
+      arecord -f S16_LE -r $AUDIO_SAMPLE -c 2 -B $ARECORD_BUF -D plughw:$AUDIO_CARD_NUMBER,0 > audioin.wav &
 
       sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
-        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 0 -e $ANALOGCAMNAME -p $PIDPMT -s $CHANNEL $OUTPUT_IP \
+        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 0 -e $ANALOGCAMNAME -p $PIDPMT -s $CALL $OUTPUT_IP \
         -a audioin.wav -z $BITRATE_AUDIO > /dev/null &
     fi
   ;;
@@ -631,9 +634,9 @@ fi
 
     # Size the viewfinder
     if [ "$DISPLAY" == "Element14_7" ]; then
-      v4l2-ctl -d $VID_PICAM --set-fmt-overlay=left=0,top=0,width=736,height=416 # For 800x480 framebuffer
+      v4l2-ctl -d $VID_PICAM --set-fmt-overlay=left=0,top=0,width=736,height=416 --overlay 1 # For 800x480 framebuffer
     else
-      v4l2-ctl -d $VID_PICAM --set-fmt-overlay=left=0,top=0,width=656,height=512 # For 720x576 framebuffer
+      v4l2-ctl -d $VID_PICAM --set-fmt-overlay=left=0,top=0,width=656,height=512 --overlay 1 # For 720x576 framebuffer
     fi
     v4l2-ctl -d $VID_PICAM -p $VIDEO_FPS
 
@@ -659,7 +662,7 @@ fi
       ;;
       "LIMEMINI" | "LIMEUSB" | "LIMEDVB")
         $PATHRPI"/limesdr_dvb" -i videots -s "$SYMBOLRATE_K"000 -f $FECNUM/$FECDEN -r $UPSAMPLE -m $MODTYPE -c $CONSTLN $PILOTS $FRAMES \
-          -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q $CAL $CUSTOM_FPGA -D $DIGITAL_GAIN &
+            -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q $CAL $CUSTOM_FPGA -D $DIGITAL_GAIN -e $BAND_GPIO &
       ;;
       *)
         # For IQ, QPSKRF, DIGITHIN and DTX1 rpidatv generates the IQ (and RF for QPSKRF)
@@ -687,11 +690,13 @@ fi
             -f alsa -ac $AUDIO_CHANNELS -ar $AUDIO_SAMPLE \
             -i hw:$AUDIO_CARD_NUMBER,0 \
             $VF $CAPTION -framerate 25 \
-            -video_size "$VIDEO_WIDTH"x"$VIDEO_HEIGHT" -c:v h264_omx -b:v 512k \
+            -video_size "$VIDEO_WIDTH"x"$VIDEO_HEIGHT" -c:v h264 -b:v 512k \
             -ar 22050 -ac $AUDIO_CHANNELS -ab 64k \
             -g 25 \
             -f flv $STREAM_URL/$STREAM_KEY &
         fi
+#            -video_size "$VIDEO_WIDTH"x"$VIDEO_HEIGHT" -c:v h264_omx -b:v 576k \
+
       ;;
       *)
         if [ "$AUDIO_CARD" == "0" ] && [ "$AUDIO_CHANNELS" == "0" ]; then
@@ -708,7 +713,7 @@ fi
             -mpegts_original_network_id 1 -mpegts_transport_stream_id 1 \
             -mpegts_service_id $SERVICEID \
             -mpegts_pmt_start_pid $PIDPMT -streamid 0:"$PIDVIDEO" -streamid 1:"$PIDAUDIO" \
-            -metadata service_provider=$CALL -metadata service_name=$CHANNEL \
+            -metadata service_provider=$CHANNEL -metadata service_name=$CALL \
             -muxrate $BITRATE_TS -y $OUTPUT &
 
         elif [ "$AUDIO_CARD" == "0" ] && [ "$AUDIO_CHANNELS" == "1" ]; then
@@ -728,7 +733,7 @@ fi
             -mpegts_original_network_id 1 -mpegts_transport_stream_id 1 \
             -mpegts_service_id $SERVICEID \
             -mpegts_pmt_start_pid $PIDPMT -streamid 0:"$PIDVIDEO" -streamid 1:"$PIDAUDIO" \
-            -metadata service_provider=$CALL -metadata service_name=$CHANNEL \
+            -metadata service_provider=$CHANNEL -metadata service_name=$CALL \
             -muxrate $BITRATE_TS -y $OUTPUT &
 
         else
@@ -751,7 +756,7 @@ fi
             -mpegts_original_network_id 1 -mpegts_transport_stream_id 1 \
             -mpegts_service_id $SERVICEID \
             -mpegts_pmt_start_pid $PIDPMT -streamid 0:"$PIDVIDEO" -streamid 1:"$PIDAUDIO" \
-            -metadata service_provider=$CALL -metadata service_name=$CHANNEL \
+            -metadata service_provider=$CHANNEL -metadata service_name=$CALL \
             -muxrate $BITRATE_TS -y $OUTPUT &
         fi
       ;;
@@ -783,7 +788,7 @@ fi
       ;;
       "LIMEMINI" | "LIMEUSB" | "LIMEDVB")
         $PATHRPI"/limesdr_dvb" -i videots -s "$SYMBOLRATE_K"000 -f $FECNUM/$FECDEN -r $UPSAMPLE -m $MODTYPE -c $CONSTLN $PILOTS $FRAMES \
-          -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q $CAL $CUSTOM_FPGA -D $DIGITAL_GAIN &
+            -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q $CAL $CUSTOM_FPGA -D $DIGITAL_GAIN -e $BAND_GPIO &
       ;;
       *)
         sudo  $PATHRPI"/rpidatv" -i videots -s $SYMBOLRATE_K -c $FECNUM"/"$FECDEN -f $FREQUENCY_OUT -p $GAIN -m $MODE -x $PIN_I -y $PIN_Q &
@@ -810,21 +815,19 @@ fi
       let BITRATE_VIDEO=($BITRATE_TS-12000)*725/1000
 
       sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
-        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 3 -e $ANALOGCAMNAME -p $PIDPMT -s $CHANNEL $OUTPUT_IP \
+        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 3 -e $ANALOGCAMNAME -p $PIDPMT -s $CALL $OUTPUT_IP \
          > /dev/null &
     else
       # ******************************* H264 TCANIM WITH AUDIO ************************************
 
-        AAC_AUDIO_SAMPLE=23925
-        BITRATE_AUDIO=18000
-        let TS_AUDIO_BITRATE=$BITRATE_AUDIO*12/10
-        let BITRATE_VIDEO=($BITRATE_TS-48000-$TS_AUDIO_BITRATE)*725/1000
+      BITRATE_AUDIO=24000
+      let TS_AUDIO_BITRATE=$BITRATE_AUDIO*12/10
+      let BITRATE_VIDEO=($BITRATE_TS-12000-$TS_AUDIO_BITRATE)*725/1000
 
-      arecord -f S16_LE -r $AUDIO_SAMPLE -c 2 -B $ARECORD_BUF -D plughw:$AUDIO_CARD_NUMBER,0 \
-        | sox --buffer 1024 -t wav - audioin.wav rate $AAC_AUDIO_SAMPLE &
+      arecord -f S16_LE -r $AUDIO_SAMPLE -c 2 -B $ARECORD_BUF -D plughw:$AUDIO_CARD_NUMBER,0 > audioin.wav &
 
       sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
-        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 3 -e $ANALOGCAMNAME -p $PIDPMT -s $CHANNEL $OUTPUT_IP \
+        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 3 -e $ANALOGCAMNAME -p $PIDPMT -s $CALL $OUTPUT_IP \
         -a audioin.wav -z $BITRATE_AUDIO > /dev/null &
     fi
   ;;
@@ -866,20 +869,18 @@ fi
       let BITRATE_VIDEO=($BITRATE_TS-12000)*725/1000
 
       sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
-        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 4 -e $VNCADDR -p $PIDPMT -s $CHANNEL $OUTPUT_IP \
+        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 4 -e $VNCADDR -p $PIDPMT -s $CALL $OUTPUT_IP \
         > /dev/null &
     else
       # ******************************* H264 VIDEO WITH AUDIO ************************************
-        AAC_AUDIO_SAMPLE=23925
-        BITRATE_AUDIO=18000
-        let TS_AUDIO_BITRATE=$BITRATE_AUDIO*12/10
-        let BITRATE_VIDEO=($BITRATE_TS-48000-$TS_AUDIO_BITRATE)*725/1000
+      BITRATE_AUDIO=24000
+      let TS_AUDIO_BITRATE=$BITRATE_AUDIO*12/10
+      let BITRATE_VIDEO=($BITRATE_TS-12000-$TS_AUDIO_BITRATE)*725/1000
 
-      arecord -f S16_LE -r $AUDIO_SAMPLE -c 2 -B $ARECORD_BUF -D plughw:$AUDIO_CARD_NUMBER,0 \
-        | sox --buffer 1024 -t wav - audioin.wav rate $AAC_AUDIO_SAMPLE &
+      arecord -f S16_LE -r $AUDIO_SAMPLE -c 2 -B $ARECORD_BUF -D plughw:$AUDIO_CARD_NUMBER,0 > audioin.wav &
 
       sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
-        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 4 -e $VNCADDR -p $PIDPMT -s $CHANNEL $OUTPUT_IP \
+        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 4 -e $VNCADDR -p $PIDPMT -s $CALL $OUTPUT_IP \
         -a audioin.wav -z $BITRATE_AUDIO > /dev/null &
     fi
   ;;
@@ -935,7 +936,7 @@ fi
       ;;
       "LIMEMINI" | "LIMEUSB" | "LIMEDVB")
         $PATHRPI"/limesdr_dvb" -i videots -s "$SYMBOLRATE_K"000 -f $FECNUM/$FECDEN -r $UPSAMPLE -m $MODTYPE -c $CONSTLN $PILOTS $FRAMES \
-          -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q $CAL $CUSTOM_FPGA -D $DIGITAL_GAIN &
+          -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q $CAL $CUSTOM_FPGA -D $DIGITAL_GAIN -e $BAND_GPIO &
       ;;
       *)
         sudo $PATHRPI"/rpidatv" -i videots -s $SYMBOLRATE_K -c $FECNUM"/"$FECDEN -f $FREQUENCY_OUT -p $GAIN -m $MODE -x $PIN_I -y $PIN_Q &
@@ -950,22 +951,29 @@ fi
       let BITRATE_VIDEO=($BITRATE_TS-12000)*725/1000
 
       sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
-        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 2 -e $ANALOGCAMNAME -p $PIDPMT -s $CHANNEL $OUTPUT_IP \
+        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 2 -e $ANALOGCAMNAME -p $PIDPMT -s $CALL $OUTPUT_IP \
       > /dev/null &
     else
       # ******************************* H264 VIDEO WITH AUDIO ************************************
 
-        AAC_AUDIO_SAMPLE=23925
-        BITRATE_AUDIO=18000
-        let TS_AUDIO_BITRATE=$BITRATE_AUDIO*12/10
-        let BITRATE_VIDEO=($BITRATE_TS-48000-$TS_AUDIO_BITRATE)*725/1000
+      BITRATE_AUDIO=24000
+      let TS_AUDIO_BITRATE=$BITRATE_AUDIO*12/10
+      let BITRATE_VIDEO=($BITRATE_TS-12000-$TS_AUDIO_BITRATE)*725/1000
 
-      arecord -f S16_LE -r $AUDIO_SAMPLE -c 2 -B $ARECORD_BUF -D plughw:$AUDIO_CARD_NUMBER,0 \
-        | sox -t wav - audioin.wav rate $AAC_AUDIO_SAMPLE &
+      arecord -f S16_LE -r $AUDIO_SAMPLE -c 2 -B $ARECORD_BUF -D plughw:$AUDIO_CARD_NUMBER,0 > audioin.wav &
 
       sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
-        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 2 -e $ANALOGCAMNAME -p $PIDPMT -s $CHANNEL $OUTPUT_IP \
+        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 2 -e $ANALOGCAMNAME -p $PIDPMT -s $CALL $OUTPUT_IP \
         -a audioin.wav -z $BITRATE_AUDIO > /dev/null &
+
+      # Auto restart for arecord (which dies after about an hour)  in repeater TX modes
+      while [[ "$MODE_STARTUP" == "TX_boot" || "$MODE_STARTUP" == "Keyed_TX_boot" ]]
+      do
+        sleep 10
+        if ! pgrep -x "arecord" > /dev/null; then # arecord is not running, so restart it
+          arecord -f S16_LE -r $AUDIO_SAMPLE -c 2 -B $ARECORD_BUF -D plughw:$AUDIO_CARD_NUMBER,0 > audioin.wav &
+        fi
+      done
     fi
   ;;
 
@@ -1034,7 +1042,7 @@ fi
       ;;
       "LIMEMINI" | "LIMEUSB" | "LIMEDVB")
         $PATHRPI"/limesdr_dvb" -i videots -s "$SYMBOLRATE_K"000 -f $FECNUM/$FECDEN -r $UPSAMPLE -m $MODTYPE -c $CONSTLN $PILOTS $FRAMES \
-          -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q $CAL $CUSTOM_FPGA -D $DIGITAL_GAIN &
+          -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q $CAL $CUSTOM_FPGA -D $DIGITAL_GAIN -e $BAND_GPIO &
       ;;
       *)
         sudo nice -n -30 $PATHRPI"/rpidatv" -i videots -s $SYMBOLRATE_K -c $FECNUM"/"$FECDEN -f $FREQUENCY_OUT -p $GAIN -m $MODE -x $PIN_I -y $PIN_Q &
@@ -1050,31 +1058,30 @@ fi
 
     # Now generate the stream
 
-    if [ "$AUDIO_CARD" == 0 ]; then
+    # Audio does not work well, and is not required, so disabled.
+
+#    if [ "$AUDIO_CARD" == 0 ]; then
       # ******************************* H264 VIDEO, NO AUDIO ************************************
 
       let BITRATE_VIDEO=($BITRATE_TS-12000)*725/1000
 
       sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
-        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 3 -p $PIDPMT -s $CHANNEL $OUTPUT_IP \
+        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 3 -p $PIDPMT -s $CALL $OUTPUT_IP \
         > /dev/null  &
 
-    else
+#    else
       # ******************************* H264 VIDEO WITH AUDIO ************************************
 
-        AAC_AUDIO_SAMPLE=23925
-        BITRATE_AUDIO=18000
-        let TS_AUDIO_BITRATE=$BITRATE_AUDIO*12/10
-        let BITRATE_VIDEO=($BITRATE_TS-48000-$TS_AUDIO_BITRATE)*725/1000
+#      BITRATE_AUDIO=24000
+#      let TS_AUDIO_BITRATE=$BITRATE_AUDIO*12/10
+#      let BITRATE_VIDEO=($BITRATE_TS-12000-$TS_AUDIO_BITRATE)*725/1000
 
-      arecord -f S16_LE -r $AUDIO_SAMPLE -c 2 -B $ARECORD_BUF -D plughw:$AUDIO_CARD_NUMBER,0 \
-        | sox -t wav - audioin.wav rate $AAC_AUDIO_SAMPLE &
+#      arecord -f S16_LE -r $AUDIO_SAMPLE -c 2 -B $ARECORD_BUF -D plughw:$AUDIO_CARD_NUMBER,0 > audioin.wav &
 
-      sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
-        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 3 3 -p $PIDPMT -s $CHANNEL $OUTPUT_IP \
-        -a audioin.wav -z $BITRATE_AUDIO > /dev/null &
-
-    fi
+#      sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
+#        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 3  -p $PIDPMT -s $CALL $OUTPUT_IP \
+#        -a audioin.wav -z $BITRATE_AUDIO > /dev/null &
+#    fi
   ;;
 
 # *********************************** TRANSPORT STREAM INPUT THROUGH IP ******************************************
@@ -1133,8 +1140,8 @@ fi
         echo "set ptt tx" >> /tmp/expctrl
       ;;
       "LIMEMINI" | "LIMEUSB" | "LIMEDVB")
-        $PATHRPI"/limesdr_dvb" -s 1000000 -f carrier -r 1 \
-          -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q $CAL $CUSTOM_FPGA -D $DIGITAL_GAIN &
+        $PATHRPI"/limesdr_dvb" -s 1000000 -f carrier -r 1 -m DVBS2 -c QPSK \
+          -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q $CAL $CUSTOM_FPGA -D $DIGITAL_GAIN -e $BAND_GPIO &
 
         #"LIMEMINI" | "LIMEUSB")
         #  $PATHRPI"/dvb2iq" -f carrier -r 1 -s 50 \
@@ -1318,7 +1325,7 @@ fi
           -mpegts_original_network_id 1 -mpegts_transport_stream_id 1 \
           -mpegts_service_id $SERVICEID \
           -mpegts_pmt_start_pid $PIDPMT -streamid 0:"$PIDVIDEO" -streamid 1:"$PIDAUDIO" \
-          -metadata service_provider=$CALL -metadata service_name=$CHANNEL \
+          -metadata service_provider=$CHANNEL -metadata service_name=$CALL \
           -muxrate $BITRATE_TS -y $OUTPUT &
 
       elif [ "$AUDIO_CARD" == "0" ] && [ "$AUDIO_CHANNELS" == "1" ]; then
@@ -1339,7 +1346,7 @@ fi
           -mpegts_original_network_id 1 -mpegts_transport_stream_id 1 \
           -mpegts_service_id $SERVICEID \
           -mpegts_pmt_start_pid $PIDPMT -streamid 0:"$PIDVIDEO" -streamid 1:"$PIDAUDIO" \
-          -metadata service_provider=$CALL -metadata service_name=$CHANNEL \
+          -metadata service_provider=$CHANNEL -metadata service_name=$CALL \
           -muxrate $BITRATE_TS -y $OUTPUT &
 
       else
@@ -1365,7 +1372,7 @@ fi
           -mpegts_original_network_id 1 -mpegts_transport_stream_id 1 \
           -mpegts_service_id $SERVICEID \
           -mpegts_pmt_start_pid $PIDPMT -streamid 0:"$PIDVIDEO" -streamid 1:"$PIDAUDIO" \
-          -metadata service_provider=$CALL -metadata service_name=$CHANNEL \
+          -metadata service_provider=$CHANNEL -metadata service_name=$CALL \
           -muxrate $BITRATE_TS -y $OUTPUT &
 
       fi
@@ -1511,7 +1518,7 @@ fi
             -mpegts_original_network_id 1 -mpegts_transport_stream_id 1 \
             -mpegts_service_id $SERVICEID \
             -mpegts_pmt_start_pid $PIDPMT -streamid 0:"$PIDVIDEO" -streamid 1:"$PIDAUDIO" \
-            -metadata service_provider=$CALL -metadata service_name=$CHANNEL \
+            -metadata service_provider=$CHANNEL -metadata service_name=$CALL \
             -muxrate $BITRATE_TS -y $OUTPUT &
 
         elif [ "$AUDIO_CARD" == "0" ] && [ "$AUDIO_CHANNELS" == "1" ]; then
@@ -1531,7 +1538,7 @@ fi
             -mpegts_original_network_id 1 -mpegts_transport_stream_id 1 \
             -mpegts_service_id $SERVICEID \
             -mpegts_pmt_start_pid $PIDPMT -streamid 0:"$PIDVIDEO" -streamid 1:"$PIDAUDIO" \
-            -metadata service_provider=$CALL -metadata service_name=$CHANNEL \
+            -metadata service_provider=$CHANNEL -metadata service_name=$CALL \
             -muxrate $BITRATE_TS -y $OUTPUT &
 
         else
@@ -1556,7 +1563,7 @@ fi
             -mpegts_original_network_id 1 -mpegts_transport_stream_id 1 \
             -mpegts_service_id $SERVICEID \
             -mpegts_pmt_start_pid $PIDPMT -streamid 0:"$PIDVIDEO" -streamid 1:"$PIDAUDIO" \
-            -metadata service_provider=$CALL -metadata service_name=$CHANNEL \
+            -metadata service_provider=$CHANNEL -metadata service_name=$CALL \
             -muxrate $BITRATE_TS -y $OUTPUT &
         fi
       ;;
@@ -1614,7 +1621,7 @@ fi
       -mpegts_original_network_id 1 -mpegts_transport_stream_id 1 \
       -mpegts_service_id $SERVICEID \
       -mpegts_pmt_start_pid $PIDPMT -streamid 0:"$PIDVIDEO" -streamid 1:"$PIDAUDIO" \
-      -metadata service_provider=$CALL -metadata service_name=$CHANNEL \
+      -metadata service_provider=$CHANNEL -metadata service_name=$CALL \
       -muxrate $BITRATE_TS -y $OUTPUT &
 
   ;;
@@ -1703,7 +1710,7 @@ case "$MODE_OUTPUT" in
       | ffmpeg -i - -ss 8 \
         -c:v copy -max_delay 200000 -muxrate $BITRATE_TS \
         -c:a copy -f mpegts \
-        -metadata service_provider="$CALL" -metadata service_name="$CALL" \
+        -metadata service_provider="$CHANNEL" -metadata service_name="$CALL" \
         -mpegts_pmt_start_pid $PIDPMT -streamid 0:"$PIDVIDEO" -streamid 1:"$PIDAUDIO" - \
       | ../bin/limesdr_dvb -s "$SYMBOLRATE_K"000 -f $FECNUM/$FECDEN -r $UPSAMPLE -m $MODTYPE -c $CONSTLN $PILOTS $FRAMES \
         -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q 1
@@ -1728,7 +1735,7 @@ EOM
       | ffmpeg -i - -ss 8 \
         -c:v copy -max_delay 200000 -muxrate $BITRATE_TS \
         -c:a copy -f mpegts \
-        -metadata service_provider="$CALL" -metadata service_name="$CALL" \
+        -metadata service_provider="$CHANNEL" -metadata service_name="$CALL" \
         -mpegts_pmt_start_pid $PIDPMT -streamid 0:"$PIDVIDEO" -streamid 1:"$PIDAUDIO" - \
       | ../bin/limesdr_dvb -s "$SYMBOLRATE_K"000 -f $FECNUM/$FECDEN -r $UPSAMPLE -m $MODTYPE -c $CONSTLN $PILOTS $FRAMES \
         -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q 1
@@ -1754,7 +1761,7 @@ EOM
       | ffmpeg -i - -ss 8 \
         -c:v copy -max_delay 200000 -muxrate $BITRATE_TS \
         -c:a copy -f mpegts \
-        -metadata service_provider="$CALL" -metadata service_name="$CALL" \
+        -metadata service_provider="$CHANNEL" -metadata service_name="$CALL" \
         -mpegts_pmt_start_pid $PIDPMT -streamid 0:"$PIDVIDEO" -streamid 1:"$PIDAUDIO" - \
       | ../bin/limesdr_dvb -s "$SYMBOLRATE_K"000 -f $FECNUM/$FECDEN -r $UPSAMPLE -m $MODTYPE -c $CONSTLN $PILOTS $FRAMES \
         -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q 1
@@ -1778,7 +1785,7 @@ EOM
       | ffmpeg -i - -ss 8 \
         -c:v copy -max_delay 200000 -muxrate $BITRATE_TS \
         -c:a copy -f mpegts \
-        -metadata service_provider="$CALL" -metadata service_name="$CALL" \
+        -metadata service_provider="$CHANNEL" -metadata service_name="$CALL" \
         -mpegts_pmt_start_pid $PIDPMT -streamid 0:"$PIDVIDEO" -streamid 1:"$PIDAUDIO" - \
       | ../bin/limesdr_dvb -s "$SYMBOLRATE_K"000 -f $FECNUM/$FECDEN -r $UPSAMPLE -m $MODTYPE -c $CONSTLN $PILOTS $FRAMES \
         -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q 1
@@ -1808,7 +1815,7 @@ EOM
       | ffmpeg -i - -ss 8 \
         -c:v copy -max_delay 200000 -muxrate $BITRATE_TS \
         -c:a copy -f mpegts \
-        -metadata service_provider="$CALL" -metadata service_name="$CALL" \
+        -metadata service_provider="$CHANNEL" -metadata service_name="$CALL" \
         -mpegts_pmt_start_pid $PIDPMT -streamid 0:"$PIDVIDEO" -streamid 1:"$PIDAUDIO" - \
       | ../bin/limesdr_dvb -s "$SYMBOLRATE_K"000 -f $FECNUM/$FECDEN -r $UPSAMPLE -m $MODTYPE -c $CONSTLN $PILOTS $FRAMES \
         -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q 1
@@ -1834,7 +1841,7 @@ EOM
       | ffmpeg -i - -ss 8 \
         -c:v copy -max_delay 200000 -muxrate $BITRATE_TS \
         -c:a copy -f mpegts \
-        -metadata service_provider="$CALL" -metadata service_name="$CALL" \
+        -metadata service_provider="$CHANNEL" -metadata service_name="$CALL" \
         -mpegts_pmt_start_pid $PIDPMT -streamid 0:"$PIDVIDEO" -streamid 1:"$PIDAUDIO" - \
       | ../bin/limesdr_dvb -s "$SYMBOLRATE_K"000 -f $FECNUM/$FECDEN -r $UPSAMPLE -m $MODTYPE -c $CONSTLN $PILOTS $FRAMES \
         -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q 1
@@ -1861,7 +1868,7 @@ EOM
       | ffmpeg -i - -ss 8 \
         -c:v copy -max_delay 200000 -muxrate $BITRATE_TS \
         -c:a copy -f mpegts \
-        -metadata service_provider="$CALL" -metadata service_name="$CALL" \
+        -metadata service_provider="$CHANNEL" -metadata service_name="$CALL" \
         -mpegts_pmt_start_pid $PIDPMT -streamid 0:"$PIDVIDEO" -streamid 1:"$PIDAUDIO" - \
       | ../bin/limesdr_dvb -s "$SYMBOLRATE_K"000 -f $FECNUM/$FECDEN -r $UPSAMPLE -m $MODTYPE -c $CONSTLN $PILOTS $FRAMES \
         -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q 1
@@ -1886,7 +1893,7 @@ EOM
       | ffmpeg -i - -ss 8 \
         -c:v copy -max_delay 200000 -muxrate $BITRATE_TS \
         -c:a copy -f mpegts \
-        -metadata service_provider="$CALL" -metadata service_name="$CALL" \
+        -metadata service_provider="$CHANNEL" -metadata service_name="$CALL" \
         -mpegts_pmt_start_pid $PIDPMT -streamid 0:"$PIDVIDEO" -streamid 1:"$PIDAUDIO" - \
       | ../bin/limesdr_dvb -s "$SYMBOLRATE_K"000 -f $FECNUM/$FECDEN -r $UPSAMPLE -m $MODTYPE -c $CONSTLN $PILOTS $FRAMES \
         -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q 1

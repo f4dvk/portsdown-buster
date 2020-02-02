@@ -174,10 +174,10 @@ wget https://github.com/${GIT_SRC}/portsdown-buster/archive/master.zip -O master
 
 #if [ "$1" == "-d" ]; then
 #  echo "Installing development load"
-#  wget https://github.com/davecrump/portsdown/archive/master.zip -O master.zip
+#  wget https://github.com/davecrump/portsdown-buster/archive/master.zip -O master.zip
 #else
 #  echo "Installing BATC Production load"
-#  wget https://github.com/f4dvk/portsdown_DVK/archive/master.zip -O master.zip
+#  wget https://github.com/f4dvk/portsdown-buster/archive/master.zip -O master.zip
 #fi
 
 # Unzip and overwrite where we need to
@@ -211,6 +211,34 @@ make clean
 make
 sudo make install
 
+cd /home/pi
+
+# Update limesdr_toolbox
+echo "Updating limesdr_toolbox"
+
+wget https://github.com/f4dvk/limesdr_toolbox/archive/master.zip
+unzip master.zip
+mv limesdr_toolbox-master limesdr_toolbox
+rm master.zip
+cd limesdr_toolbox
+
+# Install sub project dvb modulation
+git clone https://github.com/F5OEO/libdvbmod
+cd libdvbmod/libdvbmod
+make
+cd ../DvbTsToIQ/
+make
+cp dvb2iq /home/pi/rpidatv/bin/
+cd /home/pi/limesdr_toolbox/
+
+#Make
+make
+cp limesdr_send /home/pi/rpidatv/bin/
+cp limesdr_dump /home/pi/rpidatv/bin/
+cp limesdr_stopchannel /home/pi/rpidatv/bin/
+cp limesdr_forward /home/pi/rpidatv/bin/
+make dvb
+cp limesdr_dvb /home/pi/rpidatv/bin/
 cd /home/pi
 
 #install adf4351
@@ -358,6 +386,8 @@ echo "${GIT_SRC}" > /home/pi/${GIT_SRC_FILE}
 sudo sed -i 's/^TimeoutStartSec.*/TimeoutStartSec=5/' /etc/systemd/system/network-online.target.wants/networking.service
 sudo sed -i 's/^#timeout.*/timeout 8;/' /etc/dhcp/dhclient.conf
 sudo sed -i 's/^#retry.*/retry 20;/' /etc/dhcp/dhclient.conf
+
+sudo chmod -R 777 /home/pi/rpidatv/scripts/
 
 # Reboot
 DisplayRebootMsg "Step 10 of 10\nRebooting\n\nUpdate Complete"
