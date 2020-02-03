@@ -7246,7 +7246,7 @@ void SetAttenLevel()
     while ((AttenLevel > 0) || (AttenLevel < -31.75))
     {
       snprintf(Prompt, 62, "Set the Attenuator Level for the %s Band:", TabBandLabel[CurrentBand]);
-      snprintf(Value, 7, "%f", TabBandAttenLevel[CurrentBand]);
+      snprintf(Value, 7, "%.2f", TabBandAttenLevel[CurrentBand]);
       Keyboard(Prompt, Value, 6);
       AttenLevel = atof(KeyboardReturn);
     }
