@@ -292,8 +292,8 @@ int CalcRange(char *, char *);
 bool CheckLocator(char *);
 
 // Lime Control
-￼float LimeCalFreq = 0;  // -2 cal never, -1 = cal every time, 0 = cal next time, freq = no cal if no change
-￼int LimeRFEState = 0;   // 0 = disabled, 1 = enabled
+float LimeCalFreq = 0;  // -2 cal never, -1 = cal every time, 0 = cal next time, freq = no cal if no change
+int LimeRFEState = 0;   // 0 = disabled, 1 = enabled
 int LimeNETMicroDet = 0;  // 0 = Not detected, 1 = detected.  Tested on entry to Lime Config menu
 
 // Touch display variables
@@ -303,11 +303,11 @@ int FinishedButton = 0;       // Used to indicate screentouch during TX or RX
 int touch_response = 0;       // set to 1 on touch and used to reboot display if it locks up
 
 // Threads for Touchscreen monitoring
-￼//pthread_t thfft, thbutton, thview, thwait3;
-￼pthread_t thfft;        //
-￼pthread_t thbutton;     //
-￼pthread_t thview;       //
-￼pthread_t thwait3;      //  Used to count 3 seconds for WebCam reset after transmit
+//pthread_t thfft, thbutton, thview, thwait3;
+pthread_t thfft;        //
+pthread_t thbutton;     //
+pthread_t thview;       //
+pthread_t thwait3;      //  Used to count 3 seconds for WebCam reset after transmit
 
 // Function Prototypes
 
@@ -417,9 +417,9 @@ void GetConfigParam(char *PathConfigFile, char *Param, char *Value)
       }
     }
     if (debug_level == 2)
-￼    {
-￼      printf("Get Config reads %s for %s and returns %s\n", PathConfigFile, Param, Value);
-￼    }
+    {
+      printf("Get Config reads %s for %s and returns %s\n", PathConfigFile, Param, Value);
+    }
   }
   else
   {
@@ -12858,7 +12858,8 @@ void ChangeIP()
   while (IsValid == FALSE)
   {
     strcpy(RequestText, "Enter new IP address for RPI");
-    snprintf(InitText, 17, "%s", RpiIP);
+    //snprintf(InitText, 17, "%s", RpiIP);
+    strcpyn(InitText, RpiIP, 17);
     Keyboard(RequestText, InitText, 17);
 
     strcpy(RpiIPCopy, KeyboardReturn);
@@ -13367,7 +13368,8 @@ void ChangeForwardRXGain()
   while (IsValid == FALSE)
   {
     strcpy(RequestText, "Enter the RX Gain for Forward (0.00 to 1, -1 for unused)");
-    snprintf(InitText, 5, "%s", RxGain);
+    //snprintf(InitText, 5, "%s", RxGain);
+    strcpyn(InitText, RxGain, 5);
     Keyboard(RequestText, InitText, 5);
 
     if(strlen(KeyboardReturn) > 0)
@@ -13393,7 +13395,8 @@ void ChangeForwardTXGain()
   while (IsValid == FALSE)
   {
     strcpy(RequestText, "Enter the TX Gain for Forward (0.00 to 1)");
-    snprintf(InitText, 5, "%s", TxGain);
+    //snprintf(InitText, 5, "%s", TxGain);
+    strcpyn(InitText, TxGain, 5);
     Keyboard(RequestText, InitText, 5);
 
     if(strlen(KeyboardReturn) > 0)
@@ -13419,7 +13422,8 @@ void ChangeForwardSamplerate()
   while (IsValid == FALSE)
   {
     strcpy(RequestText, "Enter the Samplerate for Forward (Default: 1.2e6)");
-    snprintf(InitText, 8, "%s", SampleRate);
+    //snprintf(InitText, 8, "%s", SampleRate);
+    strcpyn(InitText, SampleRate, 8);
     Keyboard(RequestText, InitText, 8);
 
     if(strlen(KeyboardReturn) > 0)
@@ -13445,7 +13449,8 @@ void ChangeForwardRXFreq()
   while (IsValid == FALSE)
   {
     strcpy(RequestText, "Enter the RX Frequency (MHz) for Forward");
-    snprintf(InitText, 8, "%s", RxFreq);
+    //snprintf(InitText, 8, "%s", RxFreq);
+    strcpyn(InitText, RxFreq, 8);
     Keyboard(RequestText, InitText, 8);
 
     if(strlen(KeyboardReturn) > 0)
@@ -13471,7 +13476,8 @@ void ChangeForwardTXFreq()
   while (IsValid == FALSE)
   {
     strcpy(RequestText, "Enter the TX Frequency (MHz) for Forward");
-    snprintf(InitText, 8, "%s", TxFreq);
+    //snprintf(InitText, 8, "%s", TxFreq);
+    strcpyn(InitText, TxFreq, 8);
     Keyboard(RequestText, InitText, 8);
 
     if(strlen(KeyboardReturn) > 0)
@@ -13497,7 +13503,8 @@ void ChangeForwardBW()
   while (IsValid == FALSE)
   {
     strcpy(RequestText, "Enter the Banwidth calibrating for Forward (Default: 8e6)");
-    snprintf(InitText, 8, "%s", Bw);
+    //snprintf(InitText, 8, "%s", Bw);
+    strcpyn(InitText, Bw, 8);
     Keyboard(RequestText, InitText, 8);
 
     if(strlen(KeyboardReturn) > 0)
@@ -13546,7 +13553,8 @@ void WifiPW(int NoButton)  // Wifi password
   while (IsValid == FALSE)
   {
     strcpy(RequestText, "Enter the wifi password (30 characters max)");
-    snprintf(InitText, 30, "%s", wifiPW);
+    //snprintf(InitText, 30, "%s", wifiPW);
+    strcpyn(InitText, wifiPW, 30);
     Keyboard(RequestText, InitText, 30);
 
     if(strlen(KeyboardReturn) > 0)
