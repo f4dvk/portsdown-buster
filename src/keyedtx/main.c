@@ -23,14 +23,14 @@ void Stop_Function(void);
 int main( int argc, char *argv[] )
 {
   /* Set Indication GPIO out of bounds to detect valid user input */
-  IndicationGPIO = -1; 
+  IndicationGPIO = -1;
 
   /* Sort out which GPIO Pins to be used */
   if( argc == 1)
   {
     printf("No arguments, setting key to GPIO 1 on pin 12.\n");
     KeyGPIO = 1;
-  }  
+  }
   else if( argc == 2 )
   {
     /* Key GPIO provided */
@@ -91,18 +91,18 @@ int main( int argc, char *argv[] )
     printf("    http://wiringpi.com/pins/\n");
     return 0;
   }
-    
+
   /* Set up wiringPi module */
   if (wiringPiSetup() < 0)
   {
     return 0;
   }
-  
+
   /* Set up commands in buffers */
   snprintf(sdnCommand,32,"shutdown -h now");
-  snprintf(startCommand,64,"sudo /home/pi/rpidatv/scripts/a.sh >/dev/null 2>/dev/null");
+  snprintf(startCommand,64,"/home/pi/rpidatv/scripts/a.sh & >/dev/null 2>/dev/null");
   snprintf(stopCommand1,64,"sudo /home/pi/rpidatv/scripts/b.sh 2>/dev/null");
-    
+
   if(KeyGPIO > 0)
   {
     /* Set up KeyGPIO as Input */
@@ -141,7 +141,7 @@ int main( int argc, char *argv[] )
   }
 
   /* Now wait here for interrupts - forever! */
-    
+
   /* Spin loop while waiting for interrupt */
 
   while(1)
@@ -178,14 +178,15 @@ void Start_Function(void)
 {
   /* Start the transmission */
   system(startCommand);
-  
+
   system("/home/pi/rpidatv/scripts/lime_ptt.sh &");
-    
+
   if(IndicationGPIO >= 0)
   {
+    printf("turning on GPIO\n");
     digitalWrite(IndicationGPIO, HIGH);
   }
-  strcpy(stream_state, "on");  
+  strcpy(stream_state, "on");
   printf("Starting transmission\n");
 
 }
@@ -193,12 +194,17 @@ void Start_Function(void)
 void Stop_Function(void)
 {
   /* Stop the transmission */
-  system(stopCommand1);
+  system(stopCommand1);                // This runs for a few seconds and TX commands are ignored during this time
 
   if(IndicationGPIO >= 0)
   {
     digitalWrite(IndicationGPIO, LOW);
   }
-  strcpy(stream_state, "off");  
+  strcpy(stream_state, "off");
   printf("Stopping transmission\n");
+
+  if(digitalRead(KeyGPIO) == HIGH)    // So transmission has been demanded during shutdown period
+  {
+    Edge_ISR();  // restart transmission if required
+  }
 }
