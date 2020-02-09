@@ -9040,6 +9040,7 @@ void ReceiveStop()
   system("sudo killall leandvb >/dev/null 2>/dev/null");
   system("sudo killall -9 hello_video.bin >/dev/null 2>/dev/null");
   system("sudo killall -9 hello_video2.bin >/dev/null 2>/dev/null");
+  system("sudo killall omxplayer.bin >/dev/null 2>/dev/null");
   if (strcmp(RXKEY, "LIMEMINI") == 0)
   {
      system("sudo killall limesdr_dump >/dev/null 2>/dev/null");

@@ -180,6 +180,7 @@ sudo killall -9 hello_video.bin >/dev/null 2>/dev/null
 sudo killall -9 hello_video2.bin >/dev/null 2>/dev/null
 sudo killall leandvb >/dev/null 2>/dev/null
 sudo killall ts2es >/dev/null 2>/dev/null
+sudo killall omxplayer.bin >/dev/null 2>/dev/null
 mkfifo fifo.264
 mkfifo videots
 
@@ -222,9 +223,6 @@ if [ "$MODE_OUTPUT" != "RPI_R" ]; then
       | $PATHBIN"leandvb" $B $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>/dev/null &
   fi
 
-  # read videots and output video es
-  $PATHBIN"ts2es" -video videots fifo.264 &
-
 else
   nc -u -4 -l $PORT > fifo.264 & # Côté écoute
   #netcat -u -4 -l $PORT_IQ > fifo.iq & # Côté écoute
@@ -238,9 +236,19 @@ fi
 if [ "$ETAT" = "OFF" ] && [ "$1" != "-remote" ]; then
 # Play the es from fifo.264 in either the H264 or MPEG-2 player.
   if [ "$ENCODING" = "H264" ]; then
-    $PATHBIN"hello_video.bin" fifo.264 &
+    if [ "$SOUND" = "ON" ]; then
+      omxplayer --adev local --live --layer 0 videots &
+    else
+      $PATHBIN"ts2es" -video videots fifo.264 &
+      $PATHBIN"hello_video.bin" fifo.264 &
+    fi
   else  # MPEG-2
-    $PATHBIN"hello_video2.bin" fifo.264 &
+    if [ "$SOUND" = "ON" ]; then
+      omxplayer --adev local --live --layer 0 videots &
+    else
+      $PATHBIN"ts2es" -video videots fifo.264 &
+      $PATHBIN"hello_video2.bin" fifo.264 &
+    fi
   fi
 elif [ "$ETAT" = "ON" ] && [ "$MODE_OUTPUT" != "RPI_R" ]; then
   if [ "$MODE_OUTPUT" = "LIMEMINI" ]; then
