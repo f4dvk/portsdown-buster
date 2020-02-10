@@ -237,14 +237,14 @@ if [ "$ETAT" = "OFF" ] && [ "$1" != "-remote" ]; then
 # Play the es from fifo.264 in either the H264 or MPEG-2 player.
   if [ "$ENCODING" = "H264" ]; then
     if [ "$SOUND" = "ON" ]; then
-      omxplayer --adev local --live --layer 0 videots &
+      omxplayer --adev local --live --layer 0 --timeout 0 videots &
     else
       $PATHBIN"ts2es" -video videots fifo.264 &
       $PATHBIN"hello_video.bin" fifo.264 &
     fi
   else  # MPEG-2
     if [ "$SOUND" = "ON" ]; then
-      omxplayer --adev local --live --layer 0 videots &
+      omxplayer --adev local --live --layer 0 --timeout 0 videots &
     else
       $PATHBIN"ts2es" -video videots fifo.264 &
       $PATHBIN"hello_video2.bin" fifo.264 &
