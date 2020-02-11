@@ -21983,9 +21983,9 @@ void Define_Menu45()
   AddButtonStatus(button, "Contest^Numbers", &Grey);
 
   button = CreateButton(45, 1);                     // Webcam
-  AddButtonStatus(button, "Webcam^inc C920", &Blue);
-  AddButtonStatus(button, "Webcam^inc C920", &Green);
-  AddButtonStatus(button, "Webcam^inc C920", &Grey);
+  AddButtonStatus(button, "C920^Webcam", &Blue);
+  AddButtonStatus(button, "C920^Webcam", &Green);
+  AddButtonStatus(button, "C920^Webcam", &Grey);
 
   button = CreateButton(45, 2);                     // Raw C920
   AddButtonStatus(button, "Raw C920^2 Mbps", &Blue);

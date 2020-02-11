@@ -439,6 +439,15 @@ sudo bash -c 'echo -e "\n# Shorten dhcpcd timeout from 30 to 5 secs" >> /etc/dhc
 sudo bash -c 'echo -e "\ntimeout 5\n" >> /etc/dhcpcd.conf'
 
 echo
+echo "--------------------------"
+echo "----- Preparing WiFi -----"
+echo "--------------------------"
+
+sudo rm /etc/wpa_supplicant/wpa_supplicant.conf
+sudo cp /home/pi/rpidatv/scripts/configs/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf
+sudo chown root /etc/wpa_supplicant/wpa_supplicant.conf
+
+echo
 echo "-----------------------------------------"
 echo "----- Compiling Ancilliary programs -----"
 echo "-----------------------------------------"
@@ -514,6 +523,11 @@ cd /home/pi
 
 # SSH hostname
 cp /home/pi/rpidatv/scripts/configs/hostname.txt /home/pi/hostname.txt
+
+echo
+echo "--------------------------------------"
+echo "----- Configure the Menu Aliases -----"
+echo "--------------------------------------"
 
 # Install the menu aliases
 echo "alias menu='/home/pi/rpidatv/scripts/menu.sh menu'" >> /home/pi/.bash_aliases
