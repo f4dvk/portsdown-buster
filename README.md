@@ -1,4 +1,4 @@
-![portsdown banner](/doc/img/Buster_Header_Image.JPG)
+![portsdown banner](/doc/img/Buster_Header_Image.jpeg)
 # Portsdown Buster Build
 
 **The Portsdown** is a DVB-S and DVB-S2 digital television transmitter for the Raspberry Pi 3B and 3B+.  The core of the transmitter was written by Evariste Courjaud F5OEO and is maintained by him.  This BATC Version, known as the Portsdown Transmitter, has been developed by a team of BATC members for use with a LimeSDR Mini, a DATV Express PCB or an external synthesized oscillator and modulator/filter board to produce a signal suitable for driving a high power amateur television transmitter on the amateur bands.  The intention is that the design should be reproducible by someone who has never used Linux before.  Detailed instructions on loading the software are listed below, and further details of the complete transmitter design and build are on the BATC Wiki at https://wiki.batc.org.uk/The_Portsdown_Transmitter.  There is a Forum for discussion of the project here: https://forum.batc.org.uk/viewforum.php?f=103
