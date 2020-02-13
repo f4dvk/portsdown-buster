@@ -216,6 +216,9 @@ cd /home/pi
 # Update limesdr_toolbox
 echo "Updating limesdr_toolbox"
 
+sudo rm -r /home/pi/limesdr_toolbox >/dev/null 2>/dev/null
+sudo rm -r /home/pi/limesdr_toolbox-master >/dev/null 2>/dev/null
+
 wget https://github.com/f4dvk/limesdr_toolbox/archive/master.zip
 unzip master.zip
 mv limesdr_toolbox-master limesdr_toolbox
