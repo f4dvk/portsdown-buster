@@ -438,11 +438,14 @@ case "$MODE_OUTPUT" in
       LIME_GAINF=`echo - | awk '{print ( '$LIME_GAIN' - 6 ) / 100}'`
     fi
 
-    # Deal with LIMEDVB Mode
+    # Override for LIMEDVB Mode
     if [ "$MODE_OUTPUT" == "LIMEDVB" ]; then
       UPSAMPLE=4
       if [ "$SYMBOLRATE_K" -gt 1010 ] ; then
         UPSAMPLE=2
+      fi
+      if [ "$SYMBOLRATE_K" -gt 4010 ] ; then
+        UPSAMPLE=1
       fi
       CUSTOM_FPGA="-F"
     else
@@ -511,8 +514,8 @@ case "$MODE_OUTPUT" in
 
 
     # Calculate the exact TS Bitrate for Lime
-    NEW_BITRATE_TS="$($PATHRPI"/dvb2iq" -s $SYMBOLRATE_K -f $FECNUM"/"$FECDEN \
-                      -d -r $UPSAMPLE -m $MODTYPE -c $CONSTLN $PILOTS $FRAMES )"
+    #NEW_BITRATE_TS="$($PATHRPI"/dvb2iq" -s $SYMBOLRATE_K -f $FECNUM"/"$FECDEN \
+    #                  -d -r $UPSAMPLE -m $MODTYPE -c $CONSTLN $PILOTS $FRAMES )"
 
   ;;
 esac
@@ -539,7 +542,6 @@ echo "ModeINPUT="$MODE_INPUT
 echo "LIME_GAINF="$LIME_GAINF
 
 OUTPUT_FILE="-o videots"
-
 
 case "$MODE_INPUT" in
 
@@ -672,6 +674,10 @@ fi
     # Now generate the stream
     case "$MODE_OUTPUT" in
       "STREAMER")
+        if [ "$VIDEO_WIDTH" -lt 720 ]; then
+          VIDEO_WIDTH=720
+          VIDEO_HEIGHT=576
+        fi
         # No code for beeps here
         sudo modprobe bcm2835_v4l2
         if [ "$AUDIO_CARD" == 0 ]; then
@@ -1294,6 +1300,10 @@ fi
 
     case "$MODE_OUTPUT" in
       "STREAMER")
+        if [ "$VIDEO_WIDTH" -lt 720 ]; then
+          VIDEO_WIDTH=720
+          VIDEO_HEIGHT=576
+        fi
         if [ "$AUDIO_CARD" == "0" ]; then
           # No audio
           $PATHRPI"/ffmpeg" -loglevel $MODE_DEBUG -thread_queue_size 2048\
@@ -1506,7 +1516,7 @@ fi
             -f alsa -ac $AUDIO_CHANNELS -ar $AUDIO_SAMPLE \
             -i hw:$AUDIO_CARD_NUMBER,0 \
             \
-            -framerate 25 -c:v h264_omx -b:v 512k \
+            -framerate 25 -video_size 720x576 -c:v h264_omx -b:v 512k \
             -ar 22050 -ac $AUDIO_CHANNELS -ab 64k            \
             -f flv $STREAM_URL/$STREAM_KEY &
         fi
