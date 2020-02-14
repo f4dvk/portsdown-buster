@@ -65,6 +65,7 @@ ANALOGCAMNAME=$(get_config_var analogcamname $PCONFIGFILE)
 ANALOGCAMINPUT=$(get_config_var analogcaminput $PCONFIGFILE)
 ANALOGCAMSTANDARD=$(get_config_var analogcamstandard $PCONFIGFILE)
 VNCADDR=$(get_config_var vncaddr $PCONFIGFILE)
+PORT=$(get_config_var port $PCONFIGFILE) # Port IPTSIN
 
 AUDIO_PREF=$(get_config_var audio $PCONFIGFILE)
 CAPTIONON=$(get_config_var caption $PCONFIGFILE)
@@ -1124,7 +1125,6 @@ fi
 
     # Now generate the stream
 
-    PORT=10000
     netcat -u -4 -l $PORT > videots &
   ;;
 
