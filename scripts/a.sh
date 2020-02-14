@@ -335,6 +335,8 @@ BITRATE_TS="$($PATHRPI"/dvb2iq" -s $SYMBOLRATE_K -f $FECNUM"/"$FECDEN \
               -d -r $UPSAMPLE -m $MODTYPE -c $CONSTLN $PILOTS $FRAMES )"
 echo  Bitrate TS $NEW_BITRATE_TS
 
+UPSAMPLE=$(get_config_var upsample $PCONFIGFILE)
+
 # Calculate the Video Bit Rate for MPEG-2 Sound/no sound
 if [ "$MODE_INPUT" == "CAMMPEG-2" ] || [ "$MODE_INPUT" == "ANALOGMPEG-2" ] \
   || [ "$MODE_INPUT" == "CAMHDMPEG-2" ] || [ "$MODE_INPUT" == "CARDMPEG-2" ] \
