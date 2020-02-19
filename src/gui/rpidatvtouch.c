@@ -358,6 +358,7 @@ void Start_Highlights_Menu51();
 void Start_Highlights_Menu52();
 void Start_Highlights_Menu53();
 void Start_Highlights_Menu54();
+void Start_Highlights_Menu55();
 
 void MsgBox(const char *);
 void MsgBox2(const char *, const char *);
@@ -564,6 +565,48 @@ void GetPiAudioCard(char card[15])
   while (fgets(card, 7, fp) != NULL)
   {
     sprintf(card, "%d", atoi(card));
+  }
+
+  /* close */
+  pclose(fp);
+}
+
+void GetAudioLevel(char AudioLevel[256])
+{
+  FILE *fp;
+
+  /* Open the command for reading. */
+  fp = popen("amixer sget -c ALSA PCM | grep 'Mono:' | awk -F'[][]' '{ print $2 }'", "r");
+  if (fp == NULL) {
+    printf("Failed to run first command\n" );
+    exit(1);
+  }
+
+  /* Read the output a line at a time - output it. */
+  while (fgets(AudioLevel, 6, fp) != NULL)
+  {
+    //printf("%s", AudioLevel);
+  }
+
+  /* close */
+  pclose(fp);
+}
+
+void GetAudioLevel2(char AudioLevel[256])
+{
+  FILE *fp;
+
+  /* Open the command for reading. */
+  fp = popen("amixer sget -c 1 Speaker | grep 'Left:' | awk -F'[][]' '{ print $2 }'", "r");
+  if (fp == NULL) {
+    printf("Failed to run command\n" );
+    exit(1);
+  }
+
+  /* Read the output a line at a time - output it. */
+  while (fgets(AudioLevel, 6, fp) != NULL)
+  {
+    //printf("%s", AudioLevel);
   }
 
   /* close */
@@ -14745,6 +14788,13 @@ void waituntil(int w,int h)
           Start_Highlights_Menu1();
           UpdateWindow();
           break;
+        case 23:                                          // Config
+          printf("MENU 55 \n");
+          CurrentMenu=55;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu55();
+          UpdateWindow();
+          break;
         default:
           printf("Menu 5 Error\n");
         }
@@ -17399,6 +17449,90 @@ void waituntil(int w,int h)
         // stay in Menu 54 if parameter changed
         continue;   // Completed Menu 54 action, go and wait for touch
       }
+      if (CurrentMenu == 55)  // Menu 55 LeanDVB Config
+      {
+        printf("Button Event %d, Entering Menu 55 Case Statement\n",i);
+        char mic[15];
+        switch (i)
+        {
+        case 4:                               // Cancel
+          SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 1);
+          printf("Cancelling LeanDVB Config Menu\n");
+          UpdateWindow();
+          usleep(500000);
+          SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 0); // Reset cancel (even if not selected)
+          printf("Returning to MENU 5 from Menu 55\n");
+          CurrentMenu=5;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu5();
+          UpdateWindow();
+          break;
+        case 0:
+           SelectInGroupOnMenu(CurrentMenu, 0, 0, 0, 1);
+           UpdateWindow();
+           usleep(50000);
+           SelectInGroupOnMenu(CurrentMenu, 0, 0, 0, 0);
+           if (strcmp(LMRXaudio, "rpi") == 0)
+           {
+             system("amixer -q sset -c ALSA PCM 3db-");
+           }
+           else
+           {
+             system("amixer -q sset -c 1 Speaker 1db-");
+           }
+           Start_Highlights_Menu55();
+           UpdateWindow();
+           break;
+        case 1:
+           SelectInGroupOnMenu(CurrentMenu, 1, 1, 1, 1);
+           UpdateWindow();
+           usleep(50000);
+           SelectInGroupOnMenu(CurrentMenu, 1, 1, 1, 0);
+           if (strcmp(LMRXaudio, "rpi") == 0)
+           {
+             system("amixer -q sset -c ALSA PCM 3db+");
+           }
+           else
+           {
+             system("amixer -q sset -c 1 Speaker 1db+");
+           }
+           Start_Highlights_Menu55();
+           UpdateWindow();
+           break;
+        case 2:
+           break;
+        case 3:
+           break;
+        case 5:
+           GetMicAudioCard(mic);
+           if ((strcmp(LMRXaudio, "rpi") == 0) && (strlen(mic) == 1))
+           {
+             strcpy(LMRXaudio, "usb");
+           }
+           else
+           {
+             strcpy(LMRXaudio, "rpi");
+           }
+           SetConfigParam(PATH_LMCONFIG, "audio", LMRXaudio);
+           Start_Highlights_Menu55();
+           UpdateWindow();
+           break;
+        case 6:
+           UpdateWindow();
+           break;
+        case 7:
+           UpdateWindow();
+           break;
+        case 8:
+           break;
+        case 9:
+           break;
+        default:
+          printf("Menu 55 Error\n");
+        }
+        // stay in Menu 55 if parameter changed
+        continue;   // Completed Menu 55 action, go and wait for touch
+      }
     }
   }
 }
@@ -18321,6 +18455,10 @@ void Define_Menu5()
   button = CreateButton(5, 22);
   AddButtonStatus(button,"EXIT",&Blue);
   AddButtonStatus(button,"EXIT",&Green);
+
+  button = CreateButton(5, 23);
+  AddButtonStatus(button,"Config",&Blue);
+  AddButtonStatus(button,"Config",&Green);
 }
 
 void Start_Highlights_Menu5()
@@ -21970,6 +22108,63 @@ void Start_Highlights_Menu54()
   }
 }
 
+void Define_Menu55()
+{
+  int button;
+
+  strcpy(MenuTitle[55], "LeanDVB RX Config (55)");
+
+  button = CreateButton(55, 0);
+  AddButtonStatus(button, "Level^-", &DBlue);
+  AddButtonStatus(button, "Level^-", &LBlue);
+
+  button = CreateButton(55, 1);
+  AddButtonStatus(button, "Level^+", &DBlue);
+  AddButtonStatus(button, "Level^+", &LBlue);
+
+  button = CreateButton(55, 4);
+  AddButtonStatus(button, "Exit", &DBlue);
+  AddButtonStatus(button, "Exit", &LBlue);
+
+  button = CreateButton(55, 5);
+  AddButtonStatus(button, "Audio out^RPi Jack", &Blue);
+  AddButtonStatus(button, "Audio out^RPi Jack", &Blue);
+
+  button = CreateButton(55, 6);
+  AddButtonStatus(button, "Level^0%", &Blue);
+  AddButtonStatus(button, "Level^0%", &Blue);
+
+  button = CreateButton(55, 7);
+  //AddButtonStatus(button, "UpSample^0", &Blue);
+  AddButtonStatus(button, "UpSample^0", &Grey);
+
+}
+
+void Start_Highlights_Menu55()
+{
+  char result[256];
+  char level[256];
+
+  if (strcmp(LMRXaudio, "rpi") == 0)
+  {
+    AmendButtonStatus(ButtonNumber(55, 5), 0, "Audio out^RPi Jack", &Blue);
+    strcpy(result, "0%");
+    GetAudioLevel(result);
+    strcpy(level, "Level^");
+    strcat(level, result);
+    AmendButtonStatus(ButtonNumber(55, 6), 0, level, &Blue);
+  }
+  else
+  {
+    AmendButtonStatus(ButtonNumber(55, 5), 0, "Audio out^USB dongle", &Blue);
+    strcpy(result, "0%");
+    GetAudioLevel2(result);
+    strcpy(level, "Level^");
+    strcat(level, result);
+    AmendButtonStatus(ButtonNumber(55, 6), 0, level, &Blue);
+  }
+}
+
 void Define_Menu45()
 {
   int button;
@@ -22566,6 +22761,7 @@ int main(int argc, char **argv)
   Define_Menu52();
   Define_Menu53();
   Define_Menu54();
+  Define_Menu55();
 
   // Start the button Menu
   Start(wscreen,hscreen);

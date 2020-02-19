@@ -7,6 +7,7 @@ PATHBIN="/home/pi/rpidatv/bin/"
 PATHSCRIPT="/home/pi/rpidatv/scripts"
 CONFIGFILE=$PATHSCRIPT"/rpidatvconfig.txt"
 PCONFIGFILE="/home/pi/rpidatv/scripts/portsdown_config.txt"
+RCONFIGFILE="/home/pi/rpidatv/scripts/longmynd_config.txt"
 RXPRESETSFILE="/home/pi/rpidatv/scripts/rx_presets.txt"
 RTLPRESETSFILE="/home/pi/rpidatv/scripts/rtl-fm_presets.txt"
 ACKFILE="/home/pi/rpidatv/scripts/ack_remote.txt"
@@ -108,6 +109,12 @@ GRAPHICS=$(get_config_var rx0graphics $RXPRESETSFILE)
 PARAMS=$(get_config_var rx0parameters $RXPRESETSFILE)
 
 SOUND=$(get_config_var rx0sound $RXPRESETSFILE)
+AUDIO_OUT=$(get_config_var audio $RCONFIGFILE)
+if [ "$AUDIO_OUT" == "rpi" ]; then
+  AUDIO_MODE="local"
+else
+  AUDIO_MODE="alsa:plughw:1,0"
+fi
 
 FLOCK=$(get_config_var rx0fastlock $RXPRESETSFILE)
 if [ "$FLOCK" = "ON" ]; then
@@ -237,14 +244,14 @@ if [ "$ETAT" = "OFF" ] && [ "$1" != "-remote" ]; then
 # Play the es from fifo.264 in either the H264 or MPEG-2 player.
   if [ "$ENCODING" = "H264" ]; then
     if [ "$SOUND" = "ON" ]; then
-      omxplayer --adev local --live --layer 0 --timeout 0 videots &
+      omxplayer --adev $AUDIO_MODE --live --layer 0 --timeout 0 videots &
     else
       $PATHBIN"ts2es" -video videots fifo.264 &
       $PATHBIN"hello_video.bin" fifo.264 &
     fi
   else  # MPEG-2
     if [ "$SOUND" = "ON" ]; then
-      omxplayer --adev local --live --layer 0 --timeout 0 videots &
+      omxplayer --adev $AUDIO_MODE --live --layer 0 --timeout 0 videots &
     else
       $PATHBIN"ts2es" -video videots fifo.264 &
       $PATHBIN"hello_video2.bin" fifo.264 &
