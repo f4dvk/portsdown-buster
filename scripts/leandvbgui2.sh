@@ -39,6 +39,8 @@ SYMBOLRATEK=$(get_config_var rx0sr $RXPRESETSFILE)
 let SYMBOLRATE=SYMBOLRATEK*1000
 
 UPSAMPLE=$(get_config_var upsample $PCONFIGFILE)
+UPSAMPLE_RX=$(get_config_var upsample $RXPRESETSFILE)
+
 MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
 PIN_I=$(get_config_var gpio_i $PCONFIGFILE)
 PIN_Q=$(get_config_var gpio_q $PCONFIGFILE)
@@ -153,7 +155,7 @@ if [ "$SDR" = "RTLSDR" ]; then
   B=""
 fi
 if [ "$SDR" = "LIMEMINI" ]; then
-  KEY="/home/pi/rpidatv/bin/limesdr_dump -f $FreqHz -b 5e6 -s $SR_RTLSDR -g $GAIN_LIME -l 256*256 |buffer"
+  KEY="/home/pi/rpidatv/bin/limesdr_dump -f $FreqHz -b 5e6 -s $SR_RTLSDR -r $UPSAMPLE_RX -g $GAIN_LIME -l 256*256 |buffer"
   B="--s12"
 fi
 

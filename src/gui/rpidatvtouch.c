@@ -7340,7 +7340,7 @@ void SetSampleRate()
   char Value[15];
   int NewSampleRate = -1;
   snprintf(Value, 6, "%d", RXsamplerate[0]);
-  while ((NewSampleRate < 0) || (NewSampleRate > 2400))
+  while ((NewSampleRate < 0) || (NewSampleRate > 4000))
   {
     snprintf(Prompt, 63, "Set the LeanDVB Sample Rate in KSamples/sec (0 = auto)");
     Keyboard(Prompt, Value, 6);
@@ -14792,6 +14792,7 @@ void waituntil(int w,int h)
           printf("MENU 55 \n");
           CurrentMenu=55;
           BackgroundRGB(0,0,0,255);
+          ReadLMRXPresets();
           Start_Highlights_Menu55();
           UpdateWindow();
           break;
@@ -17453,6 +17454,8 @@ void waituntil(int w,int h)
       {
         printf("Button Event %d, Entering Menu 55 Case Statement\n",i);
         char mic[15];
+        char Up[255];
+        GetConfigParam(PATH_RXPRESETS,"upsample",Up);
         switch (i)
         {
         case 4:                               // Cancel
@@ -17521,6 +17524,22 @@ void waituntil(int w,int h)
            UpdateWindow();
            break;
         case 7:
+           if (strcmp(RXKEY, "LIMEMINI") == 0)
+           {
+             if (strcmp(Up, "1") == 0)
+             {
+               SetConfigParam(PATH_RXPRESETS, "upsample", "2");
+             }
+             else if (strcmp(Up, "2") == 0)
+             {
+               SetConfigParam(PATH_RXPRESETS, "upsample", "4");
+             }
+             else if (strcmp(Up, "4") == 0)
+             {
+               SetConfigParam(PATH_RXPRESETS, "upsample", "1");
+             }
+           }
+           Start_Highlights_Menu55();
            UpdateWindow();
            break;
         case 8:
@@ -17828,7 +17847,7 @@ void Start_Highlights_Menu1()
 
   // UpSample Button 9
 
-	char UpSample[255];
+  char UpSample[255];
   strcpy(Value, "None");
   strcpy(Param,"upsample");
   GetConfigParam(PATH_PCONFIG,Param,Value);
@@ -22135,7 +22154,7 @@ void Define_Menu55()
   AddButtonStatus(button, "Level^0%", &Blue);
 
   button = CreateButton(55, 7);
-  //AddButtonStatus(button, "UpSample^0", &Blue);
+  AddButtonStatus(button, "UpSample^0", &Blue);
   AddButtonStatus(button, "UpSample^0", &Grey);
 
 }
@@ -22163,6 +22182,28 @@ void Start_Highlights_Menu55()
     strcat(level, result);
     AmendButtonStatus(ButtonNumber(55, 6), 0, level, &Blue);
   }
+
+    char Param[255];
+    char Value[255];
+    char UpSample[255];
+    strcpy(Value, "None");
+    strcpy(Param,"upsample");
+    GetConfigParam(PATH_RXPRESETS,Param,Value);
+    printf("Value=%s %s\n", Value, " UpSample RX Value");
+    strcpy (UpSample, "UpSample^");
+    strcat (UpSample, Value);
+
+    AmendButtonStatus(ButtonNumber(55, 7), 0, UpSample, &Blue);
+    AmendButtonStatus(ButtonNumber(55, 7), 1, UpSample, &Grey);
+
+    if (strcmp(RXKEY, "LIMEMINI") == 0)
+    {
+      SetButtonStatus(ButtonNumber(CurrentMenu, 7), 0);
+    }
+    else
+    {
+      SetButtonStatus(ButtonNumber(CurrentMenu, 7), 1);
+    }
 }
 
 void Define_Menu45()
