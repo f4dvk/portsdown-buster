@@ -334,7 +334,6 @@ let SYMBOLRATE_K=SYMBOLRATE/1000
 
 BITRATE_TS="$($PATHRPI"/dvb2iq" -s $SYMBOLRATE_K -f $FECNUM"/"$FECDEN \
               -d -r $UPSAMPLE -m $MODTYPE -c $CONSTLN $PILOTS $FRAMES )"
-echo  Bitrate TS $NEW_BITRATE_TS
 
 UPSAMPLE=$(get_config_var upsample $PCONFIGFILE)
 
@@ -914,32 +913,32 @@ fi
     else
       # Webcam in use
       # If a C920 put it in the right mode
-      # Anything over 800x448 does not work because 30 fps is not available
+      # Anything over 800x448 does not work
       if [ $C920Present == 1 ]; then
          if [ "$BITRATE_VIDEO" -gt 190000 ]; then  # 333KS FEC 1/2 or better
-          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=800,height=448,pixelformat=0 #--set-ctrl=exposure_auto=1
+          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=800,height=448,pixelformat=0 --set-parm=15 #--set-ctrl=exposure_auto=1
           VIDEO_WIDTH=800
           VIDEO_HEIGHT=448
-          VIDEO_FPS=25
+          VIDEO_FPS=15
         else
-          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=448,height=240,pixelformat=0 #--set-ctrl=exposure_auto=1
+          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=448,height=240,pixelformat=0 --set-parm=15 #--set-ctrl=exposure_auto=1
           VIDEO_WIDTH=448
           VIDEO_HEIGHT=240
-          VIDEO_FPS=25
+          VIDEO_FPS=15
         fi
      fi
      if [ $C170Present == 1 ]; then
         AUDIO_CARD=0   # Can't get sound to work at present
         if [ "$BITRATE_VIDEO" -gt 190000 ]; then  # 333KS FEC 1/2 or better
-          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=640,height=480,pixelformat=0
+          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=640,height=480,pixelformat=0 --set-parm=10
           VIDEO_WIDTH=640
           VIDEO_HEIGHT=480
-          VIDEO_FPS=10 # This webcam only seems to work at 15 fps
+          VIDEO_FPS=10 # This webcam only seems to work at 10 fps
         else
-          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=352,height=288,pixelformat=0
+          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=352,height=288,pixelformat=0 --set-parm=10
           VIDEO_WIDTH=352
           VIDEO_HEIGHT=288
-          VIDEO_FPS=10 # This webcam only seems to work at 15 fps
+          VIDEO_FPS=10 # This webcam only seems to work at 10 fps
         fi
       fi
       ANALOGCAMNAME=$VID_WEBCAM
@@ -1155,14 +1154,15 @@ fi
         echo "set car on" >> /tmp/expctrl
         echo "set ptt tx" >> /tmp/expctrl
       ;;
-      "LIMEMINI" | "LIMEUSB" | "LIMEDVB")
+      "LIMEMINI" | "LIMEUSB")
+      $PATHRPI"/limesdr_dvb" -s 1000000 -f carrier -r 1 -m DVBS2 -c QPSK \
+        -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q $CAL $CUSTOM_FPGA -D $DIGITAL_GAIN -e $BAND_GPIO &
+      ;;
+      "LIMEDVB")
+      let DIGITAL_GAIN=6  # To equalise levels with normal DVB-S2 +/- 2 dB
         $PATHRPI"/limesdr_dvb" -s 1000000 -f carrier -r 1 -m DVBS2 -c QPSK \
           -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q $CAL $CUSTOM_FPGA -D $DIGITAL_GAIN -e $BAND_GPIO &
 
-        #"LIMEMINI" | "LIMEUSB")
-        #  $PATHRPI"/dvb2iq" -f carrier -r 1 -s 50 \
-        #     | sudo $PATHRPI"/limesdr_send" -f $FREQ_OUTPUTHZ -b 2.5e6 -s 50000 \
-        #     -g $LIME_GAINF -p 0.05 -r 1 -l $LIMESENDBUF -e $BAND_GPIO &
       ;;
       *)
         # sudo $PATHRPI"/rpidatv" -i videots -s $SYMBOLRATE_K -c "carrier" -f $FREQUENCY_OUT -p $GAIN -m $MODE -x $PIN_I -y $PIN_Q &
