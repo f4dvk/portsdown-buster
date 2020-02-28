@@ -507,6 +507,7 @@ case "$MODE_OUTPUT" in
         CAL=0
       else                                                             # Always calibrate
         CAL=1
+        set_config_var limecalfreq "$FREQ_OUTPUT" $PATH_LIME_CAL
       fi
     else                                                               # calibrate on freq change > 5%
       CAL=0                                                            # default to no Cal
@@ -915,6 +916,7 @@ fi
       # If a C920 put it in the right mode
       # Anything over 800x448 does not work
       if [ $C920Present == 1 ]; then
+         AUDIO_SAMPLE=32000
          if [ "$BITRATE_VIDEO" -gt 190000 ]; then  # 333KS FEC 1/2 or better
           v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=800,height=448,pixelformat=0 --set-parm=15 #--set-ctrl=exposure_auto=1
           VIDEO_WIDTH=800
