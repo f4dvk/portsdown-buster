@@ -507,7 +507,6 @@ case "$MODE_OUTPUT" in
         CAL=0
       else                                                             # Always calibrate
         CAL=1
-        set_config_var limecalfreq "$FREQ_OUTPUT" $PATH_LIME_CAL
       fi
     else                                                               # calibrate on freq change > 5%
       CAL=0                                                            # default to no Cal

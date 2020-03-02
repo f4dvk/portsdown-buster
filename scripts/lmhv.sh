@@ -48,6 +48,9 @@ if [ "$INPUT_SEL" == "b" ]; then
   INPUT_CMD="-w"
 fi
 
+GAIN=$(get_config_var gain $RCONFIGFILE)
+GAIN_T=$GAIN/2
+
 sudo killall hello_video.bin
 sudo killall ts2es
 sudo killall longmynd
@@ -59,7 +62,7 @@ mkfifo fifo.264
 sudo rm longmynd_main_ts
 mkfifo longmynd_main_ts
 
-sudo /home/pi/longmynd/longmynd -s longmynd_status_fifo $INPUT_CMD $FREQ_KHZ $SYMBOLRATEK &
+sudo /home/pi/longmynd/longmynd -s longmynd_status_fifo -g $GAIN_T $INPUT_CMD $FREQ_KHZ $SYMBOLRATEK &
 
 sleep 1  # Required for good start every time
 

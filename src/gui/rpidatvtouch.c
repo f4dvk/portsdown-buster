@@ -268,6 +268,7 @@ char LMRXudpip[20];         // UDP IP address
 char LMRXudpport[10];       // UDP IP port
 char LMRXmode[10];          // sat or terr
 char LMRXaudio[15];         // rpi or usb
+int LMRXgain[10];           // Gain
 
 // LongMynd RX Received Parameters for display
 
@@ -556,6 +557,27 @@ void GetPiAudioCard(char card[15])
 
   /* Open the command for reading. */
   fp = popen("aplay -l | grep bcm2835 | head -1 | cut -c6-6", "r");
+  if (fp == NULL) {
+    printf("Failed to run command\n" );
+    exit(1);
+  }
+
+  /* Read the output a line at a time - output it. */
+  while (fgets(card, 7, fp) != NULL)
+  {
+    sprintf(card, "%d", atoi(card));
+  }
+
+  /* close */
+  pclose(fp);
+}
+
+void GetPiUsbCard(char card[15])
+{
+  FILE *fp;
+
+  /* Open the command for reading. */
+  fp = popen("aplay -l | grep USB | head -1 | cut -c6-6", "r");
   if (fp == NULL) {
     printf("Failed to run command\n" );
     exit(1);
@@ -3311,6 +3333,10 @@ void ReadLMRXPresets()
   // QO-100 LNB Offset:
   GetConfigParam(PATH_LMCONFIG, "qoffset", Value);
   LMRXqoffset = atoi(Value);
+
+  // Gain:
+  GetConfigParam(PATH_LMCONFIG, "gain", Value);
+  LMRXgain[0] = atoi(Value);
 
   if (strcmp(LMRXmode, "sat") == 0)
   {
@@ -15316,6 +15342,7 @@ void waituntil(int w,int h)
       {
         printf("Button Event %d, Entering Menu 13 Case Statement\n",i);
         CallingMenu = 13;
+        char Value[15];
         switch (i)
         {
         case 0:                                         // Output UDP IP
@@ -15385,7 +15412,7 @@ void waituntil(int w,int h)
           {
             strcpy(LMRXinput, "a");
           }
-					if (strcmp(LMRXmode, "sat") == 0)
+          if (strcmp(LMRXmode, "sat") == 0)
           {
             SetConfigParam(PATH_LMCONFIG, "input", LMRXinput);
           }
@@ -15393,6 +15420,20 @@ void waituntil(int w,int h)
           {
             SetConfigParam(PATH_LMCONFIG, "input1", LMRXinput);
           }
+          Start_Highlights_Menu13();
+          UpdateWindow();
+          break;
+        case 8:                                        // Gain
+          if (LMRXgain[0] < 16)
+          {
+            LMRXgain[0] = LMRXgain[0] + 2;
+          }
+          else
+          {
+            LMRXgain[0] = 0;
+          }
+          snprintf(Value, 15, "%d", LMRXgain[0]);
+          SetConfigParam(PATH_LMCONFIG, "gain", Value);
           Start_Highlights_Menu13();
           UpdateWindow();
           break;
@@ -17602,7 +17643,7 @@ void waituntil(int w,int h)
         case 3:
            break;
         case 5:
-           GetMicAudioCard(mic);
+           GetPiUsbCard(mic);
            if ((strcmp(LMRXaudio, "rpi") == 0) && (strlen(mic) == 1))
            {
              strcpy(LMRXaudio, "usb");
@@ -19511,6 +19552,10 @@ void Define_Menu13()
   AddButtonStatus(button, "Input^A", &Blue);
   AddButtonStatus(button, "Input^A", &Blue);
 
+  button = CreateButton(13, 8);
+  AddButtonStatus(button, "Gain^dB", &Blue);
+  AddButtonStatus(button, "Gain^dB", &Blue);
+
   button = CreateButton(13, 9);
   AddButtonStatus(button, "Audio out^RPi Jack", &Blue);
   AddButtonStatus(button, "Audio out^RPi Jack", &Blue);
@@ -19518,17 +19563,26 @@ void Define_Menu13()
 
 void Start_Highlights_Menu13()
 {
-	char LMBtext[63];
+  char LMBtext[63];
+  char Value[15] = "";
+
+  // Gain:
+  GetConfigParam(PATH_LMCONFIG, "gain", Value);
+  strcpy(LMBtext, "Gain^");
+  strcat(LMBtext, Value);
+  strcat(LMBtext, " dB");
+  AmendButtonStatus(ButtonNumber(13, 8), 0, LMBtext, &Blue);
+  LMRXgain[0] = atoi(Value);
 
   if (strcmp(LMRXmode, "sat") == 0)
   {
-		strcpy(LMBtext, "QO-100^Input ");
+    strcpy(LMBtext, "QO-100^Input ");
     strcat(LMBtext, LMRXinput);
     SetButtonStatus(ButtonNumber(CurrentMenu, 6), 0);
   }
   else
   {
-		strcpy(LMBtext, "Terrestrial^Input ");
+    strcpy(LMBtext, "Terrestrial^Input ");
     strcat(LMBtext, LMRXinput);
     SetButtonStatus(ButtonNumber(CurrentMenu, 6), 1);
   }

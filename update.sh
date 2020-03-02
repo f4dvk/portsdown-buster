@@ -133,6 +133,13 @@ cp -f -r "$PATHSCRIPT"/jetson_config.txt "$PATHUBACKUP"/jetson_config.txt
 # Make a safe copy of the LongMynd config
 cp -f -r "$PATHSCRIPT"/longmynd_config.txt "$PATHUBACKUP"/longmynd_config.txt
 
+if ! grep -q gain /home/pi/rpidatv/scripts/longmynd_config.txt; then
+  printf "Adding gain to user's longmynd_config.txt\n"
+  sed -i -e '/^$/d' /home/pi/rpidatv/scripts/longmynd_config.txt
+  echo "gain=0" >> /home/pi/rpidatv/scripts/longmynd_config.txt
+  echo "" >> /home/pi/rpidatv/scripts/longmynd_config.txt
+fi
+
 cp -f -r "$PATHSCRIPT"/wifi_config.txt "$PATHUBACKUP"/wifi_config.txt
 cp -f -r "$PATHSCRIPT"/hotspot_config.txt "$PATHUBACKUP"/hotspot_config.txt
 

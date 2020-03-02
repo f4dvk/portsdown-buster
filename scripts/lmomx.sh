@@ -55,6 +55,9 @@ if [ "$INPUT_SEL" == "b" ]; then
   INPUT_CMD="-w"
 fi
 
+GAIN=$(get_config_var gain $RCONFIGFILE)
+GAIN_T=$GAIN/2
+
 sudo killall longmynd >/dev/null 2>/dev/null
 sudo killall omxplayer.bin >/dev/null 2>/dev/null
 
@@ -64,7 +67,7 @@ mkfifo fifo.264
 sudo rm longmynd_main_ts
 mkfifo longmynd_main_ts
 
-sudo /home/pi/longmynd/longmynd -s longmynd_status_fifo $INPUT_CMD $FREQ_KHZ $SYMBOLRATEK &
+sudo /home/pi/longmynd/longmynd -s longmynd_status_fifo -g $GAIN_T $INPUT_CMD $FREQ_KHZ $SYMBOLRATEK &
 
 omxplayer --adev $AUDIO_MODE --live --layer 0 --timeout 0 longmynd_main_ts & ## works for touchscreens
 
