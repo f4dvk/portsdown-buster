@@ -50,6 +50,8 @@ fi
 GAIN=$(get_config_var gain $RCONFIGFILE)
 GAIN_T=$GAIN/2
 
+SCAN=$(get_config_var scan $RCONFIGFILE)
+
 sudo killall -9 hello_video2.bin
 sudo killall ts2es
 sudo killall longmynd
@@ -58,7 +60,7 @@ sudo killall nc
 sudo rm fifo.264
 mkfifo fifo.264
 
-sudo /home/pi/longmynd/longmynd -s longmynd_status_fifo -g $GAIN_T $INPUT_CMD $FREQ_KHZ $SYMBOLRATEK &
+sudo /home/pi/longmynd/longmynd -s longmynd_status_fifo -g $GAIN_T -S $SCAN $INPUT_CMD $FREQ_KHZ $SYMBOLRATEK &
 
 sleep 1  # Required for good start every time
 

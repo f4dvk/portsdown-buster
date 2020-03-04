@@ -367,6 +367,13 @@ cp -f -r "$PATHUBACKUP"/jetson_config.txt "$PATHSCRIPT"/jetson_config.txt
 # Restore the user's original LongMynd config
 cp -f -r "$PATHUBACKUP"/longmynd_config.txt "$PATHSCRIPT"/longmynd_config.txt
 
+if ! grep -q scan /home/pi/rpidatv/scripts/longmynd_config.txt; then
+  printf "Adding scan to user's longmynd_config.txt\n"
+  sed -i -e '/^$/d' /home/pi/rpidatv/scripts/longmynd_config.txt
+  echo "scan=50" >> /home/pi/rpidatv/scripts/longmynd_config.txt
+  echo "" >> /home/pi/rpidatv/scripts/longmynd_config.txt
+fi
+
 cp -f -r "$PATHUBACKUP"/wifi_config.txt "$PATHSCRIPT"/wifi_config.txt
 cp -f -r "$PATHUBACKUP"/hotspot_config.txt "$PATHSCRIPT"/hotspot_config.txt
 

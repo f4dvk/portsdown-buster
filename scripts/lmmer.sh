@@ -48,6 +48,8 @@ fi
 GAIN=$(get_config_var gain $RCONFIGFILE)
 GAIN_T=$GAIN/2
 
+SCAN=$(get_config_var scan $RCONFIGFILE)
+
 sudo killall hello_video.bin
 sudo killall ts2es
 sudo killall longmynd
@@ -57,9 +59,9 @@ sudo rm fifo.264
 sudo rm longmynd_main_ts
 
 if [ "$DISPLAY" != "Element14_7" ]; then # Select bleeps (which don't work with the Element 14 display)
-  sudo /home/pi/longmynd/longmynd -b -i $UDPIP $UDPPORT -s longmynd_status_fifo -g $GAIN_T $INPUT_CMD $FREQ_KHZ $SYMBOLRATEK &
+  sudo /home/pi/longmynd/longmynd -b -i $UDPIP $UDPPORT -s longmynd_status_fifo -g $GAIN_T -S $SCAN $INPUT_CMD $FREQ_KHZ $SYMBOLRATEK &
 else
-  sudo /home/pi/longmynd/longmynd -i $UDPIP $UDPPORT -s longmynd_status_fifo -g $GAIN_T $INPUT_CMD $FREQ_KHZ $SYMBOLRATEK &
+  sudo /home/pi/longmynd/longmynd -i $UDPIP $UDPPORT -s longmynd_status_fifo -g $GAIN_T -S $SCAN $INPUT_CMD $FREQ_KHZ $SYMBOLRATEK &
 fi
 
 exit

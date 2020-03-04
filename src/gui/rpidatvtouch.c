@@ -269,6 +269,7 @@ char LMRXudpport[10];       // UDP IP port
 char LMRXmode[10];          // sat or terr
 char LMRXaudio[15];         // rpi or usb
 int LMRXgain[10];           // Gain
+int LMRXscan[10];           // Scan
 
 // LongMynd RX Received Parameters for display
 
@@ -360,6 +361,7 @@ void Start_Highlights_Menu52();
 void Start_Highlights_Menu53();
 void Start_Highlights_Menu54();
 void Start_Highlights_Menu55();
+void Start_Highlights_Menu56();
 
 void MsgBox(const char *);
 void MsgBox2(const char *, const char *);
@@ -3338,6 +3340,10 @@ void ReadLMRXPresets()
   GetConfigParam(PATH_LMCONFIG, "gain", Value);
   LMRXgain[0] = atoi(Value);
 
+  // Scan:
+  GetConfigParam(PATH_LMCONFIG, "scan", Value);
+  LMRXscan[0] = atoi(Value);
+
   if (strcmp(LMRXmode, "sat") == 0)
   {
     // Input: a or b
@@ -3481,6 +3487,34 @@ void ChangeLMRXOffset()
   // Save offset to Config File
   LMRXqoffset = atoi(KeyboardReturn);
   SetConfigParam(PATH_LMCONFIG, "qoffset", KeyboardReturn);
+}
+
+void ChangeLMRXscan()
+{
+  char RequestText[64];
+  char InitText[64];
+  bool IsValid = FALSE;
+  char LMRXScan[10];
+
+  //Retrieve (10 char) Current offset from Config file
+  GetConfigParam(PATH_LMCONFIG, "scan", LMRXScan);
+
+  while (IsValid == FALSE)
+  {
+    strcpy(RequestText, "Entrez une valeur paire du scan +/-, en KHz. (2000 max)");
+    strcpyn(InitText, LMRXScan, 4);
+    Keyboard(RequestText, InitText, 4);
+
+    if((atoi(KeyboardReturn) >= 0) && (atoi(KeyboardReturn) <= 2000) && (atoi(KeyboardReturn)%2 == 0))
+    {
+      IsValid = TRUE;
+    }
+  }
+  printf("LMRXscan set to: +/- %s KHz\n", KeyboardReturn);
+
+  // Save offset to Config File
+  LMRXscan[0] = atoi(KeyboardReturn);
+  SetConfigParam(PATH_LMCONFIG, "scan", KeyboardReturn);
 }
 
 void AutosetLMRXOffset()
@@ -15231,6 +15265,13 @@ void waituntil(int w,int h)
           Start_Highlights_Menu13();
           UpdateWindow();
           break;
+        case 24:                                          // Config 2 Menu 56
+          printf("MENU 56\n");
+          CurrentMenu=56;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu56();
+          UpdateWindow();
+          break;
         default:
           printf("Menu 8 Error\n");
         }
@@ -15342,7 +15383,6 @@ void waituntil(int w,int h)
       {
         printf("Button Event %d, Entering Menu 13 Case Statement\n",i);
         CallingMenu = 13;
-        char Value[15];
         switch (i)
         {
         case 0:                                         // Output UDP IP
@@ -15423,19 +15463,7 @@ void waituntil(int w,int h)
           Start_Highlights_Menu13();
           UpdateWindow();
           break;
-        case 8:                                        // Gain
-          if (LMRXgain[0] < 16)
-          {
-            LMRXgain[0] = LMRXgain[0] + 2;
-          }
-          else
-          {
-            LMRXgain[0] = 0;
-          }
-          snprintf(Value, 15, "%d", LMRXgain[0]);
-          SetConfigParam(PATH_LMCONFIG, "gain", Value);
-          Start_Highlights_Menu13();
-          UpdateWindow();
+        case 8:
           break;
         case 9:                                        // Audio Output
           if (strcmp(LMRXaudio, "rpi") == 0)
@@ -17688,6 +17716,73 @@ void waituntil(int w,int h)
         // stay in Menu 55 if parameter changed
         continue;   // Completed Menu 55 action, go and wait for touch
       }
+      if (CurrentMenu == 56)  // Menu 56 Minitiouner config 2
+      {
+        printf("Button Event %d, Entering Menu 56 Case Statement\n",i);
+        char Value[15];
+        switch (i)
+        {
+        case 4:                               // Cancel
+          SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 1);
+          printf("Cancelling Minitiouner Config 2 Menu\n");
+          UpdateWindow();
+          usleep(500000);
+          SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 0); // Reset cancel (even if not selected)
+          printf("Returning to MENU 8 from Menu 56\n");
+          CurrentMenu=8;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu8();
+          UpdateWindow();
+          break;
+        case 0:
+          SelectInGroupOnMenu(CurrentMenu, 0, 0, 0, 1);
+          UpdateWindow();
+          usleep(50000);
+          SelectInGroupOnMenu(CurrentMenu, 0, 0, 0, 0);
+          if (LMRXgain[0] < 16)
+          {
+            LMRXgain[0] = LMRXgain[0] + 2;
+          }
+          else
+          {
+            LMRXgain[0] = 0;
+          }
+          snprintf(Value, 15, "%d", LMRXgain[0]);
+          SetConfigParam(PATH_LMCONFIG, "gain", Value);
+          Start_Highlights_Menu56();
+          UpdateWindow();
+          break;
+        case 1:
+          SelectInGroupOnMenu(CurrentMenu, 1, 1, 1, 1);
+          UpdateWindow();
+          usleep(50000);
+          SelectInGroupOnMenu(CurrentMenu, 1, 1, 1, 0);
+          ChangeLMRXscan();
+          CurrentMenu=56;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu56();
+          UpdateWindow();
+          break;
+        case 2:
+          break;
+        case 3:
+          break;
+        case 5:
+          break;
+        case 6:
+          break;
+        case 7:
+          break;
+        case 8:
+          break;
+        case 9:
+          break;
+        default:
+          printf("Menu 56 Error\n");
+        }
+        // stay in Menu 56 if parameter changed
+        continue;   // Completed Menu 56 action, go and wait for touch
+      }
     }
   }
 }
@@ -19160,6 +19255,10 @@ void Define_Menu8()
   button = CreateButton(8, 23);
   AddButtonStatus(button, "Config", &Blue);
   AddButtonStatus(button, "Config", &Green);
+
+  button = CreateButton(8, 24);
+  AddButtonStatus(button, "Config 2", &Blue);
+  AddButtonStatus(button, "Config 2", &Green);
 }
 
 void Start_Highlights_Menu8()
@@ -19552,9 +19651,9 @@ void Define_Menu13()
   AddButtonStatus(button, "Input^A", &Blue);
   AddButtonStatus(button, "Input^A", &Blue);
 
-  button = CreateButton(13, 8);
-  AddButtonStatus(button, "Gain^dB", &Blue);
-  AddButtonStatus(button, "Gain^dB", &Blue);
+  //button = CreateButton(13, 8);
+  //AddButtonStatus(button, "", &Blue);
+  //AddButtonStatus(button, "", &Blue);
 
   button = CreateButton(13, 9);
   AddButtonStatus(button, "Audio out^RPi Jack", &Blue);
@@ -19564,15 +19663,6 @@ void Define_Menu13()
 void Start_Highlights_Menu13()
 {
   char LMBtext[63];
-  char Value[15] = "";
-
-  // Gain:
-  GetConfigParam(PATH_LMCONFIG, "gain", Value);
-  strcpy(LMBtext, "Gain^");
-  strcat(LMBtext, Value);
-  strcat(LMBtext, " dB");
-  AmendButtonStatus(ButtonNumber(13, 8), 0, LMBtext, &Blue);
-  LMRXgain[0] = atoi(Value);
 
   if (strcmp(LMRXmode, "sat") == 0)
   {
@@ -22355,6 +22445,62 @@ void Start_Highlights_Menu55()
     }
 }
 
+void Define_Menu56()
+{
+  int button;
+
+  strcpy(MenuTitle[56], "Portsdown Receiver Configuration 2 (56)");
+
+  button = CreateButton(56, 0);
+  AddButtonStatus(button, "Gain^dB", &DBlue);
+  AddButtonStatus(button, "Gain^dB", &LBlue);
+
+  button = CreateButton(56, 1);
+  AddButtonStatus(button, "Scan^+/-", &DBlue);
+  AddButtonStatus(button, "Scan^+/-", &LBlue);
+
+  button = CreateButton(56, 4);
+  AddButtonStatus(button, "Exit", &DBlue);
+  AddButtonStatus(button, "Exit", &LBlue);
+
+  //button = CreateButton(56, 5);
+  //AddButtonStatus(button, "", &Blue);
+  //AddButtonStatus(button, "", &Blue);
+
+  //button = CreateButton(56, 6);
+  //AddButtonStatus(button, "", &Blue);
+  //AddButtonStatus(button, "", &Blue);
+
+  //button = CreateButton(56, 7);
+  //AddButtonStatus(button, "", &Blue);
+  //AddButtonStatus(button, "", &Grey);
+
+}
+
+void Start_Highlights_Menu56()
+{
+  char Value[15] = "";
+  char LMBtext[21];
+
+  // Gain:
+  GetConfigParam(PATH_LMCONFIG, "gain", Value);
+  strcpy(LMBtext, "Gain^");
+  strcat(LMBtext, Value);
+  strcat(LMBtext, " dB");
+  AmendButtonStatus(ButtonNumber(56, 0), 0, LMBtext, &DBlue);
+  AmendButtonStatus(ButtonNumber(56, 0), 1, LMBtext, &LBlue);
+  LMRXgain[0] = atoi(Value);
+
+  // Scan:
+  GetConfigParam(PATH_LMCONFIG, "scan", Value);
+  strcpy(LMBtext, "Scan^+/- ");
+  strcat(LMBtext, Value);
+  strcat(LMBtext, " KHz");
+  AmendButtonStatus(ButtonNumber(56, 1), 0, LMBtext, &DBlue);
+  AmendButtonStatus(ButtonNumber(56, 1), 1, LMBtext, &LBlue);
+  LMRXscan[0] = atoi(Value);
+}
+
 void Define_Menu45()
 {
   int button;
@@ -22952,6 +23098,7 @@ int main(int argc, char **argv)
   Define_Menu53();
   Define_Menu54();
   Define_Menu55();
+  Define_Menu56();
 
   // Start the button Menu
   Start(wscreen,hscreen);

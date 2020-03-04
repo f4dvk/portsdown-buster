@@ -58,6 +58,8 @@ fi
 GAIN=$(get_config_var gain $RCONFIGFILE)
 GAIN_T=$GAIN/2
 
+SCAN=$(get_config_var scan $RCONFIGFILE)
+
 sudo killall longmynd >/dev/null 2>/dev/null
 sudo killall omxplayer.bin >/dev/null 2>/dev/null
 
@@ -67,7 +69,7 @@ mkfifo fifo.264
 sudo rm longmynd_main_ts
 mkfifo longmynd_main_ts
 
-sudo /home/pi/longmynd/longmynd -s longmynd_status_fifo -g $GAIN_T $INPUT_CMD $FREQ_KHZ $SYMBOLRATEK &
+sudo /home/pi/longmynd/longmynd -s longmynd_status_fifo -g $GAIN_T -S $SCAN $INPUT_CMD $FREQ_KHZ $SYMBOLRATEK &
 
 omxplayer --adev $AUDIO_MODE --live --layer 0 --timeout 0 longmynd_main_ts & ## works for touchscreens
 
