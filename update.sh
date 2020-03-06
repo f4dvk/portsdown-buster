@@ -374,6 +374,11 @@ if ! grep -q scan /home/pi/rpidatv/scripts/longmynd_config.txt; then
   echo "" >> /home/pi/rpidatv/scripts/longmynd_config.txt
 fi
 
+if grep -q udpport1 /home/pi/rpidatv/scripts/longmynd_config.txt; then
+  printf "Correction to user's longmynd_config.txt\n"
+  sed -i 's/^udpport1.*/udpport=1234/' /home/pi/rpidatv/scripts/longmynd_config.txt
+fi
+
 cp -f -r "$PATHUBACKUP"/wifi_config.txt "$PATHSCRIPT"/wifi_config.txt
 cp -f -r "$PATHUBACKUP"/hotspot_config.txt "$PATHSCRIPT"/hotspot_config.txt
 
