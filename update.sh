@@ -263,6 +263,19 @@ cd leansdr/src/apps
 make
 cp leandvb ../../../../bin/
 
+# Remove any old LongMynd installation
+cd /home/pi
+sudo killall longmynd
+sudo rm -rf longmynd
+
+# Download the previously selected version of LongMynd
+wget https://github.com/${GIT_SRC}/longmynd/archive/master.zip
+unzip -o master.zip
+mv longmynd-master longmynd
+rm master.zip
+cd longmynd
+make
+
 #install H264 Decoder : hello_video
 #compile ilcomponet first
 cd /opt/vc/src/hello_pi/
