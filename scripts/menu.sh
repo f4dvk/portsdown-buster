@@ -1414,8 +1414,9 @@ do_stop_transmit()
   sudo killall -9 avc2ts >/dev/null 2>/dev/null
   sudo killall -9 netcat >/dev/null 2>/dev/null
   sudo killall -9 dvb2iq >/dev/null 2>/dev/null
-  sudo killall -9 dvb2iq2 >/dev/null 2>/dev/null
-  sudo killall -9 limesdr_send >/dev/null 2>/dev/null
+  sudo killall limesdr_send >/dev/null 2>/dev/null
+  sudo killall limesdr_dvb >/dev/null 2>/dev/null
+  sudo killall sox >/dev/null 2>/dev/null
 	if [ "$MODE_OUTPUT" == "LIMEMINI" ]; then
    /home/pi/rpidatv/bin/limesdr_stopchannel &
   fi
@@ -1432,6 +1433,11 @@ do_stop_transmit()
 
   # Stop the audio for CompVid mode
   sudo killall arecord >/dev/null 2>/dev/null
+
+  # And make sure limesdr_send has been stopped
+  sudo killall -9 limesdr_send >/dev/null 2>/dev/null
+  sudo killall -9 limesdr_dvb >/dev/null 2>/dev/null
+  sudo killall -9 sox >/dev/null 2>/dev/null
 
   # Make sure that the PTT is released (required for carrier and test modes)
   gpio mode $GPIO_PTT out
@@ -2018,6 +2024,7 @@ do_autostart_setup()
   Radio12=OFF
   Radio13=OFF
   Radio14=OFF
+  Radio15=OFF
 
   case "$MODE_STARTUP" in
     Prompt)
@@ -2050,10 +2057,10 @@ do_autostart_setup()
     Keyed_TX_boot)
       Radio10=ON
     ;;
-    SigGen_boot)
+    Keyed_TX_Touch_boot)
       Radio11=ON
     ;;
-    StreamRX_boot)
+    SigGen_boot)
       Radio12=ON
     ;;
     Button_rx_minitiouner_boot)
@@ -2062,13 +2069,16 @@ do_autostart_setup()
     Button_rx_lcd_boot)
       Radio14=ON
     ;;
+    StreamRX_boot)
+      Radio15=ON
+    ;;
     *)
       Radio1=ON
     ;;
   esac
 
   chstartup=$(whiptail --title "$StrAutostartSetupTitle" --radiolist \
-   "$StrAutostartSetupContext" 20 78 14 \
+   "$StrAutostartSetupContext" 20 78 15 \
    "Prompt" "$AutostartSetupPrompt" $Radio1 \
    "Console" "$AutostartSetupConsole" $Radio2 \
    "TX_boot" "$AutostartSetupTX_boot" $Radio3 \
@@ -2081,8 +2091,9 @@ do_autostart_setup()
    "Keyed_Stream_boot" "Boot up to Keyed Repeater Streamer" $Radio8 \
    "Cont_Stream_boot" "Boot up to Always-on Repeater Streamer" $Radio9 \
    "Keyed_TX_boot" "Boot up to GPIO Keyed Repeater TX" $Radio10 \
-   "SigGen_boot" "Boot up with the Sig Gen Output On" $Radio11 \
-   "StreamRX_boot" "Boot up to display a BATC Stream" $Radio12 \
+   "Keyed_TX_Touch_boot" "Boot up to GPIO Keyed TX with Touchscreen" $Radio11 \
+   "SigGen_boot" "Boot up with the Sig Gen Output On" $Radio12 \
+   "StreamRX_boot" "Boot up to display a BATC Stream" $Radio15 \
    3>&2 2>&1 1>&3)
 
   if [ $? -eq 0 ]; then
@@ -2106,7 +2117,8 @@ do_autostart_setup()
   # If Keyed or Continuous stream selected, set up cron for 12-hourly reboot
   # Also do it for keyed or continuous TX
   if [[ "$chstartup" == "Keyed_Stream_boot" || "$chstartup" == "Cont_Stream_boot" \
-     || "$chstartup" == "Keyed_TX_boot" || "$chstartup" == "TX_boot" ]]; then
+     || "$chstartup" == "Keyed_TX_boot" || "$chstartup" == "Keyed_TX_Touch_boot" \
+     || "$chstartup" == "TX_boot" ]]; then
     sudo crontab /home/pi/rpidatv/scripts/configs/rptrcron
   else
     sudo crontab /home/pi/rpidatv/scripts/configs/blankcron
