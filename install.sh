@@ -446,6 +446,8 @@ echo "--------------------------"
 sudo rm /etc/wpa_supplicant/wpa_supplicant.conf
 sudo cp /home/pi/rpidatv/scripts/configs/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf
 sudo chown root /etc/wpa_supplicant/wpa_supplicant.conf
+sudo rfkill unblock wifi
+sudo ifconfig wlan0 up
 
 echo
 echo "-----------------------------------------"
