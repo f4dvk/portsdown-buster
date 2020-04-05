@@ -1101,14 +1101,30 @@ fi
 
     # Audio does not work well, and is not required, so disabled.
 
-    # ******************************* H264 VIDEO, NO AUDIO ************************************
-
     VIDEO_FPS=10  #
     IDRPERIOD=10  #  Setting these parameters prevents the partial picture problem
 
-     sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
-      -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 3 -p $PIDPMT -s $CALL $OUTPUT_IP \
-       > /dev/null &
+    if [ "$AUDIO_CARD" == 0 ]; then
+      # ******************************* H264 VIDEO, NO AUDIO ************************************
+
+      sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
+        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 3 -p $PIDPMT -s $CALL $OUTPUT_IP \
+        > /dev/null &
+
+    else
+      # ******************************* H264 VIDEO, WITH AUDIO ************************************
+
+      if [ $AUDIO_SAMPLE != 48000 ]; then
+        arecord -f S16_LE -r $AUDIO_SAMPLE -c 2 -B $ARECORD_BUF -D plughw:$AUDIO_CARD_NUMBER,0 \
+        | sox --buffer 1024 -t wav - audioin.wav rate 48000 &
+      else
+        arecord -f S16_LE -r $AUDIO_SAMPLE -c 2 -B $ARECORD_BUF -D plughw:$AUDIO_CARD_NUMBER,0 > audioin.wav &
+      fi
+
+      sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
+        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 3 -e $ANALOGCAMNAME -p $PIDPMT -s $CALL $OUTPUT_IP \
+        -a audioin.wav -z $BITRATE_AUDIO > /dev/null &
+    fi
   ;;
 
 # *********************************** TRANSPORT STREAM INPUT THROUGH IP ******************************************
