@@ -1,3 +1,6 @@
+202004120
+Ajout bip si pas de carte son H264
+
 202003301
 Reduce delay for DVB-S in LimeDVB mode
 

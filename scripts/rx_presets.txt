@@ -1,4 +1,4 @@
-rx0frequency=146.5
+rx0frequency=145.9
 rx0sr=333
 rx0fec=7
 rx0samplerate=0
@@ -11,7 +11,7 @@ rx0parameters=ON
 rx0sound=ON
 rx0fastlock=ON
 rx0label=Preset_1
-rx1frequency=146.5
+rx1frequency=145.9
 rx1sr=333
 rx1fec=7
 rx1samplerate=0
