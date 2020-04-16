@@ -1,5 +1,5 @@
-rx0frequency=146.5
-rx0sr=333
+rx0frequency=145.9
+rx0sr=125
 rx0fec=7
 rx0samplerate=0
 rx0gain=0
@@ -72,3 +72,5 @@ t1lo=0
 t2lo=0
 t3lo=0
 t4lo=0
+etat=OFF
+upsample=2
