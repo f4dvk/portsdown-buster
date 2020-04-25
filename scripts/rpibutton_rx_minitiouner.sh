@@ -69,13 +69,13 @@ do_stop_receiver()
 {
   sudo killall -9 lmomx.sh >/dev/null 2>/dev/null
   sudo killall -9 rpidatvgui >/dev/null 2>/dev/null
-  sudo killall -9 hello_video.bin >/dev/null 2>/dev/null
-  sudo killall -9 hello_video2.bin >/dev/null 2>/dev/null
   sudo killall -9 omxplayer >/dev/null 2>/dev/null
   sudo killall -9 longmynd >/dev/null 2>/dev/null
   sudo killall fbi >/dev/null 2>/dev/null
 
   sudo fbi -T 1 -noverbose -a /home/pi/rpidatv/scripts/images/BATC_Black.png
+  sleep 1
+  sudo killall fbi >/dev/null 2>/dev/null
 }
 
 do_receive()

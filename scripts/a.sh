@@ -368,11 +368,11 @@ if [ "$MODE_INPUT" == "CAMMPEG-2" ] || [ "$MODE_INPUT" == "ANALOGMPEG-2" ] \
       VIDEO_WIDTH=160
       VIDEO_HEIGHT=140
     elif [ "$BITRATE_VIDEO" -lt 150000 ]; then
-      VIDEO_WIDTH=320
-      VIDEO_HEIGHT=280
+      VIDEO_WIDTH=368
+      VIDEO_HEIGHT=276
     else
       if [ "$BITRATE_VIDEO" -lt 300000 ]; then
-        VIDEO_WIDTH=352
+        VIDEO_WIDTH=384
         VIDEO_HEIGHT=288
       else
         VIDEO_WIDTH=720
@@ -380,8 +380,8 @@ if [ "$MODE_INPUT" == "CAMMPEG-2" ] || [ "$MODE_INPUT" == "ANALOGMPEG-2" ] \
       fi
     fi
     if [ "$BITRATE_VIDEO" -lt 100000 ]; then
-      VIDEO_WIDTH=96
-      VIDEO_HEIGHT=80
+      VIDEO_WIDTH=108
+      VIDEO_HEIGHT=81
     fi
 
     # Reduce MPEG-2 frame rate at low bit rates
@@ -399,7 +399,7 @@ if [ "$MODE_INPUT" == "CAMMPEG-2" ] || [ "$MODE_INPUT" == "ANALOGMPEG-2" ] \
 else # h264
   #if [ "$AUDIO_CHANNELS" != 0 ]; then                 # H264 or H265 with AAC audio
     ARECORD_BUF=55000     # arecord buffer in us
-    BITRATE_AUDIO=24000
+    BITRATE_AUDIO=20000
     let TS_AUDIO_BITRATE=$BITRATE_AUDIO*15/10
     let BITRATE_VIDEO=($BITRATE_TS-24000-$TS_AUDIO_BITRATE)*725/1000
   #else                                                # H264 or H265 no audio

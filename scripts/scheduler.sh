@@ -44,9 +44,9 @@ while [ "$GUI_RETURN_CODE" -gt 127 ] || [ "$GUI_RETURN_CODE" -eq 0 ];  do
       GUI_RETURN_CODE=129
     ;;
     131)
-      cd /home/pi/FreqShow
-      sudo python freqshow.py
-      cd /home/pi
+      # cd /home/pi/FreqShow
+      # sudo python freqshow.py
+      # cd /home/pi
       GUI_RETURN_CODE=129
     ;;
     132)
