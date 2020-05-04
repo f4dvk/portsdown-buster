@@ -251,13 +251,13 @@ make
 cp adf4351 ../../bin/
 cd /home/pi
 
-#install leandvb DVB-S2 work
+#install leandvb DVB-S2
 cd /home/pi/rpidatv/src/
 sudo rm -fr leansdr
-wget https://github.com/f4dvk/leansdr/archive/work.zip
-unzip work.zip
-mv leansdr-work leansdr
-rm work.zip
+wget https://github.com/f4dvk/leansdr/archive/master.zip
+unzip master.zip
+mv leansdr-master leansdr
+rm master.zip
 cd leansdr/src/apps
 make
 cp leandvb ../../../../bin/

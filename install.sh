@@ -251,10 +251,10 @@ cd /home/pi
 
 # Get leandvb
 cd /home/pi/rpidatv/src
-wget https://github.com/f4dvk/leansdr/archive/work.zip
-unzip work.zip
-mv leansdr-work leansdr
-rm work.zip
+wget https://github.com/f4dvk/leansdr/archive/master.zip
+unzip master.zip
+mv leansdr-master leansdr
+rm master.zip
 
 # Compile leandvb
 cd leansdr/src/apps
