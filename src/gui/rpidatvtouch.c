@@ -13288,7 +13288,7 @@ void ChangeLMPresetFreq(int NoButton)
   while ((CheckValue - Offset_to_Apply < 143000) || (CheckValue - Offset_to_Apply > 2600000))
   {
     Keyboard(RequestText, InitText, 10);
-    CheckValue = (int)(1000 * atof(KeyboardReturn);
+    CheckValue = (int)(1000 * atof(KeyboardReturn));
     printf("CheckValue = %d Offset = %d\n", CheckValue, Offset_to_Apply);
   }
 
