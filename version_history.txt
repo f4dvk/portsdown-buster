@@ -1,3 +1,35 @@
+202007310
+Add support for B910 WebCam ID 046d:0823
+
+202007240
+Load new Waveshare 35a overlay
+Re-enable dist-upgrade
+
+202007230
+Bugfix 7 inch screen after dist-upgrade
+Don't dist-upgrade because of no 3.5 inch screen support
+
+202007012
+Add vlc with ffmpeg receive player
+Overlay of parameters on vlc ffmpeg
+Enabled MER display for DVB-S reception
+Large MER on UDP player page
+Receive freq entered and displayed in MHz
+Bugfix intermittent stream display fault
+Bugfix tuner power control
+
+202006070
+Switch default audio output from Menu 3
+EasyCap Comp Video display with audio
+C920 audio available in Comp Vid out TX mode
+PTT pin set for LimeDVB TX modes when selected from console
+
+202005110
+Improve EasyCap audio
+
+202004302
+Preserve Lime Calibration Status during updates
+
 202004301
 Graceful shutdown for VLC
 

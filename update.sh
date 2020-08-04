@@ -133,6 +133,9 @@ cp -f -r "$PATHSCRIPT"/jetson_config.txt "$PATHUBACKUP"/jetson_config.txt
 # Make a safe copy of the LongMynd config
 cp -f -r "$PATHSCRIPT"/longmynd_config.txt "$PATHUBACKUP"/longmynd_config.txt
 
+# Make a safe copy of the Lime Calibration frequency or status
+cp -f -r "$PATHSCRIPT"/limecalfreq.txt "$PATHUBACKUP"/limecalfreq.txt
+
 cp -f -r "$PATHSCRIPT"/wifi_config.txt "$PATHUBACKUP"/wifi_config.txt
 cp -f -r "$PATHSCRIPT"/hotspot_config.txt "$PATHUBACKUP"/hotspot_config.txt
 
@@ -429,6 +432,9 @@ fi
 cp -f -r "$PATHUBACKUP"/wifi_config.txt "$PATHSCRIPT"/wifi_config.txt
 cp -f -r "$PATHUBACKUP"/hotspot_config.txt "$PATHSCRIPT"/hotspot_config.txt
 
+# Restore the user's original Lime Calibration frequency or status
+cp -f -r "$PATHUBACKUP"/limecalfreq.txt "$PATHSCRIPT"/limecalfreq.txt
+
 # Restore the user's original User Button scripts
 cp -f -r "$PATHUBACKUP"/user_button1.sh "$PATHSCRIPT"/user_button1.sh
 cp -f -r "$PATHUBACKUP"/user_button2.sh "$PATHSCRIPT"/user_button2.sh
@@ -439,6 +445,23 @@ cp -f -r "$PATHUBACKUP"/user_button5.sh "$PATHSCRIPT"/user_button5.sh
 # Restore the user's original transmit start and transmit stop scripts
 cp -f -r "$PATHUBACKUP"/TXstartextras.sh "$PATHSCRIPT"/TXstartextras.sh
 cp -f -r "$PATHUBACKUP"/TXstopextras.sh "$PATHSCRIPT"/TXstopextras.sh
+
+# set the framebuffer to 32 bit depth by disabling dtoverlay=vc4-fkms-v3d
+echo
+echo "----------------------------------------------"
+echo "---- Setting Framebuffer to 32 bit depth -----"
+echo "----------------------------------------------"
+
+sudo sed -i "/^dtoverlay=vc4-fkms-v3d/c\#dtoverlay=vc4-fkms-v3d" /boot/config.txt
+
+# Install Waveshare 3.5A DTOVERLAY
+echo
+echo "---------------------------------------------------------"
+echo "---- Installing the updated Waveshare 3.5 A Overlay -----"
+echo "---------------------------------------------------------"
+cd /home/pi/rpidatv/scripts/
+sudo cp ./waveshare35a.dtbo /boot/overlays/
+cd /home/pi
 
 DisplayUpdateMsg "Step 9 of 10\nFinishing Off\n\nXXXXXXXXX-"
 

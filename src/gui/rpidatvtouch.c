@@ -32,6 +32,7 @@ Rewitten by Dave, G8GKQ
 #include <dirent.h>
 #include <ctype.h>
 #include <stdbool.h>
+#include <time.h>
 
 #include "VG/openvg.h"
 #include "VG/vgu.h"
@@ -668,6 +669,38 @@ void GetMicAudioCard(char mic[15])
   while (fgets(mic, 7, fp) != NULL)
   {
     sprintf(mic, "%d", atoi(mic));
+  }
+
+  /* close */
+  pclose(fp);
+}
+
+/***************************************************************************//**
+ * @brief Looks up the Pi Cam device name
+ *
+ * @param picamdev(str) Device name with no CR (/dev/videon)
+ *
+ * @return void
+*******************************************************************************/
+void GetPiCamDev(char picamdev[15])
+{
+  FILE *fp;
+  int linecount = 0;
+  char result[15];
+
+  /* Open the command for reading. */
+  fp = popen("v4l2-ctl --list-devices 2> /dev/null |sed -n '/mmal/,/dev/p' | grep 'dev' | tr -d '\t'", "r");
+  if (fp == NULL) {
+    printf("Failed to run command\n" );
+    exit(1);
+  }
+
+  /* Read the output a line at a time - output it. */
+  while ((fgets(result, 12, fp) != NULL) && (linecount == 0))
+  {
+    strcpy(picamdev, result);
+    //printf("%s\n", picamdev);
+    linecount = 1;
   }
 
   /* close */
@@ -3158,24 +3191,23 @@ void ChangeRTLppm()
 
 int DetectLimeNETMicro()
 {
-  char shell_command[127];
-  FILE * shell;
-  strcpy(shell_command, "cat /proc/device-tree/model | grep 'Raspberry Pi Compute Module 3'");
-  shell = popen(shell_command, "r");
-  int r = pclose(shell);
-  if (WEXITSTATUS(r) == 0)
+  int r;
+
+  r = WEXITSTATUS(system("cat /proc/device-tree/model | grep 'Raspberry Pi Compute Module 3'"));
+
+  if (r == 0)
   {
     printf("LimeNET Micro detected\n");
     return 1;
   }
-  else if (WEXITSTATUS(r) == 1)
+  else if (r == 1)
   {
     printf("LimeNET Micro not detected\n");
     return 0;
   }
   else
   {
-    printf("LimeNET Micro unexpected exit status %d\n", WEXITSTATUS(r));
+    printf("LimeNET Micro unexpected exit status %d\n", r);
     return 2;
   }
 }
@@ -5668,7 +5700,6 @@ void ShowMenuText()
 void ShowTitle()
 {
   // Initialise and calculate the text display
-  //BackgroundRGB(0,0,0,255);  // Black background
   if (CurrentMenu == 1)
   {
     Fill(0, 0, 0, 1);    // Black text
@@ -5894,7 +5925,7 @@ void ApplyTXConfig()
     {
       if (strcmp(CurrentFormat, "1080p") == 0)
       {
-        MsgBox2("1080p only available with C920 Webcam"
+        MsgBox2("1080p encoding not available with webcam"
           , "Please select another mode");
         wait_touch();
       }
@@ -6364,6 +6395,19 @@ void GreyOut11()
     SetButtonStatus(ButtonNumber(CurrentMenu, 9), 2); // grey-out Frames long/short
   }
 }
+
+void GreyOut12()
+{
+  if(strcmp(CurrentModeOP, "JLIME") == 0) // Jetson Selected
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 7), 0); // Show H265 button
+  }
+  else
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 7), 2); // Grey-out H265 Button
+  }
+}
+
 
 void GreyOut15()
 {
@@ -7724,25 +7768,48 @@ void CompVidStart()
   char SnapIndex[256];
   int SnapNumber;
   int Snap;
+  char picamdev1[15];
+  char bashcmd[255];
 
   if (strcmp(CurrentVidSource, "Pi Cam") == 0)
   {
     finish();
     system("sudo modprobe bcm2835_v4l2");
-    if (strcmp(DisplayType, "Element14_7") == 0) // 7 inch screen
+    GetPiCamDev(picamdev1);
+    if (strlen(picamdev1) > 1)
     {
-      system("v4l2-ctl -d /dev/video0 --set-fmt-overlay=left=0,top=0,width=736,height=416 --overlay=1");
-      system("v4l2-ctl -d /dev/video1 --set-fmt-overlay=left=0,top=0,width=736,height=416 --overlay=1");
+      if (strcmp(DisplayType, "Element14_7") == 0) // 7 inch screen
+      {
+        strcpy(bashcmd, "v4l2-ctl -d ");
+        strcat(bashcmd, picamdev1);
+        strcat(bashcmd, " --set-fmt-overlay=left=0,top=0,width=736,height=416 --overlay=1");
+
+        //system("v4l2-ctl -d /dev/video0 --set-fmt-overlay=left=0,top=0,width=736,height=416 --overlay=1");
+        //system("v4l2-ctl -d /dev/video1 --set-fmt-overlay=left=0,top=0,width=736,height=416 --overlay=1");
+      }
+      else  // 3.5 inch screen
+      {
+        strcpy(bashcmd, "v4l2-ctl -d ");
+        strcat(bashcmd, picamdev1);
+        strcat(bashcmd, " --set-fmt-overlay=left=0,top=0,width=656,height=512 --overlay=1");
+        //system("v4l2-ctl -d /dev/video0 --set-fmt-overlay=left=0,top=0,width=656,height=512 --overlay=1");
+        //system("v4l2-ctl -d /dev/video1 --set-fmt-overlay=left=0,top=0,width=656,height=512 --overlay=1");
+      }
+      system(bashcmd);
+      strcpy(ScreenState, "VideoOut");
+      wait_touch();
+      strcpy(bashcmd, "v4l2-ctl -d ");  // Now turn the overlay off
+      strcat(bashcmd, picamdev1);
+      strcat(bashcmd, " --overlay=0");
+      system(bashcmd);
+      //system("v4l2-ctl -d /dev/video0 --overlay=0");
+      //system("v4l2-ctl -d /dev/video1 --overlay=0");
     }
-    else  // 3.5 inch screen
+    else
     {
-      system("v4l2-ctl -d /dev/video0 --set-fmt-overlay=left=0,top=0,width=656,height=512 --overlay=1");
-      system("v4l2-ctl -d /dev/video1 --set-fmt-overlay=left=0,top=0,width=656,height=512 --overlay=1");
+      MsgBox("Pi Cam Not Connected");
+      wait_touch();
     }
-    strcpy(ScreenState, "VideoOut");
-    wait_touch();
-    system("v4l2-ctl -d /dev/video0 --overlay=0");
-    system("v4l2-ctl -d /dev/video1 --overlay=0");
   }
 
   if (strcmp(CurrentVidSource, "C920") == 0)
@@ -8109,8 +8176,10 @@ void TransmitStop()
   char Param[255];
   char Value[255];
   int WebcamPresent = 0;
+  char bashcmd[255];
+  char picamdev1[15];
 
-  printf("Transmit Stop\n");
+  printf("Stopping all transmit processes, even if they weren't running\n");
 
   strcpy(Param,"modeoutput");
   GetConfigParam(PATH_PCONFIG,Param,Value);
@@ -8178,9 +8247,15 @@ void TransmitStop()
     pinMode(GPIO_Tverter, OUTPUT);
   }
 
-  // Turn the Viewfinder off
-  system("v4l2-ctl -d /dev/video1 --overlay=0 >/dev/null 2>/dev/null");
-  system("v4l2-ctl -d /dev/video0 --overlay=0 >/dev/null 2>/dev/null");
+  // Look up the Pi Cam device anme and turn the Viewfinder off
+  GetPiCamDev(picamdev1);
+  if (strlen(picamdev1) > 1)
+  {
+    strcpy(bashcmd, "v4l2-ctl -d ");
+    strcat(bashcmd, picamdev1);
+    strcat(bashcmd, " --overlay=0 >/dev/null 2>/dev/null");
+    system(bashcmd);
+  }
 
   // Stop the audio relay in CompVid mode
   system("sudo killall arecord >/dev/null 2>/dev/null");
@@ -8411,7 +8486,7 @@ void *WaitButtonLMRX(void * arg)
         count_time_ms = count_time_ms + 1;
       }
       printf("Shutting Down VLC\n");
-      system("/home/pi/rpidatv/scripts/lmvlcsd.sh");
+      system("/home/pi/rpidatv/scripts/lmvlcsd.sh &");
       count_time_ms = 0;
       while ((touch_response == 1) && (count_time_ms < 2500))
       {
@@ -8422,9 +8497,10 @@ void *WaitButtonLMRX(void * arg)
       if (touch_response == 1) // count_time has elapsed and still no reponse
       {
 
-        system("sudo killall -9 vlc");
+        //system("sudo killall -9 vlc");
+        system("/home/pi/rpidatv/scripts/lmvlcsd.sh &");
         init(&wscreen, &hscreen);  // Restart the graphics
-        BackgroundRGB(0, 0, 0, 0); // Clear the screen
+        BackgroundRGB(0, 0, 0, 255); // Clear the screen
         exit(129);                 // Restart the GUI
       }
       return NULL;
@@ -8487,7 +8563,6 @@ void DisplayIPStream()
   char WaitMessage[63];
 
   strcpy(startCommand, "/home/pi/rpidatv/scripts/omx_udp.sh ");
-//  strcat(startCommand, "udp://:@:10000");
   strcat(startCommand, " &");
 
   strcpy(WaitMessage, "Waiting for IP Stream on port 10000");
@@ -8495,7 +8570,8 @@ void DisplayIPStream()
   printf("Starting Stream receiver ....\n");
   IQAvailable = 0;           // Set flag to prompt user reboot before transmitting
   FinishedButton = 0;
-  BackgroundRGB(0, 0, 0, 0);
+  BackgroundRGB(0, 0, 0, 255);
+  End();
   finish();                  // Close the graphics sub-system
   DisplayHere(WaitMessage);
 
@@ -8600,7 +8676,8 @@ void DisplayStream(int NoButton)
   printf("Starting Stream receiver ....\n");
   IQAvailable = 0;           // Set flag to prompt user reboot before transmitting
   FinishedButton = 0;
-  BackgroundRGB(0, 0, 0, 0);
+  BackgroundRGB(0, 0, 0, 255);
+  End();
   finish();                  // Close the graphics sub-system
   DisplayHere(WaitMessage);
 
@@ -9408,6 +9485,7 @@ void LMRX(int NoButton)
   #define PATH_SCRIPT_LMRXHV "/home/pi/rpidatv/scripts/lmhv.sh 2>&1"
   #define PATH_SCRIPT_LMRXHV2 "/home/pi/rpidatv/scripts/lmhv2.sh 2>&1"
   #define PATH_SCRIPT_LMRXVLC "/home/pi/rpidatv/scripts/lmvlc.sh" // 2>&1"
+  #define PATH_SCRIPT_LMRXVLCFF "/home/pi/rpidatv/scripts/lmvlcff.sh" // 2>&1"
 
   //Local parameters:
 
@@ -9442,10 +9520,14 @@ void LMRX(int NoButton)
   char VidEncodingtext[63] = " ";
   char AudEncodingtext[63] = " ";
   char Encodingtext[63] = " ";
+  char vlctext[255];
   float MERThreshold = 0;
   int EncodingCode = 0;
   int MODCOD;
   int Parameters_currently_displayed = 1;  // 1 for displayed, 0 for blank
+  float previousMER = 0;
+  int FirstLock = 0;  // set to 1 on first lock, and 2 after parameter fade
+  clock_t LockTime;
 
   // Set globals
   FinishedButton = 1;
@@ -9468,12 +9550,12 @@ void LMRX(int NoButton)
   switch (NoButton)
   {
   case 0:
-    BackgroundRGB(0, 0, 0, 0);
+    BackgroundRGB(0, 0, 0, 255);
     End();
-    fp=popen(PATH_SCRIPT_LMRXHV, "r");
+    fp=popen(PATH_SCRIPT_LMRXVLCFF, "r");
     if(fp==NULL) printf("Process error\n");
 
-    printf("STARTING HelloVideo H264 RX\n");
+    printf("STARTING VLC with FFMPEG RX\n");
 
     /* Open status FIFO for read only  */
     ret = mkfifo("longmynd_status_fifo", 0666);
@@ -9570,27 +9652,27 @@ void LMRX(int NoButton)
               {
                 case 0:
                   strcpy(FECtext, "FEC 1/2");
-                  MERThreshold = 0; //
+                  MERThreshold = 1.7; //
                 break;
                 case 1:
                   strcpy(FECtext, "FEC 2/3");
-                  MERThreshold = 0; //
+                  MERThreshold = 3.3; //
                 break;
                 case 2:
                   strcpy(FECtext, "FEC 3/4");
-                  MERThreshold = 0; //
+                  MERThreshold = 4.2; //
                 break;
                 case 3:
                   strcpy(FECtext, "FEC 5/6");
-                  MERThreshold = 0; //
+                  MERThreshold = 5.1; //
                 break;
                 case 4:
                   strcpy(FECtext, "FEC 6/7");
-                  MERThreshold = 0; //
+                  MERThreshold = 5.5; //
                 break;
                 case 5:
                   strcpy(FECtext, "FEC 7/8");
-                  MERThreshold = 0; //
+                  MERThreshold = 5.8; //
                 break;
                 default:
                   strcpy(FECtext, "FEC -");
@@ -9781,8 +9863,14 @@ void LMRX(int NoButton)
 
           if ((stat_string[0] == '1') && (stat_string[1] == '2'))  // MER
           {
-            if (FinishedButton == 1)  // Parameters displayed
+            if (FinishedButton == 1)  // Parameters requested to be displayed
             {
+              // If they weren't displayed before, set the previousMER to 0
+              // so they get displayed and don't have to wait for an MER change
+              if (Parameters_currently_displayed != 1)
+              {
+                previousMER = 0;
+              }
               Parameters_currently_displayed = 1;
               strcpy(MERtext, stat_string);
               chopN(MERtext, 3);
@@ -9793,7 +9881,7 @@ void LMRX(int NoButton)
               }
               snprintf(MERtext, 24, "MER %.1f (%.1f needed)", MER, MERThreshold);
 
-              BackgroundRGB(0, 0, 0, 0);
+              BackgroundRGB(0, 0, 0, 255);
               Fill(0, 0, 0, 127);
               Rect(wscreen * 1.0 / 40.0, hscreen - 9.2 * linepitch, wscreen * 20.0 / 40.0, hscreen);
               Rect(wscreen * 1.0 / 40.0, hscreen - 11.7 * linepitch, wscreen * 35.0 / 40.0, hscreen - 11.4 * linepitch);
@@ -9801,7 +9889,7 @@ void LMRX(int NoButton)
               Text(wscreen * 1.0 / 40.0, hscreen - 1 * linepitch, STATEtext, font, pointsize);
               Text(wscreen * 1.0 / 40.0, hscreen - 2 * linepitch, FREQtext, font, pointsize);
               Text(wscreen * 1.0 / 40.0, hscreen - 3 * linepitch, SRtext, font, pointsize);
-							Text(wscreen * 1.0 / 40.0, hscreen - 4 * linepitch, Modulationtext, font, pointsize);
+              Text(wscreen * 1.0 / 40.0, hscreen - 4 * linepitch, Modulationtext, font, pointsize);
               Text(wscreen * 1.0 / 40.0, hscreen - 5 * linepitch, FECtext, font, pointsize);
               Text(wscreen * 1.0 / 40.0, hscreen - 6 * linepitch, ServiceProvidertext, font, pointsize);
               Text(wscreen * 1.0 / 40.0, hscreen - 7 * linepitch, Servicetext, font, pointsize);
@@ -9810,35 +9898,103 @@ void LMRX(int NoButton)
               {
                 Fill(255, 127, 127, 255);
               }
+              else  // Auto-hide the parameter display after 8 seconds
+              {
+                if (FirstLock == 0) // This is the first time MER has exceeded threshold
+                {
+                  FirstLock = 1;
+                  LockTime = clock();  // Set first lock time
+                }
+                if ((clock() > LockTime + 80000) && (FirstLock == 1))  // About 5s since first lock
+                {
+                  FinishedButton = 2; // Hide parameters
+                  FirstLock = 2;      // and stop it trying to hide them again
+                }
+              }
+
               Text(wscreen * 1.0 / 40.0, hscreen - 9 * linepitch, MERtext, font, pointsize);
-              Fill(255, 255, 255, 255);
+              Fill(255, 255, 255, 255);  // Back to white text
               Text(wscreen * 1.0 / 40.0, hscreen - 10.5 * linepitch, "Touch Left to hide data, Right to exit", font, pointsize);
               Text(wscreen * 1.0 / 40.0, hscreen - 11.5 * linepitch, "Touch Lower left for image capture", font, pointsize);
+
+              // Only change VLC overlay file if MER has changed
+              if (MER != previousMER)
+              {
+                // Strip trailing line feeds from text strings
+                ServiceProvidertext[strlen(ServiceProvidertext) - 1] = '\0';
+                Servicetext[strlen(Servicetext) - 1] = '\0';
+
+                // Build string for VLC
+                strcpy(vlctext, STATEtext);
+                strcat(vlctext, "%n");
+                strcat(vlctext, FREQtext);
+                strcat(vlctext, "%n");
+                strcat(vlctext, Modulationtext);
+                strcat(vlctext, "%n");
+                strcat(vlctext, FECtext);
+                strcat(vlctext, "%n");
+                strcat(vlctext, SRtext);
+                strcat(vlctext, "%n");
+                strcat(vlctext, ServiceProvidertext);
+                strcat(vlctext, "%n");
+                strcat(vlctext, Servicetext);
+                strcat(vlctext, "%n");
+                strcat(vlctext, Encodingtext);
+                strcat(vlctext, "%n");
+                strcat(vlctext, MERtext);
+                strcat(vlctext, "%n.%nTouch Left to Hide Overlay%nTouch Right to Exit");
+
+                FILE *fw=fopen("/home/pi/tmp/vlc_temp_overlay.txt","w+");
+                if(fw!=0)
+                {
+                  fprintf(fw, "%s\n", vlctext);
+                }
+                fclose(fw);
+
+                // Copy temp file to file to be read by VLC to prevent file collisions
+                system("cp /home/pi/tmp/vlc_temp_overlay.txt /home/pi/tmp/vlc_overlay.txt");
+
+                previousMER = MER;
+              }
+
             }
             else
             {
               if (Parameters_currently_displayed == 1)
               {
-                BackgroundRGB(0, 0, 0, 0);
-                Fill(0, 0, 0, 0);
+                BackgroundRGB(0, 0, 0, 255);
+                Fill(0, 0, 0, 255);
                 Rect(wscreen * 1.0 / 40.0, hscreen - 4.2 * linepitch, wscreen * 15.0 / 40.0, 4.0 * linepitch);
                 Parameters_currently_displayed = 0;
+
+                FILE *fw=fopen("/home/pi/tmp/vlc_temp_overlay.txt","w+");
+                if(fw!=0)
+                {
+                  fprintf(fw, " ");
+                }
+                fclose(fw);
+
+                // Copy temp file to file to be read by VLC to prevent file collisions
+                system("cp /home/pi/tmp/vlc_temp_overlay.txt /home/pi/tmp/vlc_overlay.txt");
               }
             }
             End();
-          }
+          }  // end of MER section
           stat_string[0] = '\0';
         }
-        else
+        else // first character of status string is not a $
         {
           strcat(stat_string, status_message_char);
         }
       }
-      else
+      else  // num < 0, so no more characters
       {
         FinishedButton = 0;
       }
     }
+    // Shutdown VLC if it has not stolen the graphics
+    system("/home/pi/rpidatv/scripts/lmvlcsd.sh &");
+
     close(fd_status_fifo);
     finish();
     usleep(1000);
@@ -9847,11 +10003,11 @@ void LMRX(int NoButton)
     printf("Stopping receive process\n");
     pclose(fp);
 
-    system("sudo killall lmhv.sh >/dev/null 2>/dev/null");
+    system("sudo killall lmvlcff.sh >/dev/null 2>/dev/null");
     touch_response = 0;
     break;
   case 1:
-    BackgroundRGB(0, 0, 0, 0);
+    BackgroundRGB(0, 0, 0, 255);
     End();
     fp=popen(PATH_SCRIPT_LMRXOMX, "r");
     if(fp==NULL) printf("Process error\n");
@@ -9954,27 +10110,27 @@ void LMRX(int NoButton)
               {
                 case 0:
                   strcpy(FECtext, "FEC 1/2");
-                  MERThreshold = 0; //
+                  MERThreshold = 1.7; //
                 break;
                 case 1:
                   strcpy(FECtext, "FEC 2/3");
-                  MERThreshold = 0; //
+                  MERThreshold = 3.3; //
                 break;
                 case 2:
                   strcpy(FECtext, "FEC 3/4");
-                  MERThreshold = 0; //
+                  MERThreshold = 4.2; //
                 break;
                 case 3:
                   strcpy(FECtext, "FEC 5/6");
-                  MERThreshold = 0; //
+                  MERThreshold = 5.1; //
                 break;
                 case 4:
                   strcpy(FECtext, "FEC 6/7");
-                  MERThreshold = 0; //
+                  MERThreshold = 5.5; //
                 break;
                 case 5:
                   strcpy(FECtext, "FEC 7/8");
-                  MERThreshold = 0; //
+                  MERThreshold = 5.8; //
                 break;
                 default:
                   strcpy(FECtext, "FEC -");
@@ -10177,7 +10333,7 @@ void LMRX(int NoButton)
               }
               snprintf(MERtext, 24, "MER %.1f (%.1f needed)", MER, MERThreshold);
 
-              BackgroundRGB(0, 0, 0, 0);
+              BackgroundRGB(0, 0, 0, 255);
               Fill(0, 0, 0, 127);
               Rect(wscreen * 1.0 / 40.0, hscreen - 9.2 * linepitch, wscreen * 20.0 / 40.0, hscreen);
               Rect(wscreen * 1.0 / 40.0, hscreen - 11.7 * linepitch, wscreen * 35.0 / 40.0, hscreen - 11.4 * linepitch);
@@ -10203,8 +10359,8 @@ void LMRX(int NoButton)
             {
               if (Parameters_currently_displayed == 1)
               {
-                BackgroundRGB(0, 0, 0, 0);
-                Fill(0, 0, 0, 0);
+                BackgroundRGB(0, 0, 0, 255);
+                Fill(0, 0, 0, 255);
                 Rect(wscreen * 1.0 / 40.0, hscreen - 4.2 * linepitch, wscreen * 15.0 / 40.0, 4.0 * linepitch);
                 Parameters_currently_displayed = 0;
               }
@@ -10235,7 +10391,7 @@ void LMRX(int NoButton)
     touch_response = 0;
     break;
   case 2:
-    BackgroundRGB(0, 0, 0, 0);
+    BackgroundRGB(0, 0, 0, 255);
     End();
     fp=popen(PATH_SCRIPT_LMRXVLC, "r");
     if(fp==NULL) printf("Process error\n");
@@ -10338,27 +10494,27 @@ void LMRX(int NoButton)
               {
                 case 0:
                   strcpy(FECtext, "FEC 1/2");
-                  MERThreshold = 0; //
+                  MERThreshold = 1.7; //
                 break;
                 case 1:
                   strcpy(FECtext, "FEC 2/3");
-                  MERThreshold = 0; //
+                  MERThreshold = 3.3; //
                 break;
                 case 2:
                   strcpy(FECtext, "FEC 3/4");
-                  MERThreshold = 0; //
+                  MERThreshold = 4.2; //
                 break;
                 case 3:
                   strcpy(FECtext, "FEC 5/6");
-                  MERThreshold = 0; //
+                  MERThreshold = 5.1; //
                 break;
                 case 4:
                   strcpy(FECtext, "FEC 6/7");
-                  MERThreshold = 0; //
+                  MERThreshold = 5.5; //
                 break;
                 case 5:
                   strcpy(FECtext, "FEC 7/8");
-                  MERThreshold = 0; //
+                  MERThreshold = 5.8; //
                 break;
                 default:
                   strcpy(FECtext, "FEC -");
@@ -10561,7 +10717,7 @@ void LMRX(int NoButton)
               }
               snprintf(MERtext, 24, "MER %.1f (%.1f needed)", MER, MERThreshold);
 
-              BackgroundRGB(0, 0, 0, 0);
+              BackgroundRGB(0, 0, 0, 255);
               Fill(0, 0, 0, 127);
               // Note that, if VLC is running, graphics will crash and hang here until VLC is stopped
               // The Button thread stops VLC on user command to end receiving
@@ -10589,8 +10745,8 @@ void LMRX(int NoButton)
             {
               if (Parameters_currently_displayed == 1)
               {
-                BackgroundRGB(0, 0, 0, 0);
-                Fill(0, 0, 0, 0);
+                BackgroundRGB(0, 0, 0, 255);
+                Fill(0, 0, 0, 255);
                 Rect(wscreen * 1.0 / 40.0, hscreen - 4.2 * linepitch, wscreen * 15.0 / 40.0, 4.0 * linepitch);
                 Parameters_currently_displayed = 0;
               }
@@ -10610,7 +10766,7 @@ void LMRX(int NoButton)
       }
     }
     // Shutdown VLC if it has not stolen the graphics
-    system("/home/pi/rpidatv/scripts/lmvlcsd.sh");
+    system("/home/pi/rpidatv/scripts/lmvlcsd.sh &");
 
     close(fd_status_fifo);
     finish();
@@ -10625,7 +10781,7 @@ void LMRX(int NoButton)
     break;
   case 3:
     snprintf(udp_string, 63, "UDP Output to %s:%s", LMRXudpip, LMRXudpport);
-    BackgroundRGB(0, 0, 0, 0);
+    BackgroundRGB(0, 0, 0, 255);
     End();
     fp=popen(PATH_SCRIPT_LMRXUDP, "r");
     if(fp==NULL) printf("Process error\n");
@@ -10728,27 +10884,27 @@ void LMRX(int NoButton)
               {
                 case 0:
                   strcpy(FECtext, "FEC 1/2");
-                  MERThreshold = 0; //
+                  MERThreshold = 1.7; //
                 break;
                 case 1:
                   strcpy(FECtext, "FEC 2/3");
-                  MERThreshold = 0; //
+                  MERThreshold = 3.3; //
                 break;
                 case 2:
                   strcpy(FECtext, "FEC 3/4");
-                  MERThreshold = 0; //
+                  MERThreshold = 4.2; //
                 break;
                 case 3:
                   strcpy(FECtext, "FEC 5/6");
-                  MERThreshold = 0; //
+                  MERThreshold = 5.1; //
                 break;
                 case 4:
                   strcpy(FECtext, "FEC 6/7");
-                  MERThreshold = 0; //
+                  MERThreshold = 5.5; //
                 break;
                 case 5:
                   strcpy(FECtext, "FEC 7/8");
-                  MERThreshold = 0; //
+                  MERThreshold = 5.8; //
                 break;
                 default:
                   strcpy(FECtext, "FEC - ");
@@ -10948,7 +11104,7 @@ void LMRX(int NoButton)
             }
             snprintf(MERtext, 24, "MER %.1f (%.1f needed)", MER, MERThreshold);
 
-            BackgroundRGB(0, 0, 0, 0);
+            BackgroundRGB(0, 0, 0, 255);
             Fill(0, 0, 0, 127);
             Rect(wscreen * 1.0 / 40.0, hscreen - 9.2 * linepitch, wscreen * 20.0 / 40.0, hscreen);
             Fill(255, 255, 255, 255);
@@ -10966,6 +11122,11 @@ void LMRX(int NoButton)
             }
             Text(wscreen * 1.0 / 40.0, hscreen - 9 * linepitch, MERtext, font, pointsize);
             Fill(255, 255, 255, 255);
+            pointsize = 120;
+            snprintf(MERtext, 24, "%.1f", MER);
+            Text(wscreen * 20.0 / 40.0, hscreen * 0.35, MERtext, font, pointsize);
+            pointsize = 20;
+
             Text(wscreen * 1.0 / 40.0, hscreen - 10.5 * linepitch, udp_string, font, pointsize);
             Text(wscreen * 1.0 / 40.0, hscreen - 11.5 * linepitch, "Touch screen to exit", font, pointsize);
             End();
@@ -10995,7 +11156,7 @@ void LMRX(int NoButton)
     break;
   case 4:
     snprintf(udp_string, 63, "UDP Output to %s:%s", LMRXudpip, LMRXudpport);
-    BackgroundRGB(0, 0, 0, 0);
+    BackgroundRGB(0, 0, 0, 255);
     End();
     fp=popen(PATH_SCRIPT_LMRXMER, "r");
     if(fp==NULL) printf("Process error\n");
@@ -11071,7 +11232,7 @@ void LMRX(int NoButton)
               MERcount = 10;
             }
 
-            BackgroundRGB(0, 0, 0, 0);
+            BackgroundRGB(0, 0, 0, 255);
             Fill(0, 0, 0, 255);
             Rect(wscreen * 1.0 / 40.0, 0.0, wscreen * 39.0 / 40.0, hscreen);
             Fill(255, 255, 255, 255);
@@ -11122,8 +11283,8 @@ void LMRX(int NoButton)
     break;
   case 5:
     snprintf(udp_string, 63, "UDP Output to %s:%s", LMRXudpip, LMRXudpport);
-    BackgroundRGB(0, 0, 0, 0);
-    End();
+    BackgroundRGB(0, 0, 0, 255);
+    //End();
     fp=popen(PATH_SCRIPT_LMRXMER, "r");
     if(fp==NULL) printf("Process error\n");
 
@@ -11211,7 +11372,7 @@ void LMRX(int NoButton)
               MERcount = 10;
             }
 
-            BackgroundRGB(0, 0, 0, 0);
+            BackgroundRGB(0, 0, 0, 255);
             Fill(0, 0, 0, 255);
             Rect(wscreen * 1.0 / 40.0, 0.0, wscreen * 39.0 / 40.0, hscreen);
             Fill(255, 255, 255, 255);
@@ -11259,9 +11420,9 @@ void LMRX(int NoButton)
       }
     }
     close(fd_status_fifo);
-    finish();
-    usleep(1000);
-    init(&wscreen, &hscreen);  // Restart the graphics
+    //finish();
+    //usleep(1000);
+    //init(&wscreen, &hscreen);  // Restart the graphics
 
     printf("Stopping receive process\n");
     pclose(fp);
@@ -12543,23 +12704,29 @@ void do_video_monitor(int button)
   {
   case 10:
     printf("Starting Video Monitor, calling av2.sh\n");
-    strcpy(startCommand, "/home/pi/rpidatv/scripts/av2.sh");
+    strcpy(startCommand, "/home/pi/rpidatv/scripts/av2.sh noaudio");
     strcat(startCommand, " &");
     break;
   case 11:
+    printf("Starting Video Monitor, calling av2.sh\n");
+    strcpy(startCommand, "/home/pi/rpidatv/scripts/av2.sh");
+    strcat(startCommand, " &");
+    break;
+  case 12:
     printf("Starting Pi Cam Monitor, calling av1.sh\n");
     strcpy(startCommand, "/home/pi/rpidatv/scripts/av1.sh");
     strcat(startCommand, " &");
     break;
-  case 12:
+  case 13:
     printf("Starting C920 Monitor, calling av3.sh\n");
-    strcpy(startCommand, "/home/pi/rpidatv/scripts/av3.sh");
+    strcpy(startCommand, "/home/pi/rpidatv/scripts/av3.sh noaudio");
     strcat(startCommand, " &");
     break;
   }
 
   FinishedButton = 0;
-  BackgroundRGB(0, 0, 0, 0);
+  BackgroundRGB(0, 0, 0, 255);
+  End();
   finish();                  // Close the graphics sub-system
 
   // Create Wait Button thread
@@ -12581,6 +12748,9 @@ void do_video_monitor(int button)
 
 void MonitorStop()
 {
+  char bashcmd[255];
+  char picamdev1[15];
+
   // Kill the key processes as nicely as possible
   system("sudo killall rpidatv >/dev/null 2>/dev/null");
   system("sudo killall ffmpeg >/dev/null 2>/dev/null");
@@ -12592,8 +12762,16 @@ void MonitorStop()
   system("sudo killall mplayer >/dev/null 2>/dev/null");
 
   // Turn the Viewfinder off
-  system("v4l2-ctl -d /dev/video1 --overlay=0 >/dev/null 2>/dev/null");
-  system("v4l2-ctl -d /dev/video0 --overlay=0 >/dev/null 2>/dev/null");
+  GetPiCamDev(picamdev1);
+  if (strlen(picamdev1) > 1)
+  {
+    strcpy(bashcmd, "v4l2-ctl -d ");
+    strcat(bashcmd, picamdev1);
+    strcat(bashcmd, " --overlay=0 >/dev/null 2>/dev/null");
+    system(bashcmd);
+  }
+  //system("v4l2-ctl -d /dev/video1 --overlay=0 >/dev/null 2>/dev/null");
+  //system("v4l2-ctl -d /dev/video0 --overlay=0 >/dev/null 2>/dev/null");
 
   // Stop the audio relay in CompVid mode
   system("sudo killall arecord >/dev/null 2>/dev/null");
@@ -13026,13 +13204,17 @@ void ChangePresetFreq(int NoButton)
 
 void ChangeLMPresetFreq(int NoButton)
 {
-  char RequestText[64];
-  char InitText[64];
+  char RequestText[63];
+  char InitText[63] = " ";
   char PresetNo[3];
   char Param[63];
   int FreqIndex;
+  div_t div_10;
+  div_t div_100;
+  div_t div_1000;
   int CheckValue = 0;
   int Offset_to_Apply = 0;
+  char FreqkHz[63];
 
   // Convert button number to frequency array index
   if (CallingMenu == 8)  // Called from receive Menu
@@ -13063,34 +13245,74 @@ void ChangeLMPresetFreq(int NoButton)
   }
 
   // Define request string
-  strcpy(RequestText, "Enter new receive frequency in kHz");
+  strcpy(RequestText, "Enter new receive frequency in MHz");
 
-  // Define initial value
-  snprintf(InitText, 10, "%d", LMRXfreq[FreqIndex]);
+  // Define initial value and convert to MHz
+
+  if(LMRXfreq[FreqIndex] < 143000)  // below 143 MHz, so set to 146.5
+  {
+    strcpy(InitText, "146.5");
+  }
+  else
+  {
+    div_10 = div(LMRXfreq[FreqIndex], 10);
+    div_1000 = div(LMRXfreq[FreqIndex], 1000);
+
+    if(div_10.rem != 0)  // last character not zero, so make answer of form xxx.xxx
+    {
+      snprintf(InitText, 10, "%d.%03d", div_1000.quot, div_1000.rem);
+    }
+    else
+    {
+      div_100 = div(LMRXfreq[FreqIndex], 100);
+
+      if(div_100.rem != 0)  // last but one character not zero, so make answer of form xxx.xx
+      {
+        snprintf(InitText, 10, "%d.%02d", div_1000.quot, div_1000.rem / 10);
+      }
+      else
+      {
+        if(div_1000.rem != 0)  // last but two character not zero, so make answer of form xxx.x
+        {
+          snprintf(InitText, 10, "%d.%d", div_1000.quot, div_1000.rem / 100);
+        }
+        else  // integer MHz, so just xxx (no dp)
+        {
+          snprintf(InitText, 10, "%d", div_1000.quot);
+        }
+      }
+    }
+  }
 
   // Ask for new value
   while ((CheckValue - Offset_to_Apply < 143000) || (CheckValue - Offset_to_Apply > 2600000))
   {
     Keyboard(RequestText, InitText, 10);
-    CheckValue = atoi(KeyboardReturn);
+    CheckValue = (int)(1000 * atof(KeyboardReturn);
     printf("CheckValue = %d Offset = %d\n", CheckValue, Offset_to_Apply);
   }
 
   // Write freq to memory
   LMRXfreq[FreqIndex] = CheckValue;
-  //LMRXfreq[1] = CheckValue;
 
-  strcat(Param, PresetNo);
-  printf("Store Preset %s %s\n", Param, KeyboardReturn);
-  SetConfigParam(PATH_LMCONFIG, Param, KeyboardReturn);
-  if (strcmp(LMRXmode, "sat") == 0)
+  // Convert to string in kHz
+  snprintf(FreqkHz, 10, "%d", CheckValue);
+
+  // Write to Presets File as in-use frequency
+  if (strcmp(LMRXmode, "terr") == 0) // Terrestrial
   {
-    SetConfigParam(PATH_LMCONFIG, "freq0", KeyboardReturn);
+    SetConfigParam(PATH_LMCONFIG, "freq1", FreqkHz);    // Set in-use freq
+    FreqIndex = FreqIndex - 10;                          // subtract index for terrestrial freqs
   }
   else
   {
-    SetConfigParam(PATH_LMCONFIG, "freq1", KeyboardReturn);
+    SetConfigParam(PATH_LMCONFIG, "freq0", FreqkHz); // Set in-use freq
   }
+
+  // write freq to Stored Presets file
+  snprintf(PresetNo, 3, "%d", FreqIndex);
+  strcat(Param, PresetNo);
+  SetConfigParam(PATH_LMCONFIG, Param, FreqkHz);
 }
 
 void ChangePresetSR(int NoButton)
@@ -14560,7 +14782,8 @@ void waituntil(int w,int h)
           BackgroundRGB(0,0,0,255);
           UpdateWindow();
           break;
-        case 7:                               // Not used
+        case 7:                               // Check Snaps
+          do_snapcheck();
           UpdateWindow();
           break;
         case 8:                               // More Functions Menu                               // Not used
@@ -14577,33 +14800,16 @@ void waituntil(int w,int h)
           Start_Highlights_Menu20();
           UpdateWindow();
           break;
-        case 10:                              // Video Monitor (EasyCap)
-        case 11:                              // Pi Cam Monitor
-        case 12:                              // Check Snaps
+        case 10:                              // Video Monitor (EasyCap) No audio
+        case 11:                              // Video Monitor (EasyCap) With audio
+        case 12:                              // Pi Cam Monitor
+        case 13:                              // C920 Monitor - no audio
           do_video_monitor(i);
           BackgroundRGB(0, 0, 0, 255);
           UpdateWindow();
           break;
-        case 13:                               // IPTS Viewer
+        case 14:                               // IPTS Viewer
           DisplayIPStream();
-          BackgroundRGB(0, 0, 0, 255);
-          UpdateWindow();                     // Stay in Menu 2
-          break;
-        case 14:                              // Check Snaps
-          do_snapcheck();
-          UpdateWindow();
-          break;
-        case 15:                               // Was FreqShow
-          //if(CheckRTL()==0)
-          //{
-            //DisplayLogo();
-            //do_freqshow();
-          //}
-          //else
-          //{
-            //MsgBox("No RTL-SDR Connected");
-            //wait_touch();
-          //}
           BackgroundRGB(0, 0, 0, 255);
           UpdateWindow();
           break;
@@ -14768,7 +14974,18 @@ void waituntil(int w,int h)
           Start_Highlights_Menu35();
           UpdateWindow();
           break;
-        case 13:                               // Blank
+        case 13:                               // Set Default Audio Out
+          if (strcmp(LMRXaudio, "rpi") == 0)
+          {
+            strcpy(LMRXaudio, "usb");
+          }
+          else
+          {
+            strcpy(LMRXaudio, "rpi");
+          }
+          SetConfigParam(PATH_LMCONFIG, "audio", LMRXaudio);
+          Start_Highlights_Menu3();
+          UpdateWindow();
           break;
         case 14:                               // Blank
           break;
@@ -15355,11 +15572,11 @@ void waituntil(int w,int h)
         CallingMenu = 8;
         switch (i)
         {
-        case 0:                                           // Simple H264
+        case 0:                                           // VLC with ffmpeg
         case 1:                                           // OMXPlayer
         case 2:                                           // VLC
         case 3:                                           // UDP Output
-          BackgroundRGB(0,0,0,255);
+          BackgroundRGB(0, 0, 0, 255);
           Start(wscreen,hscreen);
           LMRX(i);
           BackgroundRGB(0, 0, 0, 255);
@@ -15369,7 +15586,7 @@ void waituntil(int w,int h)
         case 4:                                           // Beacon MER
           if (strcmp(LMRXmode, "sat") == 0)
           {
-            BackgroundRGB(0,0,0,255);
+            BackgroundRGB(0, 0, 0, 255);
             Start(wscreen,hscreen);
             LMRX(i);
             BackgroundRGB(0, 0, 0, 255);
@@ -18613,9 +18830,8 @@ void Define_Menu2()
   button = CreateButton(2, 6);
   AddButtonStatus(button, "Sites/Bcns^Bearings", &Blue);
 
-  //button = CreateButton(2, 7);
-  //AddButtonStatus(button, " ", &Blue);
-  //AddButtonStatus(button, " ", &Green);
+  button = CreateButton(2, 7);
+  AddButtonStatus(button, "Snap^Check", &Blue);
 
   button = CreateButton(2, 8);
   AddButtonStatus(button, "More^Functions", &Blue);
@@ -18630,22 +18846,20 @@ void Define_Menu2()
   AddButtonStatus(button, "Video^Monitor", &Blue);
 
   button = CreateButton(2, 11);
-  AddButtonStatus(button, "Pi Cam^Monitor", &Blue);
+  AddButtonStatus(button, "Vid & Audio^Monitor", &Blue);
 
   button = CreateButton(2, 12);
-  AddButtonStatus(button, "C920^Monitor", &Blue);
+  AddButtonStatus(button, "Pi Cam^Monitor", &Blue);
 
   button = CreateButton(2, 13);
-  AddButtonStatus(button, "IPTS^Monitor", &Blue);
+  AddButtonStatus(button, "C920^Monitor", &Blue);
 
   button = CreateButton(2, 14);
-  AddButtonStatus(button, "Snap^Check", &Blue);
+  AddButtonStatus(button, "IPTS^Monitor", &Blue);
 
   // 4th line up Menu 2
 
-  button = CreateButton(2, 15);
-  //AddButtonStatus(button, "Freq Show^Spectrum", &Blue);
-  //AddButtonStatus(button, " ", &Green);
+  //button = CreateButton(2, 15);
 
   button = CreateButton(2, 16);
   AddButtonStatus(button, "Sig Gen^ ", &Blue);
@@ -18720,6 +18934,9 @@ void Define_Menu3()
   AddButtonStatus(button, "Set Stream^Outputs", &Blue);
   AddButtonStatus(button, "Set Stream^Outputs", &Green);
 
+  button = CreateButton(3, 13);
+  AddButtonStatus(button, "Audio out^RPi Jack", &Blue);
+
   // 4th line up Menu 3: Band Details, Preset Freqs, Preset SRs, Call and ADFRef
 
   button = CreateButton(3, 15);
@@ -18753,7 +18970,14 @@ void Define_Menu3()
 
 void Start_Highlights_Menu3()
 {
-  ;
+  if (strcmp(LMRXaudio, "rpi") == 0)
+  {
+    AmendButtonStatus(ButtonNumber(3, 13), 0, "Audio out^RPi Jack", &Blue);
+  }
+  else
+  {
+    AmendButtonStatus(ButtonNumber(3, 13), 0, "Audio out^USB dongle", &Blue);
+  }
 }
 
 void Define_Menu4()
@@ -19402,20 +19626,20 @@ void Define_Menu8()
   // Bottom Row, Menu 8
 
   button = CreateButton(8, 0);
-  AddButtonStatus(button, "H264^No Audio", &Blue);
-  AddButtonStatus(button, "H264^No Audio", &Green);
+  AddButtonStatus(button, "Play with^ffmpeg VLC", &Blue);
+  AddButtonStatus(button, "Play with^ffmpeg VLC", &Green);
 
   button = CreateButton(8, 1);
-  AddButtonStatus(button, "OMX^Player", &Blue);
-  AddButtonStatus(button, "OMX^Player", &Green);
+  AddButtonStatus(button, "Play with^OMX Player", &Blue);
+  AddButtonStatus(button, "Play with^OMX Player", &Green);
 
   button = CreateButton(8, 2);
-  AddButtonStatus(button, "VLC^Player", &Blue);
-  AddButtonStatus(button, "VLC^Player", &Green);
+  AddButtonStatus(button, "Play with^VLC", &Blue);
+  AddButtonStatus(button, "Play with^VLC", &Green);
 
   button = CreateButton(8, 3);
-  AddButtonStatus(button, "UDP^Output", &Blue);
-  AddButtonStatus(button, "UDP^Output", &Green);
+  AddButtonStatus(button, "Play to^UDP Stream", &Blue);
+  AddButtonStatus(button, "Play to^UDP Stream", &Green);
 
   button = CreateButton(8, 4);
   AddButtonStatus(button, "Beacon^MER", &Blue);
@@ -19514,7 +19738,13 @@ void Define_Menu8()
 void Start_Highlights_Menu8()
 {
   int indexoffset = 0;
-  char LMBtext[21];
+  char LMBtext[11][21];
+  char LMBStext[21];
+  int i;
+  int FreqIndex;
+  div_t div_10;
+  div_t div_100;
+  div_t div_1000;
 
   // Freq buttons
 
@@ -19528,45 +19758,82 @@ void Start_Highlights_Menu8()
     SetButtonStatus(ButtonNumber(CurrentMenu, 4), 0);
   }
 
-  snprintf(LMBtext, 15, "FREQ^%d", LMRXfreq[6 + indexoffset]);
-  AmendButtonStatus(ButtonNumber(8, 5), 0, LMBtext, &Blue);
-  AmendButtonStatus(ButtonNumber(8, 5), 1, LMBtext, &Green);
+  for(i = 1; i <= 10; i = i + 1)
+  {
+    if (i <= 5)
+    {
+      FreqIndex = i + 5 + indexoffset;
+    }
+    else
+    {
+      FreqIndex = i + indexoffset - 5;
+    }
+    div_10 = div(LMRXfreq[FreqIndex], 10);
+    div_1000 = div(LMRXfreq[FreqIndex], 1000);
 
-  snprintf(LMBtext, 15, "FREQ^%d", LMRXfreq[7 + indexoffset]);
-  AmendButtonStatus(ButtonNumber(8, 6), 0, LMBtext, &Blue);
-  AmendButtonStatus(ButtonNumber(8, 6), 1, LMBtext, &Green);
+    if(div_10.rem != 0)  // last character not zero, so make answer of form xxx.xxx
+    {
+      snprintf(LMBtext[i], 15, "%d.%03d", div_1000.quot, div_1000.rem);
+    }
+    else
+    {
+      div_100 = div(LMRXfreq[FreqIndex], 100);
 
-  snprintf(LMBtext, 15, "FREQ^%d", LMRXfreq[8 + indexoffset]);
-  AmendButtonStatus(ButtonNumber(8, 7), 0, LMBtext, &Blue);
-  AmendButtonStatus(ButtonNumber(8, 7), 1, LMBtext, &Green);
+      if(div_100.rem != 0)  // last but one character not zero, so make answer of form xxx.xx
+      {
+        snprintf(LMBtext[i], 15, "%d.%02d", div_1000.quot, div_1000.rem / 10);
+      }
+      else
+      {
+        if(div_1000.rem != 0)  // last but two character not zero, so make answer of form xxx.x
+        {
+          snprintf(LMBtext[i], 15, "%d.%d", div_1000.quot, div_1000.rem / 100);
+        }
+        else  // integer MHz, so just xxx.0
+        {
+          snprintf(LMBtext[i], 15, "%d.0", div_1000.quot);
+        }
+      }
+    }
+    if (i == 5)
+    {
+      strcat(LMBtext[i], "^Keyboard");
+    }
+    else
+    {
+      strcat(LMBtext[i], "^MHz");
+    }
+  }
 
-  snprintf(LMBtext, 15, "FREQ^%d", LMRXfreq[9 + indexoffset]);
-  AmendButtonStatus(ButtonNumber(8, 8), 0, LMBtext, &Blue);
-  AmendButtonStatus(ButtonNumber(8, 8), 1, LMBtext, &Green);
+  AmendButtonStatus(ButtonNumber(8, 5), 0, LMBtext[1], &Blue);
+  AmendButtonStatus(ButtonNumber(8, 5), 1, LMBtext[1], &Green);
 
-  snprintf(LMBtext, 20, "Keyboard^%d", LMRXfreq[10 + indexoffset]);
-  AmendButtonStatus(ButtonNumber(8, 9), 0, LMBtext, &Blue);
-  AmendButtonStatus(ButtonNumber(8, 9), 1, LMBtext, &Green);
+  AmendButtonStatus(ButtonNumber(8, 6), 0, LMBtext[2], &Blue);
+  AmendButtonStatus(ButtonNumber(8, 6), 1, LMBtext[2], &Green);
 
-  snprintf(LMBtext, 15, "FREQ^%d", LMRXfreq[1 + indexoffset]);
-  AmendButtonStatus(ButtonNumber(8, 10), 0, LMBtext, &Blue);
-  AmendButtonStatus(ButtonNumber(8, 10), 1, LMBtext, &Green);
+  AmendButtonStatus(ButtonNumber(8, 7), 0, LMBtext[3], &Blue);
+  AmendButtonStatus(ButtonNumber(8, 7), 1, LMBtext[3], &Green);
 
-  snprintf(LMBtext, 15, "FREQ^%d", LMRXfreq[2 + indexoffset]);
-  AmendButtonStatus(ButtonNumber(8, 11), 0, LMBtext, &Blue);
-  AmendButtonStatus(ButtonNumber(8, 11), 1, LMBtext, &Green);
+  AmendButtonStatus(ButtonNumber(8, 8), 0, LMBtext[4], &Blue);
+  AmendButtonStatus(ButtonNumber(8, 8), 1, LMBtext[4], &Green);
 
-  snprintf(LMBtext, 15, "FREQ^%d", LMRXfreq[3 + indexoffset]);
-  AmendButtonStatus(ButtonNumber(8, 12), 0, LMBtext, &Blue);
-  AmendButtonStatus(ButtonNumber(8, 12), 1, LMBtext, &Green);
+  AmendButtonStatus(ButtonNumber(8, 9), 0, LMBtext[5], &Blue);
+  AmendButtonStatus(ButtonNumber(8, 9), 1, LMBtext[5], &Green);
 
-  snprintf(LMBtext, 15, "FREQ^%d", LMRXfreq[4 + indexoffset]);
-  AmendButtonStatus(ButtonNumber(8, 13), 0, LMBtext, &Blue);
-  AmendButtonStatus(ButtonNumber(8, 13), 1, LMBtext, &Green);
+  AmendButtonStatus(ButtonNumber(8, 10), 0, LMBtext[6], &Blue);
+  AmendButtonStatus(ButtonNumber(8, 10), 1, LMBtext[6], &Green);
 
-  snprintf(LMBtext, 15, "FREQ^%d", LMRXfreq[5 + indexoffset]);
-  AmendButtonStatus(ButtonNumber(8, 14), 0, LMBtext, &Blue);
-  AmendButtonStatus(ButtonNumber(8, 14), 1, LMBtext, &Green);
+  AmendButtonStatus(ButtonNumber(8, 11), 0, LMBtext[7], &Blue);
+  AmendButtonStatus(ButtonNumber(8, 11), 1, LMBtext[7], &Green);
+
+  AmendButtonStatus(ButtonNumber(8, 12), 0, LMBtext[8], &Blue);
+  AmendButtonStatus(ButtonNumber(8, 12), 1, LMBtext[8], &Green);
+
+  AmendButtonStatus(ButtonNumber(8, 13), 0, LMBtext[9], &Blue);
+  AmendButtonStatus(ButtonNumber(8, 13), 1, LMBtext[9], &Green);
+
+  AmendButtonStatus(ButtonNumber(8, 14), 0, LMBtext[10], &Blue);
+  AmendButtonStatus(ButtonNumber(8, 14), 1, LMBtext[10], &Green);
 
   if ( LMRXfreq[0] == LMRXfreq[6 + indexoffset] )
   {
@@ -19616,29 +19883,29 @@ void Start_Highlights_Menu8()
     indexoffset = 6;
   }
 
-  snprintf(LMBtext, 15, "SR^%d", LMRXsr[1 + indexoffset]);
-  AmendButtonStatus(ButtonNumber(8, 15), 0, LMBtext, &Blue);
-  AmendButtonStatus(ButtonNumber(8, 15), 1, LMBtext, &Green);
+  snprintf(LMBStext, 15, "SR^%d", LMRXsr[1 + indexoffset]);
+  AmendButtonStatus(ButtonNumber(8, 15), 0, LMBStext, &Blue);
+  AmendButtonStatus(ButtonNumber(8, 15), 1, LMBStext, &Green);
 
-  snprintf(LMBtext, 15, "SR^%d", LMRXsr[2 + indexoffset]);
-  AmendButtonStatus(ButtonNumber(8, 16), 0, LMBtext, &Blue);
-  AmendButtonStatus(ButtonNumber(8, 16), 1, LMBtext, &Green);
+  snprintf(LMBStext, 15, "SR^%d", LMRXsr[2 + indexoffset]);
+  AmendButtonStatus(ButtonNumber(8, 16), 0, LMBStext, &Blue);
+  AmendButtonStatus(ButtonNumber(8, 16), 1, LMBStext, &Green);
 
-  snprintf(LMBtext, 15, "SR^%d", LMRXsr[3 + indexoffset]);
-  AmendButtonStatus(ButtonNumber(8, 17), 0, LMBtext, &Blue);
-  AmendButtonStatus(ButtonNumber(8, 17), 1, LMBtext, &Green);
+  snprintf(LMBStext, 15, "SR^%d", LMRXsr[3 + indexoffset]);
+  AmendButtonStatus(ButtonNumber(8, 17), 0, LMBStext, &Blue);
+  AmendButtonStatus(ButtonNumber(8, 17), 1, LMBStext, &Green);
 
-  snprintf(LMBtext, 15, "SR^%d", LMRXsr[4 + indexoffset]);
-  AmendButtonStatus(ButtonNumber(8, 18), 0, LMBtext, &Blue);
-  AmendButtonStatus(ButtonNumber(8, 18), 1, LMBtext, &Green);
+  snprintf(LMBStext, 15, "SR^%d", LMRXsr[4 + indexoffset]);
+  AmendButtonStatus(ButtonNumber(8, 18), 0, LMBStext, &Blue);
+  AmendButtonStatus(ButtonNumber(8, 18), 1, LMBStext, &Green);
 
-  snprintf(LMBtext, 15, "SR^%d", LMRXsr[5 + indexoffset]);
-  AmendButtonStatus(ButtonNumber(8, 19), 0, LMBtext, &Blue);
-  AmendButtonStatus(ButtonNumber(8, 19), 1, LMBtext, &Green);
+  snprintf(LMBStext, 15, "SR^%d", LMRXsr[5 + indexoffset]);
+  AmendButtonStatus(ButtonNumber(8, 19), 0, LMBStext, &Blue);
+  AmendButtonStatus(ButtonNumber(8, 19), 1, LMBStext, &Green);
 
-  snprintf(LMBtext, 15, "SR^%d", LMRXsr[6 + indexoffset]);
-  AmendButtonStatus(ButtonNumber(8, 20), 0, LMBtext, &Blue);
-  AmendButtonStatus(ButtonNumber(8, 20), 1, LMBtext, &Green);
+  snprintf(LMBStext, 15, "SR^%d", LMRXsr[6 + indexoffset]);
+  AmendButtonStatus(ButtonNumber(8, 20), 0, LMBStext, &Blue);
+  AmendButtonStatus(ButtonNumber(8, 20), 1, LMBStext, &Green);
 
   if ( LMRXsr[0] == LMRXsr[1 + indexoffset] )
   {
@@ -19667,17 +19934,17 @@ void Start_Highlights_Menu8()
 
   if (strcmp(LMRXmode, "sat") == 0)
   {
-    strcpy(LMBtext, "QO-100 (");
-    strcat(LMBtext, LMRXinput);
-    strcat(LMBtext, ")^ ");
-    AmendButtonStatus(ButtonNumber(8, 21), 0, LMBtext, &Blue);
+    strcpy(LMBStext, "QO-100 (");
+    strcat(LMBStext, LMRXinput);
+    strcat(LMBStext, ")^ ");
+    AmendButtonStatus(ButtonNumber(8, 21), 0, LMBStext, &Blue);
   }
   else
   {
-    strcpy(LMBtext, " ^Terrestrial (");
-    strcat(LMBtext, LMRXinput);
-    strcat(LMBtext, ")");
-    AmendButtonStatus(ButtonNumber(8, 21), 0, LMBtext, &Blue);
+    strcpy(LMBStext, " ^Terrestrial (");
+    strcat(LMBStext, LMRXinput);
+    strcat(LMBStext, ")");
+    AmendButtonStatus(ButtonNumber(8, 21), 0, LMBStext, &Blue);
   }
 }
 
@@ -19969,23 +20236,24 @@ void Define_Menu12()
 
   // 2nd Row, Menu 12
 
-  button = CreateButton(12, 5);
+  button = CreateButton(12, 5);                     // MPEG-2
   AddButtonStatus(button, TabEncoding[0], &Blue);
   AddButtonStatus(button, TabEncoding[0], &Green);
 
-  button = CreateButton(12, 6);
+  button = CreateButton(12, 6);                     // H264
   AddButtonStatus(button, TabEncoding[1], &Blue);
   AddButtonStatus(button, TabEncoding[1], &Green);
 
-  button = CreateButton(12, 7);
+  button = CreateButton(12, 7);                     // H265
   AddButtonStatus(button, TabEncoding[2], &Blue);
   AddButtonStatus(button, TabEncoding[2], &Green);
+  AddButtonStatus(button, TabEncoding[2], &Grey);
 
-  button = CreateButton(12, 8);
+  button = CreateButton(12, 8);                     // IPTS in
   AddButtonStatus(button, TabEncoding[3], &Blue);
   AddButtonStatus(button, TabEncoding[3], &Green);
 
-  button = CreateButton(12, 9);
+  button = CreateButton(12, 9);                     // TS File
   AddButtonStatus(button, TabEncoding[4], &Blue);
   AddButtonStatus(button, TabEncoding[4], &Green);
 }
@@ -20016,6 +20284,7 @@ void Start_Highlights_Menu12()
   {
     SelectInGroupOnMenu(12, 5, 9, 9, 1);
   }
+  GreyOut12();
 }
 
 void Define_Menu13()
@@ -21208,8 +21477,12 @@ void Start_Highlights_Menu27()
 {
   // Preset Frequency Change
   int index;
+  int FreqIndex;
   int NoButton;
   char FreqLabel[31];
+  div_t div_10;
+  div_t div_100;
+  div_t div_1000;
 
   if (CallingMenu == 3)      // TX Presets
   {
@@ -21237,12 +21510,45 @@ void Start_Highlights_Menu27()
       }
       if(strcmp(LMRXmode, "sat") == 0)
       {
-        snprintf(FreqLabel, 30, "%i", LMRXfreq[index]);
+        FreqIndex = index;
       }
       else
       {
-        snprintf(FreqLabel, 30, "%i", LMRXfreq[index + 10]);
+        FreqIndex = index + 10;
       }
+
+      div_10 = div(LMRXfreq[FreqIndex], 10);
+      div_1000 = div(LMRXfreq[FreqIndex], 1000);
+
+      if(div_10.rem != 0)  // last character not zero, so make answer of form xxx.xxx
+      {
+        snprintf(FreqLabel, 15, "%d.%03d", div_1000.quot, div_1000.rem);
+      }
+      else
+      {
+        div_100 = div(LMRXfreq[FreqIndex], 100);
+
+        if(div_100.rem != 0)  // last but one character not zero, so make answer of form xxx.xx
+        {
+          snprintf(FreqLabel, 15, "%d.%02d", div_1000.quot, div_1000.rem / 10);
+        }
+        else
+        {
+          if(div_1000.rem != 0)  // last but two character not zero, so make answer of form xxx.x
+          {
+            snprintf(FreqLabel, 15, "%d.%d", div_1000.quot, div_1000.rem / 100);
+          }
+          else  // integer MHz, so just xxx.0
+          {
+            snprintf(FreqLabel, 15, "%d.0", div_1000.quot);
+          }
+        }
+      }
+
+
+
+      //snprintf(FreqLabel, 30, "%i", LMRXfreq[FreqIndex]);
+
       AmendButtonStatus(ButtonNumber(27, NoButton), 0, FreqLabel, &Blue);
       AmendButtonStatus(ButtonNumber(27, NoButton), 1, FreqLabel, &Green);
     }
@@ -23305,6 +23611,7 @@ terminate(int dummy)
   ReceiveStop();
   RTLstop();
   system("killall -9 omxplayer.bin >/dev/null 2>/dev/null");
+  system("/home/pi/rpidatv/scripts/lmvlcsd.sh &");
   system("sudo killall lmudp.sh >/dev/null 2>/dev/null");
   system("sudo killall longmynd >/dev/null 2>/dev/null");
   finish();
@@ -23465,6 +23772,7 @@ int main(int argc, char **argv)
   ReadRTLPresets();
   ReadRXPresets();
   ReadStreamPresets();
+  ReadLMRXPresets();
 
   // Initialise all the button Status Indexes to 0
   InitialiseButtons();
@@ -23532,6 +23840,9 @@ int main(int argc, char **argv)
   // Check Lime connected if selected
   CheckLimeReady();
 
+  // Check for LimeNET Micro
+  LimeNETMicroDet = DetectLimeNETMicro();
+
   // Set the Band (and filter) Switching
   // Must be done after (not before) starting DATV Express Server
   system ("sudo /home/pi/rpidatv/scripts/ctlfilter.sh");
@@ -23545,10 +23856,9 @@ int main(int argc, char **argv)
   system("echo "" | sudo tee /root/.ssh/known_hosts >/dev/null 2>/dev/null");
 
   // Determine button highlights
+  BackgroundRGB(0, 0, 0, 255);
   Start_Highlights_Menu1();
-  printf("Entering Update Window\n");
   UpdateWindow();
-  printf("Update Window\n");
 
   // Go and wait for the screen to be touched
   waituntil(wscreen,hscreen);

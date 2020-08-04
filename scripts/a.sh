@@ -921,11 +921,18 @@ fi
         v4l2-ctl -d $ANALOGCAMNAME "--set-standard="$ANALOGCAMSTANDARD
       fi
     else
-      # Webcam in use
-      # If a C920 put it in the right mode
+      # Webcam in use, so set parameters depending on camera in use
+
+      # Check audio first
+      if [ "$AUDIO_PREF" == "auto" ] || [ "$AUDIO_PREF" == "webcam" ]; then  # Webcam audio
+        if [ $C920Present == 1 ] || [ $C910Present=1 ]; then
+          AUDIO_SAMPLE=32000
+        fi
+      fi
+
+      # If a C920 put it in the right video mode
       # Anything over 800x448 does not work
       if [ $C920Present == 1 ]; then
-         AUDIO_SAMPLE=32000
          if [ "$BITRATE_VIDEO" -gt 190000 ]; then  # 333KS FEC 1/2 or better
           v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=800,height=448,pixelformat=0 --set-parm=15 \
             --set-ctrl power_line_frequency=1
@@ -933,14 +940,32 @@ fi
           VIDEO_HEIGHT=448
           VIDEO_FPS=15
         else
-          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=448,height=240,pixelformat=0 --set-parm=15 \
+          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=432,height=240,pixelformat=0 --set-parm=15 \
             --set-ctrl power_line_frequency=1
-          VIDEO_WIDTH=448
+          VIDEO_WIDTH=416  # Camera modes are not 32 aligned
           VIDEO_HEIGHT=240
           VIDEO_FPS=15
         fi
-     fi
-     if [ $C170Present == 1 ]; then
+      fi
+
+      # If a new C910 put it in the right mode
+      # Anything over 800x448 does not work
+      if [ $C910Present=1 ]; then
+        if [ "$BITRATE_VIDEO" -gt 190000 ]; then  # 333KS FEC 1/2 or better
+          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=800,height=448,pixelformat=0 --set-parm=15 \
+            --set-ctrl power_line_frequency=1
+          VIDEO_WIDTH=800
+          VIDEO_HEIGHT=448
+          VIDEO_FPS=15
+        else
+          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=432,height=240,pixelformat=0 --set-parm=15 \
+            --set-ctrl power_line_frequency=1
+          VIDEO_WIDTH=416  # Camera modes are not 32 aligned
+          VIDEO_HEIGHT=240
+          VIDEO_FPS=15
+        fi
+      fi
+      if [ $C170Present == 1 ]; then
         AUDIO_CARD=0   # Can't get sound to work at present
         if [ "$BITRATE_VIDEO" -gt 190000 ]; then  # 333KS FEC 1/2 or better
           v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=640,height=480,pixelformat=0 --set-parm=10
@@ -998,12 +1023,9 @@ fi
     else
       # ******************************* H264 VIDEO WITH AUDIO ************************************
 
-      if [ $AUDIO_SAMPLE != 48000 ]; then
-        arecord -f S16_LE -r $AUDIO_SAMPLE -c 2 -B $ARECORD_BUF -D plughw:$AUDIO_CARD_NUMBER,0 \
-          | sox --buffer 1024 -t wav - audioin.wav rate 48000 &
-      else
-        arecord -f S16_LE -r $AUDIO_SAMPLE -c 2 -B $ARECORD_BUF -D plughw:$AUDIO_CARD_NUMBER,0 > audioin.wav &
-      fi
+      # Resample the audio (was 32k or 48k which overruns, so this is reduced to 46500)
+      arecord -f S16_LE -r $AUDIO_SAMPLE -c 2 -B $ARECORD_BUF -D plughw:$AUDIO_CARD_NUMBER,0 \
+        | sox -c $AUDIO_CHANNELS --buffer 1024 -t wav - audioin.wav rate 46500 &
 
       sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
         -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 2 -e $ANALOGCAMNAME -p $PIDPMT -s $CALL $OUTPUT_IP \
@@ -1014,7 +1036,8 @@ fi
       do
         sleep 10
         if ! pgrep -x "arecord" > /dev/null; then # arecord is not running, so restart it
-          arecord -f S16_LE -r $AUDIO_SAMPLE -c 2 -B $ARECORD_BUF -D plughw:$AUDIO_CARD_NUMBER,0 > audioin.wav &
+          arecord -f S16_LE -r $AUDIO_SAMPLE -c 2 -B $ARECORD_BUF -D plughw:$AUDIO_CARD_NUMBER,0 \
+            | sox -c $AUDIO_CHANNELS --buffer 1024 -t wav - audioin.wav rate 46500 &
         fi
       done
     fi
@@ -1232,9 +1255,10 @@ fi
       SCALE="scale=512:288,"
     ;;
     WEBCAMMPEG-2)
-      if [ $C920Present == 1 ]; then
+      if [ $C920Present == 1 ] || [ $C910Present == 1 ]; then
          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=640,height=480,pixelformat=0 \
           --set-ctrl power_line_frequency=1
+         AUDIO_SAMPLE=32000
       fi
       if [ $C270Present == 1 ]; then
         ITS_OFFSET="-00:00:1.8"
@@ -1250,8 +1274,9 @@ fi
       if [ $C920Present == 1 ]; then
          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=1280,height=720,pixelformat=0 \
           --set-ctrl power_line_frequency=1
+         AUDIO_SAMPLE=32000
       fi
-      if [ $C270Present == 1 ]; then
+      if [ $C270Present == 1 ] || [ $C910Present == 1 ]; then
         ITS_OFFSET="-00:00:1.8"
       fi
       if [ $C310Present == 1 ]; then
@@ -1263,9 +1288,10 @@ fi
       SCALE="scale=1024:576,"
     ;;
     WEBCAMHDMPEG-2)
-      if [ $C920Present == 1 ]; then
+      if [ $C920Present == 1 ] || [ $C910Present == 1 ]; then
          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=1280,height=720,pixelformat=0 \
           --set-ctrl power_line_frequency=1
+         AUDIO_SAMPLE=32000
       fi
       if [ $C270Present == 1 ]; then
         ITS_OFFSET="-00:00:2.0"
