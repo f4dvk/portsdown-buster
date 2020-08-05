@@ -34,6 +34,10 @@ INPUT_SEL=$(get_config_var input $RCONFIGFILE)
 INPUT_SEL_T=$(get_config_var input1 $RCONFIGFILE)
 LNBVOLTS=$(get_config_var lnbvolts $RCONFIGFILE)
 DISPLAY=$(get_config_var display $PCONFIGFILE)
+GAIN=$(get_config_var gain $RCONFIGFILE)
+GAIN_T=$GAIN/2
+
+SCAN=$(get_config_var scan $RCONFIGFILE)
 
 # Correct for LNB LO Frequency if required
 if [ "$RX_MODE" == "sat" ]; then
@@ -103,7 +107,7 @@ sudo rm longmynd_main_ts >/dev/null 2>/dev/null
 mkfifo longmynd_main_ts
 
 # Start LongMynd
-sudo /home/pi/longmynd/longmynd -s longmynd_status_fifo $VOLTS_CMD $INPUT_CMD $FREQ_KHZ $SYMBOLRATEK &
+sudo /home/pi/longmynd/longmynd -s longmynd_status_fifo -g $GAIN_T -S $SCAN $VOLTS_CMD $INPUT_CMD $FREQ_KHZ $SYMBOLRATEK &
 
 # Start VLC
 if [ "$DISPLAY" == "Element14_7" ]; then
