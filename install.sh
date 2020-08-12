@@ -592,6 +592,10 @@ sudo chmod -R 777 /home/pi/rpidatv/scripts/
 # Save git source used
 echo "${GIT_SRC}" > /home/pi/${GIT_SRC_FILE}
 
+# Installation décodage 406
+cd /home/pi/rpidatv/406
+./install.sh
+
 # Reboot
 echo
 echo "--------------------------------"

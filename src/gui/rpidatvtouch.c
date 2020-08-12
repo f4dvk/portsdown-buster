@@ -67,6 +67,7 @@ Rewitten by Dave, G8GKQ
 #define PATH_LMCONFIG "/home/pi/rpidatv/scripts/longmynd_config.txt"
 #define PATH_FORWARDCONFIG "/home/pi/rpidatv/src/limesdr_toolbox/forward_config.txt"
 #define PATH_LIME_CAL "/home/pi/rpidatv/scripts/limecalfreq.txt"
+#define PATH_406CONFIG "/home/pi/rpidatv/406/config.txt"
 
 #define PI 3.14159265358979323846
 #define deg2rad(DEG) ((DEG)*((PI)/(180.0)))
@@ -370,6 +371,7 @@ void Start_Highlights_Menu53();
 void Start_Highlights_Menu54();
 void Start_Highlights_Menu55();
 void Start_Highlights_Menu56();
+void Start_Highlights_Menu57();
 
 void MsgBox(const char *);
 void MsgBox2(const char *, const char *);
@@ -3562,6 +3564,47 @@ void ChangeLMRXscan()
   // Save offset to Config File
   LMRXscan[0] = atoi(KeyboardReturn);
   SetConfigParam(PATH_LMCONFIG, "scan", KeyboardReturn);
+}
+
+void ChangeArgosFreq(int dir)
+{
+  char RequestText[64];
+  char InitText[64];
+  bool IsValid = FALSE;
+  char FreqLimit[10];
+  char Value[10];
+
+  switch (dir)
+  {
+  case 1:
+    strcpy(Value, "low");
+    break;
+  case 2:
+    strcpy(Value, "high");
+    break;
+  default:
+    printf("Argos freq Menu Error\n");
+  }
+
+
+  //Retrieve (10 char) Current offset from Config file
+  GetConfigParam(PATH_406CONFIG, Value, FreqLimit);
+
+  while (IsValid == FALSE)
+  {
+    strcpy(RequestText, "Entrez une fréquence en MHz");
+    strcpyn(InitText, FreqLimit, 8);
+    Keyboard(RequestText, FreqLimit, 8);
+
+    if((atoi(KeyboardReturn) >= 24) && (atoi(KeyboardReturn) <= 1766))
+    {
+      IsValid = TRUE;
+    }
+  }
+  printf("Fréquence %s MHz\n", KeyboardReturn);
+
+  // Save offset to Config File
+  SetConfigParam(PATH_406CONFIG, Value, KeyboardReturn);
 }
 
 void AutosetLMRXOffset()
@@ -14813,6 +14856,13 @@ void waituntil(int w,int h)
           BackgroundRGB(0, 0, 0, 255);
           UpdateWindow();
           break;
+        case 15:                               // Argos Decoder
+          printf("MENU  57\n");
+          CurrentMenu = 57;
+          BackgroundRGB(0, 0, 0, 255);
+          Start_Highlights_Menu57();
+          UpdateWindow();
+          break;
         case 16:                               // Start Sig Gen and Exit
           DisplayLogo();
           cleanexit(130);
@@ -18241,6 +18291,71 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
         // stay in Menu 56 if parameter changed
         continue;   // Completed Menu 56 action, go and wait for touch
       }
+      if (CurrentMenu == 57)  // Menu 57 Argos Decoder
+      {
+        printf("Button Event %d, Entering Menu 57 Case Statement\n",i);
+        switch (i)
+        {
+        case 4:                               // Cancel
+          SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 1);
+          printf("Cancelling Argos Decoder Menu\n");
+          UpdateWindow();
+          usleep(500000);
+          SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 0); // Reset cancel (even if not selected)
+          printf("Returning to MENU 8 from Menu 57\n");
+          CurrentMenu=2;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu2();
+          UpdateWindow();
+          break;
+        case 0:
+          //SelectInGroupOnMenu(CurrentMenu, 0, 0, 0, 1);
+          //UpdateWindow();
+          //usleep(50000);
+          //SelectInGroupOnMenu(CurrentMenu, 0, 0, 0, 0);
+          //Start_Highlights_Menu56();
+          //UpdateWindow();
+          break;
+        case 1:
+          SelectInGroupOnMenu(CurrentMenu, 1, 1, 1, 1);
+          UpdateWindow();
+          usleep(50000);
+          SelectInGroupOnMenu(CurrentMenu, 1, 1, 1, 0);
+          ChangeArgosFreq(i);
+          CurrentMenu=57;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu57();
+          UpdateWindow();
+          break;
+        case 2:
+          SelectInGroupOnMenu(CurrentMenu, 2, 2, 2, 1);
+          UpdateWindow();
+          usleep(50000);
+          SelectInGroupOnMenu(CurrentMenu, 2, 2, 2, 0);
+          ChangeArgosFreq(i);
+          CurrentMenu=57;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu57();
+          UpdateWindow();
+          break;
+        case 3:
+          break;
+        case 5:
+          break;
+        case 6:
+          break;
+        case 7:
+          break;
+        case 8:
+          break;
+        case 9:
+          break;
+        default:
+          printf("Menu 57 Error\n");
+        }
+        // stay in Menu 57 if parameter changed
+        continue;   // Completed Menu 57 action, go and wait for touch
+      }
     }
   }
 }
@@ -18859,7 +18974,8 @@ void Define_Menu2()
 
   // 4th line up Menu 2
 
-  //button = CreateButton(2, 15);
+  button = CreateButton(2, 15);
+  AddButtonStatus(button, "Argos^decoder", &Blue);
 
   button = CreateButton(2, 16);
   AddButtonStatus(button, "Sig Gen^ ", &Blue);
@@ -23231,6 +23347,65 @@ void Start_Highlights_Menu56()
   LMRXscan[0] = atoi(Value);
 }
 
+void Define_Menu57()
+{
+  int button;
+
+  strcpy(MenuTitle[57], "Argos Decoder (57)");
+
+  button = CreateButton(57, 0);
+  //AddButtonStatus(button, "Start^Decoder", &DBlue);
+  //AddButtonStatus(button, "Startr^Decoder", &LBlue);
+  AddButtonStatus(button, "Start^Decoder", &Grey);
+
+  button = CreateButton(57, 1);
+  AddButtonStatus(button, "Low^Low", &DBlue);
+  AddButtonStatus(button, "Low^Low", &LBlue);
+
+  button = CreateButton(57, 2);
+  AddButtonStatus(button, "High^High", &DBlue);
+  AddButtonStatus(button, "High^High", &LBlue);
+
+  button = CreateButton(57, 4);
+  AddButtonStatus(button, "Exit", &DBlue);
+  AddButtonStatus(button, "Exit", &LBlue);
+
+  //button = CreateButton(57, 5);
+  //AddButtonStatus(button, "", &Blue);
+  //AddButtonStatus(button, "", &Blue);
+
+  //button = CreateButton(57, 6);
+  //AddButtonStatus(button, "", &Blue);
+  //AddButtonStatus(button, "", &Blue);
+
+  //button = CreateButton(57, 7);
+  //AddButtonStatus(button, "", &Blue);
+  //AddButtonStatus(button, "", &Grey);
+
+}
+
+void Start_Highlights_Menu57()
+{
+  char Value[15] = "";
+  char Freqtext[21];
+
+  // Low:
+  GetConfigParam(PATH_406CONFIG, "low", Value);
+  strcpy(Freqtext, "Low^");
+  strcat(Freqtext, Value);
+  strcat(Freqtext, " MHz");
+  AmendButtonStatus(ButtonNumber(57, 1), 0, Freqtext, &DBlue);
+  AmendButtonStatus(ButtonNumber(57, 1), 1, Freqtext, &LBlue);
+
+  // High:
+  GetConfigParam(PATH_406CONFIG, "high", Value);
+  strcpy(Freqtext, "High^");
+  strcat(Freqtext, Value);
+  strcat(Freqtext, " MHz");
+  AmendButtonStatus(ButtonNumber(57, 2), 0, Freqtext, &DBlue);
+  AmendButtonStatus(ButtonNumber(57, 2), 1, Freqtext, &LBlue);
+}
+
 void Define_Menu45()
 {
   int button;
@@ -23830,6 +24005,7 @@ int main(int argc, char **argv)
   Define_Menu54();
   Define_Menu55();
   Define_Menu56();
+  Define_Menu57();
 
   // Start the button Menu
   Start(wscreen,hscreen);

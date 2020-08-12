@@ -180,6 +180,7 @@ unzip -o master.zip
 cp -f -r portsdown-buster-master/bin rpidatv
 cp -f -r portsdown-buster-master/scripts rpidatv
 cp -f -r portsdown-buster-master/src rpidatv
+cp -f -r portsdown-buster-master/406 rpidatv
 rm -f rpidatv/video/*.jpg
 cp -f -r portsdown-buster-master/video rpidatv
 cp -f -r portsdown-buster-master/version_history.txt rpidatv/version_history.txt
@@ -480,6 +481,10 @@ sudo sed -i 's/^#timeout.*/timeout 8;/' /etc/dhcp/dhclient.conf
 sudo sed -i 's/^#retry.*/retry 20;/' /etc/dhcp/dhclient.conf
 
 sudo chmod -R 777 /home/pi/rpidatv/scripts/
+
+# Installation décodage 406
+cd /home/pi/rpidatv/406
+./install.sh
 
 # Reboot
 DisplayRebootMsg "Step 10 of 10\nRebooting\n\nUpdate Complete"
