@@ -1,3 +1,6 @@
+202008170
+Ajout décodage balise détresse 406 de F4EHY
+
 202007310
 Add support for B910 WebCam ID 046d:0823
 

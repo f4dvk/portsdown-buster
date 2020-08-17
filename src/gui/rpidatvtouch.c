@@ -11505,6 +11505,177 @@ void CycleLNBVolts()
   GetConfigParam(PATH_LMCONFIG, "lnbvolts", LMRXvolts);
 }
 
+
+
+void ARGOS_DECODER()
+{
+  #define PATH_SCRIPT_DECODER "/home/pi/rpidatv/406/scan.sh 2>&1"
+
+  //Local parameters:
+
+  FILE *fp;
+  char *line=NULL;
+  size_t len = 0;
+  ssize_t read;
+
+  // Affichage
+  char line1[80]="";
+  char line2[80]="";
+  char line3[80]="";
+  char line4[80]="";
+  char line5[80]="";
+  char line6[80]="";
+  char line7[80]="";
+  char line8[80]="";
+  char line9[80]="";
+  char line10[80]="";
+  char line11[80]="";
+  char line12[80]="";
+  char line13[80]="";
+  char line14[80]="";
+  char line15[80]="";
+  char line16[80]="";
+  char line17[80]="";
+  char line18[80]="";
+
+  int nbline=1;
+
+  char strTag[30];
+
+  // Set globals
+  FinishedButton = 0;
+
+  int pointsize = 16; // 22
+  Fontinfo font = SansTypeface;
+
+/*  if (hscreen < 500)  // reduce font size for 7 inch screen
+  {
+    pointsize = 16;
+  }
+*/
+  VGfloat txtht = TextHeight(font, pointsize);
+  VGfloat txtdp = TextDepth(font, pointsize);
+  VGfloat linepitch = 1.1 * (txtht + txtdp);
+
+  // Create Wait Button thread
+  pthread_create (&thbutton, NULL, &WaitButtonEvent, NULL);
+
+  BackgroundRGB(0, 0, 0, 255);
+  End();
+  fp=popen(PATH_SCRIPT_DECODER, "r");
+  if(fp==NULL) printf("Process error\n");
+
+  printf("STARTING ARGOS DECODER\n");
+
+  WindowClear();
+
+  while (((read = getline(&line, &len, fp)) != -1) && (FinishedButton == 0))
+  {
+
+    sscanf(line,"%s ",strTag);
+    //printf("\n len: %d line: %s strTag: %s", len, line, strTag);
+
+    if((strcmp(strTag, "Scan")==0) || (strcmp(strTag, "Fréquence:")==0) || (strcmp(strTag, "Lancement")==0) || (strcmp(strTag, "****Attente")==0) || (strcmp(strTag, "CRC_1")==0) || (strcmp(strTag, "Contenu")==0))
+    {
+       nbline=1;
+       strcpy(line1, line);
+       strcpy(line2, "");
+    }else if (nbline==1){
+       nbline++;
+       strcpy(line2, line);
+    }else if (nbline==2){
+       nbline++;
+       strcpy(line3, line);
+    }else if (nbline==3){
+       nbline++;
+       strcpy(line4, line);
+    }else if (nbline==4){
+       nbline++;
+       strcpy(line5, line);
+    }else if (nbline==5){
+       nbline++;
+       strcpy(line6, line);
+    }else if (nbline==6){
+       nbline++;
+       strcpy(line7, line);
+    }else if (nbline==7){
+       nbline++;
+       strcpy(line8, line);
+    }else if (nbline==8){
+       nbline++;
+       strcpy(line9, line);
+    }else if (nbline==9){
+       nbline++;
+       strcpy(line10, line);
+    }else if (nbline==10){
+       nbline++;
+       strcpy(line11, line);
+    }else if (nbline==11){
+       nbline++;
+       strcpy(line12, line);
+    }else if (nbline==12){
+       nbline++;
+       strcpy(line13, line);
+    }else if (nbline==13){
+       nbline++;
+       strcpy(line14, line);
+    }else if (nbline==14){
+       nbline++;
+       strcpy(line15, line);
+    }else if (nbline==15){
+       nbline++;
+       strcpy(line16, line);
+    }else if (nbline==16){
+       nbline++;
+       strcpy(line17, line);
+    }else if (nbline==17){
+       nbline++;
+       strcpy(line18, line);
+    }
+
+       BackgroundRGB(0, 0, 0, 255);
+       Fill(0, 0, 0, 127);
+       Rect(wscreen * 1.0 / 40.0, hscreen - 9.2 * linepitch, wscreen * 20.0 / 40.0, hscreen);
+       Rect(wscreen * 1.0 / 40.0, hscreen - 11.7 * linepitch, wscreen * 35.0 / 40.0, hscreen - 11.4 * linepitch);
+       Fill(255, 255, 255, 255);
+       Text(wscreen * 1.0 / 40.0, hscreen - 1 * linepitch, line1, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 1.7 * linepitch, line2, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 2.4 * linepitch, line3, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 3.1 * linepitch, line4, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 3.8 * linepitch, line5, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 4.5 * linepitch, line6, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 5.2 * linepitch, line7, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 5.9 * linepitch, line8, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 6.6 * linepitch, line9, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 7.3 * linepitch, line10, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 8 * linepitch, line11, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 8.7 * linepitch, line12, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 9.4 * linepitch, line13, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 10.1 * linepitch, line14, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 10.8 * linepitch, line15, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 11.5 * linepitch, line16, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 12.2 * linepitch, line17, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 12.9 * linepitch, line18, font, pointsize);
+       Fill(255, 255, 255, 255);
+       Text(wscreen * 1.0 / 40.0, hscreen - 15 * linepitch, "Touch to exit", font, pointsize);
+       End();
+  }
+
+  system("/home/pi/rpidatv/406/stop.sh >/dev/null 2>/dev/null");
+
+  finish();
+  usleep(1000);
+  init(&wscreen, &hscreen);  // Restart the graphics
+
+  printf("Stopping decoder process\n");
+  pclose(fp);
+
+  system("sudo killall scan.sh >/dev/null 2>/dev/null");
+  touch_response = 0;
+  system("pkill -9 rtl_power && pkill perl && pkill -9 perl >/dev/null 2>/dev/null");
+  pthread_join(thbutton, NULL);
+}
+
 void wait_touch()
 // Wait for Screen touch, ignore position, but then move on
 // Used to let user acknowledge displayed text
@@ -18309,12 +18480,16 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           UpdateWindow();
           break;
         case 0:
-          //SelectInGroupOnMenu(CurrentMenu, 0, 0, 0, 1);
-          //UpdateWindow();
-          //usleep(50000);
-          //SelectInGroupOnMenu(CurrentMenu, 0, 0, 0, 0);
-          //Start_Highlights_Menu56();
-          //UpdateWindow();
+          SelectInGroupOnMenu(CurrentMenu, 0, 0, 0, 1);
+          UpdateWindow();
+          usleep(50000);
+          SelectInGroupOnMenu(CurrentMenu, 0, 0, 0, 0);
+          BackgroundRGB(0, 0, 0, 255);
+          Start(wscreen,hscreen);
+          ARGOS_DECODER();
+          BackgroundRGB(0, 0, 0, 255);
+          Start_Highlights_Menu57();
+          UpdateWindow();
           break;
         case 1:
           SelectInGroupOnMenu(CurrentMenu, 1, 1, 1, 1);
@@ -18343,8 +18518,28 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
         case 5:
           break;
         case 6:
+          SelectInGroupOnMenu(CurrentMenu, 6, 6, 6, 1);
+          UpdateWindow();
+          usleep(50000);
+          SelectInGroupOnMenu(CurrentMenu, 6, 6, 6, 0);
+          SetConfigParam(PATH_406CONFIG, "low", "406.028");
+          SetConfigParam(PATH_406CONFIG, "high", "406.028");
+          CurrentMenu=57;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu57();
+          UpdateWindow();
           break;
         case 7:
+          SelectInGroupOnMenu(CurrentMenu, 7, 7, 7, 1);
+          UpdateWindow();
+          usleep(50000);
+          SelectInGroupOnMenu(CurrentMenu, 7, 7, 7, 0);
+          SetConfigParam(PATH_406CONFIG, "low", "433.95");
+          SetConfigParam(PATH_406CONFIG, "high", "433.95");
+          CurrentMenu=57;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu57();
+          UpdateWindow();
           break;
         case 8:
           break;
@@ -18975,7 +19170,7 @@ void Define_Menu2()
   // 4th line up Menu 2
 
   button = CreateButton(2, 15);
-  AddButtonStatus(button, "Argos^decoder", &Blue);
+  AddButtonStatus(button, "Argos^Decoder", &Blue);
 
   button = CreateButton(2, 16);
   AddButtonStatus(button, "Sig Gen^ ", &Blue);
@@ -23354,17 +23549,17 @@ void Define_Menu57()
   strcpy(MenuTitle[57], "Argos Decoder (57)");
 
   button = CreateButton(57, 0);
-  //AddButtonStatus(button, "Start^Decoder", &DBlue);
-  //AddButtonStatus(button, "Startr^Decoder", &LBlue);
-  AddButtonStatus(button, "Start^Decoder", &Grey);
+  AddButtonStatus(button, "Start^Decoder", &DBlue);
+  AddButtonStatus(button, "Start^Decoder", &LBlue);
+  //AddButtonStatus(button, "Start^Decoder", &Grey);
 
   button = CreateButton(57, 1);
-  AddButtonStatus(button, "Low^Low", &DBlue);
-  AddButtonStatus(button, "Low^Low", &LBlue);
+  AddButtonStatus(button, "Début^Début", &DBlue);
+  AddButtonStatus(button, "Début^Début", &LBlue);
 
   button = CreateButton(57, 2);
-  AddButtonStatus(button, "High^High", &DBlue);
-  AddButtonStatus(button, "High^High", &LBlue);
+  AddButtonStatus(button, "Fin^Fin", &DBlue);
+  AddButtonStatus(button, "Fin^Fin", &LBlue);
 
   button = CreateButton(57, 4);
   AddButtonStatus(button, "Exit", &DBlue);
@@ -23374,13 +23569,13 @@ void Define_Menu57()
   //AddButtonStatus(button, "", &Blue);
   //AddButtonStatus(button, "", &Blue);
 
-  //button = CreateButton(57, 6);
-  //AddButtonStatus(button, "", &Blue);
-  //AddButtonStatus(button, "", &Blue);
+  button = CreateButton(57, 6);
+  AddButtonStatus(button, "Fixe^406.028M", &DBlue);
+  AddButtonStatus(button, "Fixe^406.028M", &LBlue);
 
-  //button = CreateButton(57, 7);
-  //AddButtonStatus(button, "", &Blue);
-  //AddButtonStatus(button, "", &Grey);
+  button = CreateButton(57, 7);
+  AddButtonStatus(button, "Fixe^433.95M", &DBlue);
+  AddButtonStatus(button, "Fixe^433.95M", &LBlue);
 
 }
 
@@ -23391,17 +23586,17 @@ void Start_Highlights_Menu57()
 
   // Low:
   GetConfigParam(PATH_406CONFIG, "low", Value);
-  strcpy(Freqtext, "Low^");
+  strcpy(Freqtext, "Début^");
   strcat(Freqtext, Value);
-  strcat(Freqtext, " MHz");
+  strcat(Freqtext, "M");
   AmendButtonStatus(ButtonNumber(57, 1), 0, Freqtext, &DBlue);
   AmendButtonStatus(ButtonNumber(57, 1), 1, Freqtext, &LBlue);
 
   // High:
   GetConfigParam(PATH_406CONFIG, "high", Value);
-  strcpy(Freqtext, "High^");
+  strcpy(Freqtext, "Fin^");
   strcat(Freqtext, Value);
-  strcat(Freqtext, " MHz");
+  strcat(Freqtext, "M");
   AmendButtonStatus(ButtonNumber(57, 2), 0, Freqtext, &DBlue);
   AmendButtonStatus(ButtonNumber(57, 2), 1, Freqtext, &LBlue);
 }

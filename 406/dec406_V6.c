@@ -7,10 +7,10 @@
 /*                                                                                      */
 /*                                           F4EHY 10-7-2020 version  V6.0              */
 /*                                                                                      */
-/****************************************************************************************/ 
+/****************************************************************************************/
 /*--------------------------------------------------------------------------------------*/
 /* Compilation du fichier source:                                                       */
-/*      gcc dec406.c -lm -o dec406                                                      */     
+/*      gcc dec406.c -lm -o dec406                                                      */
 /*--------------------------------------------------------------------------------------*/
 /* Options:                                                                             */
 /*      --osm  pour affichage sur une carte OpenStreetMap                               */
@@ -18,14 +18,14 @@
 /*---------------------------------------------------------------------------------------------*/
 /* Lancement du programme:                                                                     */
 /* sox -t alsa default -t wav - lowpass 3000 highpass 10 gain -l 6 2>/dev/null |./dec406       */
-/* sox -t alsa default -t wav - lowpass 3000 highpass 10 gain -l 6 2>/dev/null |./dec406 --osm */ 
+/* sox -t alsa default -t wav - lowpass 3000 highpass 10 gain -l 6 2>/dev/null |./dec406 --osm */
 /*---------------------------------------------------------------------------------------------*/
 /* Installer 'sox' s'il est absent:                                                     */
-/*      sudo apt-get install sox                                                        */    
+/*      sudo apt-get install sox                                                        */
 /* 'sox' met en forme le flux audio qui est redirigé vers 'dec406' pour le décodage     */
 /*--------------------------------------------------------------------------------------*/
 
-/*Exemple de trame longue avec GPS (144 bits) 
+/*Exemple de trame longue avec GPS (144 bits)
 1111111111111110110100001000111000111111001100111110101111001011111011110000001100100100001010011011111101110111000100100000010000001101011010001
 Contenu utile en Hexa bits 25 à 144:
 8e3f33ebcbef032429bf7712040d68
@@ -50,14 +50,14 @@ int f_ech = 0;      //frequence echantillonnage
 int ech_par_bit = 0;//f_ech/baud
 int longueur_trame=144;   //144  ou 112 bits avec la synchro
 int lon=30;         //30 ou 22 longueur message hexa en quartets(4bits)  (debut message :bit 25)
-int bits = 0;       //codage des echantillons 8 ou 16 bits 
+int bits = 0;       //codage des echantillons 8 ou 16 bits
 int N_canaux = 0;   //Nbre de canaux audio
 int opt_osm = 0;    //argument pour affichage sur OpenStreetMap
 int opt_minute = 0;
-int flux_wav = 1;   //flux audio via stdin ou fichier .wav   
+int flux_wav = 1;   //flux audio via stdin ou fichier .wav
 int canal_audio = 0;//canal audio
 int n_ech = 0;      //numero de l'echantillon
-int seuilM=SEUIL;   //seuil pics ou fronts positifs 
+int seuilM=SEUIL;   //seuil pics ou fronts positifs
 int seuilm=-SEUIL;  //seuil pics ou fronts negatifs
 int seuil=-SEUIL;   //seuil actif
 
@@ -91,7 +91,7 @@ int afficher_carte_osm(double llatd, double llngd){
     //Navigateur chromium-browser ou firefox
     FILE * file;
    file = fopen("/usr/bin/chromium-browser", "r");
-   
+
     if (file){//chromium-browser existe
         sprintf(ch,"/usr/bin/chromium-browser --disable-gpu 'https://www.openstreetmap.org/?mlat=%f&mlon=%f#map=6/%f/%f &'> /dev/null 2>&1",lat,lng,lat,lng);
         fclose(file);
@@ -99,10 +99,10 @@ int afficher_carte_osm(double llatd, double llngd){
         }
    else {
         file=fopen("/usr/bin/firefox", "r");
-        if (file){ 
+        if (file){
             fclose(file);
             sprintf(ch,"/usr/bin/firefox 'https://www.openstreetmap.org/?mlat=%f&mlon=%f#map=6/%f/%f & '> /dev/null 2>&1",lat,lng,lat,lng);
-            system(ch);  
+            system(ch);
             //execlp("/usr/bin/firefox","/usr/bin/firefox ", ch,  (char *) 0);
         }
         else printf("\n*Installer Chromium-browser ou Firefox pour afficher la position avec OpenStreeMap...");
@@ -113,19 +113,19 @@ return 0;
 void  GeogToUTM(double llatd, double llngd){
 		//Merci à Daniel-Bryant
         //https://github.com/daniel-bryant/CoordinateConversion/blob/master/conversion.cpp
-         
+
 		    if ((llatd>127)||(llngd>255)||(llatd<0)||(llngd<0))
                 {printf("\n\rCoordonnées invalides!! ");
                 }
             else{
-                if (opt_osm)  afficher_carte_osm(llatd,llngd); 
+                if (opt_osm)  afficher_carte_osm(llatd,llngd);
                 double DatumEqRad[] = {6378137.0,6378137.0,6378137.0,6378135.0,6378160.0,6378245.0,6378206.4,
-                6378388.0,6378388.0,6378249.1,6378206.4,6377563.4,6377397.2,6377276.3};	
+                6378388.0,6378388.0,6378249.1,6378206.4,6377563.4,6377397.2,6377276.3};
                 double DatumFlat[] = {298.2572236, 298.2572236, 298.2572215,	298.2597208, 298.2497323, 298.2997381, 294.9786982,
-                296.9993621, 296.9993621, 293.4660167, 294.9786982, 299.3247788, 299.1527052, 300.8021499}; 
+                296.9993621, 296.9993621, 293.4660167, 294.9786982, 299.3247788, 299.1527052, 300.8021499};
                 int Item = 0;//Default WGS84
                 double k0 = 0.9996;//scale on central meridian
-                double a = DatumEqRad[Item];//equatorial radius, meters du WGS84. 
+                double a = DatumEqRad[Item];//equatorial radius, meters du WGS84.
                 double f = 1/DatumFlat[Item];//polar flattening du WGS84.
                 double b = a*(1-f);//polar axis.
                 double e = sqrt(1 - b*b/a*a);//eccentricity
@@ -168,7 +168,7 @@ void  GeogToUTM(double llatd, double llngd){
                 N = a/sqrt(1-pow((e*sin(phi)),2));
                 T = pow(tan(phi),2);
                 C = e0sq*pow(cos(phi),2);
-                double A = (lngd-zcm)*drad*cos(phi);               
+                double A = (lngd-zcm)*drad*cos(phi);
                 //Calcul M
                 M = phi*(1 - esq*(1/4 + esq*(3/64 + 5*esq/256)));
                 M = M - sin(2*phi)*(esq*(3/8 + esq*(3/32 + 45*esq/1024)));
@@ -180,12 +180,12 @@ void  GeogToUTM(double llatd, double llngd){
                         SS=SS-(3*e*e/8+3*e*e*e*e/32+45*e*e*e*e*e*e/1024)*sin(2*phi);
                         SS=SS+(15*e*e*e*e/256+45*e*e*e*e*e*e/1024)*sin(4*phi);
                         SS=SS-(35*e*e*e*e*e*e/3072)*sin(6*phi);
-                double NU=1/sqrt(1-EE*EE*sin(phi)*sin(phi));	
+                double NU=1/sqrt(1-EE*EE*sin(phi)*sin(phi));
                 x=500000+0.9996*a*NU*(A+(1-T+C)*A*A*A/6+(5-18*T+T*T)*A*A*A*A*A/120) ;
                 y= 0.9996*a*(SS+NU*tan(phi)*(A*A/2+(5-T+9*C+4*C*C)*A*A*A*A/24+(61-58*T+T*T)*A*A*A*A*A*A/720));
                 if (y < 0){y = 10000000+y;}
                 x= round(10*(x))/10;
-                y= round(10*y)/10;  
+                y= round(10*y)/10;
                 //Genere les lettres des Zones
                 char C0 = DigraphLetrsE[(int)latz];
                 double Letr = floor((utmz-1)*8 + (x)/100000);
@@ -215,10 +215,10 @@ void standard_test()
         printf(" en Hexa:");
         //contenu.append(" en Hexa: ");
         for(j=0;j<3;j++)
-                                {i=40+j*8;                              
+                                {i=40+j*8;
                                 a=calcul(i,i+7);
                                 envoi_byte(a);
-                                } 
+                                }
     }
 
 char  baudot(int x)
@@ -266,7 +266,7 @@ char  baudot(int x)
 		default: y='_';
 		}
 	return y;
-	}  
+	}
 
   void affiche_baudot42()
 	{int i,j;
@@ -293,8 +293,8 @@ void affiche_baudot_2()
         //Charact ch = baudot(a);
 		//contenu.append(ch.to//String());
 		}
-         //printf("\r\n"); 
-         //contenu.append("\r\n") ; 
+         //printf("\r\n");
+         //contenu.append("\r\n") ;
 	   }
 void specific_beacon()
 	{int i,j;
@@ -308,7 +308,7 @@ void specific_beacon()
 		//Charact ch = baudot(a);
 		//contenu.append(ch.to//String());
 		}
-         //   printf("\r\n");   //contenu.append("\r\n"); 
+         //   printf("\r\n");   //contenu.append("\r\n");
 	   }
 
 
@@ -321,7 +321,7 @@ void affiche_baudot_1()
       int d;
 	  int a;
       printf("\n\rRadio Call Sign Identification:");
-	 //contenu.append("Radio Call Sign Identification: ") ; 	
+	 //contenu.append("Radio Call Sign Identification: ") ;
 	  for(j=0;j<4;j++)
 		{
         i=39+j*6;
@@ -331,14 +331,14 @@ void affiche_baudot_1()
                 //Charact ch = baudot(a);
               	//contenu.append(ch.to//String());
 		}
-         ////contenu.append("\r\n"); 
+         ////contenu.append("\r\n");
          printf(" ");
         i=63;
         //b=8*(s[i]=='1')+4*(s[i+1]=='1')+2*(s[i+2]=='1')+(s[i+3]=='1');
         b=calcul(i,i+3);
         //c=8*(s[i+4]=='1')+4*(s[i+5]=='1')+2*(s[i+6]=='1')+(s[i+7]=='1');
         c=calcul(i+4,i+7);
-        //d=8*(s[i+8]=='1')+4*(s[i+9]=='1')+2*(s[i+10]=='1')+(s[i+11]=='1'); 
+        //d=8*(s[i+8]=='1')+4*(s[i+9]=='1')+2*(s[i+10]=='1')+(s[i+11]=='1');
         d=calcul(i+8,i+11);
         printf("%d",b);
         printf("%d",c);
@@ -346,7 +346,7 @@ void affiche_baudot_1()
         //contenu.append(b);
         //contenu.append(c);
         //contenu.append(d);
-        //contenu.append("\r\n"); 
+        //contenu.append("\r\n");
 	   }
 void affiche_baudot()
 	{
@@ -400,15 +400,15 @@ void localisation_standard()
 	//x=16*(s[i]=='1')+8*(s[i+1]=='1')+4*(s[i+2]=='1')+2*(s[i+3]=='1')+(s[i+4]=='1');
 	x=calcul(i,i+4);
     if(s[112]=='0') {x=-x;}
-	latM+=x; 
+	latM+=x;
 	i=118;
 	//latS=4*(8*(s[i]=='1')+4*(s[i+1]=='1')+2*(s[i+2]=='1')+(s[i+3]=='1'));
 	latS=4*calcul(i,i+3);
     if(s[112]=='0')   //latS=-latS;
 				{latS=60-latS;latM--;
-					if (latM<0) {latM=60+latM;latD--;}	
+					if (latM<0) {latM=60+latM;latD--;}
 				}
-	//printf("Latitude: ");printf("%c",c);printf(" ");printf("%d",latD);printf("d");printf("%d",latM);printf("m");printf("%d",latS);printf("s"); 
+	//printf("Latitude: ");printf("%c",c);printf(" ");printf("%d",latD);printf("d");printf("%d",latM);printf("m");printf("%d",latS);printf("s");
 	printf("\n\rLatitude : %c %dd%dm%ds ",c,latD,latM,latS);
     //Charact cc = c;//Integer llatD = latD;//Integer llatM = latM;//Integer llatS = latS;
     ////contenu.append("Latitude  : "+cc.to//String()+" "+llatD.to//String()+"d"+llatM.to//String()+"m"+llatS.to//String()+"s\r\n");
@@ -427,17 +427,17 @@ void localisation_standard()
 	//x=16*(s[i]=='1')+8*(s[i+1]=='1')+4*(s[i+2]=='1')+2*(s[i+3]=='1')+(s[i+4]=='1');
 	x=calcul(i,i+4);
     if(s[122]=='0') {x=-x;}
-	lonM+=x; 
+	lonM+=x;
 	i=128;
 	//lonS=4*(8*(s[i]=='1')+4*(s[i+1]=='1')+2*(s[i+2]=='1')+(s[i+3]=='1'));
 	lonS=4*calcul(i,i+3);
-    if(s[122]=='0') //{lonS=-lonS;} 
+    if(s[122]=='0') //{lonS=-lonS;}
 				{lonS=60-lonS;lonM--;
-					if (lonM<0) {lonM=60+lonM;lonD--;}	
+					if (lonM<0) {lonM=60+lonM;lonD--;}
 				}
-	
-	//printf("Longitude: %c %dd%dm%ds ");printf(c);printf(' ');printf(lonD);printf('d');printf(lonM);printf('m');printf(lonS);printf('s'); 
-    printf("\n\rLongitude: %c %dd%dm%ds ",c,lonD,lonM,lonS); 
+
+	//printf("Longitude: %c %dd%dm%ds ");printf(c);printf(' ');printf(lonD);printf('d');printf(lonM);printf('m');printf(lonS);printf('s');
+    printf("\n\rLongitude: %c %dd%dm%ds ",c,lonD,lonM,lonS);
     //Charact ccc = c;//Integer llonD = lonD;//Integer llonM = lonM;//Integer llonS = lonS;
     //contenu.append("Longitude: "+ccc.to//String()+" "+llonD.to//String()+"d"+llonM.to//String()+"m"+llonS.to//String()+"s\r\n");
     //contenu.append("Longitude: ").append(ccc.to//String()).append(" ").append(llonD.to//String()).append("d").append(llonM.to//String()).append("m").append(llonS.to//String()).append("s");
@@ -446,24 +446,24 @@ void localisation_standard()
     //contenu.append(" = ").append(decform.format(gpsLon)).append(" Deg\r\n");
     GeogToUTM(gpsLat, gpsLon);
     }
- 
+
  void supplementary_data()
  {  //s[109]=1;  ?????????????????????????????????????????????
-    /*s[108]=0; 
-    s[107]=1; 
+    /*s[108]=0;
+    s[107]=1;
     s[106]=1;*/
     printf("\n\rFixed bits (1101) Pass");
     //contenu.append("Fixed bits (1101) Pass\r\n");
     if (s[110]=='1') {printf("\n\rEncoded position data source internal");}
                        //contenu.append("Encoded position data source internal\r\n");}
     if (s[111]=='1') {printf("\n\r121.5 MHz Homing");}
-                        //contenu.append("121.5 MHz Homing\r\n");} 	   
-  
+                        //contenu.append("121.5 MHz Homing\r\n");}
+
 }
-  
+
  void supplementary_data_1()
  {/* s[108]=0;
-    s[107]=1; 
+    s[107]=1;
     s[106]=1;*/
     if (s[109]=='1') {printf("\n\rAdditional Data Flag:Position");}
                         //contenu.append(" Additional Data Flag:Position\r\n"); }
@@ -472,9 +472,9 @@ void localisation_standard()
     if (s[111]=='1') {printf("\n\r121.5 MHz Homing");}
                           //contenu.append("121.5 MHz Homing\r\n");}
  }
- 
+
 void localisation_standard1()
-	{char c; 
+	{char c;
     int i,x,latD,latM,latS,lonD,lonM,lonS;
 	if (s[64]=='0') c='N'; else c='S';
 	i=65;
@@ -491,11 +491,11 @@ void localisation_standard1()
 	i=118;
 	//latS=4*(8*(s[i]=='1')+4*(s[i+1]=='1')+2*(s[i+2]=='1')+(s[i+3]=='1'));
 	latS=4*calcul(i,i+3);
-    if(s[112]=='0') //{latS=-latS;} 
+    if(s[112]=='0') //{latS=-latS;}
    		{latS=60-latS;latM--;
-	if (latM<0) {latM=60+latM;latD--;}	
+	if (latM<0) {latM=60+latM;latD--;}
 		}
-	//printf("Latitude: ");printf(c);printf(' ');printf(latD);printf('d');printf(latM);printf('m');printf(latS);printf('s'); 
+	//printf("Latitude: ");printf(c);printf(' ');printf(latD);printf('d');printf(latM);printf('m');printf(latS);printf('s');
     printf("\n\rLatitude : %c %dd%dm%ds ",c,latD,latM,latS);//Charact cc = c;//Integer llatD = latD;//Integer llatM = latM;//Integer llatS = latS;
     //contenu.append("Latitude  : "+cc.to//String()+" "+llatD.to//String()+"d"+llatM.to//String()+"m"+llatS.to//String()+"s  \r\n");
     //contenu.append("\r\nLatitude : ").append(cc.to//String()).append(" ").append(llatD.to//String()).append("d").append(llatM.to//String()).append("m").append(llatS.to//String()).append("s");
@@ -513,16 +513,16 @@ void localisation_standard1()
 	//x=16*(s[i]=='1')+8*(s[i+1]=='1')+4*(s[i+2]=='1')+2*(s[i+3]=='1')+(s[i+4]=='1');
 	x=calcul(i,i+4);
     if(s[122]=='0') {x=-x;}
-    lonM+=x; 
+    lonM+=x;
 	i=128;
 	//lonS=4*(8*(s[i]=='1')+4*(s[i+1]=='1')+2*(s[i+2]=='1')+(s[i+3]=='1'));
 	lonS=4*calcul(i,i+3);
     if(s[122]=='0') //{lonS=-lonS;}
 		{lonS=60-lonS;lonM--;
-        if (lonM<0) {lonM=60+lonM;lonD--;}	
-        }   
-	 //printf("Longitude: ");printf(c);printf(' ');printf(lonD);printf('d');printf(lonM);printf('m');printf(lonS);printf('s'); 
-     printf("\n\rLongitude: %c %dd%dm%ds ",c,lonD,lonM,lonS); 
+        if (lonM<0) {lonM=60+lonM;lonD--;}
+        }
+	 //printf("Longitude: ");printf(c);printf(' ');printf(lonD);printf('d');printf(lonM);printf('m');printf(lonS);printf('s');
+     printf("\n\rLongitude: %c %dd%dm%ds ",c,lonD,lonM,lonS);
 	//Charact ccc = c;//Integer llonD = lonD;//Integer llonM = lonM;//Integer llonS = lonS;
     // //contenu.append("Longitude: "+ccc.to//String()+" "+llonD.to//String()+"d"+llonM.to//String()+"m"+llonS.to//String()+"s\r\n");
     //contenu.append("Longitude: ").append(ccc.to//String()).append(" ").append(llonD.to//String()).append("d").append(llonM.to//String()).append("m").append(llonS.to//String()).append("s");
@@ -530,22 +530,22 @@ void localisation_standard1()
     printf(" = %3.6f Deg\n",gpsLon);
     //contenu.append(" = ").append(decform.format(gpsLon)).append(" Deg\r\n");
     GeogToUTM(gpsLat, gpsLon);
-    /*if (s[110]==1) 
+    /*if (s[110]==1)
     {
      printf("Encoded Position Data Source Internal");
         //contenu.append("Encoded Position Data Source Internal\r\n");
     }
-    else    
+    else
     {
     printf("Encoded Position Data Source External");
         //contenu.append("Encoded Position Data Source External\r\n");
     }
     s[109]=1;
-    s[108]=0; 
-    s[107]=1; 
-    s[106]=1; */	   
+    s[108]=0;
+    s[107]=1;
+    s[106]=1; */
   }
-  
+
 void identification_MMSI()
 	{int i,b;
 	float a=1,x=0;
@@ -584,14 +584,14 @@ void identification_AIRCRAFT_24_BIT_ADRESS()
     //contenu.append("Identifiant AIRCRAFT 24 BIT ADRESSE: ");
     //Integer xxx=xx;
     printf("%d",xx);
-    //contenu.append(xxx.to//String()).append("\r\n");     
+    //contenu.append(xxx.to//String()).append("\r\n");
     printf("en Hexa:");
     //contenu.append(" en Hexa: ");
     for(j=0;j<3;j++)
-        {i=40+j*8;                              
+        {i=40+j*8;
          aa=calcul(i,i+7);
          envoi_byte(aa);
-         } 
+         }
 }
 
 void identification_AIRCRAFT_OPER_DESIGNATOR()
@@ -605,7 +605,7 @@ void identification_AIRCRAFT_OPER_DESIGNATOR()
 	xx=(int)x;
 	printf("\n\rIdentifiant AIRCRAFT OPER DESIGNATOR: ");
     //contenu.append("Identifiant AIRCRAFT OPER DESIGNATOR: ");
-    printf("%d",xx);	
+    printf("%d",xx);
     //Integer xxx=xx;
     //contenu.append(xxx.to//String()).append("\r\n");
 	i= 55;
@@ -630,7 +630,7 @@ void identification_AIRCRAFT_OPER_DESIGNATOR()
 	printf("\n\rIdentifiant C/S TA No: ");
         //contenu.append("Identifiant C/S TA No: ");
         //Integer xxx=xx;
-        printf("%d",xx);	
+        printf("%d",xx);
         //contenu.append(xxx.to//String()).append("\r\n");
 	i= 50;
 	//b=8192*(s[i]=='1')+4096*(s[i+1]=='1')+2048*(s[i+2]=='1')+1024*(s[i+3]=='1')+512*(s[i+4]=='1')+256*(s[i+5]=='1')+128*(s[i+6]=='1')+64*(s[i+7]=='1')+32*(s[i+8]=='1')+ 16*(s[i+9]=='1')+8*(s[i+10]=='1')+4*(s[i+11]=='1')+2*(s[i+12]=='1')+(s[i+13]=='1');
@@ -687,12 +687,12 @@ void localisation_nationale() //voir doc A-27-28-29
 	i=115;
 	//latS=4*(8*(s[i]=='1')+4*(s[i+1]=='1')+2*(s[i+2]=='1')+(s[i+3]=='1'));
 	latS=4*calcul(i,i+3);
-    if(s[112]=='0') //{latS=-latS;} 
+    if(s[112]=='0') //{latS=-latS;}
 				{latS=60-latS;latM--;
-					if (latM<0) {latM=60+latM;latD--;}	
+					if (latM<0) {latM=60+latM;latD--;}
 				}
-	
-	//printf("Latitude: ");printf(c);printf(' ');printf(latD);printf('d');printf(latM);printf('m');printf(latS);printf('s'); 
+
+	//printf("Latitude: ");printf(c);printf(' ');printf(latD);printf('d');printf(latM);printf('m');printf(latS);printf('s');
 	printf("\n\rLatitude : %c %dd%dm%ds ",c,latD,latM,latS);
     //Charact cc = c;//Integer llatD = latD;//Integer llatM = latM;//Integer llatS = latS;
     //contenu.append("\r\nLatitude : ").append(cc.to//String()).append(" ").append(llatD.to//String()).append("d").append(llatM.to//String()).append("m").append(llatS.to//String()).append("s");
@@ -715,11 +715,11 @@ void localisation_nationale() //voir doc A-27-28-29
 	lonS=4*calcul(i,i+3);
     if(s[119]=='0')// {lonS=-lonS;}
 	        	{lonS=60-lonS;lonM--;
-					if (lonM<0) {lonM=60+lonM;lonD--;}	
+					if (lonM<0) {lonM=60+lonM;lonD--;}
 				}
-	
- 
-	//printf("Longitude: ");printf(c);printf(' ');printf(lonD);printf('d');printf(lonM);printf('m');printf(lonS);printf('s'); 
+
+
+	//printf("Longitude: ");printf(c);printf(' ');printf(lonD);printf('d');printf(lonM);printf('m');printf(lonS);printf('s');
     printf("\n\rLongitude: %c %dd%dm%ds ",c,lonD,lonM,lonS); //Charact ccc = c;//Integer llonD = lonD;//Integer llonM = lonM;//Integer llonS = lonS;
     //contenu.append("Longitude: ").append(ccc.to//String()).append(" ").append(llonD.to//String()).append("d").append(llonM.to//String()).append("m").append(llonS.to//String()).append("s");
     double gpsLon= lonD+(60.0*lonM+lonS)/3600.0;
@@ -744,7 +744,7 @@ void identification_nationale()
 	printf("\n\rIdentifiant National: ");
     //contenu.append("Identifiant National: ");
     //Integer xxx=xx;
-    printf("%d",xx);	
+    printf("%d",xx);
     //contenu.append(xxx.to//String()).append("\r\n");
 	}
 void localisation_user()
@@ -768,8 +768,8 @@ void localisation_user()
     lonD=calcul(i,i+7);
     //lonM=4*(8*(s[i+8]=='1')+4*(s[i+9]=='1')+2*(s[i+10]=='1')+(s[i+11]=='1'));
 	lonM=4*calcul(i+8,i+11);
-    //printf("Longitude: ");printf(c);printf(' ');printf(lonD);printf('d');printf(lonM);printf('m'); 
-	printf("\n\rLongitude: %c %dd%dm ",c,lonD,lonM); 
+    //printf("Longitude: ");printf(c);printf(' ');printf(lonD);printf('d');printf(lonM);printf('m');
+	printf("\n\rLongitude: %c %dd%dm ",c,lonD,lonM);
     //Charact ccc = c;//Integer llonD = lonD;//Integer llonM = lonM;
     //contenu.append("Longitude: ").append(ccc.to//String()).append(" ").append(llonD.to//String()).append("d").append(llonM.to//String()).append("m");
     double gpsLon= lonD+lonM/60.0;
@@ -799,10 +799,10 @@ void auxiliary_radio_locating_device_types()
           break;
     }
      printf(" %d",a);
- }   
-   
+ }
+
 void Emergency_code_use()
-{     
+{
      int a;
      if (s[106]=='1')
     { 	printf("\n\rEmergency code flag :");
@@ -811,7 +811,7 @@ void Emergency_code_use()
     	{
     		printf("\n\rAutomatic and manual");
     	}
-    
+
 	//a=8*(s[108]=='1')+4*(s[109]=='1')+2*(s[110]=='1')+(s[111]=='1');
         a=calcul(108,111);
 	switch(a)
@@ -847,45 +847,45 @@ void Emergency_code_use()
        break;
     }
   }
- 
+
 }
-	 
+
 void Non_Emergency_code_use_()
 {
-  
+
     // char a;
 
       if (s[106]=='1')
-      { 
+      {
       printf("\n\rEmergency code flag: ");
           //contenu.append("\r\nEmergency code flag: ");
       }
-       if (s[107]=='1') 
+       if (s[107]=='1')
        {
        	 printf("\n\rAutomatic and manual");
            //contenu.append("Automatic and manual\r\n");
        }
-       if (s[108]=='1') 
-       {   
+       if (s[108]=='1')
+       {
           printf("fire");
            //contenu.append("fire\r\n");
-       } 
+       }
        if (s[109]=='1')
-       { 
+       {
          printf("Medical help required");
            //contenu.append("Medical help required\r\n");
-       } 
+       }
        if (s[110]=='1')
-       { 
-      //     printf("disabled");//contenu.append("disabled\r\n");   
-       } 
+       {
+      //     printf("disabled");//contenu.append("disabled\r\n");
+       }
        if (s[111]=='1')
-       { 
+       {
            printf("Non specifié");
-           //contenu.append("Non specifié\r\n");   
-       } 
-  }    
-  
+           //contenu.append("Non specifié\r\n");
+       }
+  }
+
 
 
 
@@ -893,7 +893,7 @@ void Non_Emergency_code_use_()
 void Serial_Number_20_Bits()
 {
   	    int j,e=1,a=0;
-        printf("\n\rSerial Number: "); 
+        printf("\n\rSerial Number: ");
         //contenu.append("Serial Number: ");
         for(j=62;j>42;j--)
             {if(s[j]=='1')   a=a+e;
@@ -907,15 +907,15 @@ void Serial_Number_20_Bits()
 /*void Serial_Number_20_Bits()
 {
   	     	int i,a;
-            printf("\r\nSerial Number (2o bits) : "); 
-            
+            printf("\r\nSerial Number (2o bits) : ");
+
             i=43;
             //a=524288*(s[i]=='1')+262144*(s[i+1]=='1')+131072*(s[i+2]=='1')+65536*(s[i+3]=='1')+32768*(s[i+4]=='1')+16384*(s[i+5]=='1')+8192*(s[i+6]=='1')+4096*(s[i+7]=='1')+2048*(s[i+8]=='1')+1024*(s[i+9]=='1')+512*(s[i+10]=='1')+256*(s[i+11]=='1')+128*(s[i+12]=='1')+64*(s[i+13]=='1')+32*(s[i+14]=='1')+16*(s[i+15]=='1')+8*(s[i+16]=='1')+4*(s[i+17]=='1')+2*(s[i+18]=='1')+(s[i+19]=='1');
-            a=calcul(i,i+19);        
+            a=calcul(i,i+19);
             printf(a);
 }
 */
-void all_0_or_nat_use() 
+void all_0_or_nat_use()
 {
   	int i,a;
     printf("\n\rAll 0 or nat use: ");
@@ -926,15 +926,15 @@ void all_0_or_nat_use()
     printf("%d",a);
     //Integer aa=a;
     //contenu.append(aa.to//String()).append("\r\n");
-}       
+}
 
 void Aircraft_24_Bit_Adress()
 {
             int i,j;
             int a;
             printf("\n\rAircraft 24 Bit Adresse: ");
-            //contenu.append("Aircraft 24 Bit Adresse: "); 
-             
+            //contenu.append("Aircraft 24 Bit Adresse: ");
+
             for(j=0;j<3;j++)
 			{
             i=43+j*8;
@@ -944,7 +944,7 @@ void Aircraft_24_Bit_Adress()
             printf("_");
             //contenu.append("_");
             }
-            
+
       //printf("\r\n");
       //contenu.append("\r\n");
 }
@@ -954,7 +954,7 @@ void Additional_ELT_No()
     int a;
     printf("\n\rAdditional ELT No: ");
     //contenu.append("Additional ELT No: ");
-    i=67;   
+    i=67;
     //a=32*(s[i]=='1')+16*(s[i+1]=='1')+8*(s[i+2]=='1')+4*(s[i+3]=='1')+2*(s[i+4]=='1')+(s[i+5]=='1');
     a=calcul(i,i+5);
     printf("%d",a);
@@ -965,13 +965,13 @@ void Additional_ELT_No()
 void Operator_3_Letter_Designator()
 {  	        int i,j,b;
             int a;
-            printf("\n\rOperator 3 Letter Designator : "); 
+            printf("\n\rOperator 3 Letter Designator : ");
             //contenu.append("Operator 3 Letter Designator : ");
             for(j=0;j<2;j++)
 			{
                  i=43+j*8;
                  //a=128*(s[i]=='1')+64*(s[i+1]=='1')+32*(s[i+2]=='1')+16*(s[i+3]=='1')+8*(s[i+4]=='1')+4*(s[i+5]=='1')+2*(s[i+6]=='1')+(s[i+7]=='1');
-                a=calcul(i,i+7);	 
+                a=calcul(i,i+7);
                 envoi_byte(a);
             }
             i=59;
@@ -986,7 +986,7 @@ void Serial_Number()
 {   int i,a;
     printf("\n\rSerial Number: ");
     //contenu.append("Serial Number: ");
-    i=61; 
+    i=61;
     //a=2048*(s[i]=='1')+1024*(s[i+1]=='1')+512*(s[i+2]=='1')+256*(s[i+3]=='1')+128*(s[i+4]=='1')+64*(s[i+5]=='1')+32*(s[i+6]=='1')+16*(s[i+7]=='1')+8*(s[i+8]=='1')+4*(s[i+9]=='1')+2*(s[i+10]=='1')+(s[i+11]=='1');
     a=calcul(i,i+11);
     //Integer aa=a;
@@ -994,10 +994,10 @@ void Serial_Number()
     //contenu.append(aa.to//String()).append("\r\n");
 }
 
- void C_S_Cert_No_or_Nat_Use() 
+ void C_S_Cert_No_or_Nat_Use()
  {  int a;
     printf("\n\rC/S Number or National: ");
-    //contenu.append("C/S Number or National: ");   
+    //contenu.append("C/S Number or National: ");
     // a=512*(s[73]=='1')+256*(s[74]=='1')+128*(s[75]=='1')+64*(s[76]=='1')+32*(s[77]=='1')+16*(s[78]=='1')+8*(s[79]=='1')+4*(s[80]=='1')+2*(s[81]=='1')+(s[82]=='1');
     a=calcul(73,82);
     printf("%d",a);
@@ -1058,22 +1058,22 @@ void affiche_serial_user_1()
 		case 6 :printf("\n\rPersonal Locator Beacon (PLB) + serial number :");
                 Serial_Number_20_Bits();all_0_or_nat_use();C_S_Cert_No_or_Nat_Use();break;
 		//case 5 :printf("spare :");break;
-         //case 7 :printf(spare :");break;	 
-		
+         //case 7 :printf(spare :");break;
+
        }
     switch(a)
 		{case 5 :case 7 :
           printf("Spare: ");
           //contenu.append("Spare: \r\n");
           if(s[42]=='0')
-          {          
+          {
             printf("Serial identification number is assigned nationally ");
               //contenu.append("Serial identification number is assigned nationally \r\n");
-          }         
+          }
           else
           {
             printf("Identification data include the C/S type approval certificate number ");
-            //contenu.append("Identification data include the C/S type approval certificate number\r\n"); 
+            //contenu.append("Identification data include the C/S type approval certificate number\r\n");
           }
         }
 }
@@ -1094,7 +1094,7 @@ void test_beacon_data()
     //Integer aa=a;
     //      printf("%d",a);
     //contenu.append(aa.to//String()).append("\r\n");
-}  
+}
 
 void orbitography_data()
 {
@@ -1104,7 +1104,7 @@ void orbitography_data()
 			{
             i=39+j*8;
 			//a=128*(s[i]=='1')+64*(s[i+1]=='1')+32*(s[i+2]=='1')+16*(s[i+3]=='1')+8*(s[i+4]=='1')+4*(s[i+5]=='1')+2*(s[i+6]=='1')+(s[i+7]=='1');
-			a=calcul(i,i+7);  
+			a=calcul(i,i+7);
             envoi_byte(a);
 			}
              i=79;
@@ -1113,7 +1113,7 @@ void orbitography_data()
              //Integer aa=a;
              printf("%d",a);
              //contenu.append(aa.to//String()).append("\r\n");
-}  
+}
 
 void national_use()
 {
@@ -1123,21 +1123,21 @@ void national_use()
             {
             i=39+j*8;
 	        //a=128*(s[i]=='1')+64*(s[i+1]=='1')+32*(s[i+2]=='1')+16*(s[i+3]=='1')+8*(s[i+4]=='1')+4*(s[i+5]=='1')+2*(s[i+6]=='1')+(s[i+7]=='1');
-            a=calcul(i,i+7);	  
+            a=calcul(i,i+7);
             envoi_byte(a);//envoi_byte(a);
             }
     i=79;
     //a=32*(s[i]=='1')+16*(s[i+1]=='1')+8*(s[i+2]=='1')+4*(s[i+3]=='1')+2*(s[i+4]=='1')+(s[i+5]=='1');
     a=calcul(i,i+5);
     //Integer aa=a;
-    printf("%d",a); 
+    printf("%d",a);
     //contenu.append(aa.to//String());
     i=106;
     //a=32*(s[i]=='1')+16*(s[i+1]=='1')+8*(s[i+2]=='1')+4*(s[i+3]=='1')+2*(s[i+4]=='1')+(s[i+5]=='1');
     a=calcul(i,i+5);
     //Integer bb=a;
     printf("%d",a);
-    //contenu.append(bb.to//String()).append("\r\n");    
+    //contenu.append(bb.to//String()).append("\r\n");
 }
 
 void national_use_1()
@@ -1148,33 +1148,33 @@ void national_use_1()
 			{
             i=39+j*8;
 			//a=128*(s[i]=='1')+64*(s[i+1]=='1')+32*(s[i+2]=='1')+16*(s[i+3]=='1')+8*(s[i+4]=='1')+4*(s[i+5]=='1')+2*(s[i+6]=='1')+(s[i+7]=='1');
-            a=calcul(i,i+7);  
+            a=calcul(i,i+7);
             envoi_byte(a);
 			}
     i=79;
     //a=32*(s[i]=='1')+16*(s[i+1]=='1')+8*(s[i+2]=='1')+4*(s[i+3]=='1')+2*(s[i+4]=='1')+(s[i+5]=='1');
     a=calcul(i,i+5);
     //Integer aa=a;
-    printf("%d",a); 
+    printf("%d",a);
     //contenu.append(aa.to//String()).append("\r\n");
 }
 
 /*void BCH_1()
 {
-  
+
  int i,j;
      int a;
-     printf("\r\n Encoded BCH 1 ");  //contenu.append("Encoded BCH 1 \r\n");  
+     printf("\r\n Encoded BCH 1 ");  //contenu.append("Encoded BCH 1 \r\n");
    	for(j=0;j<2;j++)
 			{
                         i=85+j*8;
 			//a=128*(s[i]=='1')+64*(s[i+1]=='1')+32*(s[i+2]=='1')+16*(s[i+3]=='1')+8*(s[i+4]=='1')+4*(s[i+5]=='1')+2*(s[i+6]=='1')+(s[i+7]=='1');
-			a=calcul(i,i+7);  
+			a=calcul(i,i+7);
                         envoi_byte(a);
 			}
              i=101;
              //a=16*(s[i]=='1')+8*(s[i+1]=='1')+4*(s[i+2]=='1')+2*(s[i+3]=='1')+(s[i+4]=='1');
-            a=calcul(i,i+4); 
+            a=calcul(i,i+4);
             envoi_byte(a);
  }*/
 
@@ -1182,7 +1182,7 @@ void national_use_1()
 /*void affiche_serial_user2()
 {
 	 int a;
-	
+
 	//a=8*(s[39]=='1')+4*(s[40]=='1')+2*(s[41]=='1')+(s[42]=='1');
 	a=calcul(39,42);
         switch(a)
@@ -1192,33 +1192,33 @@ void national_use_1()
          case 14 :printf("\r\nserial identification number is assigned nationaly ");break;
 		 case 15 :printf("\r\nidentification data include the C/S type approval certificate number");break;
 	}
-}*/  
-    
+}*/
+
 void decodage_LCD()
 {   int b;
 	int i,j;
-    int a;    
+    int a;
     for(j=0;j<2;j++) //bits de 0 à 15 en octet
                     {i=j*8;
                     //a=128*(s[i]=='1')+64*(s[i+1]=='1')+32*(s[i+2]=='1')+16*(s[i+3]=='1')+8*(s[i+4]=='1')+4*(s[i+5]=='1')+2*(s[i+6]=='1')+(s[i+7]=='1');
                     a=calcul(i,i+7);
                    // envoi_byte(a);
                     }
-                      
-    if(s[16]=='1')            
+
+    if(s[16]=='1')
                 {
                 //a=128*(s[16]=='1')+64*(s[17]=='1')+32*(s[18]=='0')+16*(s[19]=='1')+8*(s[20]=='0')+4*(s[21]=='0')+2*(s[22]=='0')+(s[23]=='0');
                 a=calcul(16,23);
                 printf("\r\nTrame de test...");
                 //contenu.append("\r\nTEST...\r\n");
-                }  
+                }
             else
                 {
                 //a=128*(s[16]=='0')+64*(s[17]=='0')+32*(s[18]=='1')+16*(s[19]=='0')+8*(s[20]=='1')+4*(s[21]=='1')+2*(s[22]=='1')+(s[23]=='1');
                 a=calcul(16,23);
                 printf("\n\rTrame d'alerte... ");
                 //contenu.append("\r\nALERTE...\r\n");
-                }  
+                }
             //strcpy(chaine,"");
             if (s[24]=='0')
                 {printf("\r\nUser Protocole-Localisation courte");
@@ -1249,7 +1249,7 @@ void decodage_LCD()
 						case 7 :
                             printf("\n\rTest User: ");
                             //contenu.append("\r\nTest User: ");
-                            test_beacon_data();  
+                            test_beacon_data();
                             break;
 						case 0 :
 							printf("\n\rOrbitography: ");
@@ -1266,7 +1266,7 @@ void decodage_LCD()
                             //contenu.append("Spare ");
                             break;
 					}
-					 							
+
                 switch(a)
 					{
 						case 2: case 6: case 1: case 3: auxiliary_radio_locating_device_types();/*BCH_1();*/
@@ -1277,7 +1277,7 @@ void decodage_LCD()
                 //Integer bb=b;
                 printf("\n\rCode Pays : %d\n\r",b);
                 //contenu.append("Code Pays:").append(bb.to//String());
-					
+
 			}
         else //Trame longue
                {printf("\n\rTrame longue 144 bits");
@@ -1345,21 +1345,21 @@ void decodage_LCD()
                                               identification_C_S_TA_No();localisation_standard();supplementary_data();break;
                                  case 5:
                                             identification_AIRCRAFT_OPER_DESIGNATOR();localisation_standard();supplementary_data();break;
-                                 case 14: 
+                                 case 14:
                                             localisation_standard(); break;
                                  case 12:
                                                localisation_standard();
                                                supplementary_data();
                                                identification_MMSI_FIXED();
                                                 break;
-                                 case 8:case 9: case 10: case 11: case 15: 
+                                 case 8:case 9: case 10: case 11: case 15:
                                                localisation_nationale();identification_nationale();supplementary_data_1();break;
                                 }
                     }
 				else
 				{
 					printf("\n\nUser Protocole-Localisation");
-                    //contenu.append("User Protocole/Localisation\r\n");	
+                    //contenu.append("User Protocole/Localisation\r\n");
                     //code protocole 37-39
 					//a=4*(s[36]=='1')+2*(s[37]=='1')+(s[38]=='1');
 					a=calcul(36,38);
@@ -1378,11 +1378,11 @@ void decodage_LCD()
 						break;
 						case 3 :printf("\n\rSerial User: ");
                         //contenu.append("Serial User: \r\n");
-						affiche_serial_user_1();	
+						affiche_serial_user_1();
                         break;
 						case 7 :printf("\n\rTest User: ");
                         //contenu.append("Test User: \r\n");
-                        test_beacon_data();  
+                        test_beacon_data();
                         break;
 						case 0 :printf("\n\rOrbitography: ");
                         //contenu.append("Orbitography: \r\n");
@@ -1400,16 +1400,16 @@ void decodage_LCD()
 					{
 						case 2: case 6: case 1: case 3: localisation_user();auxiliary_radio_locating_device_types(); break;
 					}
-							 
+
 				}
                 //b=512*(s[26]=='1')+256*(s[27]=='1')+128*(s[28]=='1')+64*(s[29]=='1')+32*(s[30]=='1')+16*(s[31]=='1')+8*(s[32]=='1')+4*(s[33]=='1')+2*(s[34]=='1')+(s[35]=='1');
                 b=calcul(26,35);
                 //Integer bb=b;
                 printf("\n\rCode Pays : %d\n\r",b);
                 //contenu.append("Code Pays : ").append(bb.to//String()).append("\r\n");
-			}		
+			}
 }
-//DecimalFormat decform = new DecimalFormat("###.######"); 
+//DecimalFormat decform = new DecimalFormat("###.######");
 
 
 int lit_header(FILE *fp) {
@@ -1432,12 +1432,12 @@ int lit_header(FILE *fp) {
     if (fread(dat, 1, 2, fp) < 2) return -1;
     N_canaux = dat[0] + (dat[1] << 8);
     if (fread(dat, 1, 4, fp) < 4) return -1;
-    memcpy(&f_ech, dat, 4); 
+    memcpy(&f_ech, dat, 4);
     if (fread(dat, 1, 4, fp) < 4) return -1;
     if (fread(dat, 1, 2, fp) < 2) return -1;
     if (fread(dat, 1, 2, fp) < 2) return -1;
     bits = dat[0] + (dat[1] << 8);
-    while(1) //debut des donnees   
+    while(1) //debut des donnees
         {if ( (byte=fgetc(fp)) == EOF ) return -1;
         txt[j % 4] = byte;
         j++; if (j==4) j=0;
@@ -1459,11 +1459,11 @@ int lit_ech(FILE *fp) {  // int 32 bit
     int byte,ech=0,i,s=0;     // EOF -> 0x1000000
    // static int Avg[10];
     //float ss=0;
-    for (i = 0; i < N_canaux; i++) {//mono =0 
+    for (i = 0; i < N_canaux; i++) {//mono =0
         byte = fgetc(fp);
         if (byte == EOF) return 1000000;
         if (i == canal_audio) ech = byte;
-        if (bits == 16) 
+        if (bits == 16)
         {   byte = fgetc(fp);
             if (byte == EOF) return 1000000;
             if (i == canal_audio) ech +=  byte << 8;
@@ -1493,7 +1493,7 @@ int duree_entre_pics(FILE *fp, int *nbr) {
           echantillon = lit_ech(fp);
           //printf("\n\r%d",echantillon);
           if (echantillon == 1000000) return 1;
-          n++;  
+          n++;
         }while (echantillon > seuilm);
         seuil=seuilm;
     }
@@ -1516,10 +1516,10 @@ void affiche_hexa(){
         a=calcul(i,i+7);
         envoi_byte(a);
         //printf("%X",a);
-    } 
+    }
     //printf("\n\r");
 }
- 
+
 
 int test_crc1(){
 int g[]= {1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1};
@@ -1555,7 +1555,7 @@ for(j=0;j<22;j++)
 		{ss+=div[j];
 		}
 if (ss==0)   printf("\n CRC_1 OK");
-else 
+else
     {if(zero==0) {printf("\n CRC_1 null?");ss=0;}
     else printf("\n CRC_1 Mauvais");
     }
@@ -1591,12 +1591,12 @@ while(i<132)
                         }
 		i++;
                 }
-	}	
+	}
 for(j=0;j<13;j++)
 		{ss+=div[j];
 		}
 if (ss==0)   printf("\n CRC_2 OK");
-else 
+else
     {if(zero==0) {printf("\n CRC_2 null? ");ss=0;}
     else printf("\n CRC_2 Mauvais. ATTENTION: il y a des erreurs ");
     }
@@ -1616,10 +1616,10 @@ int affiche_trame(){
     int r=0;
     s[longueur_trame]=0;
     if(test_crc1()==0){
-    r=1;    
-    if (s[24]=='1') test_crc2();   
-    printf("\n\rNouvelle trame binaire: ");
-    printf("\n\r%s",s);
+    r=1;
+    if (s[24]=='1') test_crc2();
+    //printf("\n\rNouvelle trame binaire: ");
+    //printf("\n\r%s",s);
     //test_crc1();
     //if (s[24]=='1') test_crc2();
     printf("\n\rContenu hexadécimal: ");
@@ -1634,7 +1634,7 @@ void affiche_aide(){
             printf("\n/*--help aide                                                             */");
             printf("\n/*--osm  affichage sur une carte OpenStreetMap                            */");
             printf("\n/*--une_minute timeout de 55 secondes pour une utilisation avec scan406   */");
-            printf("\n/*--M1 à --M10  Max pour le calcul le seuil minimum (defaut --M3)         */"); 
+            printf("\n/*--M1 à --M10  Max pour le calcul le seuil minimum (defaut --M3)         */");
             printf("\n/*--2 à --100 coeff pour calculer le seuil Max/coeff (default --100)      */");
             printf("\n/*------------------------------------------------------------------------*/");
             printf("\n/*LANCEMENT DU PROGRAMME (exemples):                                      */");
@@ -1642,7 +1642,7 @@ void affiche_aide(){
             printf("\n/*sox -t alsa default -t wav - lowpass 3000 highpass 10  2>/dev/null | ./dec406V6 --osm  */");
             printf("\n/*------------------------------------------------------------------------*/");
             printf("\n/*SI 'sox' EST ABSENT:                                                    */");
-            printf("\n/*sudo apt-get install sox                                                */");    
+            printf("\n/*sudo apt-get install sox                                                */");
             printf("\n/*------------------------------------------------------------------------*/\n");
 }
 int main(int argc, char **argv) {
@@ -1650,10 +1650,10 @@ int main(int argc, char **argv) {
     char *nom;      //nom du fichier en argument
 //    int nbr;        //nombre d'ech entre 2 pics
 //    int pos=0;      //numero du bit 0 à 143 ou 0 à 111
-//    int Delta=0;    //tolerance Nbr ech entre pics 
+//    int Delta=0;    //tolerance Nbr ech entre pics
     int Nb=0;       //durée du bit en ech
 //    int Nb2=0;      //durée demi bit en ech
-//    int bitsync=0;  // pour compter les bits de synchronisation  à 1 
+//    int bitsync=0;  // pour compter les bits de synchronisation  à 1
 //    int syncOK=0;   // passe à 1 lorsque du premier '0' après les 15 '1'
 //    int paire=0;    // pour ne pas considerer les pics d'horloge comme des bits (Manchester)
     int depart=0;   // pour détecter le début de synchronisation porteuse non modulee == silence
@@ -1685,11 +1685,11 @@ int main(int argc, char **argv) {
     double dt;
     double clk_tck= CLOCKS_PER_SEC;
     fp=NULL;
-    nom = argv[0];  //nom du programme 
+    nom = argv[0];  //nom du programme
     ++argv;
     while ((*argv) && (flux_wav)) {
         if   (strcmp(*argv, "--help") == 0){affiche_aide();return 0;}
-        
+
         else if ( (strcmp(*argv, "--osm") == 0) ) opt_osm=1;
         else if ( (strcmp(*argv, "--2") == 0) ) coeff=2;
         else if ( (strcmp(*argv, "--3") == 0) ) coeff=3;
@@ -1716,7 +1716,7 @@ int main(int argc, char **argv) {
         else if ( (strcmp(*argv, "--M9") == 0) ) Max=10e9;
         else if ( (strcmp(*argv, "--M10") == 0) ) Max=10e10;
         else if ( (strcmp(*argv, "--une_minute") ==0) ) opt_minute=1;
-        
+
         else {fp = fopen(*argv, "rb");
             if (fp == NULL) {printf( "%s Impossible d'ouvrir le fichier\n", *argv);return -1;
             }
@@ -1725,10 +1725,10 @@ int main(int argc, char **argv) {
         ++argv;
     }
     if (flux_wav)  fp = stdin;  // pas de fichier .wav utiliser le flux standard 'stdin'
-      
+
     printf("\n****Attente de Trames****\n");
     lit_header(fp);
- //   pos = 0;                    
+ //   pos = 0;
 //    Nb2=ech_par_bit/2;
     Nb=ech_par_bit;
  //   Delta=round(0.2*Nb);
@@ -1751,7 +1751,7 @@ int main(int argc, char **argv) {
           //  printf("dt= %lf \n ",dt);
             if (dt>55.0) {fprintf(stderr,"Plus de 55s\n");fclose(fp);return 0;}
         }
-     
+
         //lire 1 ech et autocorrelation 2bits
         echantillon = lit_ech(fp); //printf("\n\r%d",echantillon);
         if (echantillon == 1000000) {
@@ -1771,14 +1771,14 @@ int main(int argc, char **argv) {
         if(Y1>max){max=Y1;seuil1=max/coeff;}
         if(Y1<min){min=Y1;seuil0=min/coeff;}
         //fin autocorélation
-             
+
         if (synchro==0){//attendre synchro 15 '1'
                 if (depart==0){//attendre premier front montant (depart_15 = 1 lorsque trouvé)
                     if (Y1>seuil1) {
                         depart=1;//1er front trouvé
                     }
                     cpte=0;
-                } 
+                }
                 else{//attendre front descendant en comptant les echs
                     cpte++;
                     if (Y1<seuil0){//front descendant trouvé tester les bits à 1 (de 10 à 20 ok)
@@ -1791,13 +1791,13 @@ int main(int argc, char **argv) {
                         }
                         else{//erreur synchro recommencer
                              cpte=0;depart=0;synchro=0;etat='-';numBit=0;
-                            
+
                         }
                     }
-                    
-                    
+
+
                 }
-        
+
         }
         else{//synchro OK => Traitement
             cpte++;
@@ -1814,9 +1814,9 @@ int main(int argc, char **argv) {
                                     }
                                 cpte=0;
                                 }//etat *
-                                
+
             }
-            else{ 
+            else{
                 if (Y1<seuil0) {//front descendant
                 if(etat=='1') //si Y1 vient de changer
                                 {etat='0';cpte-=Nb/2;
@@ -1828,17 +1828,17 @@ int main(int argc, char **argv) {
                                 }
                 }
                 else{//entre les deux niveaux... ignore...
-                    
+
                 }
-                
-            }   
-        
+
+            }
+
         }//fin du else synchro OK traitement
     }  //fin while (numBit<longueur_trame)
     //printf("\n************Mini %d\tMaxi %d\tMoy%d\tf_ech%d********",Mini,Maxi,Moy,f_ech);
     if(affiche_trame()==1){
-        fprintf(stderr,"TROUVE\n\n"); 
-        if (opt_minute==1) {fclose(fp); return 0;   
+        fprintf(stderr,"TROUVE\n\n");
+        if (opt_minute==1) {fclose(fp); return 0;
         }
     }
     else{
@@ -1851,4 +1851,3 @@ int main(int argc, char **argv) {
     fclose(fp);
     return 0;
 }
-
