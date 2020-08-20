@@ -414,7 +414,7 @@ void localisation_standard()
     ////contenu.append("Latitude  : "+cc.to//String()+" "+llatD.to//String()+"d"+llatM.to//String()+"m"+llatS.to//String()+"s\r\n");
     //contenu.append("\r\nLatitude : ").append(cc.to//String()).append(" ").append(llatD.to//String()).append("d").append(llatM.to//String()).append("m").append(llatS.to//String()).append("s");
     double gpsLat= latD+(60.0*latM+latS)/3600.0;
-    printf("\t %2.6f Deg",gpsLat);
+    printf("\t %2.4f Deg",gpsLat);
     //contenu.append(" = ").append(decform.format(gpsLat)).append(" Deg\r\n");
 	if (s[74]=='0') {c='E';} else {c='W';}
 	i=75;
@@ -442,7 +442,7 @@ void localisation_standard()
     //contenu.append("Longitude: "+ccc.to//String()+" "+llonD.to//String()+"d"+llonM.to//String()+"m"+llonS.to//String()+"s\r\n");
     //contenu.append("Longitude: ").append(ccc.to//String()).append(" ").append(llonD.to//String()).append("d").append(llonM.to//String()).append("m").append(llonS.to//String()).append("s");
     double gpsLon= lonD+(60.0*lonM+lonS)/3600.0;
-    printf("\t %3.6f Deg\n",gpsLon);
+    printf("\t %3.4f Deg\n",gpsLon);
     //contenu.append(" = ").append(decform.format(gpsLon)).append(" Deg\r\n");
     GeogToUTM(gpsLat, gpsLon);
     }
@@ -500,7 +500,7 @@ void localisation_standard1()
     //contenu.append("Latitude  : "+cc.to//String()+" "+llatD.to//String()+"d"+llatM.to//String()+"m"+llatS.to//String()+"s  \r\n");
     //contenu.append("\r\nLatitude : ").append(cc.to//String()).append(" ").append(llatD.to//String()).append("d").append(llatM.to//String()).append("m").append(llatS.to//String()).append("s");
     double gpsLat= latD+(60.0*latM+latS)/3600.0;
-    printf(" = %2.6f Deg",gpsLat);
+    printf(" = %2.4f Deg",gpsLat);
     //contenu.append(" = ").append(decform.format(gpsLat)).append(" Deg\r\n");
     if (s[74]=='0') {c='E';} else {c='W';}
 	i=75;
@@ -527,7 +527,7 @@ void localisation_standard1()
     // //contenu.append("Longitude: "+ccc.to//String()+" "+llonD.to//String()+"d"+llonM.to//String()+"m"+llonS.to//String()+"s\r\n");
     //contenu.append("Longitude: ").append(ccc.to//String()).append(" ").append(llonD.to//String()).append("d").append(llonM.to//String()).append("m").append(llonS.to//String()).append("s");
     double gpsLon= lonD+(60.0*lonM+lonS)/3600.0;
-    printf(" = %3.6f Deg\n",gpsLon);
+    printf(" = %3.4f Deg\n",gpsLon);
     //contenu.append(" = ").append(decform.format(gpsLon)).append(" Deg\r\n");
     GeogToUTM(gpsLat, gpsLon);
     /*if (s[110]==1)
@@ -697,7 +697,7 @@ void localisation_nationale() //voir doc A-27-28-29
     //Charact cc = c;//Integer llatD = latD;//Integer llatM = latM;//Integer llatS = latS;
     //contenu.append("\r\nLatitude : ").append(cc.to//String()).append(" ").append(llatD.to//String()).append("d").append(llatM.to//String()).append("m").append(llatS.to//String()).append("s");
     double gpsLat= latD+(60.0*latM+latS)/3600.0;
-    printf(" = %2.6f Deg",gpsLat);
+    printf(" = %2.4f Deg",gpsLat);
     //contenu.append(" = ").append(decform.format(gpsLat)).append(" Deg\r\n");
     if (s[71]=='0') c='E'; else c='W';
 	i=72;
@@ -723,7 +723,7 @@ void localisation_nationale() //voir doc A-27-28-29
     printf("\n\rLongitude: %c %dd%dm%ds ",c,lonD,lonM,lonS); //Charact ccc = c;//Integer llonD = lonD;//Integer llonM = lonM;//Integer llonS = lonS;
     //contenu.append("Longitude: ").append(ccc.to//String()).append(" ").append(llonD.to//String()).append("d").append(llonM.to//String()).append("m").append(llonS.to//String()).append("s");
     double gpsLon= lonD+(60.0*lonM+lonS)/3600.0;
-    printf(" = %3.6f Deg\n",gpsLon);
+    printf(" = %3.4f Deg\n",gpsLon);
     //contenu.append(" = ").append(decform.format(gpsLon)).append(" Deg\r\n");
     GeogToUTM(gpsLat, gpsLon);
     i=126;
@@ -773,11 +773,11 @@ void localisation_user()
     //Charact ccc = c;//Integer llonD = lonD;//Integer llonM = lonM;
     //contenu.append("Longitude: ").append(ccc.to//String()).append(" ").append(llonD.to//String()).append("d").append(llonM.to//String()).append("m");
     double gpsLon= lonD+lonM/60.0;
-    printf(" = %3.6f Deg",gpsLon);
+    //printf(" = %3.6f Deg",gpsLon);
     //contenu.append(" = ").append(decform.format(gpsLon)).append(" Deg\r\n");
     printf(" = %3.4f Deg\n",gpsLon);
     GeogToUTM(gpsLat, gpsLon);
-    if (s[106]=='1') {printf("Encoded position data source internal");}
+    if (s[106]=='1') {printf("\n\rEncoded position data source internal");}
     //contenu.append("Encoded position data source internal\r\n");}
     }
 void auxiliary_radio_locating_device_types()

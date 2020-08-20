@@ -3572,6 +3572,8 @@ void ChangeArgosFreq(int dir)
   char InitText[64];
   bool IsValid = FALSE;
   char FreqLimit[10];
+  char Argoslow[10];
+  char Argoshigh[10];
   char Value[10];
 
   switch (dir)
@@ -3586,21 +3588,45 @@ void ChangeArgosFreq(int dir)
     printf("Argos freq Menu Error\n");
   }
 
+  GetConfigParam(PATH_406CONFIG, "low", Argoslow);
+  GetConfigParam(PATH_406CONFIG, "high", Argoshigh);
+
 
   //Retrieve (10 char) Current offset from Config file
   GetConfigParam(PATH_406CONFIG, Value, FreqLimit);
 
-  while (IsValid == FALSE)
+  if (strcmp(Value, "low")==0)
   {
-    strcpy(RequestText, "Entrez une fréquence en MHz");
-    strcpyn(InitText, FreqLimit, 8);
-    Keyboard(RequestText, FreqLimit, 8);
-
-    if((atoi(KeyboardReturn) >= 24) && (atoi(KeyboardReturn) <= 1766))
+    while (IsValid == FALSE)
     {
-      IsValid = TRUE;
+      strcpy(RequestText, "Fréquence en MHz");
+      strcpyn(InitText, FreqLimit, 8);
+      Keyboard(RequestText, FreqLimit, 8);
+
+      if((atoi(KeyboardReturn) >= 24) && (atoi(KeyboardReturn) <= 1766))
+      {
+        IsValid = TRUE;
+        if ((atof(Argoshigh)-atof(KeyboardReturn))<0.1)
+        {
+          sprintf(Argoshigh, "%.3f", (atof(KeyboardReturn)+0.1));
+          SetConfigParam(PATH_406CONFIG, "high", Argoshigh);
+        }
+      }
+    }
+  }else{
+    while (IsValid == FALSE)
+    {
+      strcpy(RequestText, "Fréquence en MHz");
+      strcpyn(InitText, FreqLimit, 8);
+      Keyboard(RequestText, FreqLimit, 8);
+
+      if((atoi(KeyboardReturn) >= 24) && (atoi(KeyboardReturn) <= 1766) && (((atof(KeyboardReturn)-atof(Argoslow))>=0.1) || (atof(Argoslow)==atof(KeyboardReturn))))
+      {
+        IsValid = TRUE;
+      }
     }
   }
+
   printf("Fréquence %s MHz\n", KeyboardReturn);
 
   // Save offset to Config File
@@ -11537,6 +11563,7 @@ void ARGOS_DECODER()
   char line16[80]="";
   char line17[80]="";
   char line18[80]="";
+  char line19[80]="";
 
   int nbline=1;
 
@@ -11575,11 +11602,31 @@ void ARGOS_DECODER()
     sscanf(line,"%s ",strTag);
     //printf("\n len: %d line: %s strTag: %s", len, line, strTag);
 
-    if((strcmp(strTag, "Scan")==0) || (strcmp(strTag, "Fréquence:")==0) || (strcmp(strTag, "Lancement")==0) || (strcmp(strTag, "****Attente")==0) || (strcmp(strTag, "CRC_1")==0) || (strcmp(strTag, "Contenu")==0))
+    if((strcmp(strTag, "Scan")==0) || (strcmp(strTag, "Lancement")==0) || (strcmp(strTag, "****Attente")==0) || (strcmp(strTag, "CRC_1")==0) || (strcmp(strTag, "Contenu")==0))
     {
        nbline=1;
        strcpy(line1, line);
        strcpy(line2, "");
+       if (strcmp(strTag, "Contenu")==0)
+         {
+           strcpy(line3, "");
+           strcpy(line4, "");
+           strcpy(line5, "");
+           strcpy(line6, "");
+           strcpy(line7, "");
+           strcpy(line8, "");
+           strcpy(line9, "");
+           strcpy(line10, "");
+           strcpy(line11, "");
+           strcpy(line12, "");
+           strcpy(line13, "");
+           strcpy(line14, "");
+           strcpy(line15, "");
+           strcpy(line16, "");
+           strcpy(line17, "");
+           strcpy(line18, "");
+           strcpy(line19, "");
+         }
     }else if (nbline==1){
        nbline++;
        strcpy(line2, line);
@@ -11631,6 +11678,9 @@ void ARGOS_DECODER()
     }else if (nbline==17){
        nbline++;
        strcpy(line18, line);
+    }else if (nbline==18){
+       nbline++;
+       strcpy(line19, line);
     }
 
        BackgroundRGB(0, 0, 0, 255);
@@ -11656,6 +11706,7 @@ void ARGOS_DECODER()
        Text(wscreen * 1.0 / 40.0, hscreen - 11.5 * linepitch, line16, font, pointsize);
        Text(wscreen * 1.0 / 40.0, hscreen - 12.2 * linepitch, line17, font, pointsize);
        Text(wscreen * 1.0 / 40.0, hscreen - 12.9 * linepitch, line18, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 13.6 * linepitch, line18, font, pointsize);
        Fill(255, 255, 255, 255);
        Text(wscreen * 1.0 / 40.0, hscreen - 15 * linepitch, "Touch to exit", font, pointsize);
        End();
@@ -23572,33 +23623,50 @@ void Define_Menu57()
   button = CreateButton(57, 6);
   AddButtonStatus(button, "Fixe^406.028M", &DBlue);
   AddButtonStatus(button, "Fixe^406.028M", &LBlue);
+  AddButtonStatus(button, "Fixe^406.028M", &Green);
 
   button = CreateButton(57, 7);
   AddButtonStatus(button, "Fixe^433.95M", &DBlue);
   AddButtonStatus(button, "Fixe^433.95M", &LBlue);
+  AddButtonStatus(button, "Fixe^433.95M", &Green);
 
 }
 
 void Start_Highlights_Menu57()
 {
-  char Value[15] = "";
+  char ValueLow[15] = "";
+  char ValueHigh[15] = "";
   char Freqtext[21];
 
   // Low:
-  GetConfigParam(PATH_406CONFIG, "low", Value);
+  GetConfigParam(PATH_406CONFIG, "low", ValueLow);
   strcpy(Freqtext, "Début^");
-  strcat(Freqtext, Value);
+  strcat(Freqtext, ValueLow);
   strcat(Freqtext, "M");
   AmendButtonStatus(ButtonNumber(57, 1), 0, Freqtext, &DBlue);
   AmendButtonStatus(ButtonNumber(57, 1), 1, Freqtext, &LBlue);
 
   // High:
-  GetConfigParam(PATH_406CONFIG, "high", Value);
+  GetConfigParam(PATH_406CONFIG, "high", ValueHigh);
   strcpy(Freqtext, "Fin^");
-  strcat(Freqtext, Value);
+  strcat(Freqtext, ValueHigh);
   strcat(Freqtext, "M");
   AmendButtonStatus(ButtonNumber(57, 2), 0, Freqtext, &DBlue);
   AmendButtonStatus(ButtonNumber(57, 2), 1, Freqtext, &LBlue);
+
+  if ((atof(ValueLow) == 406.028) && (atof(ValueHigh) == 406.028))
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 6), 2);
+  }else{
+    SetButtonStatus(ButtonNumber(CurrentMenu, 6), 0);
+  }
+
+  if ((atof(ValueLow) == 433.95) && (atof(ValueHigh) == 433.95))
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 7), 2);
+  }else{
+    SetButtonStatus(ButtonNumber(CurrentMenu, 7), 0);
+  }
 }
 
 void Define_Menu45()
