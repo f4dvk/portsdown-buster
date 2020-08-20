@@ -18535,12 +18535,23 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           UpdateWindow();
           usleep(50000);
           SelectInGroupOnMenu(CurrentMenu, 0, 0, 0, 0);
-          BackgroundRGB(0, 0, 0, 255);
-          Start(wscreen,hscreen);
-          ARGOS_DECODER();
-          BackgroundRGB(0, 0, 0, 255);
-          Start_Highlights_Menu57();
-          UpdateWindow();
+          if (CheckRTL()==0)
+          {
+            BackgroundRGB(0, 0, 0, 255);
+            Start(wscreen,hscreen);
+            ARGOS_DECODER();
+            BackgroundRGB(0, 0, 0, 255);
+            Start_Highlights_Menu57();
+            UpdateWindow();
+            break;
+          }
+          else
+          {
+            MsgBox("Clé RTL non connectée!");
+            wait_touch();
+            BackgroundRGB(0, 0, 0, 255);
+            UpdateWindow();
+          }
           break;
         case 1:
           SelectInGroupOnMenu(CurrentMenu, 1, 1, 1, 1);
