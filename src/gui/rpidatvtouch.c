@@ -11706,7 +11706,7 @@ void ARGOS_DECODER()
        Text(wscreen * 1.0 / 40.0, hscreen - 11.5 * linepitch, line16, font, pointsize);
        Text(wscreen * 1.0 / 40.0, hscreen - 12.2 * linepitch, line17, font, pointsize);
        Text(wscreen * 1.0 / 40.0, hscreen - 12.9 * linepitch, line18, font, pointsize);
-       Text(wscreen * 1.0 / 40.0, hscreen - 13.6 * linepitch, line18, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 13.6 * linepitch, line19, font, pointsize);
        Fill(255, 255, 255, 255);
        Text(wscreen * 1.0 / 40.0, hscreen - 15 * linepitch, "Touch to exit", font, pointsize);
        End();
