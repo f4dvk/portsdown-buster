@@ -9490,7 +9490,7 @@ void ProcessLeandvb2()
   FinishedButton2 = 1;  // Stop the FFT running at a safe point in time
 
   system("(sudo killall -9 leandvb >/dev/null 2>/dev/null) &");
-  system("(sudo killall rtl_sdr >/dev/null 2>/dev/null) &");
+  system("(sudo killall -9 rtl_sdr >/dev/null 2>/dev/null) &");
 
   system("sudo killall fbi >/dev/null 2>/dev/null");  // kill any previous images
   system("sudo fbi -T 1 -noverbose -a /home/pi/rpidatv/scripts/images/BATC_Black.png");  // Add logo image
