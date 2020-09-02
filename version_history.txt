@@ -1,3 +1,6 @@
+202009020
+Correction transpondeur leandvb avec limesdr
+
 202008260
 Correction réinitialisation RTLSDR RX Leandvb
 

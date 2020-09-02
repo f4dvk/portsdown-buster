@@ -8128,7 +8128,7 @@ void ForwardLeandvbStop()
   if (strcmp(ModeOutput, "RPI_R") != 0)
   {
     system("(sudo killall -9 leandvb >/dev/null 2>/dev/null) &");
-    system("(sudo killall rtl_sdr >/dev/null 2>/dev/null) &");
+    system("(sudo killall -9 rtl_sdr >/dev/null 2>/dev/null) &");
   }
   else
   {
