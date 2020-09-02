@@ -48,11 +48,26 @@ RF_GAIN=$(get_config_var rfpower $PCONFIGFILE)
 
 FREQ_TX=$(get_config_var freqoutput $PCONFIGFILE)
 LIME_TX_GAIN=$(get_config_var limegain $PCONFIGFILE)
+BAND_GPIO=$(get_config_var expports $PCONFIGFILE)
+
+
+# Allow for GPIOs in 16 - 31 range (direct setting)
+if [ "$BAND_GPIO" -gt "15" ]; then
+  let BAND_GPIO=$BAND_GPIO-16
+fi
 
 LIME_TX_GAINA=`echo - | awk '{print '$LIME_TX_GAIN' / 100}'`
 
 if [ "$LIME_TX_GAIN" -lt 6 ]; then
   LIME_TX_GAINA=`echo - | awk '{print ( '$LIME_TX_GAIN' - 6 ) / 100}'`
+fi
+
+let DIGITAL_GAIN=($LIME_TX_GAIN*31)/100 # For LIMEDVB
+
+LIMETYPE=""
+
+if [ "$MODE_OUTPUT" == "LIMEUSB" ]; then
+  LIMETYPE="-U"
 fi
 
 FREQ_OUTPUT=$(get_config_var rx0frequency $RXPRESETSFILE)
@@ -261,9 +276,8 @@ if [ "$ETAT" = "OFF" ] && [ "$1" != "-remote" ]; then
   fi
 elif [ "$ETAT" = "ON" ] && [ "$MODE_OUTPUT" != "RPI_R" ]; then
   if [ "$MODE_OUTPUT" = "LIMEMINI" ]; then
-    $PATHBIN/"dvb2iq2" -i videots -s $SYMBOLRATEK -f $FECIQ \
-            -r $UPSAMPLE -m $MODULATION_TX -c $CONST \
-    |sudo $PATHBIN/"limesdr_send" -b 2.5e6 -r $UPSAMPLE -s $SYMBOLRATE -g $LIME_TX_GAINA -f $FREQ_TX"e6" &
+    $PATHBIN"/limesdr_dvb" -i videots -s "$SYMBOLRATEK"000 -f $FECIQ -r $UPSAMPLE -m $MODULATION_TX -c $CONST \
+        -t "$FREQ_TX"e6 -g $LIME_TX_GAINA -q 1 -D $DIGITAL_GAIN -e $BAND_GPIO $LIMETYPE &
   elif [ "$MODE_OUTPUT" = "IQ" ]; then
     $PATHSCRIPT"/ctlfilter.sh"
     $PATHSCRIPT"/ctlvco.sh"
