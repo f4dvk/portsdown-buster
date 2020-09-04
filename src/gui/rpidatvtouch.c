@@ -3562,6 +3562,8 @@ void ChangeLMRXscan()
     strcpy(Value, "scan1");
   }
 
+  GetConfigParam(PATH_LMCONFIG, Value, LMRXScan);
+
   while (IsValid == FALSE)
   {
     strcpy(RequestText, "Entrez une valeur paire du scan +/-, en KHz. (2000 max)");
