@@ -421,7 +421,14 @@ fi
 if ! grep -q scan /home/pi/rpidatv/scripts/longmynd_config.txt; then
   printf "Adding scan to user's longmynd_config.txt\n"
   sed -i -e '/^$/d' /home/pi/rpidatv/scripts/longmynd_config.txt
-  echo "scan=50" >> /home/pi/rpidatv/scripts/longmynd_config.txt
+  echo "scan=500" >> /home/pi/rpidatv/scripts/longmynd_config.txt
+  echo "" >> /home/pi/rpidatv/scripts/longmynd_config.txt
+fi
+
+if ! grep -q scan1 /home/pi/rpidatv/scripts/longmynd_config.txt; then
+  printf "Adding scan1 to user's longmynd_config.txt\n"
+  sed -i -e '/^$/d' /home/pi/rpidatv/scripts/longmynd_config.txt
+  echo "scan1=50" >> /home/pi/rpidatv/scripts/longmynd_config.txt
   echo "" >> /home/pi/rpidatv/scripts/longmynd_config.txt
 fi
 

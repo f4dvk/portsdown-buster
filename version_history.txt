@@ -1,3 +1,6 @@
+202009040
+RX Minitiouner réglage séparé scan satellite et terrestre
+
 202009020
 Correction transpondeur leandvb avec limesdr
 

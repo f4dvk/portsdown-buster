@@ -94,10 +94,12 @@ echo "The Selected Audio Card number is -"$AUDIO_OUT_DEV"-"
 # Correct for LNB LO Frequency if required
 if [ "$RX_MODE" == "sat" ]; then
   let FREQ_KHZ=$FREQ_KHZ-$Q_OFFSET
+  SCAN=$(get_config_var scan $RCONFIGFILE)
 else
   FREQ_KHZ=$FREQ_KHZ_T
   SYMBOLRATEK=$SYMBOLRATEK_T
   INPUT_SEL=$INPUT_SEL_T
+  SCAN=$(get_config_var scan1 $RCONFIGFILE)
 fi
 
 # Select the correct tuner input
@@ -117,8 +119,6 @@ fi
 
 GAIN=$(get_config_var gain $RCONFIGFILE)
 GAIN_T=$GAIN/2
-
-SCAN=$(get_config_var scan $RCONFIGFILE)
 
 sudo killall longmynd >/dev/null 2>/dev/null
 sudo killall omxplayer.bin >/dev/null 2>/dev/null

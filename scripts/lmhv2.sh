@@ -36,10 +36,12 @@ LNBVOLTS=$(get_config_var lnbvolts $RCONFIGFILE)
 # Correct for LNB LO Frequency if required
 if [ "$RX_MODE" == "sat" ]; then
   let FREQ_KHZ=$FREQ_KHZ-$Q_OFFSET
+  SCAN=$(get_config_var scan $RCONFIGFILE)
 else
   FREQ_KHZ=$FREQ_KHZ_T
   SYMBOLRATEK=$SYMBOLRATEK_T
   INPUT_SEL=$INPUT_SEL_T
+  SCAN=$(get_config_var scan1 $RCONFIGFILE)
 fi
 
 # Select the correct tuner input
@@ -59,8 +61,6 @@ fi
 
 GAIN=$(get_config_var gain $RCONFIGFILE)
 GAIN_T=$GAIN/2
-
-SCAN=$(get_config_var scan $RCONFIGFILE)
 
 sudo killall -9 hello_video2.bin
 sudo killall ts2es

@@ -3389,10 +3389,6 @@ void ReadLMRXPresets()
   GetConfigParam(PATH_LMCONFIG, "gain", Value);
   LMRXgain[0] = atoi(Value);
 
-  // Scan:
-  GetConfigParam(PATH_LMCONFIG, "scan", Value);
-  LMRXscan[0] = atoi(Value);
-
   if (strcmp(LMRXmode, "sat") == 0)
   {
     // Input: a or b
@@ -3405,6 +3401,11 @@ void ReadLMRXPresets()
     // Start up SR
     GetConfigParam(PATH_LMCONFIG, "sr0", Value);
     LMRXsr[0] = atoi(Value);
+
+    // Scan:
+    GetConfigParam(PATH_LMCONFIG, "scan", Value);
+    LMRXscan[0] = atoi(Value);
+
   }
   else    // Terrestrial
   {
@@ -3418,6 +3419,11 @@ void ReadLMRXPresets()
     // Start up SR
     GetConfigParam(PATH_LMCONFIG, "sr1", Value);
     LMRXsr[0] = atoi(Value);
+
+    // Scan:
+    GetConfigParam(PATH_LMCONFIG, "scan1", Value);
+    LMRXscan[0] = atoi(Value);
+
   }
 
   // Frequencies
@@ -3544,9 +3550,17 @@ void ChangeLMRXscan()
   char InitText[64];
   bool IsValid = FALSE;
   char LMRXScan[10];
+  char Value[10];
 
   //Retrieve (10 char) Current offset from Config file
-  GetConfigParam(PATH_LMCONFIG, "scan", LMRXScan);
+  if (strcmp(LMRXmode, "sat") == 0)
+  {
+    strcpy(Value, "scan");
+  }
+  else
+  {
+    strcpy(Value, "scan1");
+  }
 
   while (IsValid == FALSE)
   {
@@ -3563,7 +3577,7 @@ void ChangeLMRXscan()
 
   // Save offset to Config File
   LMRXscan[0] = atoi(KeyboardReturn);
-  SetConfigParam(PATH_LMCONFIG, "scan", KeyboardReturn);
+  SetConfigParam(PATH_LMCONFIG, Value, KeyboardReturn);
 }
 
 void ChangeArgosFreq(int dir)
@@ -9504,6 +9518,7 @@ void ProcessLeandvb2()
   system("sudo killall fbi >/dev/null 2>/dev/null");
   system("sudo killall leandvb >/dev/null 2>/dev/null");
   system("sudo killall ts2es >/dev/null 2>/dev/null");
+  system("sudo killall omxplayer.bin >/dev/null 2>/dev/null");
   finish();
 }
 
@@ -23595,7 +23610,14 @@ void Start_Highlights_Menu56()
   LMRXgain[0] = atoi(Value);
 
   // Scan:
-  GetConfigParam(PATH_LMCONFIG, "scan", Value);
+  if (strcmp(LMRXmode, "sat") == 0)
+  {
+    GetConfigParam(PATH_LMCONFIG, "scan", Value);
+  }
+  else
+  {
+    GetConfigParam(PATH_LMCONFIG, "scan1", Value);
+  }
   strcpy(LMBtext, "Scan^+/- ");
   strcat(LMBtext, Value);
   strcat(LMBtext, " KHz");
