@@ -33,6 +33,9 @@ my $j;
 my $frq=0;
 my $dec = '/home/pi/rpidatv/406/dec406_V6 --100 --M3 --une_minute';
 my $dec1 = '/home/pi/rpidatv/406/dec406_V6 --100 --M3 --une_minute --osm';
+my $dec3 = '/home/pi/rpidatv/406/dec406_V6 --100 --M3';
+my $timeout = "timeout 56s";
+my $fixe = 0;
 my $filter = "lowpass 3000 highpass 400"; #highpass de 10Hz à 400Hz selon la qualité du signal
 
 my $largeur = "12k";
@@ -81,6 +84,7 @@ while (1) {
     if ($f1_scan eq $f2_scan){
       $freq_trouvee=1;
       $frq=$f1_scan;
+      $fixe=1;
     }
     while ($freq_trouvee==0){
 	system("rtl_power -p $ppm -f $f1_scan:$f2_scan:400 -i12 -P -O -1 -e12 -w hamming $powfile 2>/dev/null &");
@@ -148,37 +152,32 @@ while (1) {
     }
 
     do{
-    my $tps2=56;
-    system("timeout 56s rtl_fm -p $ppm -M fm $WFM -s $largeur -f $frq  2>/dev/null |\
-	    sox --norm -t raw -r $largeur -e s -b 16 -c 1 - -t wav - $filter 2>/dev/null |\
-	    $dec 1>./trame 2>./code &");
-    my $process2 = qx{ps -C rtl_fm | grep rtl_fm};
+#    my $tps2=56;
+    if ($fixe == 1) {
+      $timeout = "";
+      $dec=$dec3;
+    }
     printf "Lancement du Decodage   ";
     $utc = strftime(' %d %m %Y   %Hh%Mm%Ss', gmtime);
-    printf "$utc UTC ($tps2 s)\n";
-    while ($process2 ne ''){
-      sleep 1;
-      printf "Lancement du Decodage   ";
-      --$tps2;
-      printf "$utc UTC ($tps2 s)\n";
-      $process2 = qx{ps -C rtl_fm | grep rtl_fm};
-    }
-    sleep 4;
-    $trouve="PAS encore trouve";
-    my $ligne;
-    if (open (F2, '<', './code')) {
-	while (defined ($ligne = <F2>)) {
-	    chomp $ligne;
+    printf "$utc UTC\n";
+    system("$timeout rtl_fm -p $ppm -M fm $WFM -s $largeur -f $frq  2>/dev/null |\
+	    sox -t raw -r $largeur -e s -b 16 -c 1 - -t wav - $filter 2>/dev/null |\
+	    $dec ");
+#    $trouve="PAS encore trouve";
+#    my $ligne;
+#    if (open (F2, '<', './code')) {
+#	while (defined ($ligne = <F2>)) {
+#	    chomp $ligne;
 	    #print "\nligne : $ligne\n";
-	    if ($ligne eq 'TROUVE') {$trouve='TROUVE';}
-	    }
-	close F2;
-	}
+#	    if ($ligne eq 'TROUVE') {$trouve='TROUVE';}
+#	    }
+#	close F2;
+#	}
 
-    affiche_trame();
+#    affiche_trame();
     #if($trouve eq 'TROUVE'){envoi_mail();}
 
-    } while ($trouve eq 'TROUVE');
+    } #while ($trouve eq 'TROUVE');
 
 }
 

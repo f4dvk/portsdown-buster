@@ -76,8 +76,8 @@ void envoi_byte(int x){
     //String aa,bb;
     a=x/16;
     b=x%16;
-    printf("%x",a);
-    printf("%x",b);
+    fprintf(stderr,"%x",a);
+    fprintf(stderr,"%x",b);
     //aa= //Integer.toHex//String(a);
     //bb= //Integer.toHex//String(b);
     //contenu.append(aa);
@@ -105,7 +105,7 @@ int afficher_carte_osm(double llatd, double llngd){
             system(ch);
             //execlp("/usr/bin/firefox","/usr/bin/firefox ", ch,  (char *) 0);
         }
-        else printf("\n*Installer Chromium-browser ou Firefox pour afficher la position avec OpenStreeMap...");
+        else fprintf(stderr,"\n*Installer Chromium-browser ou Firefox pour afficher la position avec OpenStreeMap...");
        }
 return 0;
 }
@@ -115,7 +115,7 @@ void  GeogToUTM(double llatd, double llngd){
         //https://github.com/daniel-bryant/CoordinateConversion/blob/master/conversion.cpp
 
 		    if ((llatd>127)||(llngd>255)||(llatd<0)||(llngd<0))
-                {printf("\n\rCoordonnées invalides!! ");
+                {fprintf(stderr,"\n\rCoordonnées invalides!! ");
                 }
             else{
                 if (opt_osm)  afficher_carte_osm(llatd,llngd);
@@ -195,9 +195,9 @@ void  GeogToUTM(double llatd, double llngd){
                 if (utmz/2 == floor(utmz/2)){Letr = Letr+5;}
                 Letr = Letr - 20*floor(Letr/20);
                 char C2 =  DigraphLetrsN[(int)Letr];
-                printf("\n\rUTM Zone: %1.0f%c",utmz,C0);
-                printf("%c%c",C1,C2);
-                printf(" x: %1.0fm  y: %1.0fm ",x,y);
+                fprintf(stderr,"\n\rUTM Zone: %1.0f%c",utmz,C0);
+                fprintf(stderr,"%c%c",C1,C2);
+                fprintf(stderr," x: %1.0fm  y: %1.0fm ",x,y);
                 //contenu.append("UTM: Zone:").append(decform.format(utmz)).append(//Charact.to//String(C0));
                 //contenu.append(" ").append(//Charact.to//String(C1)).append(//Charact.to//String(C2));
                 //contenu.append(" x: ").append(decform.format(x)).append("m");
@@ -209,10 +209,10 @@ void standard_test()
     {   int i,j,a;
         for (i=40;i<64;i++)
             {//Charact ch=s[i];
-            printf("%c",s[i]);
+            fprintf(stderr,"%c",s[i]);
             //contenu.append(ch.toString());
             }
-        printf(" en Hexa:");
+        fprintf(stderr," en Hexa:");
         //contenu.append(" en Hexa: ");
         for(j=0;j<3;j++)
                                 {i=40+j*8;
@@ -275,11 +275,11 @@ char  baudot(int x)
 		{i=39+j*6;
 		//a=32*(s[i]=='1')+16*(s[i+1]=='1')+8*(s[i+2]=='1')+4*(s[i+3]=='1')+2*(s[i+4]=='1')+(s[i+5]=='1');
 		a=calcul(i,i+5);
-        printf("%c",baudot(a));
+        fprintf(stderr,"%c",baudot(a));
         //Charact ch = baudot(a);
 		//contenu.append(ch.to//String());
 		}
-         //printf("\r\n"); //contenu.append("\r\n") ;
+         //fprintf(stderr,"\r\n"); //contenu.append("\r\n") ;
 	   }
 
 void affiche_baudot_2()
@@ -289,26 +289,26 @@ void affiche_baudot_2()
 		{i=39+j*6;
 		//a=32*(s[i]=='1')+16*(s[i+1]=='1')+8*(s[i+2]=='1')+4*(s[i+3]=='1')+2*(s[i+4]=='1')+(s[i+5]=='1');
 		a=calcul(i,i+5);
-        printf("%c",baudot(a));
+        fprintf(stderr,"%c",baudot(a));
         //Charact ch = baudot(a);
 		//contenu.append(ch.to//String());
 		}
-         //printf("\r\n");
+         //fprintf(stderr,"\r\n");
          //contenu.append("\r\n") ;
 	   }
 void specific_beacon()
 	{int i,j;
 	int a;
-	printf("\n\rSpecific beacon: ");//contenu.append("Specific beacon: ");
+	fprintf(stderr,"\n\rSpecific beacon: ");//contenu.append("Specific beacon: ");
 	for(j=0;j<1;j++)
 		{i=75+j*6;
 		//a=32*(s[i]=='1')+16*(s[i+1]=='1')+8*(s[i+2]=='1')+4*(s[i+3]=='1')+2*(s[i+4]=='1')+(s[i+5]=='1');
 		a=calcul(i,i+5);
-        printf("%c",baudot(a));
+        fprintf(stderr,"%c",baudot(a));
 		//Charact ch = baudot(a);
 		//contenu.append(ch.to//String());
 		}
-         //   printf("\r\n");   //contenu.append("\r\n");
+         //   fprintf(stderr,"\r\n");   //contenu.append("\r\n");
 	   }
 
 
@@ -320,19 +320,19 @@ void affiche_baudot_1()
       int c;
       int d;
 	  int a;
-      printf("\n\rRadio Call Sign Identification:");
+      fprintf(stderr,"\n\rRadio Call Sign Identification:");
 	 //contenu.append("Radio Call Sign Identification: ") ;
 	  for(j=0;j<4;j++)
 		{
         i=39+j*6;
 		//a=32*(s[i]=='1')+16*(s[i+1]=='1')+8*(s[i+2]=='1')+4*(s[i+3]=='1')+2*(s[i+4]=='1')+(s[i+5]=='1');
 		a=calcul(i,i+5);
-                printf("%c",baudot(a));
+                fprintf(stderr,"%c",baudot(a));
                 //Charact ch = baudot(a);
               	//contenu.append(ch.to//String());
 		}
          ////contenu.append("\r\n");
-         printf(" ");
+         fprintf(stderr," ");
         i=63;
         //b=8*(s[i]=='1')+4*(s[i+1]=='1')+2*(s[i+2]=='1')+(s[i+3]=='1');
         b=calcul(i,i+3);
@@ -340,9 +340,9 @@ void affiche_baudot_1()
         c=calcul(i+4,i+7);
         //d=8*(s[i+8]=='1')+4*(s[i+9]=='1')+2*(s[i+10]=='1')+(s[i+11]=='1');
         d=calcul(i+8,i+11);
-        printf("%d",b);
-        printf("%d",c);
-        printf("%d",d);
+        fprintf(stderr,"%d",b);
+        fprintf(stderr,"%d",c);
+        fprintf(stderr,"%d",d);
         //contenu.append(b);
         //contenu.append(c);
         //contenu.append(d);
@@ -355,20 +355,20 @@ void affiche_baudot()
 		{i=39+j*6;
 		//a=32*(s[i]=='1')+16*(s[i+1]=='1')+8*(s[i+2]=='1')+4*(s[i+3]=='1')+2*(s[i+4]=='1')+(s[i+5]=='1');
 		a=calcul(i,i+5);
-        printf("%c",baudot(a));
+        fprintf(stderr,"%c",baudot(a));
         //Charact ch = baudot(a);
 		//contenu.append(ch.to//String());
 		}
         i=63;
         //a=2048*(s[i]=='1')+1024*(s[i+1]=='1')+512*(s[i+2]=='1')+256*(s[i+3]=='1')+128*(s[i+4]=='1')+64*(s[i+5]=='1')+32*(s[i+6]=='1')+16*(s[i+7]=='1')+8*(s[i+8]=='1')+4*(s[i+9]=='1')+2*(s[i+10]=='1')+(s[i+11]=='1');
         a=calcul(i,i+11);
-        printf("%d",a);
+        fprintf(stderr,"%d",a);
         //Intege aa= a;
         //contenu.append(aa.to//String());
         i=81;
         //a=2*(s[i]=='0')+(s[i+1]=='0');
         a=calcul(i,i+1);
-        printf("%d",a);
+        fprintf(stderr,"%d",a);
         //aa= a;
         //contenu.append(aa.to//String());
     }
@@ -379,7 +379,7 @@ void affiche_baudot30()
 		{i=43+j*6;
 		//a=32*(s[i]=='1')+16*(s[i+1]=='1')+8*(s[i+2]=='1')+4*(s[i+3]=='1')+2*(s[i+4]=='1')+(s[i+5]=='1');
 		a=calcul(i,i+5);
-        printf("%c",baudot(a));
+        fprintf(stderr,"%c",baudot(a));
         //Charact ch = baudot(a);
 		//contenu.append(ch.to//String());
 		}
@@ -408,13 +408,13 @@ void localisation_standard()
 				{latS=60-latS;latM--;
 					if (latM<0) {latM=60+latM;latD--;}
 				}
-	//printf("Latitude: ");printf("%c",c);printf(" ");printf("%d",latD);printf("d");printf("%d",latM);printf("m");printf("%d",latS);printf("s");
-	printf("\n\rLatitude : %c %dd%dm%ds ",c,latD,latM,latS);
+	//fprintf(stderr,"Latitude: ");fprintf(stderr,"%c",c);fprintf(stderr," ");fprintf(stderr,"%d",latD);fprintf(stderr,"d");fprintf(stderr,"%d",latM);fprintf(stderr,"m");fprintf(stderr,"%d",latS);fprintf(stderr,"s");
+	fprintf(stderr,"\n\rLatitude : %c %dd%dm%ds ",c,latD,latM,latS);
     //Charact cc = c;//Integer llatD = latD;//Integer llatM = latM;//Integer llatS = latS;
     ////contenu.append("Latitude  : "+cc.to//String()+" "+llatD.to//String()+"d"+llatM.to//String()+"m"+llatS.to//String()+"s\r\n");
     //contenu.append("\r\nLatitude : ").append(cc.to//String()).append(" ").append(llatD.to//String()).append("d").append(llatM.to//String()).append("m").append(llatS.to//String()).append("s");
     double gpsLat= latD+(60.0*latM+latS)/3600.0;
-    printf("\t %2.4f Deg",gpsLat);
+    fprintf(stderr,"\t %2.4f Deg",gpsLat);
     //contenu.append(" = ").append(decform.format(gpsLat)).append(" Deg\r\n");
 	if (s[74]=='0') {c='E';} else {c='W';}
 	i=75;
@@ -436,13 +436,13 @@ void localisation_standard()
 					if (lonM<0) {lonM=60+lonM;lonD--;}
 				}
 
-	//printf("Longitude: %c %dd%dm%ds ");printf(c);printf(' ');printf(lonD);printf('d');printf(lonM);printf('m');printf(lonS);printf('s');
-    printf("\n\rLongitude: %c %dd%dm%ds ",c,lonD,lonM,lonS);
+	//fprintf(stderr,"Longitude: %c %dd%dm%ds ");fprintf(stderr,c);fprintf(stderr,' ');fprintf(stderr,lonD);fprintf(stderr,'d');fprintf(stderr,lonM);fprintf(stderr,'m');fprintf(stderr,lonS);fprintf(stderr,'s');
+    fprintf(stderr,"\n\rLongitude: %c %dd%dm%ds ",c,lonD,lonM,lonS);
     //Charact ccc = c;//Integer llonD = lonD;//Integer llonM = lonM;//Integer llonS = lonS;
     //contenu.append("Longitude: "+ccc.to//String()+" "+llonD.to//String()+"d"+llonM.to//String()+"m"+llonS.to//String()+"s\r\n");
     //contenu.append("Longitude: ").append(ccc.to//String()).append(" ").append(llonD.to//String()).append("d").append(llonM.to//String()).append("m").append(llonS.to//String()).append("s");
     double gpsLon= lonD+(60.0*lonM+lonS)/3600.0;
-    printf("\t %3.4f Deg\n",gpsLon);
+    fprintf(stderr,"\t %3.4f Deg\n",gpsLon);
     //contenu.append(" = ").append(decform.format(gpsLon)).append(" Deg\r\n");
     GeogToUTM(gpsLat, gpsLon);
     }
@@ -452,11 +452,11 @@ void localisation_standard()
     /*s[108]=0;
     s[107]=1;
     s[106]=1;*/
-    printf("\n\rFixed bits (1101) Pass");
+    fprintf(stderr,"\n\rFixed bits (1101) Pass");
     //contenu.append("Fixed bits (1101) Pass\r\n");
-    if (s[110]=='1') {printf("\n\rEncoded position data source internal");}
+    if (s[110]=='1') {fprintf(stderr,"\n\rEncoded position data source internal");}
                        //contenu.append("Encoded position data source internal\r\n");}
-    if (s[111]=='1') {printf("\n\r121.5 MHz Homing");}
+    if (s[111]=='1') {fprintf(stderr,"\n\r121.5 MHz Homing");}
                         //contenu.append("121.5 MHz Homing\r\n");}
 
 }
@@ -465,11 +465,11 @@ void localisation_standard()
  {/* s[108]=0;
     s[107]=1;
     s[106]=1;*/
-    if (s[109]=='1') {printf("\n\rAdditional Data Flag:Position");}
+    if (s[109]=='1') {fprintf(stderr,"\n\rAdditional Data Flag:Position");}
                         //contenu.append(" Additional Data Flag:Position\r\n"); }
-    if (s[110]=='1') {printf("\n\rEncoded position data source internal");}
+    if (s[110]=='1') {fprintf(stderr,"\n\rEncoded position data source internal");}
                          //contenu.append("Encoded position data source internal\r\n");}
-    if (s[111]=='1') {printf("\n\r121.5 MHz Homing");}
+    if (s[111]=='1') {fprintf(stderr,"\n\r121.5 MHz Homing");}
                           //contenu.append("121.5 MHz Homing\r\n");}
  }
 
@@ -495,12 +495,12 @@ void localisation_standard1()
    		{latS=60-latS;latM--;
 	if (latM<0) {latM=60+latM;latD--;}
 		}
-	//printf("Latitude: ");printf(c);printf(' ');printf(latD);printf('d');printf(latM);printf('m');printf(latS);printf('s');
-    printf("\n\rLatitude : %c %dd%dm%ds ",c,latD,latM,latS);//Charact cc = c;//Integer llatD = latD;//Integer llatM = latM;//Integer llatS = latS;
+	//fprintf(stderr,"Latitude: ");fprintf(stderr,c);fprintf(stderr,' ');fprintf(stderr,latD);fprintf(stderr,'d');fprintf(stderr,latM);fprintf(stderr,'m');fprintf(stderr,latS);fprintf(stderr,'s');
+    fprintf(stderr,"\n\rLatitude : %c %dd%dm%ds ",c,latD,latM,latS);//Charact cc = c;//Integer llatD = latD;//Integer llatM = latM;//Integer llatS = latS;
     //contenu.append("Latitude  : "+cc.to//String()+" "+llatD.to//String()+"d"+llatM.to//String()+"m"+llatS.to//String()+"s  \r\n");
     //contenu.append("\r\nLatitude : ").append(cc.to//String()).append(" ").append(llatD.to//String()).append("d").append(llatM.to//String()).append("m").append(llatS.to//String()).append("s");
     double gpsLat= latD+(60.0*latM+latS)/3600.0;
-    printf(" = %2.4f Deg",gpsLat);
+    fprintf(stderr," = %2.4f Deg",gpsLat);
     //contenu.append(" = ").append(decform.format(gpsLat)).append(" Deg\r\n");
     if (s[74]=='0') {c='E';} else {c='W';}
 	i=75;
@@ -521,23 +521,23 @@ void localisation_standard1()
 		{lonS=60-lonS;lonM--;
         if (lonM<0) {lonM=60+lonM;lonD--;}
         }
-	 //printf("Longitude: ");printf(c);printf(' ');printf(lonD);printf('d');printf(lonM);printf('m');printf(lonS);printf('s');
-     printf("\n\rLongitude: %c %dd%dm%ds ",c,lonD,lonM,lonS);
+	 //fprintf(stderr,"Longitude: ");fprintf(stderr,c);fprintf(stderr,' ');fprintf(stderr,lonD);fprintf(stderr,'d');fprintf(stderr,lonM);fprintf(stderr,'m');fprintf(stderr,lonS);fprintf(stderr,'s');
+     fprintf(stderr,"\n\rLongitude: %c %dd%dm%ds ",c,lonD,lonM,lonS);
 	//Charact ccc = c;//Integer llonD = lonD;//Integer llonM = lonM;//Integer llonS = lonS;
     // //contenu.append("Longitude: "+ccc.to//String()+" "+llonD.to//String()+"d"+llonM.to//String()+"m"+llonS.to//String()+"s\r\n");
     //contenu.append("Longitude: ").append(ccc.to//String()).append(" ").append(llonD.to//String()).append("d").append(llonM.to//String()).append("m").append(llonS.to//String()).append("s");
     double gpsLon= lonD+(60.0*lonM+lonS)/3600.0;
-    printf(" = %3.4f Deg\n",gpsLon);
+    fprintf(stderr," = %3.4f Deg\n",gpsLon);
     //contenu.append(" = ").append(decform.format(gpsLon)).append(" Deg\r\n");
     GeogToUTM(gpsLat, gpsLon);
     /*if (s[110]==1)
     {
-     printf("Encoded Position Data Source Internal");
+     fprintf(stderr,"Encoded Position Data Source Internal");
         //contenu.append("Encoded Position Data Source Internal\r\n");
     }
     else
     {
-    printf("Encoded Position Data Source External");
+    fprintf(stderr,"Encoded Position Data Source External");
         //contenu.append("Encoded Position Data Source External\r\n");
     }
     s[109]=1;
@@ -555,18 +555,18 @@ void identification_MMSI()
                 a*=2;
 		}
 	xx=(int)x;
-	printf("\n\rIdentifiant MMSI: ");
+	fprintf(stderr,"\n\rIdentifiant MMSI: ");
     //contenu.append("Identifiant MMSI: ");
     //Integer xxx=xx;
-    printf("%d",xx);
+    fprintf(stderr,"%d",xx);
     //contenu.append(xxx.to//String()).append("\r\n");
 	i= 60;
 	//b=8*(s[i]=='1')+4*(s[i+1]=='1')+2*(s[i+2]=='1')+(s[i+3]=='1');
 	b=calcul(i,i+3);
-    printf("\n\rBeacon : ");
+    fprintf(stderr,"\n\rBeacon : ");
     //contenu.append("Beacon : ");
     //Integer bb=b;
-    printf("%d",b);
+    fprintf(stderr,"%d",b);
     //contenu.append(bb.to//String()).append("\r\n");
 }
 
@@ -580,12 +580,12 @@ void identification_AIRCRAFT_24_BIT_ADRESS()
              a*=2;
             }
 	xx=(int)x;
-	printf("\n\rIdentifiant AIRCRAFT 24 BIT ADRESSE: ");
+	fprintf(stderr,"\n\rIdentifiant AIRCRAFT 24 BIT ADRESSE: ");
     //contenu.append("Identifiant AIRCRAFT 24 BIT ADRESSE: ");
     //Integer xxx=xx;
-    printf("%d",xx);
+    fprintf(stderr,"%d",xx);
     //contenu.append(xxx.to//String()).append("\r\n");
-    printf("en Hexa:");
+    fprintf(stderr,"en Hexa:");
     //contenu.append(" en Hexa: ");
     for(j=0;j<3;j++)
         {i=40+j*8;
@@ -603,18 +603,18 @@ void identification_AIRCRAFT_OPER_DESIGNATOR()
          a*=2;
 	}
 	xx=(int)x;
-	printf("\n\rIdentifiant AIRCRAFT OPER DESIGNATOR: ");
+	fprintf(stderr,"\n\rIdentifiant AIRCRAFT OPER DESIGNATOR: ");
     //contenu.append("Identifiant AIRCRAFT OPER DESIGNATOR: ");
-    printf("%d",xx);
+    fprintf(stderr,"%d",xx);
     //Integer xxx=xx;
     //contenu.append(xxx.to//String()).append("\r\n");
 	i= 55;
 	//b=256*(s[i]=='1')+128*(s[i+1]=='1')+64*(s[i+2]=='1')+32*(s[i+3]=='1')+ 16*(s[i+4]=='1')+8*(s[i+5]=='1')+4*(s[i+6]=='1')+2*(s[i+7]=='1')+(s[i+8]=='1');
 	b=calcul(i,i+8);
-    printf("\n\rSERIAL No: ");
+    fprintf(stderr,"\n\rSERIAL No: ");
     //contenu.append("SERIAL No: ");
     //Integer bb=b;
-        printf("%d",b);
+        fprintf(stderr,"%d",b);
         //contenu.append(bb.to//String()).append("\r\n");
 	}
     void identification_C_S_TA_No()
@@ -627,18 +627,18 @@ void identification_AIRCRAFT_OPER_DESIGNATOR()
                 a*=2;
 		}
 	xx=(int)x;
-	printf("\n\rIdentifiant C/S TA No: ");
+	fprintf(stderr,"\n\rIdentifiant C/S TA No: ");
         //contenu.append("Identifiant C/S TA No: ");
         //Integer xxx=xx;
-        printf("%d",xx);
+        fprintf(stderr,"%d",xx);
         //contenu.append(xxx.to//String()).append("\r\n");
 	i= 50;
 	//b=8192*(s[i]=='1')+4096*(s[i+1]=='1')+2048*(s[i+2]=='1')+1024*(s[i+3]=='1')+512*(s[i+4]=='1')+256*(s[i+5]=='1')+128*(s[i+6]=='1')+64*(s[i+7]=='1')+32*(s[i+8]=='1')+ 16*(s[i+9]=='1')+8*(s[i+10]=='1')+4*(s[i+11]=='1')+2*(s[i+12]=='1')+(s[i+13]=='1');
 	b=calcul(i,i+13);
-        printf("\n\rSERIAL_No: ");
+        fprintf(stderr,"\n\rSERIAL_No: ");
         //contenu.append("SERIAL_No: ");
         //Integer bb=b;
-        printf("%d",b);
+        fprintf(stderr,"%d",b);
         //contenu.append(bb.to//String()).append("\r\n");
 	}
 
@@ -652,25 +652,25 @@ void identification_MMSI_FIXED()
                  a*=2;
             }
 	xx=(int)x;
-	printf("\n\rIdentifiant MMSI: ");
+	fprintf(stderr,"\n\rIdentifiant MMSI: ");
         //contenu.append("Identifiant MMSI: ");
         //Integer xxx=xx;
-        printf("%d",xx);
+        fprintf(stderr,"%d",xx);
         //contenu.append(xxx.to//String()).append("\r\n");
 	i= 60;
 	//b=8*(s[i]=='0')+4*(s[i+1]=='0')+2*(s[i+2]=='0')+(s[i+3]=='0');
 	b=calcul(i,i+3);
-        printf("Fixed: ");
+        fprintf(stderr,"Fixed: ");
         //contenu.append("Fixed: ");
         //Integer bb=b;
-        printf("%d",b);
+        fprintf(stderr,"%d",b);
         //contenu.append(bb.to//String()).append("\r\n");
 }
 
 
 
 void localisation_nationale() //voir doc A-27-28-29
-	{//printf("\n\rID et localisation Nationale à implanter");//contenu.append("ID et localisation Nationale à implanter\r\n");
+	{//fprintf(stderr,"\n\rID et localisation Nationale à implanter");//contenu.append("ID et localisation Nationale à implanter\r\n");
 	char c; int i,x,latD,latM,lonD,lonM,latS,lonS;
     int a;
 	if (s[58]=='0') c='N'; else c='S';
@@ -692,12 +692,12 @@ void localisation_nationale() //voir doc A-27-28-29
 					if (latM<0) {latM=60+latM;latD--;}
 				}
 
-	//printf("Latitude: ");printf(c);printf(' ');printf(latD);printf('d');printf(latM);printf('m');printf(latS);printf('s');
-	printf("\n\rLatitude : %c %dd%dm%ds ",c,latD,latM,latS);
+	//fprintf(stderr,"Latitude: ");fprintf(stderr,c);fprintf(stderr,' ');fprintf(stderr,latD);fprintf(stderr,'d');fprintf(stderr,latM);fprintf(stderr,'m');fprintf(stderr,latS);fprintf(stderr,'s');
+	fprintf(stderr,"\n\rLatitude : %c %dd%dm%ds ",c,latD,latM,latS);
     //Charact cc = c;//Integer llatD = latD;//Integer llatM = latM;//Integer llatS = latS;
     //contenu.append("\r\nLatitude : ").append(cc.to//String()).append(" ").append(llatD.to//String()).append("d").append(llatM.to//String()).append("m").append(llatS.to//String()).append("s");
     double gpsLat= latD+(60.0*latM+latS)/3600.0;
-    printf(" = %2.4f Deg",gpsLat);
+    fprintf(stderr," = %2.4f Deg",gpsLat);
     //contenu.append(" = ").append(decform.format(gpsLat)).append(" Deg\r\n");
     if (s[71]=='0') c='E'; else c='W';
 	i=72;
@@ -719,17 +719,17 @@ void localisation_nationale() //voir doc A-27-28-29
 				}
 
 
-	//printf("Longitude: ");printf(c);printf(' ');printf(lonD);printf('d');printf(lonM);printf('m');printf(lonS);printf('s');
-    printf("\n\rLongitude: %c %dd%dm%ds ",c,lonD,lonM,lonS); //Charact ccc = c;//Integer llonD = lonD;//Integer llonM = lonM;//Integer llonS = lonS;
+	//fprintf(stderr,"Longitude: ");fprintf(stderr,c);fprintf(stderr,' ');fprintf(stderr,lonD);fprintf(stderr,'d');fprintf(stderr,lonM);fprintf(stderr,'m');fprintf(stderr,lonS);fprintf(stderr,'s');
+    fprintf(stderr,"\n\rLongitude: %c %dd%dm%ds ",c,lonD,lonM,lonS); //Charact ccc = c;//Integer llonD = lonD;//Integer llonM = lonM;//Integer llonS = lonS;
     //contenu.append("Longitude: ").append(ccc.to//String()).append(" ").append(llonD.to//String()).append("d").append(llonM.to//String()).append("m").append(llonS.to//String()).append("s");
     double gpsLon= lonD+(60.0*lonM+lonS)/3600.0;
-    printf(" = %3.4f Deg\n",gpsLon);
+    fprintf(stderr," = %3.4f Deg\n",gpsLon);
     //contenu.append(" = ").append(decform.format(gpsLon)).append(" Deg\r\n");
     GeogToUTM(gpsLat, gpsLon);
     i=126;
     //a=32*(s[i]=='0')+16*(s[i+1]=='0')+8*(s[i+2]=='0')+4*(s[i+3]=='0')+2*(s[i+4]=='0')+(s[i+5]=='0');
     a=calcul(i,i+5);
-    printf("\n\rNational Use");
+    fprintf(stderr,"\n\rNational Use");
     //contenu.append("National Use\r\n");
   }
 void identification_nationale()
@@ -741,10 +741,10 @@ void identification_nationale()
                 a*=2;
         }
 	xx=(int)x;
-	printf("\n\rIdentifiant National: ");
+	fprintf(stderr,"\n\rIdentifiant National: ");
     //contenu.append("Identifiant National: ");
     //Integer xxx=xx;
-    printf("%d",xx);
+    fprintf(stderr,"%d",xx);
     //contenu.append(xxx.to//String()).append("\r\n");
 	}
 void localisation_user()
@@ -755,12 +755,12 @@ void localisation_user()
     latD=calcul(i,i+6);
     //latM=4*(8*(s[i+7]=='1')+4*(s[i+8]=='1')+2*(s[i+9]=='1')+(s[i+10]=='1'));
 	latM=4*calcul(i+7,i+10);
-    //  printf("Latitude: ");printf(c);printf(' ');printf(latD);printf('d');printf(latM);printf('m');
-	printf("\n\rLatitude : %c %dd%dm ",c,latD,latM);
+    //  fprintf(stderr,"Latitude: ");fprintf(stderr,c);fprintf(stderr,' ');fprintf(stderr,latD);fprintf(stderr,'d');fprintf(stderr,latM);fprintf(stderr,'m');
+	fprintf(stderr,"\n\rLatitude : %c %dd%dm ",c,latD,latM);
     //Charact cc = c;//Integer llatD = latD;//Integer llatM = latM;
     //contenu.append("\r\nLatitude : ").append(cc.to//String()).append(" ").append(llatD.to//String()).append("d").append(llatM.to//String()).append("m");
     double gpsLat= latD+latM/60.0;
-    printf(" = %2.4f Deg",gpsLat);
+    fprintf(stderr," = %2.4f Deg",gpsLat);
     //contenu.append(" = ").append(decform.format(gpsLat)).append(" Deg\r\n");
     if (s[119]=='0') {c='E';} else {c='W';}
 	i=120;
@@ -768,16 +768,16 @@ void localisation_user()
     lonD=calcul(i,i+7);
     //lonM=4*(8*(s[i+8]=='1')+4*(s[i+9]=='1')+2*(s[i+10]=='1')+(s[i+11]=='1'));
 	lonM=4*calcul(i+8,i+11);
-    //printf("Longitude: ");printf(c);printf(' ');printf(lonD);printf('d');printf(lonM);printf('m');
-	printf("\n\rLongitude: %c %dd%dm ",c,lonD,lonM);
+    //fprintf(stderr,"Longitude: ");fprintf(stderr,c);fprintf(stderr,' ');fprintf(stderr,lonD);fprintf(stderr,'d');fprintf(stderr,lonM);fprintf(stderr,'m');
+	fprintf(stderr,"\n\rLongitude: %c %dd%dm ",c,lonD,lonM);
     //Charact ccc = c;//Integer llonD = lonD;//Integer llonM = lonM;
     //contenu.append("Longitude: ").append(ccc.to//String()).append(" ").append(llonD.to//String()).append("d").append(llonM.to//String()).append("m");
     double gpsLon= lonD+lonM/60.0;
-    //printf(" = %3.6f Deg",gpsLon);
+    //fprintf(stderr," = %3.6f Deg",gpsLon);
     //contenu.append(" = ").append(decform.format(gpsLon)).append(" Deg\r\n");
-    printf(" = %3.4f Deg\n",gpsLon);
+    fprintf(stderr," = %3.4f Deg\n",gpsLon);
     GeogToUTM(gpsLat, gpsLon);
-    if (s[106]=='1') {printf("\n\rEncoded position data source internal");}
+    if (s[106]=='1') {fprintf(stderr,"\n\rEncoded position data source internal");}
     //contenu.append("Encoded position data source internal\r\n");}
     }
 void auxiliary_radio_locating_device_types()
@@ -785,64 +785,64 @@ void auxiliary_radio_locating_device_types()
   	//a=2*(s[83]=='1')+(s[84]=='1');
 	a=calcul(83,84);
     switch(a){
-      case 0 :printf("\n\rNo Auxiliary radio-locating device");
+      case 0 :fprintf(stderr,"\n\rNo Auxiliary radio-locating device");
           //contenu.append("No Auxiliary radio-locating device\r\n");
       break;
-      case 1 :printf("\n\r121.5MHz");
+      case 1 :fprintf(stderr,"\n\r121.5MHz");
           //contenu.append("121.5MHz\r\n");
       break;
-	  case 2 :printf("\n\rMaritime locating 9GHz SART");
+	  case 2 :fprintf(stderr,"\n\rMaritime locating 9GHz SART");
               //contenu.append("Maritime locating 9GHz SART\r\n");
           break;
-	  case 3 :printf("\n\rOther auxiliary radio-locating devices");
+	  case 3 :fprintf(stderr,"\n\rOther auxiliary radio-locating devices");
               //contenu.append("Other auxiliary radio-locating devices\r\n");
           break;
     }
-     printf(" %d",a);
+     fprintf(stderr," %d",a);
  }
 
 void Emergency_code_use()
 {
      int a;
      if (s[106]=='1')
-    { 	printf("\n\rEmergency code flag :");
+    { 	fprintf(stderr,"\n\rEmergency code flag :");
        ////contenu.append("\r\nEmergency code flag :");
        if (s[107]=='1')
     	{
-    		printf("\n\rAutomatic and manual");
+    		fprintf(stderr,"\n\rAutomatic and manual");
     	}
 
 	//a=8*(s[108]=='1')+4*(s[109]=='1')+2*(s[110]=='1')+(s[111]=='1');
         a=calcul(108,111);
 	switch(a)
 	{
-       case 1 :printf("Fire/explosion");
+       case 1 :fprintf(stderr,"Fire/explosion");
            //contenu.append("\r\nFire/explosion\r\n");
        break;
-	   case 2 :printf("Flooding");
+	   case 2 :fprintf(stderr,"Flooding");
                //contenu.append("\r\nFlooding\r\n");
            break;
-	   case 3 :printf("Collision");
+	   case 3 :fprintf(stderr,"Collision");
                //contenu.append("\r\nCollision\r\n");
            break;
-	   case 4 :printf("Grounding");
+	   case 4 :fprintf(stderr,"Grounding");
                //contenu.append("\r\nGrounding\r\n");
            break;
-	   case 5 :printf("Listing, in danger of capsizing");//contenu.append("Listing, in danger of capsizing\r\n");
+	   case 5 :fprintf(stderr,"Listing, in danger of capsizing");//contenu.append("Listing, in danger of capsizing\r\n");
            break;
-	   case 6 :printf("Sinking");
+	   case 6 :fprintf(stderr,"Sinking");
                //contenu.append("\r\nSinking\r\n");
            break;
-       case 7 :printf("Disabled and adrift");
+       case 7 :fprintf(stderr,"Disabled and adrift");
            //contenu.append("\r\nDisabled and adrift\r\n");
        break;
-	   case 0 :printf("Unspecified distress");
+	   case 0 :fprintf(stderr,"Unspecified distress");
                //contenu.append("\r\nUnspecified distress\r\n");
            break;
-	   case 8 :printf("Abandoning ship");
+	   case 8 :fprintf(stderr,"Abandoning ship");
                //contenu.append("\r\nAbandoning ship\r\n");
            break;
-       case 10:printf("Abandoning ship");
+       case 10:fprintf(stderr,"Abandoning ship");
            //contenu.append("\r\nAbandoning ship\r\n");
        break;
     }
@@ -857,31 +857,31 @@ void Non_Emergency_code_use_()
 
       if (s[106]=='1')
       {
-      printf("\n\rEmergency code flag: ");
+      fprintf(stderr,"\n\rEmergency code flag: ");
           //contenu.append("\r\nEmergency code flag: ");
       }
        if (s[107]=='1')
        {
-       	 printf("\n\rAutomatic and manual");
+       	 fprintf(stderr,"\n\rAutomatic and manual");
            //contenu.append("Automatic and manual\r\n");
        }
        if (s[108]=='1')
        {
-          printf("fire");
+          fprintf(stderr,"fire");
            //contenu.append("fire\r\n");
        }
        if (s[109]=='1')
        {
-         printf("Medical help required");
+         fprintf(stderr,"Medical help required");
            //contenu.append("Medical help required\r\n");
        }
        if (s[110]=='1')
        {
-      //     printf("disabled");//contenu.append("disabled\r\n");
+      //     fprintf(stderr,"disabled");//contenu.append("disabled\r\n");
        }
        if (s[111]=='1')
        {
-           printf("Non specifié");
+           fprintf(stderr,"Non specifié");
            //contenu.append("Non specifié\r\n");
        }
   }
@@ -893,13 +893,13 @@ void Non_Emergency_code_use_()
 void Serial_Number_20_Bits()
 {
   	    int j,e=1,a=0;
-        printf("\n\rSerial Number: ");
+        fprintf(stderr,"\n\rSerial Number: ");
         //contenu.append("Serial Number: ");
         for(j=62;j>42;j--)
             {if(s[j]=='1')   a=a+e;
                 e=e*2;
             }
-        printf("%d",a);
+        fprintf(stderr,"%d",a);
         //Integer aa=a;
         //contenu.append(aa.to//String()).append("\r\n");
 }
@@ -907,23 +907,23 @@ void Serial_Number_20_Bits()
 /*void Serial_Number_20_Bits()
 {
   	     	int i,a;
-            printf("\r\nSerial Number (2o bits) : ");
+            fprintf(stderr,"\r\nSerial Number (2o bits) : ");
 
             i=43;
             //a=524288*(s[i]=='1')+262144*(s[i+1]=='1')+131072*(s[i+2]=='1')+65536*(s[i+3]=='1')+32768*(s[i+4]=='1')+16384*(s[i+5]=='1')+8192*(s[i+6]=='1')+4096*(s[i+7]=='1')+2048*(s[i+8]=='1')+1024*(s[i+9]=='1')+512*(s[i+10]=='1')+256*(s[i+11]=='1')+128*(s[i+12]=='1')+64*(s[i+13]=='1')+32*(s[i+14]=='1')+16*(s[i+15]=='1')+8*(s[i+16]=='1')+4*(s[i+17]=='1')+2*(s[i+18]=='1')+(s[i+19]=='1');
             a=calcul(i,i+19);
-            printf(a);
+            fprintf(stderr,a);
 }
 */
 void all_0_or_nat_use()
 {
   	int i,a;
-    printf("\n\rAll 0 or nat use: ");
+    fprintf(stderr,"\n\rAll 0 or nat use: ");
     //contenu.append("All 0 or nat use: ");
     i=63;
     //a=512*(s[i]=='1')+256*(s[i+1]=='1')+128*(s[i+2]=='1')+64*(s[i+3]=='1')+32*(s[i+4]=='1')+16*(s[i+5]=='1')+8*(s[i+6]=='1')+4*(s[i+7]=='1')+2*(s[i+8]=='1')+(s[i+9]=='1');
     a=calcul(i,i+9);
-    printf("%d",a);
+    fprintf(stderr,"%d",a);
     //Integer aa=a;
     //contenu.append(aa.to//String()).append("\r\n");
 }
@@ -932,7 +932,7 @@ void Aircraft_24_Bit_Adress()
 {
             int i,j;
             int a;
-            printf("\n\rAircraft 24 Bit Adresse: ");
+            fprintf(stderr,"\n\rAircraft 24 Bit Adresse: ");
             //contenu.append("Aircraft 24 Bit Adresse: ");
 
             for(j=0;j<3;j++)
@@ -941,23 +941,23 @@ void Aircraft_24_Bit_Adress()
             //a=128*(s[i]=='1')+64*(s[i+1]=='1')+32*(s[i+2]=='1')+16*(s[i+3]=='1')+8*(s[i+4]=='1')+4*(s[i+5]=='1')+2*(s[i+6]=='1')+(s[i+7]=='1');
             a=calcul(i,i+7);
             envoi_byte(a);
-            printf("_");
+            fprintf(stderr,"_");
             //contenu.append("_");
             }
 
-      //printf("\r\n");
+      //fprintf(stderr,"\r\n");
       //contenu.append("\r\n");
 }
 
 void Additional_ELT_No()
 {   int i;
     int a;
-    printf("\n\rAdditional ELT No: ");
+    fprintf(stderr,"\n\rAdditional ELT No: ");
     //contenu.append("Additional ELT No: ");
     i=67;
     //a=32*(s[i]=='1')+16*(s[i+1]=='1')+8*(s[i+2]=='1')+4*(s[i+3]=='1')+2*(s[i+4]=='1')+(s[i+5]=='1');
     a=calcul(i,i+5);
-    printf("%d",a);
+    fprintf(stderr,"%d",a);
     //Integer aa=a;
     //contenu.append(aa.to//String()).append("\r\n");
 }
@@ -965,7 +965,7 @@ void Additional_ELT_No()
 void Operator_3_Letter_Designator()
 {  	        int i,j,b;
             int a;
-            printf("\n\rOperator 3 Letter Designator : ");
+            fprintf(stderr,"\n\rOperator 3 Letter Designator : ");
             //contenu.append("Operator 3 Letter Designator : ");
             for(j=0;j<2;j++)
 			{
@@ -978,29 +978,29 @@ void Operator_3_Letter_Designator()
             //b=2*(s[i]=='1')+(s[i+1]=='1');
             b=calcul(i,i+1);
             envoi_byte(b);
-            //printf("\r\n");
+            //fprintf(stderr,"\r\n");
             //contenu.append("\r\n");
 }
 
 void Serial_Number()
 {   int i,a;
-    printf("\n\rSerial Number: ");
+    fprintf(stderr,"\n\rSerial Number: ");
     //contenu.append("Serial Number: ");
     i=61;
     //a=2048*(s[i]=='1')+1024*(s[i+1]=='1')+512*(s[i+2]=='1')+256*(s[i+3]=='1')+128*(s[i+4]=='1')+64*(s[i+5]=='1')+32*(s[i+6]=='1')+16*(s[i+7]=='1')+8*(s[i+8]=='1')+4*(s[i+9]=='1')+2*(s[i+10]=='1')+(s[i+11]=='1');
     a=calcul(i,i+11);
     //Integer aa=a;
-    printf("%d",a);
+    fprintf(stderr,"%d",a);
     //contenu.append(aa.to//String()).append("\r\n");
 }
 
  void C_S_Cert_No_or_Nat_Use()
  {  int a;
-    printf("\n\rC/S Number or National: ");
+    fprintf(stderr,"\n\rC/S Number or National: ");
     //contenu.append("C/S Number or National: ");
     // a=512*(s[73]=='1')+256*(s[74]=='1')+128*(s[75]=='1')+64*(s[76]=='1')+32*(s[77]=='1')+16*(s[78]=='1')+8*(s[79]=='1')+4*(s[80]=='1')+2*(s[81]=='1')+(s[82]=='1');
     a=calcul(73,82);
-    printf("%d",a);
+    fprintf(stderr,"%d",a);
     //Integer aa=a;
     //contenu.append(aa.to//String()).append("\r\n");
 }
@@ -1009,26 +1009,26 @@ void affiche_serial_user()
 	//a=4*(s[39]=='1')+2*(s[40]=='1')+(s[41]=='1');
 	a=calcul(39,41);
     switch(a)
-		{case 0 :printf("\n\rELT serial number: ");
+		{case 0 :fprintf(stderr,"\n\rELT serial number: ");
             //contenu.append("ELT serial number: ");
             break;
-		case 3 :printf("\n\rELT aircraft 24 bits adress: ");
+		case 3 :fprintf(stderr,"\n\rELT aircraft 24 bits adress: ");
             //contenu.append("ELT aircraft 24 bits adress: ");
             break;
-		case 1 :printf("\n\rELT aircraft operator designator and serial number: ");
+		case 1 :fprintf(stderr,"\n\rELT aircraft operator designator and serial number: ");
             //contenu.append("ELT aircraft operator designator and serial number: ");
             break;
-		case 2 :printf("\n\rFloat free EPIRB + serial number : ");
+		case 2 :fprintf(stderr,"\n\rFloat free EPIRB + serial number : ");
             //contenu.append("Float free EPIRB + serial number: ");
             break;
-		case 4 :printf("\n\rNon float free EPIRB + serial number: ");
+		case 4 :fprintf(stderr,"\n\rNon float free EPIRB + serial number: ");
             //contenu.append("Non float free EPIRB + serial number: ");
             break;
-		case 6 :printf("\n\rPersonal Locator Beacon (PLB) + serial number: ");
+		case 6 :fprintf(stderr,"\n\rPersonal Locator Beacon (PLB) + serial number: ");
             //contenu.append("Personal Locator Beacon (PLB) + serial number: ");
             break;
 		}
-		printf("  bits 44 à 73 en hexa : ");
+		fprintf(stderr,"  bits 44 à 73 en hexa : ");
         //contenu.append("  bits 44 à 73 en hexa : ");
 		for(j=0;j<4;j++)
 			{i=43+j*8;
@@ -1036,7 +1036,7 @@ void affiche_serial_user()
 			a=calcul(i,i+7);
             envoi_byte(a);
 			}
-        // printf("\r\n");
+        // fprintf(stderr,"\r\n");
         //contenu.append("\r\n");
 	}
 
@@ -1045,34 +1045,34 @@ void affiche_serial_user_1()
 	//a=4*(s[39]=='1')+2*(s[40]=='1')+(s[41]=='1');
 	a=calcul(39,41);
         switch(a)
-		{case 0 :printf("\n\rELT serial number :");
+		{case 0 :fprintf(stderr,"\n\rELT serial number :");
                  Serial_Number_20_Bits();all_0_or_nat_use();C_S_Cert_No_or_Nat_Use();break;
-		case 3 :printf("\n\rELT aircraft ");
+		case 3 :fprintf(stderr,"\n\rELT aircraft ");
                 Aircraft_24_Bit_Adress();Additional_ELT_No();C_S_Cert_No_or_Nat_Use();break;
-		case 1 :printf("\n\rELT aircraft operator designator and serial number : " );
+		case 1 :fprintf(stderr,"\n\rELT aircraft operator designator and serial number : " );
                 Operator_3_Letter_Designator();Serial_Number();C_S_Cert_No_or_Nat_Use();break;
-		case 2 :printf("\n\rfloat free EPIRB + serial number :");
+		case 2 :fprintf(stderr,"\n\rfloat free EPIRB + serial number :");
                 Serial_Number_20_Bits();all_0_or_nat_use();C_S_Cert_No_or_Nat_Use();break;
-		case 4 :printf("\n\rnon float free EPIRB + serial number :");
+		case 4 :fprintf(stderr,"\n\rnon float free EPIRB + serial number :");
                 Serial_Number_20_Bits();all_0_or_nat_use();C_S_Cert_No_or_Nat_Use();break;
-		case 6 :printf("\n\rPersonal Locator Beacon (PLB) + serial number :");
+		case 6 :fprintf(stderr,"\n\rPersonal Locator Beacon (PLB) + serial number :");
                 Serial_Number_20_Bits();all_0_or_nat_use();C_S_Cert_No_or_Nat_Use();break;
-		//case 5 :printf("spare :");break;
-         //case 7 :printf(spare :");break;
+		//case 5 :fprintf(stderr,"spare :");break;
+         //case 7 :fprintf(stderr,spare :");break;
 
        }
     switch(a)
 		{case 5 :case 7 :
-          printf("Spare: ");
+          fprintf(stderr,"Spare: ");
           //contenu.append("Spare: \r\n");
           if(s[42]=='0')
           {
-            printf("Serial identification number is assigned nationally ");
+            fprintf(stderr,"Serial identification number is assigned nationally ");
               //contenu.append("Serial identification number is assigned nationally \r\n");
           }
           else
           {
-            printf("Identification data include the C/S type approval certificate number ");
+            fprintf(stderr,"Identification data include the C/S type approval certificate number ");
             //contenu.append("Identification data include the C/S type approval certificate number\r\n");
           }
         }
@@ -1092,7 +1092,7 @@ void test_beacon_data()
     //a=32*(s[i]=='1')+16*(s[i+1]=='1')+8*(s[i+2]=='1')+4*(s[i+3]=='1')+2*(s[i+4]=='1')+(s[i+5]=='1');
     //      a=calcul(i,i+5);
     //Integer aa=a;
-    //      printf("%d",a);
+    //      fprintf(stderr,"%d",a);
     //contenu.append(aa.to//String()).append("\r\n");
 }
 
@@ -1111,7 +1111,7 @@ void orbitography_data()
              //a=32*(s[i]=='1')+16*(s[i+1]=='1')+8*(s[i+2]=='1')+4*(s[i+3]=='1')+2*(s[i+4]=='1')+(s[i+5]=='1');
              a=calcul(i,i+5);
              //Integer aa=a;
-             printf("%d",a);
+             fprintf(stderr,"%d",a);
              //contenu.append(aa.to//String()).append("\r\n");
 }
 
@@ -1130,13 +1130,13 @@ void national_use()
     //a=32*(s[i]=='1')+16*(s[i+1]=='1')+8*(s[i+2]=='1')+4*(s[i+3]=='1')+2*(s[i+4]=='1')+(s[i+5]=='1');
     a=calcul(i,i+5);
     //Integer aa=a;
-    printf("%d",a);
+    fprintf(stderr,"%d",a);
     //contenu.append(aa.to//String());
     i=106;
     //a=32*(s[i]=='1')+16*(s[i+1]=='1')+8*(s[i+2]=='1')+4*(s[i+3]=='1')+2*(s[i+4]=='1')+(s[i+5]=='1');
     a=calcul(i,i+5);
     //Integer bb=a;
-    printf("%d",a);
+    fprintf(stderr,"%d",a);
     //contenu.append(bb.to//String()).append("\r\n");
 }
 
@@ -1155,7 +1155,7 @@ void national_use_1()
     //a=32*(s[i]=='1')+16*(s[i+1]=='1')+8*(s[i+2]=='1')+4*(s[i+3]=='1')+2*(s[i+4]=='1')+(s[i+5]=='1');
     a=calcul(i,i+5);
     //Integer aa=a;
-    printf("%d",a);
+    fprintf(stderr,"%d",a);
     //contenu.append(aa.to//String()).append("\r\n");
 }
 
@@ -1164,7 +1164,7 @@ void national_use_1()
 
  int i,j;
      int a;
-     printf("\r\n Encoded BCH 1 ");  //contenu.append("Encoded BCH 1 \r\n");
+     fprintf(stderr,"\r\n Encoded BCH 1 ");  //contenu.append("Encoded BCH 1 \r\n");
    	for(j=0;j<2;j++)
 			{
                         i=85+j*8;
@@ -1187,10 +1187,10 @@ void national_use_1()
 	a=calcul(39,42);
         switch(a)
 	{
-		case 10 :printf("\r\nserial identification number is assigned nationaly ");break;
-		 case 11 :printf("\r\nidentification data include the C/S type approval certificate number");break;
-         case 14 :printf("\r\nserial identification number is assigned nationaly ");break;
-		 case 15 :printf("\r\nidentification data include the C/S type approval certificate number");break;
+		case 10 :fprintf(stderr,"\r\nserial identification number is assigned nationaly ");break;
+		 case 11 :fprintf(stderr,"\r\nidentification data include the C/S type approval certificate number");break;
+         case 14 :fprintf(stderr,"\r\nserial identification number is assigned nationaly ");break;
+		 case 15 :fprintf(stderr,"\r\nidentification data include the C/S type approval certificate number");break;
 	}
 }*/
 
@@ -1209,19 +1209,19 @@ void decodage_LCD()
                 {
                 //a=128*(s[16]=='1')+64*(s[17]=='1')+32*(s[18]=='0')+16*(s[19]=='1')+8*(s[20]=='0')+4*(s[21]=='0')+2*(s[22]=='0')+(s[23]=='0');
                 a=calcul(16,23);
-                printf("\r\nTrame de test...");
+                fprintf(stderr,"\r\nTrame de test...");
                 //contenu.append("\r\nTEST...\r\n");
                 }
             else
                 {
                 //a=128*(s[16]=='0')+64*(s[17]=='0')+32*(s[18]=='1')+16*(s[19]=='0')+8*(s[20]=='1')+4*(s[21]=='1')+2*(s[22]=='1')+(s[23]=='1');
                 a=calcul(16,23);
-                printf("\n\rTrame d'alerte... ");
+                fprintf(stderr,"\n\rTrame d'alerte... ");
                 //contenu.append("\r\nALERTE...\r\n");
                 }
             //strcpy(chaine,"");
             if (s[24]=='0')
-                {printf("\r\nUser Protocole-Localisation courte");
+                {fprintf(stderr,"\r\nUser Protocole-Localisation courte");
                 //contenu.append("User Protocole/Localisation courte\r\n");
 	            //code protocole 37-39
                 //a=4*(s[36]=='1')+2*(s[37]=='1')+(s[38]=='1');
@@ -1229,40 +1229,40 @@ void decodage_LCD()
                 switch(a)
 					{
 						case 2 :
-							printf("\n\rEPIRB  MMSI/Radio: ");
+							fprintf(stderr,"\n\rEPIRB  MMSI/Radio: ");
                             //contenu.append("EPIRB  MMSI/Radio: ");
                             affiche_baudot42();specific_beacon();Emergency_code_use();
                             break;
 						case 6 :
-							printf("\n\rEPIRB  Radio: ");
+							fprintf(stderr,"\n\rEPIRB  Radio: ");
                             //contenu.append("EPIRB  Radio: ");
 							affiche_baudot_1();specific_beacon();Non_Emergency_code_use_();
 							break;
 						case 1 :
-							printf("\n\rELT Aviation: ");
+							fprintf(stderr,"\n\rELT Aviation: ");
                             //contenu.append("ELT Aviation: ");
 							affiche_baudot_2();Non_Emergency_code_use_();
 							break;
-						case 3 :printf("\r\nSerial User : ");
+						case 3 :fprintf(stderr,"\r\nSerial User : ");
 							affiche_serial_user_1();Non_Emergency_code_use_();
 							break;
 						case 7 :
-                            printf("\n\rTest User: ");
+                            fprintf(stderr,"\n\rTest User: ");
                             //contenu.append("\r\nTest User: ");
                             test_beacon_data();
                             break;
 						case 0 :
-							printf("\n\rOrbitography: ");
+							fprintf(stderr,"\n\rOrbitography: ");
                             //contenu.append("Orbitography: ");
                             orbitography_data();
                             break;
 						case 4 :
-                            printf("National: ");
+                            fprintf(stderr,"National: ");
                             //contenu.append("National: ");
 							national_use();
 							break;
 						case 5 :
-							printf("Spare ");
+							fprintf(stderr,"Spare ");
                             //contenu.append("Spare ");
                             break;
 					}
@@ -1275,64 +1275,64 @@ void decodage_LCD()
                 //b=512*(s[26]=='1')+256*(s[27]=='1')+128*(s[28]=='1')+64*(s[29]=='1')+32*(s[30]=='1')+16*(s[31]=='1')+8*(s[32]=='1')+4*(s[33]=='1')+2*(s[34]=='1')+(s[35]=='1');
                 b=calcul(26,35);
                 //Integer bb=b;
-                printf("\n\rCode Pays : %d\n\r",b);
+                fprintf(stderr,"\n\rCode Pays : %d\n\r",b);
                 //contenu.append("Code Pays:").append(bb.to//String());
 
 			}
         else //Trame longue
-               {printf("\n\rTrame longue 144 bits");
+               {fprintf(stderr,"\n\rTrame longue 144 bits");
                //contenu.append("Trame longue 144 bits\r\n");//Messages long
 	        	if (s[25]=='0')
-                    {printf("\r\nProtocole Standard ou National de Localisation");
+                    {fprintf(stderr,"\r\nProtocole Standard ou National de Localisation");
                     //code protocole 37-40
                     //a=8*(s[36]=='1').toint())+4*(s[37]=='1').toint()+2*(s[38]=='1')+(s[39]=='1');
                     a=calcul(36,39);
                     switch(a)
 					{
-						case 2 :printf("\n\rEPIRB MMSI");
+						case 2 :fprintf(stderr,"\n\rEPIRB MMSI");
                                 //contenu.append("EPIRB MMSI\r\n");
                                 break;
-						case 3 :printf("\n\rELT Location");
+						case 3 :fprintf(stderr,"\n\rELT Location");
                                 //contenu.append("ELT Location\r\n");
                                 break;
-						case 4 :printf("\n\rELT serial");
+						case 4 :fprintf(stderr,"\n\rELT serial");
                                 //contenu.append("ELT serial\r\n");
                                 break;
-						case 5 :printf("\n\rELT aircraft");
+						case 5 :fprintf(stderr,"\n\rELT aircraft");
                                 //contenu.append("ELT aircraft\r\n");
                                 break;
-						case 6 :printf("\n\rEPIRB serial");
+						case 6 :fprintf(stderr,"\n\rEPIRB serial");
                                 //contenu.append("EPIRB serial\r\n");
                                 break;
-						case 7 :printf("\n\rPLB serial");
+						case 7 :fprintf(stderr,"\n\rPLB serial");
                                 //contenu.append("PLB serial\r\n");
                                 break;
-						case 12 :printf("\n\rShip Security");
+						case 12 :fprintf(stderr,"\n\rShip Security");
                                 //contenu.append("Ship Security\r\n");
                                 break;
-						case 8 :printf("\n\rELT National");
+						case 8 :fprintf(stderr,"\n\rELT National");
                                 //contenu.append("ELT National\r\n");
                                 break;
-						case 9 :printf("\n\rSpare National");
+						case 9 :fprintf(stderr,"\n\rSpare National");
                                 //contenu.append("Spare National\r\n");
                                 break;
-						case 10 :printf("\n\rEPIRB National");
+						case 10 :fprintf(stderr,"\n\rEPIRB National");
                                 //contenu.append("EPIRB National\r\n");
                                 break;
-						case 11 :printf("\n\rPLB National");
+						case 11 :fprintf(stderr,"\n\rPLB National");
                                 //contenu.append("PLB National\r\n");
                                 break;
-						case 14 :printf("\n\rStandard Test: ");
+						case 14 :fprintf(stderr,"\n\rStandard Test: ");
                                 //contenu.append("Standard Test: ");
                                 standard_test();
                                 break;
-						case 15 :printf("\n\rNational Test");
+						case 15 :fprintf(stderr,"\n\rNational Test");
                                 //contenu.append("National Test ");break;
 						case 0 :
-						case 1: //printf("\n\rOrbitography");
+						case 1: //fprintf(stderr,"\n\rOrbitography");
                                 //contenu.append("Orbitography\r\n");
                                 break;
-						case 13 :printf("\n\rSpare....");
+						case 13 :fprintf(stderr,"\n\rSpare....");
                                 //contenu.append("Spare....\r\n");
                                 break;
 					}
@@ -1358,41 +1358,41 @@ void decodage_LCD()
                     }
 				else
 				{
-					printf("\n\nUser Protocole-Localisation");
+					fprintf(stderr,"\n\nUser Protocole-Localisation");
                     //contenu.append("User Protocole/Localisation\r\n");
                     //code protocole 37-39
 					//a=4*(s[36]=='1')+2*(s[37]=='1')+(s[38]=='1');
 					a=calcul(36,38);
                     switch(a)
                         {
-						case 2 :printf("\n\rEPIR MMSI/Radio :");
+						case 2 :fprintf(stderr,"\n\rEPIR MMSI/Radio :");
                         //contenu.append("EPIR MMSI/Radio\r\n");
 						affiche_baudot42();specific_beacon();break;
-						case 6 :printf("\n\rEPIRB Radio..");
+						case 6 :fprintf(stderr,"\n\rEPIRB Radio..");
                         //contenu.append("EPIRB Radio..\r\n");
 						affiche_baudot_1();specific_beacon();
 						break;
-						case 1 :printf("\n\rELT Aviation: ");
+						case 1 :fprintf(stderr,"\n\rELT Aviation: ");
                         //contenu.append("ELT Aviation: ");
 						affiche_baudot_2();
 						break;
-						case 3 :printf("\n\rSerial User: ");
+						case 3 :fprintf(stderr,"\n\rSerial User: ");
                         //contenu.append("Serial User: \r\n");
 						affiche_serial_user_1();
                         break;
-						case 7 :printf("\n\rTest User: ");
+						case 7 :fprintf(stderr,"\n\rTest User: ");
                         //contenu.append("Test User: \r\n");
                         test_beacon_data();
                         break;
-						case 0 :printf("\n\rOrbitography: ");
+						case 0 :fprintf(stderr,"\n\rOrbitography: ");
                         //contenu.append("Orbitography: \r\n");
                         orbitography_data();
                         break;
-						case 4 :printf("\n\rNational use: ");
+						case 4 :fprintf(stderr,"\n\rNational use: ");
                         //contenu.append("National use: \r\n");
                         national_use_1();
 						break;
-						case 5 :printf("\n\rSpare");
+						case 5 :fprintf(stderr,"\n\rSpare");
                         //contenu.append("Spare\r\n");
                         break;
 					 }
@@ -1405,7 +1405,7 @@ void decodage_LCD()
                 //b=512*(s[26]=='1')+256*(s[27]=='1')+128*(s[28]=='1')+64*(s[29]=='1')+32*(s[30]=='1')+16*(s[31]=='1')+8*(s[32]=='1')+4*(s[33]=='1')+2*(s[34]=='1')+(s[35]=='1');
                 b=calcul(26,35);
                 //Integer bb=b;
-                printf("\n\rCode Pays : %d\n\r",b);
+                fprintf(stderr,"\n\rCode Pays : %d\n\r",b);
                 //contenu.append("Code Pays : ").append(bb.to//String()).append("\r\n");
 			}
 }
@@ -1444,13 +1444,13 @@ int lit_header(FILE *fp) {
         if (strncmp(txt, "data",4) == 0) break;
         }
     if (fread(dat, 1, 4, fp) < 4) return -1;
-    //printf( "f_ech: %d\n", f_ech);
-    //printf( "bits       : %d\n", bits);
-    //printf( "N_canaux   : %d\n", N_canaux);
+    //fprintf(stderr, "f_ech: %d\n", f_ech);
+    //fprintf(stderr, "bits       : %d\n", bits);
+    //fprintf(stderr, "N_canaux   : %d\n", N_canaux);
     if ((bits != 8) && (bits != 16)) return -1;
     ech_par_bit = f_ech/bauds;
-    //printf( "ech par bit: %.2f\n", ech_par_bit);
-    //printf( "****Attente de Trames****");
+    //fprintf(stderr, "ech par bit: %.2f\n", ech_par_bit);
+    //fprintf(stderr, "****Attente de Trames****");
     return 0;
 }
 
@@ -1482,7 +1482,7 @@ int duree_entre_pics(FILE *fp, int *nbr) {
     n = 0.0;
     if (seuil==seuilm){
         do{echantillon = lit_ech(fp);
-            //printf("\n\r%d",echantillon);
+            //fprintf(stderr,"\n\r%d",echantillon);
             if (echantillon == 1000000) return 1;
             n++;
          } while (echantillon < seuilM);
@@ -1491,7 +1491,7 @@ int duree_entre_pics(FILE *fp, int *nbr) {
     else{
         do{
           echantillon = lit_ech(fp);
-          //printf("\n\r%d",echantillon);
+          //fprintf(stderr,"\n\r%d",echantillon);
           if (echantillon == 1000000) return 1;
           n++;
         }while (echantillon > seuilm);
@@ -1509,15 +1509,15 @@ int duree_entre_pics(FILE *fp, int *nbr) {
 
 void affiche_hexa(){
     int j,i,a;
-    printf("\n\r");
+    fprintf(stderr,"\n\r");
     for(j=0;j<((longueur_trame-24)/8);j++){
         i=24+j*8;
         //a=128*(s[i]=='1')+64*(s[i+1]=='1')+32*(s[i+2]=='1')+16*(s[i+3]=='1')+8*(s[i+4]=='1')+4*(s[i+5]=='1')+2*(s[i+6]=='1')+(s[i+7]=='1');
         a=calcul(i,i+7);
         envoi_byte(a);
-        //printf("%X",a);
+        //fprintf(stderr,"%X",a);
     }
-    //printf("\n\r");
+    //fprintf(stderr,"\n\r");
 }
 
 
@@ -1554,10 +1554,10 @@ while(i<85)
 for(j=0;j<22;j++)
 		{ss+=div[j];
 		}
-if (ss==0)   printf("\n CRC_1 OK");
+if (ss==0)   fprintf(stderr,"\n CRC_1 OK");
 else
-    {if(zero==0) {printf("\n CRC_1 null?");ss=0;}
-    else printf("\n CRC_1 Mauvais");
+    {if(zero==0) {fprintf(stderr,"\n CRC_1 null?");ss=0;}
+    else fprintf(stderr,"\n CRC_1 Mauvais");
     }
 return ss;
 }
@@ -1595,10 +1595,10 @@ while(i<132)
 for(j=0;j<13;j++)
 		{ss+=div[j];
 		}
-if (ss==0)   printf("\n CRC_2 OK");
+if (ss==0)   fprintf(stderr,"\n CRC_2 OK");
 else
-    {if(zero==0) {printf("\n CRC_2 null? ");ss=0;}
-    else printf("\n CRC_2 Mauvais. ATTENTION: il y a des erreurs ");
+    {if(zero==0) {fprintf(stderr,"\n CRC_2 null? ");ss=0;}
+    else fprintf(stderr,"\n CRC_2 Mauvais. ATTENTION: il y a des erreurs ");
     }
 return ss;
 }
@@ -1618,32 +1618,32 @@ int affiche_trame(){
     if(test_crc1()==0){
     r=1;
     if (s[24]=='1') test_crc2();
-    //printf("\n\rNouvelle trame binaire: ");
-    //printf("\n\r%s",s);
+    //fprintf(stderr,"\n\rNouvelle trame binaire: ");
+    //fprintf(stderr,"\n\r%s",s);
     //test_crc1();
     //if (s[24]=='1') test_crc2();
-    printf("\n\rContenu hexadécimal: ");
+    fprintf(stderr,"\n\rContenu hexadécimal: ");
     affiche_hexa();
     decodage_LCD();
     }
     return(r);
 }
 void affiche_aide(){
-            printf("\n/*---------Decodage sur PI de Balise 406 (V6.0 par F4EHY)-----------------*/");
-            printf("\n/*OPTIONS:                                                                */");
-            printf("\n/*--help aide                                                             */");
-            printf("\n/*--osm  affichage sur une carte OpenStreetMap                            */");
-            printf("\n/*--une_minute timeout de 55 secondes pour une utilisation avec scan406   */");
-            printf("\n/*--M1 à --M10  Max pour le calcul le seuil minimum (defaut --M3)         */");
-            printf("\n/*--2 à --100 coeff pour calculer le seuil Max/coeff (default --100)      */");
-            printf("\n/*------------------------------------------------------------------------*/");
-            printf("\n/*LANCEMENT DU PROGRAMME (exemples):                                      */");
-            printf("\n/*sox -t alsa default -t wav - lowpass 3000 highpass 10  2>/dev/null | ./dec406V6        */");
-            printf("\n/*sox -t alsa default -t wav - lowpass 3000 highpass 10  2>/dev/null | ./dec406V6 --osm  */");
-            printf("\n/*------------------------------------------------------------------------*/");
-            printf("\n/*SI 'sox' EST ABSENT:                                                    */");
-            printf("\n/*sudo apt-get install sox                                                */");
-            printf("\n/*------------------------------------------------------------------------*/\n");
+            fprintf(stderr,"\n/*---------Decodage sur PI de Balise 406 (V6.0 par F4EHY)-----------------*/");
+            fprintf(stderr,"\n/*OPTIONS:                                                                */");
+            fprintf(stderr,"\n/*--help aide                                                             */");
+            fprintf(stderr,"\n/*--osm  affichage sur une carte OpenStreetMap                            */");
+            fprintf(stderr,"\n/*--une_minute timeout de 55 secondes pour une utilisation avec scan406   */");
+            fprintf(stderr,"\n/*--M1 à --M10  Max pour le calcul le seuil minimum (defaut --M3)         */");
+            fprintf(stderr,"\n/*--2 à --100 coeff pour calculer le seuil Max/coeff (default --100)      */");
+            fprintf(stderr,"\n/*------------------------------------------------------------------------*/");
+            fprintf(stderr,"\n/*LANCEMENT DU PROGRAMME (exemples):                                      */");
+            fprintf(stderr,"\n/*sox -t alsa default -t wav - lowpass 3000 highpass 10  2>/dev/null | ./dec406V6        */");
+            fprintf(stderr,"\n/*sox -t alsa default -t wav - lowpass 3000 highpass 10  2>/dev/null | ./dec406V6 --osm  */");
+            fprintf(stderr,"\n/*------------------------------------------------------------------------*/");
+            fprintf(stderr,"\n/*SI 'sox' EST ABSENT:                                                    */");
+            fprintf(stderr,"\n/*sudo apt-get install sox                                                */");
+            fprintf(stderr,"\n/*------------------------------------------------------------------------*/\n");
 }
 int main(int argc, char **argv) {
     FILE *fp;       //stdin ou fichier wav
@@ -1718,7 +1718,7 @@ int main(int argc, char **argv) {
         else if ( (strcmp(*argv, "--une_minute") ==0) ) opt_minute=1;
 
         else {fp = fopen(*argv, "rb");
-            if (fp == NULL) {printf( "%s Impossible d'ouvrir le fichier\n", *argv);return -1;
+            if (fp == NULL) {fprintf(stderr, "%s Impossible d'ouvrir le fichier\n", *argv);return -1;
             }
             flux_wav = 0;       //fichier wav ok on n'utilise pas stdin
         }
@@ -1726,7 +1726,9 @@ int main(int argc, char **argv) {
     }
     if (flux_wav)  fp = stdin;  // pas de fichier .wav utiliser le flux standard 'stdin'
 
-    printf("\n****Attente de Trames****\n");
+    fprintf(stderr,"\n****Attente de Trames****\n");
+    time_t top=time(NULL);
+    time_t Time;
     lit_header(fp);
  //   pos = 0;
 //    Nb2=ech_par_bit/2;
@@ -1748,14 +1750,14 @@ int main(int argc, char **argv) {
         if (opt_minute==1){//timeout pour utilisation avec scan406
             t2=clock();
             dt=((double)(t2-t1))/clk_tck;
-          //  printf("dt= %lf \n ",dt);
-            if (dt>55.0) {fprintf(stderr,"Plus de 55s\n");fclose(fp);return 0;}
+          //  fprintf(stderr,"dt= %lf \n ",dt);
+            if (dt>55.0) {ffprintf(stderr,stderr,"Plus de 55s\n");fclose(fp);return 0;}
         }
 
         //lire 1 ech et autocorrelation 2bits
-        echantillon = lit_ech(fp); //printf("\n\r%d",echantillon);
+        echantillon = lit_ech(fp); //fprintf(stderr,"\n\r%d",echantillon);
         if (echantillon == 1000000) {
-            quitter=1;fprintf(stderr,"Fin de lecture wav\n");return 0;
+            quitter=1;ffprintf(stderr,stderr,"Fin de lecture wav\n");return 0;
         }
         l++;
         k=(k+1)%(2*Nb); //numéro de l'échantillon dans un tableau Y de 2bit
@@ -1798,6 +1800,14 @@ int main(int argc, char **argv) {
 
                 }
 
+                Time=time(NULL);
+                if (((unsigned long)difftime(Time, top)) > 0.5)
+                {
+                  fprintf(stderr,"****Attente de Trames****\n");
+                  top=time(NULL);
+                }
+
+
         }
         else{//synchro OK => Traitement
             cpte++;
@@ -1835,19 +1845,19 @@ int main(int argc, char **argv) {
 
         }//fin du else synchro OK traitement
     }  //fin while (numBit<longueur_trame)
-    //printf("\n************Mini %d\tMaxi %d\tMoy%d\tf_ech%d********",Mini,Maxi,Moy,f_ech);
+    //fprintf(stderr,"\n************Mini %d\tMaxi %d\tMoy%d\tf_ech%d********",Mini,Maxi,Moy,f_ech);
     if(affiche_trame()==1){
-        fprintf(stderr,"TROUVE\n\n");
+        //printf(TROUVE\n\n");
         if (opt_minute==1) {fclose(fp); return 0;
         }
     }
     else{
-        fprintf(stderr,"Erreur CRC\n\n");
+        printf("Erreur CRC\n\n");
         if (opt_minute==1) {fclose(fp);return 0;
         }
     }
     }
-    printf( "\n");
+    fprintf(stderr, "\n");
     fclose(fp);
     return 0;
 }

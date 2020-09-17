@@ -3582,14 +3582,14 @@ void ChangeLMRXscan()
   SetConfigParam(PATH_LMCONFIG, Value, KeyboardReturn);
 }
 
-void ChangeArgosFreq(int dir)
+void ChangeSarsatFreq(int dir)
 {
   char RequestText[64];
   char InitText[64];
   bool IsValid = FALSE;
   char FreqLimit[10];
-  char Argoslow[10];
-  char Argoshigh[10];
+  char Sarsatlow[10];
+  char Sarsathigh[10];
   char Value[10];
 
   switch (dir)
@@ -3601,11 +3601,11 @@ void ChangeArgosFreq(int dir)
     strcpy(Value, "high");
     break;
   default:
-    printf("Argos freq Menu Error\n");
+    printf("Sarsat freq Menu Error\n");
   }
 
-  GetConfigParam(PATH_406CONFIG, "low", Argoslow);
-  GetConfigParam(PATH_406CONFIG, "high", Argoshigh);
+  GetConfigParam(PATH_406CONFIG, "low", Sarsatlow);
+  GetConfigParam(PATH_406CONFIG, "high", Sarsathigh);
 
 
   //Retrieve (10 char) Current offset from Config file
@@ -3622,10 +3622,10 @@ void ChangeArgosFreq(int dir)
       if((atoi(KeyboardReturn) >= 24) && (atoi(KeyboardReturn) <= 1766))
       {
         IsValid = TRUE;
-        if ((atof(Argoshigh)-atof(KeyboardReturn))<0.1)
+        if ((atof(Sarsathigh)-atof(KeyboardReturn))<0.1)
         {
-          sprintf(Argoshigh, "%.3f", (atof(KeyboardReturn)+0.1));
-          SetConfigParam(PATH_406CONFIG, "high", Argoshigh);
+          sprintf(Sarsathigh, "%.3f", (atof(KeyboardReturn)+0.1));
+          SetConfigParam(PATH_406CONFIG, "high", Sarsathigh);
         }
       }
     }
@@ -3636,7 +3636,7 @@ void ChangeArgosFreq(int dir)
       strcpyn(InitText, FreqLimit, 8);
       Keyboard(RequestText, FreqLimit, 8);
 
-      if((atoi(KeyboardReturn) >= 24) && (atoi(KeyboardReturn) <= 1766) && (((atof(KeyboardReturn)-atof(Argoslow))>=0.1) || (atof(Argoslow)==atof(KeyboardReturn))))
+      if((atoi(KeyboardReturn) >= 24) && (atoi(KeyboardReturn) <= 1766) && (((atof(KeyboardReturn)-atof(Sarsatlow))>=0.1) || (atof(Sarsatlow)==atof(KeyboardReturn))))
       {
         IsValid = TRUE;
       }
@@ -11550,7 +11550,7 @@ void CycleLNBVolts()
 
 
 
-void ARGOS_DECODER()
+void SARSAT_DECODER()
 {
   #define PATH_SCRIPT_DECODER "/home/pi/rpidatv/406/scan.sh 2>&1"
 
@@ -11581,6 +11581,9 @@ void ARGOS_DECODER()
   char line17[80]="";
   char line18[80]="";
   char line19[80]="";
+  char crc1[80]="";
+  char crc2[80]="";
+  char end[80]="";
 
   int nbline=1;
 
@@ -11609,7 +11612,7 @@ void ARGOS_DECODER()
   fp=popen(PATH_SCRIPT_DECODER, "r");
   if(fp==NULL) printf("Process error\n");
 
-  printf("STARTING ARGOS DECODER\n");
+  printf("STARTING SARSAT DECODER\n");
 
   WindowClear();
 
@@ -11619,10 +11622,22 @@ void ARGOS_DECODER()
     sscanf(line,"%s ",strTag);
     //printf("\n len: %d line: %s strTag: %s", len, line, strTag);
 
-    if((strcmp(strTag, "Scan")==0) || (strcmp(strTag, "Lancement")==0) || (strcmp(strTag, "****Attente")==0) || (strcmp(strTag, "CRC_1")==0) || (strcmp(strTag, "Contenu")==0))
+    if((strcmp(strTag, "Scan")==0) || (strcmp(strTag, "Lancement")==0) || (strcmp(strTag, "****Attente")==0) || (strcmp(strTag, "CRC_1")==0) || (strcmp(strTag, "CRC_2")==0) || (strcmp(strTag, "Contenu")==0))
     {
        nbline=1;
-       strcpy(line1, line);
+       if (strcmp(strTag, "CRC_1")==0)
+       {
+         strcpy(crc1, line);
+         strcpy(crc2,"");
+       }
+       else if (strcmp(strTag, "CRC_2")==0)
+       {
+         strcpy(crc2, line);
+       }
+       else
+       {
+         strcpy(line1, line);
+       }
        strcpy(line2, "");
        if (strcmp(strTag, "Contenu")==0)
          {
@@ -11700,6 +11715,11 @@ void ARGOS_DECODER()
        strcpy(line19, line);
     }
 
+       strcpy(end, "Touch to exit     ");
+       strcat(end,crc1);
+       strcat(end,"     ");
+       strcat(end,crc2);
+
        BackgroundRGB(0, 0, 0, 255);
        Fill(0, 0, 0, 127);
        Rect(wscreen * 1.0 / 40.0, hscreen - 9.2 * linepitch, wscreen * 20.0 / 40.0, hscreen);
@@ -11725,7 +11745,7 @@ void ARGOS_DECODER()
        Text(wscreen * 1.0 / 40.0, hscreen - 12.9 * linepitch, line18, font, pointsize);
        Text(wscreen * 1.0 / 40.0, hscreen - 13.6 * linepitch, line19, font, pointsize);
        Fill(255, 255, 255, 255);
-       Text(wscreen * 1.0 / 40.0, hscreen - 15 * linepitch, "Touch to exit", font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 15 * linepitch, end, font, pointsize);
        End();
   }
 
@@ -15095,7 +15115,7 @@ void waituntil(int w,int h)
           BackgroundRGB(0, 0, 0, 255);
           UpdateWindow();
           break;
-        case 15:                               // Argos Decoder
+        case 15:                               // Sarsat Decoder
           printf("MENU  57\n");
           CurrentMenu = 57;
           BackgroundRGB(0, 0, 0, 255);
@@ -18530,14 +18550,14 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
         // stay in Menu 56 if parameter changed
         continue;   // Completed Menu 56 action, go and wait for touch
       }
-      if (CurrentMenu == 57)  // Menu 57 Argos Decoder
+      if (CurrentMenu == 57)  // Menu 57 Sarsat Decoder
       {
         printf("Button Event %d, Entering Menu 57 Case Statement\n",i);
         switch (i)
         {
         case 4:                               // Cancel
           SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 1);
-          printf("Cancelling Argos Decoder Menu\n");
+          printf("Cancelling Sarsat Decoder Menu\n");
           UpdateWindow();
           usleep(500000);
           SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 0); // Reset cancel (even if not selected)
@@ -18556,7 +18576,7 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           {
             BackgroundRGB(0, 0, 0, 255);
             Start(wscreen,hscreen);
-            ARGOS_DECODER();
+            SARSAT_DECODER();
             BackgroundRGB(0, 0, 0, 255);
             Start_Highlights_Menu57();
             UpdateWindow();
@@ -18575,7 +18595,7 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           UpdateWindow();
           usleep(50000);
           SelectInGroupOnMenu(CurrentMenu, 1, 1, 1, 0);
-          ChangeArgosFreq(i);
+          ChangeSarsatFreq(i);
           CurrentMenu=57;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu57();
@@ -18586,7 +18606,7 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           UpdateWindow();
           usleep(50000);
           SelectInGroupOnMenu(CurrentMenu, 2, 2, 2, 0);
-          ChangeArgosFreq(i);
+          ChangeSarsatFreq(i);
           CurrentMenu=57;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu57();
@@ -19249,7 +19269,7 @@ void Define_Menu2()
   // 4th line up Menu 2
 
   button = CreateButton(2, 15);
-  AddButtonStatus(button, "Argos^Decoder", &Blue);
+  AddButtonStatus(button, "Sarsat^Decoder", &Blue);
 
   button = CreateButton(2, 16);
   AddButtonStatus(button, "Sig Gen^ ", &Blue);
@@ -23632,7 +23652,7 @@ void Define_Menu57()
 {
   int button;
 
-  strcpy(MenuTitle[57], "Argos Decoder (57)");
+  strcpy(MenuTitle[57], "Sarsat Decoder (57)");
 
   button = CreateButton(57, 0);
   AddButtonStatus(button, "Start^Decoder", &DBlue);

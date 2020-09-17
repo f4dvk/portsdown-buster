@@ -1,3 +1,8 @@
+202009170
+Changement nom Argos en Sarsat
+Sarsat: affichage de la trame dès décodage
+Sarsat: affichage des CRC
+
 202009040
 RX Minitiouner réglage séparé scan satellite et terrestre
 
