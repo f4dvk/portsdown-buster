@@ -1751,13 +1751,13 @@ int main(int argc, char **argv) {
             t2=clock();
             dt=((double)(t2-t1))/clk_tck;
           //  fprintf(stderr,"dt= %lf \n ",dt);
-            if (dt>55.0) {ffprintf(stderr,stderr,"Plus de 55s\n");fclose(fp);return 0;}
+            if (dt>55.0) {fprintf(stderr,"Plus de 55s\n");fclose(fp);return 0;}
         }
 
         //lire 1 ech et autocorrelation 2bits
         echantillon = lit_ech(fp); //fprintf(stderr,"\n\r%d",echantillon);
         if (echantillon == 1000000) {
-            quitter=1;ffprintf(stderr,stderr,"Fin de lecture wav\n");return 0;
+            quitter=1;fprintf(stderr,"Fin de lecture wav\n");return 0;
         }
         l++;
         k=(k+1)%(2*Nb); //numéro de l'échantillon dans un tableau Y de 2bit
