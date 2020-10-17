@@ -1,3 +1,9 @@
+202010010
+New builds based on Raspios 2020-08-20
+Increase Lime PTT Delay to 8 seconds
+Allow H264 PiCam 16:9
+Continue to display RX params with no signal
+
 202009170
 Changement nom Argos en Sarsat
 Sarsat: affichage de la trame dès décodage

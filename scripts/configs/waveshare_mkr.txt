@@ -1,5 +1,5 @@
 
 ## Begin LCD Driver
 dtparam=spi=on
-dtoverlay=waveshare35a
+dtoverlay=waveshare35a,speed=20000000
 ## End LCD Driver

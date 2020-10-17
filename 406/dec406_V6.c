@@ -1622,7 +1622,7 @@ int affiche_trame(){
     //fprintf(stderr,"\n\r%s",s);
     //test_crc1();
     //if (s[24]=='1') test_crc2();
-    fprintf(stderr,"\n\rContenu hexadécimal: ");
+    fprintf(stderr,"\nContenu hexadécimal: ");
     affiche_hexa();
     decodage_LCD();
     }
@@ -1726,7 +1726,7 @@ int main(int argc, char **argv) {
     }
     if (flux_wav)  fp = stdin;  // pas de fichier .wav utiliser le flux standard 'stdin'
 
-    fprintf(stderr,"\n****Attente de Trames****\n");
+    fprintf(stderr,"\n****Attente de Trames****");
     time_t top=time(NULL);
     time_t Time;
     lit_header(fp);
@@ -1803,7 +1803,7 @@ int main(int argc, char **argv) {
                 Time=time(NULL);
                 if (((unsigned long)difftime(Time, top)) > 0.5)
                 {
-                  fprintf(stderr,"****Attente de Trames****\n");
+                  fprintf(stderr,"\n****Attente de Trames****");
                   top=time(NULL);
                 }
 

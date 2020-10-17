@@ -1609,7 +1609,7 @@ void NewMPEGKey(char* KeyString)
   }
 
   // Now add the new key
-  snprintf(CommandString, 100, "sudo sh -c \"echo \\\"decode_MPG2=%s\\\" >> /boot/config.txt\"", KeyString);
+  snprintf(CommandString, 100, "sudo sh -c \"echo \\\"decode_MPG2=%s\n\\\" >> /boot/config.txt\"", KeyString);
   //printf("%s\n", CommandString);
   system(CommandString);
 
@@ -1847,7 +1847,7 @@ void ReadModeInput(char coding[256], char vsource[256])
     strcpy(coding, "H264");
     strcpy(vsource, "RPi Camera");
     strcpy(CurrentEncoding, "H264");
-    strcpy(CurrentFormat, "4:3");
+    //strcpy(CurrentFormat, "4:3");
     strcpy(CurrentSource, TabSource[0]); // Pi Cam
   }
   else if (strcmp(ModeInput, "ANALOGCAM") == 0)
@@ -2765,12 +2765,11 @@ int CheckC920()
   {
     if (strlen(response_line) > 1)
     {
+      pclose(fp);
       return 1;
     }
-
   }
   pclose(fp);
-
   return 0;
 }
 
@@ -5922,10 +5921,10 @@ void ApplyTXConfig()
           {
             strcpy(ModeInput, "C920HDH264");
           }
-          else
-          {
-            strcpy(CurrentFormat, "16:9");
-          }
+          //else
+          //{
+          //  strcpy(CurrentFormat, "16:9");
+          //}
         }
       }
       if (strcmp(CurrentFormat, "16:9") == 0)
@@ -5939,14 +5938,14 @@ void ApplyTXConfig()
             strcpy(ModeInput, "C920HDH264");
             wait_touch();
           }
-          else if (strcmp(CurrentSource, "CompVid") == 0)
-          {
-            strcpy(CurrentFormat, "16:9");
-          }
-          else
-          {
-            strcpy(CurrentFormat, "4:3");
-          }
+          //else if (strcmp(CurrentSource, "CompVid") == 0)
+          //{
+          //  strcpy(CurrentFormat, "16:9");
+          //}
+          //else
+          //{
+          //  strcpy(CurrentFormat, "4:3");
+          //}
         }
       }
       if (strcmp(CurrentFormat, "4:3") == 0)
@@ -9980,7 +9979,7 @@ void LMRX(int NoButton)
               Text(wscreen * 1.0 / 40.0, hscreen - 6 * linepitch, ServiceProvidertext, font, pointsize);
               Text(wscreen * 1.0 / 40.0, hscreen - 7 * linepitch, Servicetext, font, pointsize);
               Text(wscreen * 1.0 / 40.0, hscreen - 8 * linepitch, Encodingtext, font, pointsize);
-              if (MER < MERThreshold)
+              if (MER < MERThreshold + 0.1)
               {
                 Fill(255, 127, 127, 255);
               }
@@ -10432,7 +10431,7 @@ void LMRX(int NoButton)
               Text(wscreen * 1.0 / 40.0, hscreen - 6 * linepitch, ServiceProvidertext, font, pointsize);
               Text(wscreen * 1.0 / 40.0, hscreen - 7 * linepitch, Servicetext, font, pointsize);
               Text(wscreen * 1.0 / 40.0, hscreen - 8 * linepitch, Encodingtext, font, pointsize);
-              if (MER < MERThreshold)
+              if (MER < MERThreshold + 0.1)
               {
                 Fill(255, 127, 127, 255);
               }
@@ -10818,7 +10817,7 @@ void LMRX(int NoButton)
               Text(wscreen * 1.0 / 40.0, hscreen - 6 * linepitch, ServiceProvidertext, font, pointsize);
               Text(wscreen * 1.0 / 40.0, hscreen - 7 * linepitch, Servicetext, font, pointsize);
               Text(wscreen * 1.0 / 40.0, hscreen - 8 * linepitch, Encodingtext, font, pointsize);
-              if (MER < MERThreshold)
+              if (MER < MERThreshold + 0.1)
               {
                 Fill(255, 127, 127, 255);
               }
@@ -11202,7 +11201,7 @@ void LMRX(int NoButton)
             Text(wscreen * 1.0 / 40.0, hscreen - 6 * linepitch, ServiceProvidertext, font, pointsize);
             Text(wscreen * 1.0 / 40.0, hscreen - 7 * linepitch, Servicetext, font, pointsize);
             Text(wscreen * 1.0 / 40.0, hscreen - 8 * linepitch, Encodingtext, font, pointsize);
-            if (MER < MERThreshold)
+            if (MER < MERThreshold + 0.1)
             {
               Fill(255, 127, 127, 255);
             }
@@ -11581,6 +11580,8 @@ void SARSAT_DECODER()
   char line17[80]="";
   char line18[80]="";
   char line19[80]="";
+  char line20[80]="";
+  char line21[80]="";
   char crc1[80]="";
   char crc2[80]="";
   char end[80]="";
@@ -11634,14 +11635,23 @@ void SARSAT_DECODER()
        {
          strcpy(crc2, line);
        }
-       else
+       else if (strcmp(strTag, "Contenu")!=0)
        {
          strcpy(line1, line);
        }
+
        strcpy(line2, "");
+
+       if (strcmp(strTag, "Scan")==0)
+       {
+         strcpy(line3, "");
+       }
+
        if (strcmp(strTag, "Contenu")==0)
          {
+           nbline=3;
            strcpy(line3, "");
+           strcpy(line3, line);
            strcpy(line4, "");
            strcpy(line5, "");
            strcpy(line6, "");
@@ -11658,6 +11668,8 @@ void SARSAT_DECODER()
            strcpy(line17, "");
            strcpy(line18, "");
            strcpy(line19, "");
+           strcpy(line20, "");
+           strcpy(line21, "");
          }
     }else if (nbline==1){
        nbline++;
@@ -11744,8 +11756,10 @@ void SARSAT_DECODER()
        Text(wscreen * 1.0 / 40.0, hscreen - 12.2 * linepitch, line17, font, pointsize);
        Text(wscreen * 1.0 / 40.0, hscreen - 12.9 * linepitch, line18, font, pointsize);
        Text(wscreen * 1.0 / 40.0, hscreen - 13.6 * linepitch, line19, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 14.3 * linepitch, line20, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 15 * linepitch, line21, font, pointsize);
        Fill(255, 255, 255, 255);
-       Text(wscreen * 1.0 / 40.0, hscreen - 15 * linepitch, end, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 15.7 * linepitch, end, font, pointsize);
        End();
   }
 

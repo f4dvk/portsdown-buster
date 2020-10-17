@@ -88,19 +88,19 @@ while (1) {
     }
     while ($freq_trouvee==0){
 	system("rtl_power -p $ppm -f $f1_scan:$f2_scan:400 -i12 -P -O -1 -e12 -w hamming $powfile 2>/dev/null &");
-	if ( $? == -1 ) {print "Erreur: $!\n";}
+	if ( $? == -1 ) {print "\nErreur: $!";}
 	my $process = qx{ps -C rtl_power | grep rtl_power};
 	my $tps=12;
-	print "Scan $f1_scan...$f2_scan ";
+	print "\nScan $f1_scan...$f2_scan ";
 	$utc = strftime('%d %m %Y   %Hh%Mm%Ss', gmtime);
-	print " $utc UTC ($tps s)\n";
-	print "...PATIENTER...\n";
+	print " $utc UTC ($tps s)";
+	print "\n...PATIENTER...";
 	while ($process ne ''){
 	  sleep 1;
-	  print "Scan $f1_scan...$f2_scan ";
+	  print "\nScan $f1_scan...$f2_scan ";
 	  --$tps;
-	  print " $utc UTC ($tps s)\n";
-	  print "...PATIENTER...\n";
+	  print " $utc UTC ($tps s)";
+	  print "\n...PATIENTER...";
 	  $process = qx{ps -C rtl_power | grep rtl_power};
 	}
 	my $fh;
@@ -140,13 +140,13 @@ while (1) {
 	close $fh;
 
 	if ($num_lines == 0) {
-	    print "[reset dvb-t ...]\n";
+	    print "\n[reset dvb-t ...]";
 	    reset_dvbt();
 	}
 	if ($Maxi>$squelch) {
 	    $freq_trouvee=1;
 	    my $f=$frq/1000000.0;
-	    printf "Fréq: %.3fMHz Niveau: %.1fdB Moyenne: %.1fdB \n",$f,$Maxi,$mean;
+	    printf "\nFréq: %.3fMHz Niveau: %.1fdB Moyenne: %.1fdB ",$f,$Maxi,$mean;
 	    }
 
     }
@@ -157,9 +157,9 @@ while (1) {
       $timeout = "";
       $dec=$dec3;
     }
-    printf "Lancement du Decodage   ";
+    printf "\nLancement du Decodage   ";
     $utc = strftime(' %d %m %Y   %Hh%Mm%Ss', gmtime);
-    printf "$utc UTC\n";
+    printf "$utc UTC";
     system("$timeout rtl_fm -p $ppm -M fm $WFM -s $largeur -f $frq  2>/dev/null |\
 	    sox -t raw -r $largeur -e s -b 16 -c 1 - -t wav - $filter 2>/dev/null |\
 	    $dec ");
