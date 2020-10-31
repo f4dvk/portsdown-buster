@@ -5,7 +5,7 @@ gcc ./dec406_V6.c -lm -o ./dec406_V6
 gcc ./reset_usb.c -lm -o ./reset_usb
 #sudo apt-get install lxterminal
 sudo apt-get -y install sox
-sudo apt-get -y install rtl-sdr
+#sudo apt-get -y install rtl-sdr
 sudo apt-get -y install perl
 sudo apt-get -y install sendemail
 sudo chmod a+x scan406.pl

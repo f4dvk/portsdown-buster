@@ -5864,7 +5864,7 @@ void ApplyTXConfig()
   {
     strcpy(ModeInput, "CARRIER");
   }
-	else if ((strcmp(CurrentModeOP, "JLIME") == 0) || (strcmp(CurrentModeOP, "JEXPRESS") == 0))
+  else if ((strcmp(CurrentModeOP, "JLIME") == 0) || (strcmp(CurrentModeOP, "JEXPRESS") == 0))
   {
     if (strcmp(CurrentSource, "HDMI") == 0)
     {
@@ -8224,6 +8224,7 @@ void TransmitStart()
     ||(strcmp(ModeInput,"WEBCAMHDMPEG-2") == 0)
     ||(strcmp(ModeInput,"C920H264") == 0)
     ||(strcmp(ModeInput,"C920HDH264") == 0)
+    ||(strcmp(ModeInput,"C920FHDH264") == 0)
     ||(strcmp(ModeInput,"JHDMI") == 0)
     ||(strcmp(ModeInput,"JCAM") == 0)
     ||(strcmp(ModeInput,"JPC") == 0)
@@ -8237,15 +8238,15 @@ void TransmitStart()
   // Run the Extrascript for TX start
   system("/home/pi/rpidatv/scripts/TXstartextras.sh &");
 
-  // Call a.sh to transmit
-  system(PATH_SCRIPT_A);
-
   // Run RPI remote
   if (strcmp(ModeOutput,"RPI_R") == 0)
   {
     system("sudo /home/pi/rpidatv/scripts/remote_update.sh >/dev/null 2>/dev/null &");
     system("sudo /home/pi/rpidatv/scripts/TX_remote.sh >/dev/null 2>/dev/null &");
   }
+
+  // Call a.sh to transmit
+  system(PATH_SCRIPT_A);
 }
 
 void *Wait3Seconds(void * arg)
