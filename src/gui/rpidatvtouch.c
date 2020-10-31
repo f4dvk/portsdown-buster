@@ -1116,7 +1116,7 @@ void DisplayUpdateMsg(char* Version, char* Step)
   system(LinuxCommand);
 
   // Kill fbi
-  strcpy(LinuxCommand, "(sleep 1; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
+  strcpy(LinuxCommand, "(sleep 0.2; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
   system(LinuxCommand);
 }
 
@@ -4877,7 +4877,7 @@ void DisplayLogo()
 {
   finish();
   system("sudo fbi -T 1 -noverbose -a \"/home/pi/rpidatv/scripts/images/BATC_Black.png\" >/dev/null 2>/dev/null");
-  system("(sleep 1; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
+  system("(sleep 0.2; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
 }
 
 
@@ -6172,7 +6172,7 @@ void ApplyTXConfig()
   }
   // Replace Contest Numbers or Test Card with BATC Logo
   system("sudo fbi -T 1 -noverbose -a \"/home/pi/rpidatv/scripts/images/BATC_Black.png\" >/dev/null 2>/dev/null");
-  system("(sleep 1; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
+  system("(sleep 0.2; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
 }
 
 void EnforceValidTXMode()
@@ -8076,7 +8076,7 @@ void CompVidStart()
       }
     }
   }
-  system("(sleep 1; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
+  system("(sleep 0.2; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
 }
 
 void CompVidStop()
@@ -14638,8 +14638,8 @@ void waituntil(int w,int h)
     {
       TransmitStop();
       // ReceiveStop();
-      system("sudo fbi -T 1 -noverbose -a /home/pi/rpidatv/scripts/images/BATC_Black.png  >/dev/null 2>/dev/null");  // Add logo image
-      system("(sleep 1; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
+      //system("sudo fbi -T 1 -noverbose -a /home/pi/rpidatv/scripts/images/BATC_Black.png  >/dev/null 2>/dev/null");  // Add logo image
+      //system("(sleep 0.2; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
       init(&wscreen, &hscreen);
       Start(wscreen, hscreen);
       BackgroundRGB(255,255,255,255);
@@ -14731,7 +14731,7 @@ void waituntil(int w,int h)
     {
       ReceiveStop();
       system("sudo fbi -T 1 -noverbose -a /home/pi/rpidatv/scripts/images/BATC_Black.png  >/dev/null 2>/dev/null");  // Add logo image
-      system("(sleep 1; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
+      system("(sleep 0.2; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
       init(&wscreen, &hscreen);
       Start(wscreen, hscreen);
       if (CallingMenu == 1)
@@ -14751,7 +14751,7 @@ void waituntil(int w,int h)
     if (strcmp(ScreenState, "VideoOut") == 0)
     {
       system("sudo fbi -T 1 -noverbose -a /home/pi/rpidatv/scripts/images/BATC_Black.png  >/dev/null 2>/dev/null");  // Add logo image
-      system("(sleep 1; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
+      system("(sleep 0.2; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
       init(&wscreen, &hscreen);
       Start(wscreen, hscreen);
       BackgroundRGB(63, 63, 127, 255);
@@ -14763,7 +14763,7 @@ void waituntil(int w,int h)
     if (strcmp(ScreenState, "SnapView") == 0)
     {
       system("sudo fbi -T 1 -noverbose -a /home/pi/rpidatv/scripts/images/BATC_Black.png  >/dev/null 2>/dev/null");  // Add logo image
-      system("(sleep 1; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
+      system("(sleep 0.2; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
       init(&wscreen, &hscreen);
       Start(wscreen, hscreen);
       BackgroundRGB(0, 0, 0, 255);
@@ -14786,6 +14786,8 @@ void waituntil(int w,int h)
       // Now do the reponses for each Menu in turn
       if (CurrentMenu == 1)  // Main Menu
       {
+        system("sudo fbi -T 1 -noverbose -a /home/pi/rpidatv/scripts/images/BATC_Black.png  >/dev/null 2>/dev/null");  // Add logo image
+	      system("(sleep 0.2; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
         printf("Button Event %d, Entering Menu 1 Case Statement\n",i);
         CallingMenu = 1;
 
@@ -15023,7 +15025,7 @@ void waituntil(int w,int h)
             strcpy(LinuxCommand, "sudo fbi -T 1 -noverbose -a /home/pi/rpidatv/scripts/images/RX_Black.png ");
             strcat(LinuxCommand, ">/dev/null 2>/dev/null");
             system(LinuxCommand);
-            strcpy(LinuxCommand, "(sleep 1; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
+            strcpy(LinuxCommand, "(sleep 0.2; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
             system(LinuxCommand);
             CurrentMenu=8;
             BackgroundRGB(0,0,0,255);
@@ -15968,7 +15970,7 @@ void waituntil(int w,int h)
           strcpy(LinuxCommand, "sudo fbi -T 1 -noverbose -a /home/pi/rpidatv/scripts/images/BATC_Black.png ");
           strcat(LinuxCommand, ">/dev/null 2>/dev/null");
           system(LinuxCommand);
-          strcpy(LinuxCommand, "(sleep 1; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
+          strcpy(LinuxCommand, "(sleep 0.2; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
           system(LinuxCommand);
           CurrentMenu=1;
           BackgroundRGB(255,255,255,255);
@@ -24247,8 +24249,8 @@ int main(int argc, char **argv)
   }
 
   // Show Portsdown Logo
-  system("sudo fbi -T 1 -noverbose -a \"/home/pi/rpidatv/scripts/images/BATC_Black.png\" >/dev/null 2>/dev/null");
-  system("(sleep 1; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
+  //system("sudo fbi -T 1 -noverbose -a \"/home/pi/rpidatv/scripts/images/BATC_Black.png\" >/dev/null 2>/dev/null");
+  //system("(sleep 0.2; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
 
   // Calculate screen parameters
   scaleXvalue = ((float)screenXmax-screenXmin) / wscreen;

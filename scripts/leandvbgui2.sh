@@ -216,7 +216,7 @@ mkfifo videots
 # Make sure that the screen background is all black
 sudo killall fbi >/dev/null 2>/dev/null
 sudo fbi -T 1 -noverbose -a $PATHSCRIPT"/images/Blank_Black.png"
-(sleep 1; sudo killall -9 fbi >/dev/null 2>/dev/null) &  ## kill fbi once it has done its work
+(sleep 0.2; sudo killall -9 fbi >/dev/null 2>/dev/null) &  ## kill fbi once it has done its work
 
 # Pipe the output from rtl-sdr to leandvb.  Then put videots in a fifo.
 

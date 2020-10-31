@@ -344,7 +344,7 @@ fi
 
 # If a boot session, put up the BATC Splash Screen, and then kill the process
 sudo fbi -T 1 -noverbose -a /home/pi/rpidatv/scripts/images/BATC_Black.png >/dev/null 2>/dev/null
-(sleep 1; sudo killall -9 fbi >/dev/null 2>/dev/null) &  ## kill fbi once it has done its work
+(sleep 0.2; sudo killall -9 fbi >/dev/null 2>/dev/null) &  ## kill fbi once it has done its work
 
 # Map the touchscreen event to /dev/input/touchscreen
 
