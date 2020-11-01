@@ -471,6 +471,16 @@ cd /home/pi/rpidatv/scripts/
 sudo cp ./waveshare35a.dtbo /boot/overlays/
 cd /home/pi
 
+# Désactivation bluetooth
+echo
+echo "---------------------------------------------------------"
+echo "--------------- Désactivation Bluetooth -----------------"
+echo "---------------------------------------------------------"
+if ! grep -q dtoverlay=disable-bt /boot/config.txt; then
+  printf "Désactivation bluetooth\n"
+  echo "dtoverlay=disable-bt" | sudo tee -a /boot/config.txt
+fi
+
 DisplayUpdateMsg "Step 9 of 10\nFinishing Off\n\nXXXXXXXXX-"
 
 # Update the version number

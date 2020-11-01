@@ -587,6 +587,9 @@ sudo sed -i 's/^TimeoutStartSec.*/TimeoutStartSec=5/' /etc/systemd/system/networ
 sudo sed -i 's/^#timeout.*/timeout 8;/' /etc/dhcp/dhclient.conf
 sudo sed -i 's/^#retry.*/retry 20;/' /etc/dhcp/dhclient.conf
 
+# Désactivation bluetooth
+echo "dtoverlay=disable-bt" | sudo tee -a /boot/config.txt
+
 sudo chmod -R 777 /home/pi/rpidatv/scripts/
 
 # Save git source used

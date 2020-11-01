@@ -14787,7 +14787,7 @@ void waituntil(int w,int h)
       if (CurrentMenu == 1)  // Main Menu
       {
         system("sudo fbi -T 1 -noverbose -a /home/pi/rpidatv/scripts/images/BATC_Black.png  >/dev/null 2>/dev/null");  // Add logo image
-	      system("(sleep 0.2; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
+        system("(sleep 0.2; sudo killall -9 fbi >/dev/null 2>/dev/null) &");
         printf("Button Event %d, Entering Menu 1 Case Statement\n",i);
         CallingMenu = 1;
 

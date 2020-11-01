@@ -1,3 +1,6 @@
+202011010
+Désactivation Bluetooth
+
 202010310
 Modification tempo kill fbi
 
