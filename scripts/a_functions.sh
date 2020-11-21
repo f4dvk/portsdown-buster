@@ -77,7 +77,7 @@ detect_audio()
   printf "Video Input is $PIC_INPUT \n"
 
   # First check if any audio card is present
-  arecord -l | grep -q 'card'
+  arecord -l | grep -q 'card\|carte'
   if [ $? != 0 ]; then   ## not present
     printf "Audio card not present\n"
     # No known card detected so take the safe option and go for beeps
@@ -98,8 +98,8 @@ detect_audio()
     if [ $? == 0 ]; then   ## Present
       # Look for the dedicated USB Audio Device, select the line and take
       # the 6th character.  Max card number = 8 !!
-      MIC="$(arecord -l | grep -E "USB Audio Device|USB AUDIO|Head|Sound Device" \
-        | head -c 6 | tail -c 1)"
+      MIC="$(arecord -l | grep 'USB Audio Device\|USB AUDIO\|Head\|Sound Device' \
+        | awk -F'[:]' '{print$1}' | cut -d' ' -f2)"
     fi
 
     # Check for the presence of a Video dongle with audio
@@ -108,9 +108,9 @@ detect_audio()
     if [ $? == 0 ]; then   ## Present
       # Look for the video dongle, select the line and take
       # the 6th character.  Max card number = 8 !!
-      USBTV="$(arecord -l | grep -E \
-        "usbtv|U0x534d0x21|DVC90|Cx231xxAudio|STK1160|U0xeb1a0x2861|AV TO USB|Grabby" \
-        | head -c 6 | tail -c 1)"
+      USBTV="$(arecord -l | grep \
+        'usbtv\|U0x534d0x21\|DVC90\|Cx231xxAudio\|STK1160\|U0xeb1a0x2861\|AV TO USB\|Grabby' \
+        | awk -F'[:]' '{print$1}' | cut -d' ' -f2)"
     fi
 
     C920Present=0
@@ -121,9 +121,9 @@ detect_audio()
       C920Present=1
       # Look for the video dongle, select the line and take
       # the 6th character.  Max card number = 8 !!
-      WCAM="$(arecord -l | grep -E \
-        "Webcam C920" \
-        | head -c 6 | tail -c 1)"
+      WCAM="$(arecord -l | grep \
+        'Webcam C920' \
+        | awk -F'[:]' '{print$1}' | cut -d' ' -f2)"
       WC_AUDIO_CHANNELS=2
       WC_AUDIO_SAMPLE=48000
       WC_VIDEO_FPS=30
@@ -137,9 +137,9 @@ detect_audio()
       C910Present=1
       # Look for the video dongle, select the line and take
       # the 6th character.  Max card number = 8 !!
-      WCAM="$(arecord -l | grep -E \
-        "U0x46d0x821" \
-        | head -c 6 | tail -c 1)"
+      WCAM="$(arecord -l | grep \
+        'U0x46d0x821' \
+        | awk -F'[:]' '{print$1}' | cut -d' ' -f2)"
       WC_AUDIO_CHANNELS=2
       WC_AUDIO_SAMPLE=48000
       WC_VIDEO_FPS=30
@@ -152,9 +152,9 @@ detect_audio()
       C910Present=1
       # Look for the video dongle, select the line and take
       # the 6th character.  Max card number = 8 !!
-      WCAM="$(arecord -l | grep -E \
-        "U0x46d0x823" \
-        | head -c 6 | tail -c 1)"
+      WCAM="$(arecord -l | grep \
+        'U0x46d0x823' \
+        | awk -F'[:]' '{print$1}' | cut -d' ' -f2)"
       WC_AUDIO_CHANNELS=2
       WC_AUDIO_SAMPLE=32000
       WC_VIDEO_FPS=30
@@ -168,9 +168,9 @@ detect_audio()
       C170Present=1
       # Look for the video dongle, select the line and take
       # the 6th character.  Max card number = 8 !!
-      WCAM="$(arecord -l | grep -E \
-        "Webcam C525|Webcam C170" \
-        | head -c 6 | tail -c 1)"
+      WCAM="$(arecord -l | grep \
+        'Webcam C525\|Webcam C170' \
+        | awk -F'[:]' '{print$1}' | cut -d' ' -f2)"
       WC_AUDIO_CHANNELS=1
       WC_AUDIO_SAMPLE=48000
       WC_VIDEO_FPS=24
@@ -184,9 +184,9 @@ detect_audio()
       C270Present=1
       # Look for the video dongle, select the line and take
       # the 6th character.  Max card number = 8 !!
-      WCAM="$(arecord -l | grep -E \
-        "U0x46d0x825" \
-        | head -c 6 | tail -c 1)"
+      WCAM="$(arecord -l | grep \
+        'U0x46d0x825' \
+        | awk -F'[:]' '{print$1}' | cut -d' ' -f2)"
       WC_AUDIO_CHANNELS=1
       WC_AUDIO_SAMPLE=48000
       WC_VIDEO_FPS=25
@@ -200,9 +200,9 @@ detect_audio()
       C310Present=1
       # Look for the video dongle, select the line and take
       # the 6th character.  Max card number = 8 !!
-      WCAM="$(arecord -l | grep -E \
-        "U0x46d0x81b" \
-        | head -c 6 | tail -c 1)"
+      WCAM="$(arecord -l | grep \
+        'U0x46d0x81b' \
+        | awk -F'[:]' '{print$1}' | cut -d' ' -f2)"
       WC_AUDIO_CHANNELS=1
       WC_AUDIO_SAMPLE=48000
       WC_VIDEO_FPS=25

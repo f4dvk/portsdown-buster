@@ -991,7 +991,7 @@ fi
         fi
       fi
       if [ $C170Present == 1 ]; then
-        AUDIO_CARD=0   # Can't get sound to work at present
+        #AUDIO_CARD=0   # Can't get sound to work at present
         if [ "$BITRATE_VIDEO" -gt 190000 ]; then  # 333KS FEC 1/2 or better
           v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=640,height=480,pixelformat=0 --set-parm=10
           VIDEO_WIDTH=640

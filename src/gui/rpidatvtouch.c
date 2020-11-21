@@ -9023,7 +9023,7 @@ void ProcessLeandvb2()
   int ok = false;
   unsigned long time;
   unsigned long top;
-  #define PATH_SCRIPT_LEAN2 "sudo /home/pi/rpidatv/scripts/leandvbgui2.sh 2>&1"
+  #define PATH_SCRIPT_LEAN2 "/home/pi/rpidatv/scripts/leandvbgui2.sh 2>&1"
 
   if (strcmp(ModeOutput, "RPI_R") == 0)
   {

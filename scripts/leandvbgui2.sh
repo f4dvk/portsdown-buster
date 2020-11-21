@@ -5,7 +5,6 @@
 # Set the look-up files
 PATHBIN="/home/pi/rpidatv/bin/"
 PATHSCRIPT="/home/pi/rpidatv/scripts"
-CONFIGFILE=$PATHSCRIPT"/rpidatvconfig.txt"
 PCONFIGFILE="/home/pi/rpidatv/scripts/portsdown_config.txt"
 RCONFIGFILE="/home/pi/rpidatv/scripts/longmynd_config.txt"
 RXPRESETSFILE="/home/pi/rpidatv/scripts/rx_presets.txt"

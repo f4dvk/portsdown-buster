@@ -1,3 +1,6 @@
+202011210
+Correction problème détection carte son si rpi en FR
+
 202011010
 Désactivation Bluetooth
 
