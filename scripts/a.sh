@@ -925,7 +925,7 @@ fi
   ;;
 
   #============================================ ANALOG and WEBCAM H264 =============================================================
-  "ANALOGCAM" | "WEBCAMH264")
+  "ANALOGCAM" | "WEBCAMH264" | "HDMIUSB")
 
   # Allow for experimental widescreen
   FORMAT=$(get_config_var format $PCONFIGFILE)
@@ -945,6 +945,9 @@ fi
       if [ "$ANALOGCAMSTANDARD" != "-" ]; then
         v4l2-ctl -d $ANALOGCAMNAME "--set-standard="$ANALOGCAMSTANDARD
       fi
+    elif [ "$MODE_INPUT" == "HDMIUSB" ]; then
+      v4l2-ctl --device=$VID_HDMI --set-fmt-video=width=720,height=576,pixelformat=1 --set-parm=25 # 720x480 30fps ou 720x576 25 fps
+      ANALOGCAMNAME=$VID_HDMI
     else
       # Webcam in use, so set parameters depending on camera in use
 
@@ -998,8 +1001,8 @@ fi
           VIDEO_HEIGHT=480
           VIDEO_FPS=10 # This webcam only seems to work at 10 fps
         else
-          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=352,height=288,pixelformat=0 --set-parm=10
-          VIDEO_WIDTH=352
+          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=384,height=288,pixelformat=0 --set-parm=10
+          VIDEO_WIDTH=384
           VIDEO_HEIGHT=288
           VIDEO_FPS=10 # This webcam only seems to work at 10 fps
         fi

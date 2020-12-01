@@ -56,6 +56,7 @@ detect_audio()
   MIC=9
   USBTV=9
   WCAM=9
+  HDMI=9
 
   printf "Audio selection = $AUDIO_PREF \n"
 
@@ -68,6 +69,9 @@ detect_audio()
   "WEBCAMH264" | "WEBCAMMPEG-2" | "WEBCAM16MPEG-2" | "WEBCAMHDMPEG-2" \
   | "C920H264" | "C920HDH264" | "C920FHDH264")
     PIC_INPUT="WEBCAM"
+  ;;
+  "HDMIUSB")
+    PIC_INPUT="HDMI"
   ;;
   *)
     PIC_INPUT="DIGITAL"
@@ -99,6 +103,16 @@ detect_audio()
       # Look for the dedicated USB Audio Device, select the line and take
       # the 6th character.  Max card number = 8 !!
       MIC="$(arecord -l | grep 'USB Audio Device\|USB AUDIO\|Head\|Sound Device' \
+        | awk -F'[:]' '{print$1}' | cut -d' ' -f2)"
+    fi
+
+    # Check for the presence of a HDMI Video dongle with audio
+    arecord -l | grep -E -q "MS2109"
+    if [ $? == 0 ]; then   ## Present
+      # Look for the video dongle, select the line and take
+      # the 6th character.  Max card number = 8 !!
+      HDMI="$(arecord -l | grep \
+        'MS2109' \
         | awk -F'[:]' '{print$1}' | cut -d' ' -f2)"
     fi
 
@@ -211,6 +225,7 @@ detect_audio()
     printf "MIC = $MIC\n"
     printf "USBTV = $USBTV\n"
     printf "WCAM = $WCAM\n"
+    printf "HDMI= $HDMI\n"
 
     # At least one card detected, so sort out what card parameters are used
     case "$AUDIO_PREF" in
@@ -257,6 +272,23 @@ detect_audio()
               AUDIO_CHANNELS=$WC_AUDIO_CHANNELS
               AUDIO_SAMPLE=$WC_AUDIO_SAMPLE
             elif [ "$MIC" != "9" ] && [ "$WCAM" == "9" ]; then # Webcam not available, but Mic is
+              AUDIO_CARD=1                                  # so use Mic audio
+              AUDIO_CARD_NUMBER=$MIC
+              AUDIO_CHANNELS=1
+              AUDIO_SAMPLE=48000
+            else                                            # Neither available
+              AUDIO_CARD=0                                  # So no audio
+              AUDIO_CHANNELS=0
+              AUDIO_SAMPLE=44100
+            fi
+          ;;
+          "HDMI")                                         # Using Webcam video
+            if [ "$HDMI" != "9" ]; then                   # Webcam Audio available
+              AUDIO_CARD=1                                # So use Webcam audio
+              AUDIO_CARD_NUMBER=$HDMI
+              AUDIO_CHANNELS=1
+              AUDIO_SAMPLE=48000
+            elif [ "$MIC" != "9" ] && [ "$HDMI" == "9" ]; then # Webcam not available, but Mic is
               AUDIO_CARD=1                                  # so use Mic audio
               AUDIO_CARD_NUMBER=$MIC
               AUDIO_CHANNELS=1
@@ -376,6 +408,17 @@ detect_video()
 
   printf "The first Webcam device string is $VID_WEBCAM\n"
 
+  # HDMI USB
+
+  lsusb 2> /dev/null | grep -q '534d:2109'
+
+  if [ $? == 0 ]; then
+    VID_HDMI="$(v4l2-ctl --list-devices 2> /dev/null | \
+      sed -n '/USB/,/dev/p' | grep 'dev' | tr -d '\t')"
+  fi
+
+  printf "The first HDMI USB dongle string is $VID_HDMI\n"
+
   # List the video devices, select the 2 lines for any usb device, then
   # select the line with the device details and delete the leading tab
   VID_USB1="$(v4l2-ctl --list-devices 2> /dev/null | \
@@ -387,12 +430,12 @@ detect_video()
     sed -n '/usb/,/dev/p' | grep 'dev' | tr -d '\t' | tail -n1)"
   printf "The second USB device string is $VID_USB2\n"
 
-  if [ "$VID_USB1" != "$VID_WEBCAM" ]; then
+  if [ "$VID_USB1" != "$VID_WEBCAM" ] && [ "$VID_USB1" != "$VID_HDMI" ]; then
     VID_USB=$VID_USB1
   printf "The first test passed"
   fi
 
-  if [ "$VID_USB2" != "$VID_WEBCAM" ]; then
+  if [ "$VID_USB2" != "$VID_WEBCAM" ] && [ "$VID_USB2" != "$VID_HDMI" ]; then
     VID_USB=$VID_USB2
   printf "The second test passed"
   fi
@@ -415,8 +458,13 @@ detect_video()
     printf "VID_WEBCAM was not found, setting to /dev/video2\n"
     VID_WEBCAM="/dev/video2"
   fi
+  if [ "$VID_HDMI" == '' ]; then
+    printf "VID_HDMI was not found, setting to /dev/video2\n"
+    VID_HDMI="/dev/video2"
+  fi
 
   printf "The PI-CAM device string is $VID_PICAM\n"
   printf "The USB device string is $VID_USB\n"
   printf "The Webcam device string is $VID_WEBCAM\n"
+  printf "The HDMI USB dongle string is $VID_HDMI\n"
 }

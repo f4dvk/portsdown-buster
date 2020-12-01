@@ -1,3 +1,6 @@
+202012010
+Ajout entrée HDMI Usb (expérimental)
+
 202011210
 Correction problème détection carte son si rpi en FR
 
