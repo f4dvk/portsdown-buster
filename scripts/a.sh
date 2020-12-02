@@ -946,7 +946,7 @@ fi
         v4l2-ctl -d $ANALOGCAMNAME "--set-standard="$ANALOGCAMSTANDARD
       fi
     elif [ "$MODE_INPUT" == "HDMIUSB" ]; then
-      v4l2-ctl --device=$VID_HDMI --set-fmt-video=width=720,height=576,pixelformat=1 --set-parm=25 # 720x480 30fps ou 720x576 25 fps
+      v4l2-ctl --device=$VID_HDMI --set-fmt-video=width=720,height=480,pixelformat=1 --set-parm=30 # 720x576 25, 20, 10 ou 5 fps // 720x480 30, 20, 10 ou 5 fps
       ANALOGCAMNAME=$VID_HDMI
     else
       # Webcam in use, so set parameters depending on camera in use
