@@ -2057,7 +2057,10 @@ void ReadModeInput(char coding[256], char vsource[256])
     strcpy(coding, "H264");
     strcpy(vsource, "HDMI Usb");
     strcpy(CurrentEncoding, "H264");
-    strcpy(CurrentFormat, "4:3");
+    if(strcmp(CurrentFormat, "16:9") != 0) // Test format 16:9
+    {
+      strcpy(CurrentFormat, "4:3");
+    }
     strcpy(CurrentSource, TabSource[10]); // HDMI Usb
   }
   else
