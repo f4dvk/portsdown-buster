@@ -6883,13 +6883,13 @@ void SelectSource(int NoButton)  // Video Source
 {
   SelectInGroupOnMenu(CurrentMenu, 5, 9, NoButton, 1);
   SelectInGroupOnMenu(CurrentMenu, 0, 3, NoButton, 1);
-  if (NoButton < 4) // allow for reverse numbering of rows
-  {
-    NoButton = NoButton + 10;
-  }
   if (NoButton >= 10) // allow for reverse numbering of rows
   {
     NoButton = NoButton + 5;
+  }
+  if (NoButton < 4) // allow for reverse numbering of rows
+  {
+    NoButton = NoButton + 10;
   }
   strcpy(CurrentSource, TabSource[NoButton - 5]);
   ApplyTXConfig();
