@@ -374,7 +374,7 @@ if [ "$MODE_INPUT" == "CAMMPEG-2" ] || [ "$MODE_INPUT" == "ANALOGMPEG-2" ] \
       VIDEO_HEIGHT=276
     else
       if [ "$BITRATE_VIDEO" -lt 300000 ]; then
-        VIDEO_WIDTH=384
+        VIDEO_WIDTH=352
         VIDEO_HEIGHT=288
       else
         VIDEO_WIDTH=720
@@ -578,7 +578,7 @@ case "$MODE_INPUT" in
         VIDEO_WIDTH=768
         VIDEO_HEIGHT=576
       else
-        VIDEO_WIDTH=384
+        VIDEO_WIDTH=352
         VIDEO_HEIGHT=288
       fi
       if [ "$BITRATE_VIDEO" -lt 100000 ]; then
@@ -1001,8 +1001,8 @@ fi
           VIDEO_HEIGHT=480
           VIDEO_FPS=10 # This webcam only seems to work at 10 fps
         else
-          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=384,height=288,pixelformat=0 --set-parm=10
-          VIDEO_WIDTH=384
+          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=352,height=288,pixelformat=0 --set-parm=10
+          VIDEO_WIDTH=352
           VIDEO_HEIGHT=288
           VIDEO_FPS=10 # This webcam only seems to work at 10 fps
         fi
