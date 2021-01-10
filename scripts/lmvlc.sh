@@ -83,7 +83,7 @@ sudo killall vlc >/dev/null 2>/dev/null
 sudo rm longmynd_main_ts >/dev/null 2>/dev/null
 mkfifo longmynd_main_ts
 
-sudo /home/pi/longmynd/longmynd -s longmynd_status_fifo -g $GAIN_T -S $SCAN $VOLTS_CMD $INPUT_CMD $FREQ_KHZ $SYMBOLRATEK &
+sudo /home/pi/longmynd/longmynd -s longmynd_status_fifo -r -1 -g $GAIN_T -S $SCAN $VOLTS_CMD $INPUT_CMD $FREQ_KHZ $SYMBOLRATEK &
 
 if [ "$DISPLAY" == "Element14_7" ]; then
   cvlc -I rc --rc-host 127.0.0.1:1111 -f --no-video-title-show \

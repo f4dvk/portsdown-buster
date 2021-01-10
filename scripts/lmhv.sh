@@ -74,7 +74,7 @@ mkfifo fifo.264
 sudo rm longmynd_main_ts
 mkfifo longmynd_main_ts
 
-sudo /home/pi/longmynd/longmynd -s longmynd_status_fifo -g $GAIN_T -S $SCAN $VOLTS_CMD $INPUT_CMD $FREQ_KHZ $SYMBOLRATEK &
+sudo /home/pi/longmynd/longmynd -s longmynd_status_fifo -r -1 -g $GAIN_T -S $SCAN $VOLTS_CMD $INPUT_CMD $FREQ_KHZ $SYMBOLRATEK &
 
 sleep 1  # Required for good start every time
 

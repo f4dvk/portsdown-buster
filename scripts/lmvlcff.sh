@@ -107,7 +107,7 @@ sudo rm longmynd_main_ts >/dev/null 2>/dev/null
 mkfifo longmynd_main_ts
 
 # Start LongMynd
-sudo /home/pi/longmynd/longmynd -s longmynd_status_fifo -g $GAIN_T -S $SCAN $VOLTS_CMD $INPUT_CMD $FREQ_KHZ $SYMBOLRATEK &
+sudo /home/pi/longmynd/longmynd -s longmynd_status_fifo -r -1 -g $GAIN_T -S $SCAN $VOLTS_CMD $INPUT_CMD $FREQ_KHZ $SYMBOLRATEK &
 
 # Start VLC
 if [ "$DISPLAY" == "Element14_7" ]; then
