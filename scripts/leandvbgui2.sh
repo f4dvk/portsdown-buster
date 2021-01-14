@@ -126,10 +126,47 @@ PARAMS=$(get_config_var rx0parameters $RXPRESETSFILE)
 
 SOUND=$(get_config_var rx0sound $RXPRESETSFILE)
 AUDIO_OUT=$(get_config_var audio $RCONFIGFILE)
+#if [ "$AUDIO_OUT" == "rpi" ]; then
+#  AUDIO_MODE="local"
+#else
+#  AUDIO_MODE="alsa:plughw:1,0"
+#fi
+
+RPIJ_AUDIO_DEV="$(aplay -l 2> /dev/null | grep 'Headphones' | cut -c6-6)"
+
+if [ "$RPIJ_AUDIO_DEV" == '' ]; then
+  RPIJ_AUDIO_DEV="$(aplay -l 2> /dev/null | grep 'bcm2835 ALSA' | cut -c6-6)"
+  if [ "$RPIJ_AUDIO_DEV" == '' ]; then
+    printf "RPi Jack audio device was not found, setting to 0\n"
+    RPIJ_AUDIO_DEV="0"
+  fi
+fi
+
+# Take only the first character
+RPIJ_AUDIO_DEV="$(echo $RPIJ_AUDIO_DEV | cut -c1-1)"
+
+echo "The RPi Jack Audio Card number is -"$RPIJ_AUDIO_DEV"-"
+
+###################################################################
+
+USBOUT_AUDIO_DEV="$(aplay -l 2> /dev/null | grep 'USB Audio' | cut -c6-6)"
+
+if [ "$USBOUT_AUDIO_DEV" == '' ]; then
+  printf "USB Dongle audio device was not found, setting to RPi Jack\n"
+  USBOUT_AUDIO_DEV=$RPIJ_AUDIO_DEV
+fi
+
+# Take only the first character
+USBOUT_AUDIO_DEV="$(echo $USBOUT_AUDIO_DEV | cut -c1-1)"
+
+echo "The USB Dongle Audio Card number is -"$USBOUT_AUDIO_DEV"-"
+
+###################################################################
+
 if [ "$AUDIO_OUT" == "rpi" ]; then
-  AUDIO_MODE="local"
+  AUDIO_OUT_DEV=$RPIJ_AUDIO_DEV
 else
-  AUDIO_MODE="alsa:plughw:1,0"
+  AUDIO_OUT_DEV=$USBOUT_AUDIO_DEV
 fi
 
 FLOCK=$(get_config_var rx0fastlock $RXPRESETSFILE)
@@ -260,14 +297,14 @@ if [ "$ETAT" = "OFF" ] && [ "$1" != "-remote" ]; then
 # Play the es from fifo.264 in either the H264 or MPEG-2 player.
   if [ "$ENCODING" = "H264" ]; then
     if [ "$SOUND" = "ON" ]; then
-      omxplayer --vol 600 --adev $AUDIO_MODE --live --layer 0 --timeout 0 videots &
+      omxplayer --vol 600 --adev alsa:plughw:"$AUDIO_OUT_DEV",0 --live --layer 0 --timeout 0 videots &
     else
       $PATHBIN"ts2es" -video videots fifo.264 &
       $PATHBIN"hello_video.bin" fifo.264 &
     fi
   else  # MPEG-2
     if [ "$SOUND" = "ON" ]; then
-      omxplayer --vol 600 --adev $AUDIO_MODE --live --layer 0 --timeout 0 videots &
+      omxplayer --vol 600 --adev alsa:plughw:"$AUDIO_OUT_DEV",0 --live --layer 0 --timeout 0 videots &
     else
       $PATHBIN"ts2es" -video videots fifo.264 &
       $PATHBIN"hello_video2.bin" fifo.264 &
