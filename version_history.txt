@@ -1,3 +1,7 @@
+202101160
+Filtre RRC leandvb
+Tempo PTT lime de 8s à 10s
+
 202101091
 Restauration format vidéo
 

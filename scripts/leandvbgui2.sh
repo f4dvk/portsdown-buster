@@ -262,25 +262,25 @@ if [ "$MODE_OUTPUT" != "RPI_R" ]; then
   # Constellation and Parameters on
   if [ "$GRAPHICS" = "ON" ] && [ "$PARAMS" = "ON" ] && [ "$ETAT" = "OFF" ]; then
     sudo $KEY\
-      | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
+      | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST --sampler rrc --rrc-steps 35 --rrc-rej 10 --roll-off 0.35 -f $SR_RTLSDR >videots 3>fifo.iq &
   fi
 
   # Constellation on, Parameters off
   if [ "$GRAPHICS" = "ON" ] && [ "$PARAMS" = "OFF" ] && [ "$ETAT" = "OFF" ]; then
     sudo $KEY\
-      | $PATHBIN"leandvb" $B --fd-pp 3 --fd-const 2 $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
+      | $PATHBIN"leandvb" $B --fd-pp 3 --fd-const 2 $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST --sampler rrc --rrc-steps 35 --rrc-rej 10 --roll-off 0.35 -f $SR_RTLSDR >videots 3>fifo.iq &
   fi
 
   # Constellation off, Parameters on
   if [ "$GRAPHICS" = "OFF" ] && [ "$PARAMS" = "ON" ] && [ "$ETAT" = "OFF" ]; then
     sudo $KEY\
-      | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>fifo.iq &
+      | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST --sampler rrc --rrc-steps 35 --rrc-rej 10 --roll-off 0.35 -f $SR_RTLSDR >videots 3>fifo.iq &
   fi
 
   # Constellation and Parameters off
   if [[ "$GRAPHICS" = "OFF" && "$PARAMS" = "OFF" ]] || [ "$ETAT" = "ON" ]; then
     sudo $KEY\
-      | $PATHBIN"leandvb" $B $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST -f $SR_RTLSDR >videots 3>/dev/null &
+      | $PATHBIN"leandvb" $B $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --const $CONST --sampler rrc --rrc-steps 35 --rrc-rej 10 --roll-off 0.35 -f $SR_RTLSDR >videots 3>/dev/null &
   fi
 
 else
