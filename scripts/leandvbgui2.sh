@@ -206,7 +206,7 @@ if [ "$SDR" = "RTLSDR" ]; then
   B=""
 fi
 if [ "$SDR" = "LIMEMINI" ]; then
-  KEY="/home/pi/rpidatv/bin/limesdr_dump -f $FreqHz -b 5e6 -s $SR_RTLSDR -r $UPSAMPLE_RX -g $GAIN_LIME -l 256*256 |buffer"
+  KEY="/home/pi/rpidatv/bin/limesdr_dump -f $FreqHz -b 5e6 -s $SR_RTLSDR -r $UPSAMPLE_RX -g $GAIN_LIME -l 1024*1024 | buffer"
   B="--s12"
 fi
 
