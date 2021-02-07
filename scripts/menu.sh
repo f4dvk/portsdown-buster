@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version 201802040
+# Version 201902250
 
 ############ Set Environment Variables ###############
 
@@ -14,7 +14,6 @@ RTLPRESETSFILE="/home/pi/rpidatv/scripts/rtl-fm_presets.txt"
 PATH_PPRESETS="/home/pi/rpidatv/scripts/portsdown_presets.txt"
 PATH_STREAMPRESETS="/home/pi/rpidatv/scripts/stream_presets.txt"
 PATH_HOTSPOT="/home/pi/rpidatv/scripts/hotspot_config.txt"
-RCONFIGFILE="/home/pi/rpidatv/scripts/longmynd_config.txt"
 PATH_LIME_CAL="/home/pi/rpidatv/scripts/limecalfreq.txt"
 
 
@@ -128,7 +127,7 @@ fi
 RET=$?
 if [ $RET -eq 1 ]; then
 ## This is the section where you control what happens when the user hits Cancel
-Cancel
+Cancel	
 elif [ $RET -eq 0 ]; then
 	if [[ -d "/$1$pathselect" ]]; then
 		Pathbrowser "/$1$pathselect"
@@ -136,7 +135,7 @@ elif [ $RET -eq 0 ]; then
 		## Do your thing here, this is just a stub of the code I had to do what I wanted the script to do.
 		fileout=`file "$1$pathselect"`
 		filenametemp=`readlink -m $1$pathselect`
-		filename=`dirname $filenametemp`
+		filename=`dirname $filenametemp` 
 
 	else
 		echo pathselect $1$pathselect
@@ -558,91 +557,6 @@ do_station_setup()
   fi
 }
 
-do_modulation_setup()
-{
-  MODULATION=$(get_config_var modulation $PCONFIGFILE)
-  MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
-
-  if [ "$MODE_OUTPUT" == "LIMEMINI" ] || [ "$MODE_OUTPUT" == "LIMEUSB" ] ; then
-   case "$MODULATION" in
-    DVB-S)
-      Radio1=ON
-      Radio2=OFF
-      Radio3=OFF
-      Radio4=OFF
-      Radio5=OFF
-    ;;
-    S2QPSK)
-      Radio1=OFF
-      Radio2=ON
-      Radio3=OFF
-      Radio4=OFF
-      Radio5=OFF
-    ;;
-    8PSK)
-      Radio1=OFF
-      Radio2=OFF
-      Radio3=ON
-      Radio4=OFF
-      Radio5=OFF
-    ;;
-    16APSK)
-      Radio1=OFF
-      Radio2=OFF
-      Radio3=OFF
-      Radio4=ON
-      Radio5=OFF
-    ;;
-    32APSK)
-      Radio1=OFF
-      Radio2=OFF
-      Radio3=OFF
-      Radio4=OFF
-      Radio5=ON
-    ;;
-    *)
-      Radio1=ON
-      Radio2=OFF
-      Radio3=OFF
-      Radio4=OFF
-      Radio5=OFF
-   ;;
-   esac
-   chmodulation=$(whiptail --title "Modulation" --radiolist \
-     "Modulation" 20 78 10 \
-     "DVB-S" "" $Radio1 \
-     "S2QPSK" "" $Radio2 \
-     "8PSK" "" $Radio3 \
-     "16APSK" "" $Radio4 \
-     "32APSK" "" $Radio5 \
-     3>&2 2>&1 1>&3)
-
-  else
-
-   case "$MODULATION" in
-   DVB-S)
-     Radio1=ON
-   ;;
-   *)
-     Radio1=ON
-   ;;
-   esac
-   chmodulation=$(whiptail --title "Modulation" --radiolist \
-     "Modulation" 20 78 10 \
-     "DVB-S" "" $Radio1 \
-     3>&2 2>&1 1>&3)
-  fi
-
-  if [ $? -eq 0 ]; then
-    set_config_var modulation "$chmodulation" $PCONFIGFILE
-    if [ $chmodulation = "DVB-S" ] ; then
-     set_config_var fec "7" $PCONFIGFILE
-    else
-     set_config_var fec "91" $PCONFIGFILE
-    fi
-  fi
-}
-
 do_output_setup_mode()
 {
   MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
@@ -678,7 +592,7 @@ do_output_setup_mode()
     Radio6=ON
   ;;
   IP)
-    Radio7=ON
+    Radio6=ON
   ;;
   COMPVID)
     Radio8=ON
@@ -791,32 +705,16 @@ do_output_setup_mode()
       :
     ;;
     LIMEMINI)
-      LIME_GAIN=$(get_config_var limegain $PCONFIGFILE)
-      GAIN=$(whiptail --inputbox "Lime Gain" 8 78 $LIME_GAIN --title "Lime Gain" 3>&1 1>&2 2>&3)
-      if [ $? -eq 0 ]; then
-       if [ "$GAIN" > "100" ] ; then
-        GAIN=100
-       fi
-        set_config_var limegain "$GAIN" $PCONFIGFILE
-      fi
+      :
     ;;
     LIMEUSB)
-      LIME_GAIN=$(get_config_var limegain $PCONFIGFILE)
-      GAIN=$(whiptail --inputbox "Lime Gain" 8 78 $LIME_GAIN --title "Lime Gain" 3>&1 1>&2 2>&3)
-      if [ $? -eq 0 ]; then
-       if [ "$GAIN" > "100" ] ; then
-        GAIN=100
-       fi
-        set_config_var limegain "$GAIN" $PCONFIGFILE
-      fi
+      :
     ;;
     LIMEDVB)
       :
     ;;
     esac
     set_config_var modeoutput "$choutput" $PCONFIGFILE
-    set_config_var modulation "DVB-S" $PCONFIGFILE
-    set_config_var fec "7" $PCONFIGFILE
   fi
 }
 
@@ -829,230 +727,169 @@ do_symbolrate_setup()
   fi
 }
 
+
+do_fec_lookup()
+{
+  case "$FEC" in
+  1) 
+    FECNUM=1
+    FECDEN=2
+  ;;
+  2)
+    FECNUM=2
+    FECDEN=3
+  ;;
+  3)
+    FECNUM=3
+    FECDEN=4
+  ;;
+  5)
+    FECNUM=5
+    FECDEN=6
+  ;;
+  7)
+    FECNUM=7
+    FECDEN=8
+  ;;
+  14)
+    FECNUM=1
+    FECDEN=4
+  ;;
+  13)
+    FECNUM=1
+    FECDEN=3
+  ;;
+  12)
+    FECNUM=1
+    FECDEN=2
+  ;;
+  35)
+    FECNUM=3
+    FECDEN=5
+  ;;
+  23)
+    FECNUM=2
+    FECDEN=3
+  ;;
+  34)
+    FECNUM=3
+    FECDEN=4
+  ;;
+  56)
+    FECNUM=5
+    FECDEN=6
+  ;;
+  89)
+    FECNUM=8
+    FECDEN=9
+  ;;
+  91)
+    FECNUM=9
+    FECDEN=10
+  ;;
+  *)
+    FECNUM=0
+    FECDEN=0
+  ;;
+  esac
+}
+
+
 do_fec_setup()
 {
-	FEC=$(get_config_var fec $PCONFIGFILE)
-	MODULATION=$(get_config_var modulation $PCONFIGFILE)
+  Radio1=OFF
+  Radio2=OFF
+  Radio3=OFF
+  Radio4=OFF
+  Radio5=OFF
+  Radio6=OFF
+  Radio7=OFF
+  Radio8=OFF
+  Radio9=OFF
+  Radio10=OFF
+  Radio11=OFF
+  Radio12=OFF
+  Radio13=OFF
+  Radio14=OFF
 
-	if [ "$MODULATION" == "DVB-S" ] ; then
-	 case "$FEC" in
-	 1)
-	 Radio1=ON
-	 Radio2=OFF
-	 Radio3=OFF
-	 Radio4=OFF
-	 Radio5=OFF
-	 ;;
-	 2)
-	 Radio1=OFF
-	 Radio2=ON
-	 Radio3=OFF
-	 Radio4=OFF
-	 Radio5=OFF
-	 ;;
-	 3)
-	 Radio1=OFF
-	 Radio2=OFF
-	 Radio3=ON
-	 Radio4=OFF
-	 Radio5=OFF
-	 ;;
-	 5)
-	 Radio1=OFF
-	 Radio2=OFF
-	 Radio3=OFF
-	 Radio4=ON
-	 Radio5=OFF
-	 ;;
-	 7)
-	 Radio1=OFF
-	 Radio2=OFF
-	 Radio3=OFF
-	 Radio4=OFF
-	 Radio5=ON
-	 ;;
-	 *)
-	 Radio1=ON
-	 Radio2=OFF
-	 Radio3=OFF
-	 Radio4=OFF
-	 Radio5=OFF
-	 ;;
-	 esac
-	 FEC=$(whiptail --title "$StrOutputFECTitle" --radiolist \
-		"$StrOutputFECContext" 20 78 8 \
-		"1" "1/2" $Radio1 \
-		"2" "2/3" $Radio2 \
-		"3" "3/4" $Radio3 \
-		"5" "5/6" $Radio4 \
-		"7" "7/8" $Radio5 3>&2 2>&1 1>&3)
+  FEC=$(get_config_var fec $PCONFIGFILE)
+  case "$FEC" in
+  1) 
+    Radio1=ON
+  ;;
+  2)
+    Radio2=ON
+  ;;
+  3)
+    Radio3=ON
+  ;;
+  5)
+    Radio4=ON
+  ;;
+  7)
+    Radio5=ON
+  ;;
+  14)
+    Radio6=ON
+  ;;
+  13)
+    Radio7=ON
+  ;;
+  12)
+    Radio8=ON
+  ;;
+  35)
+    Radio9=ON
+  ;;
+  23)
+    Radio10=ON
+  ;;
+  34)
+    Radio11=ON
+  ;;
+  56)
+    Radio12=ON
+  ;;
+  89)
+    Radio13=ON
+  ;;
+  91)
+    Radio14=ON
+  ;;
+  *)
+    Radio1=ON
+  ;;
+  esac
 
-	else
+  FEC=$(whiptail --title "$StrOutputFECTitle" --radiolist \
+    "$StrOutputFECContext" 20 78 14 \
+    "1" "DVB-S or DVB-T FEC 1/2" $Radio1 \
+    "2" "DVB-S or DVB-T FEC 2/3" $Radio2 \
+    "3" "DVB-S or DVB-T FEC 3/4" $Radio3 \
+    "5" "DVB-S or DVB-T FEC 5/6" $Radio4 \
+    "7" "DVB-S or DVB-T FEC 7/8" $Radio5 \
+    "14" "DVB-S2 QPSK FEC 1/4" $Radio6 \
+    "13" "DVB-S2 QPSK FEC 1/3" $Radio7 \
+    "12" "DVB-S2 QPSK FEC 1/2" $Radio8 \
+    "35" "DVB-S2 FEC 3/5" $Radio9 \
+    "23" "DVB-S2 FEC 2/3" $Radio10 \
+    "34" "DVB-S2 FEC 3/4" $Radio11 \
+    "56" "DVB-S2 FEC 5/6" $Radio12 \
+    "89" "DVB-S2 FEC 8/9" $Radio13 \
+    "91" "DVB-S2 FEC 9/10" $Radio14 \
+  3>&2 2>&1 1>&3)
 
-	 case "$FEC" in
-	 14)
-	 Radio1=ON
-	 Radio2=OFF
-	 Radio3=OFF
-	 Radio4=OFF
-	 Radio5=OFF
-	 Radio6=OFF
-	 Radio7=OFF
-	 Radio8=OFF
-	 Radio9=OFF
-	 ;;
-	 13)
-	 Radio1=OFF
-	 Radio2=ON
-	 Radio3=OFF
-	 Radio4=OFF
-	 Radio5=OFF
-	 Radio6=OFF
-	 Radio7=OFF
-	 Radio8=OFF
-	 Radio9=OFF
-	 ;;
-	 12)
-	 Radio1=OFF
-	 Radio2=OFF
-	 Radio3=ON
-	 Radio4=OFF
-	 Radio5=OFF
-	 Radio6=OFF
-	 Radio7=OFF
-	 Radio8=OFF
-	 Radio9=OFF
-	 ;;
-	 35)
-	 Radio1=OFF
-	 Radio2=OFF
-	 Radio3=OFF
-	 Radio4=ON
-	 Radio5=OFF
-	 Radio6=OFF
-	 Radio7=OFF
-	 Radio8=OFF
-	 Radio9=OFF
-	 ;;
-	 23)
-	 Radio1=OFF
-	 Radio2=OFF
-	 Radio3=OFF
-	 Radio4=OFF
-	 Radio5=ON
-	 Radio6=OFF
-	 Radio7=OFF
-	 Radio8=OFF
-	 Radio9=OFF
-	 ;;
-	 34)
-	 Radio1=OFF
-	 Radio2=OFF
-	 Radio3=OFF
-	 Radio4=OFF
-	 Radio5=OFF
-	 Radio6=ON
-	 Radio7=OFF
-	 Radio8=OFF
-	 Radio9=OFF
-	 ;;
-	 56)
-	 Radio1=OFF
-	 Radio2=OFF
-	 Radio3=OFF
-	 Radio4=OFF
-	 Radio5=OFF
-	 Radio6=OFF
-	 Radio7=ON
-	 Radio8=OFF
-	 Radio9=OFF
-	 ;;
-	 89)
-	 Radio1=OFF
-	 Radio2=OFF
-	 Radio3=OFF
-	 Radio4=OFF
-	 Radio5=OFF
-	 Radio6=OFF
-	 Radio7=OFF
-	 Radio8=ON
-	 Radio9=OFF
-	 ;;
-	 91)
-	 Radio1=OFF
-	 Radio2=OFF
-	 Radio3=OFF
-	 Radio4=OFF
-	 Radio5=OFF
-	 Radio6=OFF
-	 Radio7=OFF
-	 Radio8=OFF
-	 Radio9=ON
-	 ;;
-	 *)
-	 Radio1=ON
-	 Radio2=OFF
-	 Radio3=OFF
-	 Radio4=OFF
-	 Radio5=OFF
-	 Radio6=OFF
-	 Radio7=OFF
-	 Radio8=OFF
-	 Radio9=OFF
-	 ;;
-	 esac
-   if [ "$MODULATION" == "S2QPSK" ]; then
-	 FEC=$(whiptail --title "$StrOutputFECTitle" --radiolist \
-		"$StrOutputFECContext" 20 78 9 \
-		"14" "1/4" $Radio1 \
-		"13" "1/3" $Radio2 \
-		"12" "1/2" $Radio3 \
-		"35" "3/5" $Radio4 \
-		"23" "2/3" $Radio5 \
-		"34" "3/4" $Radio6 \
-		"56" "5/6" $Radio7 \
-		"89" "8/9" $Radio8 \
-		"91" "9/10" $Radio9 3>&2 2>&1 1>&3)
-
-  	elif [ "$MODULATION" == "8PSK" ]; then
-    FEC=$(whiptail --title "$StrOutputFECTitle" --radiolist \
-		 "$StrOutputFECContext" 20 78 9 \
-		 "35" "3/5" $Radio4 \
-		 "23" "2/3" $Radio5 \
-		 "34" "3/4" $Radio6 \
-		 "56" "5/6" $Radio7 \
-		 "89" "8/9" $Radio8 \
-		 "91" "9/10" $Radio9 3>&2 2>&1 1>&3)
-
-	 elif [ "$MODULATION" == "16APSK" ]; then
-	 FEC=$(whiptail --title "$StrOutputFECTitle" --radiolist \
-		"$StrOutputFECContext" 20 78 9 \
-		"23" "2/3" $Radio5 \
-		"34" "3/4" $Radio6 \
-		"56" "5/6" $Radio7 \
-		"89" "8/9" $Radio8 \
-		"91" "9/10" $Radio9 3>&2 2>&1 1>&3)
-
-	elif [ "$MODULATION" == "32APSK" ]; then
-	FEC=$(whiptail --title "$StrOutputFECTitle" --radiolist \
-	 "$StrOutputFECContext" 20 78 9 \
-	 "34" "3/4" $Radio6 \
-	 "56" "5/6" $Radio7 \
-	 "89" "8/9" $Radio8 \
-	 "91" "9/10" $Radio9 3>&2 2>&1 1>&3)
-
-	fi
-	fi
-
-if [ $? -eq 0 ]; then
-	set_config_var fec "$FEC" $PCONFIGFILE
-fi
+  if [ $? -eq 0 ]; then
+    set_config_var fec "$FEC" $PCONFIGFILE
+    do_fec_lookup
+  fi
 }
+
 
 do_PID_setup()
 {
   PIDPMT=$(get_config_var pidpmt $PCONFIGFILE)
-  PIDPMT=$(whiptail --inputbox "$StrPIDSetupContext" 8 78 $PIDPMT --title "$StrPIDSetupTitle" 3>&1 1>&2 2>&3)
+  PIDPMT=$(whiptail --inputbox "$StrPIDSetupContext" 18 78 $PIDPMT --title "$StrPIDSetupTitle" 3>&1 1>&2 2>&3)
   if [ $? -eq 0 ]; then
     set_config_var pidpmt "$PIDPMT" $PCONFIGFILE
   fi
@@ -1133,7 +970,7 @@ do_freq_setup()
     "t4" "Transverter 4" $Radio5 \
     3>&2 2>&1 1>&3)
 
-  if [[ "$BAND" == "Direct" || "$BAND" == "d1" || "$BAND" == "d2" || "$BAND" == "d3" || "$BAND" == "d4" || "$BAND" == "d5" ]]; then
+  if [[ "$BAND" == "Direct" || "$BAND" == "d1" || "$BAND" == "d2" || "$BAND" == "d3" || "$BAND" == "d4" || "$BAND" == "d5" ]]; then 
     ## If direct, look up which band
 
     INT_FREQ_OUTPUT=${FREQ_OUTPUT%.*}       # Change frequency to integer
@@ -1161,6 +998,8 @@ do_freq_setup()
   d1)
     ATTENLEVEL=$(get_config_var d1attenlevel $PATH_PPRESETS)
     set_config_var attenlevel "$ATTENLEVEL" $PCONFIGFILE
+    LIMEGAIN=$(get_config_var d1limegain $PATH_PPRESETS)
+    set_config_var limegain "$LIMEGAIN" $PCONFIGFILE
     EXPLEVEL=$(get_config_var d1explevel $PATH_PPRESETS)
     set_config_var explevel "$EXPLEVEL" $PCONFIGFILE
     EXPPORTS=$(get_config_var d1expports $PATH_PPRESETS)
@@ -1173,6 +1012,8 @@ do_freq_setup()
   d2)
     ATTENLEVEL=$(get_config_var d2attenlevel $PATH_PPRESETS)
     set_config_var attenlevel "$ATTENLEVEL" $PCONFIGFILE
+    LIMEGAIN=$(get_config_var d2limegain $PATH_PPRESETS)
+    set_config_var limegain "$LIMEGAIN" $PCONFIGFILE
     EXPLEVEL=$(get_config_var d2explevel $PATH_PPRESETS)
     set_config_var explevel "$EXPLEVEL" $PCONFIGFILE
     EXPPORTS=$(get_config_var d2expports $PATH_PPRESETS)
@@ -1185,6 +1026,8 @@ do_freq_setup()
   d3)
     ATTENLEVEL=$(get_config_var d3attenlevel $PATH_PPRESETS)
     set_config_var attenlevel "$ATTENLEVEL" $PCONFIGFILE
+    LIMEGAIN=$(get_config_var d3limegain $PATH_PPRESETS)
+    set_config_var limegain "$LIMEGAIN" $PCONFIGFILE
     EXPLEVEL=$(get_config_var d3explevel $PATH_PPRESETS)
     set_config_var explevel "$EXPLEVEL" $PCONFIGFILE
     EXPPORTS=$(get_config_var d3expports $PATH_PPRESETS)
@@ -1197,6 +1040,8 @@ do_freq_setup()
   d4)
     ATTENLEVEL=$(get_config_var d4attenlevel $PATH_PPRESETS)
     set_config_var attenlevel "$ATTENLEVEL" $PCONFIGFILE
+    LIMEGAIN=$(get_config_var d4limegain $PATH_PPRESETS)
+    set_config_var limegain "$LIMEGAIN" $PCONFIGFILE
     EXPLEVEL=$(get_config_var d4explevel $PATH_PPRESETS)
     set_config_var explevel "$EXPLEVEL" $PCONFIGFILE
     EXPPORTS=$(get_config_var d4expports $PATH_PPRESETS)
@@ -1209,6 +1054,8 @@ do_freq_setup()
   d5)
     ATTENLEVEL=$(get_config_var d5attenlevel $PATH_PPRESETS)
     set_config_var attenlevel "$ATTENLEVEL" $PCONFIGFILE
+    LIMEGAIN=$(get_config_var d5limegain $PATH_PPRESETS)
+    set_config_var limegain "$LIMEGAIN" $PCONFIGFILE
     EXPLEVEL=$(get_config_var d5explevel $PATH_PPRESETS)
     set_config_var explevel "$EXPLEVEL" $PCONFIGFILE
     EXPPORTS=$(get_config_var d5expports $PATH_PPRESETS)
@@ -1221,6 +1068,8 @@ do_freq_setup()
   t1)
     ATTENLEVEL=$(get_config_var t1attenlevel $PATH_PPRESETS)
     set_config_var attenlevel "$ATTENLEVEL" $PCONFIGFILE
+    LIMEGAIN=$(get_config_var t1limegain $PATH_PPRESETS)
+    set_config_var limegain "$LIMEGAIN" $PCONFIGFILE
     EXPLEVEL=$(get_config_var t1explevel $PATH_PPRESETS)
     set_config_var explevel "$EXPLEVEL" $PCONFIGFILE
     EXPPORTS=$(get_config_var t1expports $PATH_PPRESETS)
@@ -1233,6 +1082,8 @@ do_freq_setup()
   t2)
     ATTENLEVEL=$(get_config_var t2attenlevel $PATH_PPRESETS)
     set_config_var attenlevel "$ATTENLEVEL" $PCONFIGFILE
+    LIMEGAIN=$(get_config_var t2limegain $PATH_PPRESETS)
+    set_config_var limegain "$LIMEGAIN" $PCONFIGFILE
     EXPLEVEL=$(get_config_var t2explevel $PATH_PPRESETS)
     set_config_var explevel "$EXPLEVEL" $PCONFIGFILE
     EXPPORTS=$(get_config_var t2expports $PATH_PPRESETS)
@@ -1245,6 +1096,8 @@ do_freq_setup()
   t3)
     ATTENLEVEL=$(get_config_var t3attenlevel $PATH_PPRESETS)
     set_config_var attenlevel "$ATTENLEVEL" $PCONFIGFILE
+    LIMEGAIN=$(get_config_var t3limegain $PATH_PPRESETS)
+    set_config_var limegain "$LIMEGAIN" $PCONFIGFILE
     EXPLEVEL=$(get_config_var t3explevel $PATH_PPRESETS)
     set_config_var explevel "$EXPLEVEL" $PCONFIGFILE
     EXPPORTS=$(get_config_var t3expports $PATH_PPRESETS)
@@ -1257,6 +1110,8 @@ do_freq_setup()
   t4)
     ATTENLEVEL=$(get_config_var t4attenlevel $PATH_PPRESETS)
     set_config_var attenlevel "$ATTENLEVEL" $PCONFIGFILE
+    LIMEGAIN=$(get_config_var t4limegain $PATH_PPRESETS)
+    set_config_var limegain "$LIMEGAIN" $PCONFIGFILE
     EXPLEVEL=$(get_config_var t4explevel $PATH_PPRESETS)
     set_config_var explevel "$EXPLEVEL" $PCONFIGFILE
     EXPPORTS=$(get_config_var t4expports $PATH_PPRESETS)
@@ -1269,6 +1124,8 @@ do_freq_setup()
   *)
     ATTENLEVEL=$(get_config_var d1attenlevel $PATH_PPRESETS)
     set_config_var attenlevel "$ATTENLEVEL" $PCONFIGFILE
+    LIMEGAIN=$(get_config_var d1limegain $PATH_PPRESETS)
+    set_config_var limegain "$LIMEGAIN" $PCONFIGFILE
     EXPLEVEL=$(get_config_var d1explevel $PATH_PPRESETS)
     set_config_var explevel "$EXPLEVEL" $PCONFIGFILE
     EXPPORTS=$(get_config_var d1expports $PATH_PPRESETS)
@@ -1339,6 +1196,56 @@ do_output_standard()
   fi
 }
 
+do_modulation()
+{
+  MODULATION=$(get_config_var modulation $PCONFIGFILE)
+  Radio1=OFF
+  Radio2=OFF
+  Radio3=OFF
+  Radio4=OFF
+  Radio5=OFF
+  Radio6=OFF
+
+  case "$MODULATION" in
+  DVB-S)
+    Radio1=ON
+  ;;
+  S2QPSK)
+    Radio2=ON
+  ;;
+  8PSK)
+    Radio3=ON
+  ;;
+  16APSK)
+    Radio4=ON
+  ;;
+  32APSK)
+    Radio5=ON
+  ;;
+  DVB-T)
+    Radio6=ON
+  ;;
+  *)
+    Radio1=ON
+  ;;
+
+  esac
+
+  MODULATION=$(whiptail --title "SET MODULATION" --radiolist \
+    "Select one" 20 78 8 \
+    "DVB-S" "DVB-S" $Radio1 \
+    "S2QPSK" "DVB-S2 QPSK (Lime only)" $Radio2 \
+    "8PSK" "DVB-S2 8PSK (Lime only)" $Radio3 \
+    "16APSK" "DVB-S2 16APSK (Lime only)" $Radio4 \
+    "32APSK" "DVB-S2 32APSK (Lime only)" $Radio5 \
+    "DVB-T" "DVB-T (Lime only)" $Radio6 \
+    3>&2 2>&1 1>&3)
+
+  if [ $? -eq 0 ]; then                     ## If the selection has changed
+    set_config_var modulation "$MODULATION" $PCONFIGFILE
+  fi
+}
+
 
 do_output_setup() {
 menuchoice=$(whiptail --title "$StrOutputTitle" --menu "$StrOutputContext" 16 78 8 \
@@ -1347,9 +1254,9 @@ menuchoice=$(whiptail --title "$StrOutputTitle" --menu "$StrOutputContext" 16 78
   "3 Output mode" "$StrOutputMode" \
   "4 PID" "$StrPIDSetup" \
   "5 Frequency" "$StrOutputRFFreqContext" \
-  "6 Modulation" "Modulation" \
-  "7 Caption" "Callsign Caption in MPEG-2 on/off" \
-  "8 Standard" "Output 576PAL or 480NTSC" \
+  "6 Caption" "Callsign Caption in MPEG-2 on/off" \
+  "7 Standard" "Output 576PAL or 480NTSC" \
+  "8 Modulation" "DVB-S or DVB-S2 modes" \
 	3>&2 2>&1 1>&3)
 	case "$menuchoice" in
             1\ *) do_symbolrate_setup ;;
@@ -1357,15 +1264,98 @@ menuchoice=$(whiptail --title "$StrOutputTitle" --menu "$StrOutputContext" 16 78
 	    3\ *) do_output_setup_mode ;;
 	    4\ *) do_PID_setup ;;
 	    5\ *) do_freq_setup ;;
-	    6\ *) do_modulation_setup ;;
-	    7\ *) do_caption_setup ;;
-	    8\ *) do_output_standard ;;
+	    6\ *) do_caption_setup ;;
+	    7\ *) do_output_standard ;;
+	    8\ *) do_modulation ;;
         esac
 }
 
 
-do_transmit()
+do_set_DVBS_FEC()
 {
+  FEC="7"
+  do_fec_lookup
+  INFO=$CALL": "$MODE_INPUT" -> "$MODE_OUTPUT" "$FREQ_OUTPUT" MHz "$SYMBOLRATEK" KS, "$MODULATION", FEC "$FECNUM"/"$FECDEN""
+  set_config_var fec "$FEC" $PCONFIGFILE
+}
+
+ 
+do_set_DVBS2_FEC()
+{
+  FEC="91"
+  do_fec_lookup
+  INFO=$CALL": "$MODE_INPUT" -> "$MODE_OUTPUT" "$FREQ_OUTPUT" MHz "$SYMBOLRATEK" KS, "$MODULATION", FEC "$FECNUM"/"$FECDEN""
+  set_config_var fec "$FEC" $PCONFIGFILE
+}
+
+
+do_check_FEC()
+{
+  if [ "$MODULATION" == "DVB-S" ] || [ "$MODULATION" == "DVB-T" ]; then
+    case "$FEC" in
+      14) do_set_DVBS_FEC ;;
+      13) do_set_DVBS_FEC ;;
+      12) do_set_DVBS_FEC ;;
+      35) do_set_DVBS_FEC ;;
+      23) do_set_DVBS_FEC ;;
+      34) do_set_DVBS_FEC ;;
+      56) do_set_DVBS_FEC ;;
+      89) do_set_DVBS_FEC ;;
+      91) do_set_DVBS_FEC ;;
+    esac
+  elif [ "$MODULATION" == "S2QPSK" ]; then
+    case "$FEC" in
+      1) do_set_DVBS2_FEC ;;
+      2) do_set_DVBS2_FEC ;;
+      3) do_set_DVBS2_FEC ;;
+      5) do_set_DVBS2_FEC ;;
+      7) do_set_DVBS2_FEC ;;
+    esac
+  elif [ "$MODULATION" == "8PSK" ]; then
+    case "$FEC" in
+      1) do_set_DVBS2_FEC ;;
+      2) do_set_DVBS2_FEC ;;
+      3) do_set_DVBS2_FEC ;;
+      5) do_set_DVBS2_FEC ;;
+      7) do_set_DVBS2_FEC ;;
+      14) do_set_DVBS2_FEC ;;
+      13) do_set_DVBS2_FEC ;;
+      12) do_set_DVBS2_FEC ;;
+    esac
+  elif [ "$MODULATION" == "16APSK" ]; then
+    case "$FEC" in
+      1) do_set_DVBS2_FEC ;;
+      2) do_set_DVBS2_FEC ;;
+      3) do_set_DVBS2_FEC ;;
+      5) do_set_DVBS2_FEC ;;
+      7) do_set_DVBS2_FEC ;;
+      14) do_set_DVBS2_FEC ;;
+      13) do_set_DVBS2_FEC ;;
+      12) do_set_DVBS2_FEC ;;
+      35) do_set_DVBS2_FEC ;;
+    esac
+  elif [ "$MODULATION" == "32APSK" ]; then
+    case "$FEC" in
+      1) do_set_DVBS2_FEC ;;
+      2) do_set_DVBS2_FEC ;;
+      3) do_set_DVBS2_FEC ;;
+      5) do_set_DVBS2_FEC ;;
+      7) do_set_DVBS2_FEC ;;
+      14) do_set_DVBS2_FEC ;;
+      13) do_set_DVBS2_FEC ;;
+      12) do_set_DVBS2_FEC ;;
+      35) do_set_DVBS2_FEC ;;
+      23) do_set_DVBS2_FEC ;;
+    esac
+  fi
+}
+
+
+do_transmit() 
+{
+  # Check the FEC is valid for DVB-S or DVB-S2
+  do_check_FEC
+
   # Call a.sh in an additional process to start the transmitter
   $PATHSCRIPT"/a.sh" >/dev/null 2>/dev/null &
 
@@ -1379,6 +1369,8 @@ do_transmit()
     do_display_off
   fi
 
+  # Turn the PTT on after a delay for the Lime
+  # rpidatv turns it on for other modes
   if [ "$MODE_OUTPUT" == "LIMEMINI" ]; then
     /home/pi/rpidatv/scripts/lime_ptt.sh &
   fi
@@ -1388,6 +1380,7 @@ do_transmit()
   if [ "$MODE_OUTPUT" == "LIMEUSB" ]; then
     /home/pi/rpidatv/scripts/lime_ptt.sh &
   fi
+
   # Wait here transmitting until user presses a key
   whiptail --title "$StrStatusTitle" --msgbox "$INFO" 8 78
 
@@ -1399,7 +1392,7 @@ do_transmit()
 do_stop_transmit()
 {
   # Stop DATV Express transmitting if required
-  if [ "$MODE_OUTPUT" == "DATVEXPRESS" ]; then
+  if [ "$MODE_OUTPUT" == "DATVEXPRESS" ] && [ "$MODULATION" != "DVB-T" ] ; then
     echo "set car off" >> /tmp/expctrl
     echo "set ptt rx" >> /tmp/expctrl
     sudo killall netcat >/dev/null 2>/dev/null
@@ -1413,18 +1406,16 @@ do_stop_transmit()
   sudo $PATHRPI"/adf4351" off
 
   # Kill the key processes as nicely as possible
-  sudo killall -9 rpidatv >/dev/null 2>/dev/null
-  sudo killall -9 ffmpeg >/dev/null 2>/dev/null
-  sudo killall -9 tcanim1v16 >/dev/null 2>/dev/null
-  sudo killall -9 avc2ts >/dev/null 2>/dev/null
-  sudo killall -9 netcat >/dev/null 2>/dev/null
-  sudo killall -9 dvb2iq >/dev/null 2>/dev/null
+  sudo killall rpidatv >/dev/null 2>/dev/null
+  sudo killall ffmpeg >/dev/null 2>/dev/null
+  sudo killall tcanim1v16 >/dev/null 2>/dev/null
+  sudo killall avc2ts >/dev/null 2>/dev/null
+  sudo killall netcat >/dev/null 2>/dev/null
+  sudo killall dvb2iq >/dev/null 2>/dev/null
   sudo killall limesdr_send >/dev/null 2>/dev/null
   sudo killall limesdr_dvb >/dev/null 2>/dev/null
   sudo killall sox >/dev/null 2>/dev/null
-	if [ "$MODE_OUTPUT" == "LIMEMINI" ]; then
-   /home/pi/rpidatv/bin/limesdr_stopchannel &
-  fi
+  sudo killall /home/pi/rpidatv/bin/dvb_t_stack >/dev/null 2>/dev/null
 
   # Then pause and make sure that avc2ts has really been stopped (needed at high SRs)
   sleep 0.1
@@ -1433,9 +1424,6 @@ do_stop_transmit()
   # And make sure rpidatv has been stopped (required for brief transmit selections)
   sudo killall -9 rpidatv >/dev/null 2>/dev/null
 
-  # And make sure limetx has been stopped
-  sudo killall -9 limesdr_send >/dev/null 2>/dev/null
-
   # Stop the audio for CompVid mode
   sudo killall arecord >/dev/null 2>/dev/null
 
@@ -1443,10 +1431,17 @@ do_stop_transmit()
   sudo killall -9 limesdr_send >/dev/null 2>/dev/null
   sudo killall -9 limesdr_dvb >/dev/null 2>/dev/null
   sudo killall -9 sox >/dev/null 2>/dev/null
+  sudo killall -9 /home/pi/rpidatv/bin/dvb_t_stack >/dev/null 2>/dev/null
 
-  # Make sure that the PTT is released (required for carrier and test modes)
+  # Make sure that the PTT is released (required for carrier, Lime and test modes)
   gpio mode $GPIO_PTT out
   gpio write $GPIO_PTT 0
+
+  # Set the SR Filter correctly, because it might have been set all high by Lime
+  /home/pi/rpidatv/scripts/ctlSR.sh
+
+  # Reset the LimeSDR
+  /home/pi/rpidatv/bin/limesdr_stopchannel >/dev/null 2>/dev/null
 
   # Display the BATC Logo on the Touchscreen
   sudo fbi -T 1 -noverbose -a /home/pi/rpidatv/scripts/images/BATC_Black.png >/dev/null 2>/dev/null
@@ -1486,48 +1481,17 @@ do_display_off()
   v4l2-ctl --overlay=0 >/dev/null 2>/dev/null
 }
 
-do_receive_status_longmynd()
-{
-  whiptail --title "Minitiouner RECEIVE" --msgbox "$FREQ_KHZ_T MHz, $SYMBOLRATEK_T KS." 8 78
-  sudo killall -9 lmhv2.sh >/dev/null 2>/dev/null
-  sudo killall -9 rpidatvgui >/dev/null 2>/dev/null
-  sudo killall -9 hello_video.bin >/dev/null 2>/dev/null
-  sudo killall -9 hello_video2.bin >/dev/null 2>/dev/null
-  sudo killall fbi >/dev/null 2>/dev/null
-
-  sudo fbi -T 1 -noverbose -a /home/pi/rpidatv/scripts/images/BATC_Black.png
-}
-
-do_receive_longmynd()
-{
-  if ! pgrep -x "fbcp" > /dev/null; then
-    # fbcp is not running, so start it
-    fbcp &
-  fi
-
-    /home/pi/rpidatv/bin/rpidatvgui 0 2  >/dev/null 2>/dev/null &
-   do_receive_status_longmynd
-}
-
 do_receive_status()
 {
-  whiptail --title "RECEIVE" --msgbox "$RXKEY, $RXfreq MHz, $RXModulation, $RXsr KS, FEC $FECDVB." 8 78
-  sudo killall -9 rpidatvgui >/dev/null 2>/dev/null
-  sudo killall -9 leandvb >/dev/null 2>/dev/null
-  sudo killall -9 hello_video.bin >/dev/null 2>/dev/null
-  sudo killall -9 hello_video2.bin >/dev/null 2>/dev/null
-  sudo killall -9 rtl_sdr >/dev/null 2>/dev/null
-  sudo killall fbi >/dev/null 2>/dev/null
-  if [ "$RXKEY" == "LIMEMINI" ]; then
-    sudo killall limesdr_dump >/dev/null 2>/dev/null
-    /home/pi/rpidatv/bin/limesdr_stopchannel
-  fi
+  whiptail --title "RECEIVE" --msgbox "$INFO" 8 78
+  sudo killall rpidatvgui >/dev/null 2>/dev/null
+  sudo killall leandvb >/dev/null 2>/dev/null
+  sudo killall hello_video.bin >/dev/null 2>/dev/null
   sudo fbi -T 1 -noverbose -a /home/pi/rpidatv/scripts/images/BATC_Black.png
 }
 
 do_receive()
 {
-  RXKEY=$(get_config_var rx0sdr $RXPRESETSFILE)
   if pgrep -x "rtl_tcp" > /dev/null; then
     # rtl_tcp is running, so kill it, pause and really kill it
     killall rtl_tcp >/dev/null 2>/dev/null
@@ -1540,8 +1504,23 @@ do_receive()
     fbcp &
   fi
 
-    /home/pi/rpidatv/bin/rpidatvgui 0 1  >/dev/null 2>/dev/null &
-   do_receive_status
+  MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
+  case "$MODE_OUTPUT" in
+  BATC)
+    ORGINAL_MODE_INPUT=$(get_config_var modeinput $PCONFIGFILE)
+    sleep 0.1
+    set_config_var modeinput "DESKTOP" $PCONFIGFILE
+    sleep 0.1
+    /home/pi/rpidatv/bin/rpidatvgui 0 1  >/dev/null 2>/dev/null & 
+    $PATHSCRIPT"/a.sh" >/dev/null 2>/dev/null &
+    do_receive_status
+    set_config_var modeinput "$ORGINAL_MODE_INPUT" $PCONFIGFILE
+  ;;
+  *)
+    /home/pi/rpidatv/bin/rpidatvgui 0 1  >/dev/null 2>/dev/null & 
+    do_receive_status
+  ;;
+  esac
 }
 
 do_start_rtl_tcp()
@@ -1579,437 +1558,23 @@ do_stop_streamrx()
   sudo killall omxplayer.bin >/dev/null 2>/dev/null
 }
 
-do_RX_Frequency()
-{
-   freq_rx=$(get_config_var rx0frequency $RXPRESETSFILE)
-   Frequency_rx=$(whiptail --inputbox "Frequency MHz" 8 78 $freq_rx --title "RX Frequency" 3>&1 1>&2 2>&3)
-   if [ $? -eq 0 ]; then
-     set_config_var rx0frequency "$Frequency_rx" $RXPRESETSFILE
-   fi
-}
-
-do_RX_Frequency_longmynd()
-{
-   freq_rx_longmynd=$(get_config_var freq1 $RCONFIGFILE)
-   Frequency_rx_longmynd=$(whiptail --inputbox "Frequency KHz" 8 78 $freq_rx_longmynd --title "Minitiouner RX Frequency" 3>&1 1>&2 2>&3)
-   if [ $? -eq 0 ]; then
-     set_config_var freq1 "$Frequency_rx_longmynd" $RCONFIGFILE
-   fi
-}
-
-do_RX_SR()
-{
-   sr_rx=$(get_config_var rx0sr $RXPRESETSFILE)
-   SR_rx=$(whiptail --inputbox "SR KS" 8 78 $sr_rx --title "Symbol Rate" 3>&1 1>&2 2>&3)
-   if [ $? -eq 0 ]; then
-     set_config_var rx0sr "$SR_rx" $RXPRESETSFILE
-   fi
-}
-
-do_RX_SR_longmynd()
-{
-   sr_rx_longmynd=$(get_config_var sr1 $RCONFIGFILE)
-   SR_rx_longmynd=$(whiptail --inputbox "SR KS" 8 78 $sr_rx_longmynd --title "Minitiouner Symbol Rate" 3>&1 1>&2 2>&3)
-   if [ $? -eq 0 ]; then
-     set_config_var sr1 "$SR_rx_longmynd" $RCONFIGFILE
-   fi
-}
-
-do_RX_INPUT_longmynd()
-{
-  rx_input_longmynd=$(get_config_var input $RCONFIGFILE)
-   RX_input_longmynd=$(whiptail --inputbox "Sélection de l'entrée a ou b" 8 78 $rx_input_longmynd --title "Minitiouner Entrée" 3>&1 1>&2 2>&3)
-   if [ $? -eq 0 ]; then
-     set_config_var input "$RX_input_longmynd" $RCONFIGFILE
-   fi
-}
-
-do_RX_FEC()
-{
-  fec_rx=$(get_config_var rx0fec $RXPRESETSFILE)
-  RXModulation=$(get_config_var rx0modulation $RXPRESETSFILE)
-
-	case "$fec_rx" in
-	1)
-	Radio1=ON
-	Radio2=OFF
-	Radio3=OFF
-	Radio4=OFF
-	Radio5=OFF
-	Radio6=OFF
-	;;
-	2)
-	Radio1=OFF
-	Radio2=ON
-	Radio3=OFF
-	Radio4=OFF
-	Radio5=OFF
-	Radio6=OFF
-	;;
-	3)
-	Radio1=OFF
-	Radio2=OFF
-	Radio3=ON
-	Radio4=OFF
-	Radio5=OFF
-	Radio6=OFF
-	;;
-	5)
-	Radio1=OFF
-	Radio2=OFF
-	Radio3=OFF
-	Radio4=ON
-	Radio5=OFF
-	Radio6=OFF
-	;;
-	7)
-	Radio1=OFF
-	Radio2=OFF
-	Radio3=OFF
-	Radio4=OFF
-	Radio5=ON
-	Radio6=OFF
-	;;
-	Auto)
-	Radio1=OFF
-	Radio2=OFF
-	Radio3=OFF
-	Radio4=OFF
-	Radio5=OFF
-	Radio6=ON
-	;;
-	*)
-	Radio1=ON
-	Radio2=OFF
-	Radio3=OFF
-	Radio4=OFF
-	Radio5=OFF
-	Radio6=OFF
-	;;
-	esac
-	if [ "$RXModulation" == "DVB-S" ]; then
-	 fec_rx=$(whiptail --title "$StrOutputFECTitle" --radiolist \
-		 "$StrOutputFECContext" 20 78 8 \
-		 "1" "1/2" $Radio1 \
-		 "2" "2/3" $Radio2 \
-		 "3" "3/4" $Radio3 \
-		 "5" "5/6" $Radio4 \
-		 "7" "7/8" $Radio5 3>&2 2>&1 1>&3)
-  else
-   fec_rx=$(whiptail --title "$StrOutputFECTitle" --radiolist \
-     "$StrOutputFECContext" 20 78 8 \
-     "Auto" "Auto for DVB-S2" $Radio6 3>&2 2>&1 1>&3)
-  fi
-
-   if [ $? -eq 0 ]; then
-    set_config_var rx0fec "$fec_rx" $RXPRESETSFILE
-   fi
-}
-
-do_RX_Modulation()
-{
-  RXModulation=$(get_config_var rx0modulation $RXPRESETSFILE)
-
-  case "$RXModulation" in
-   DVB-S)
-   Radio1=ON
-   Radio2=OFF
-   Radio3=OFF
-   ;;
-   DVB-S2)
-   Radio1=Off
-   Radio2=ON
-   Radio3=OFF
-   ;;
-   8PSK)
-   Radio1=Off
-   Radio2=OFF
-   Radio3=ON
-	 ;;
-   *)
-   Radio1=ON
-   Radio2=OFF
-   Radio3=OFF
-   ;;
-   esac
-   RXModulation=$(whiptail --title "Select RX Modulation" --radiolist \
-           "RX Modulation Menu" 20 78 8 \
-           "DVB-S" "DVB-S" $Radio1 \
-           "DVB-S2" "DVB-S2 QPSK" $Radio2 \
-           "8PSK" "DVB-S2 8PSK" $Radio3 3>&2 2>&1 1>&3)
-   if [ $? -eq 0 ]; then
-    set_config_var rx0modulation "$RXModulation" $RXPRESETSFILE
-   fi
-   if [ "$RXModulation" == "DVB-S" ]; then
-    set_config_var rx0fec "7" $RXPRESETSFILE
-   else
-    set_config_var rx0fec "Auto" $RXPRESETSFILE
-	fi
-}
-
-do_RX_Config()
-{
-  menuchoice=$(whiptail --title "Select RX Configuration" --menu "RX Menu" 20 78 13 \
-    "1 Minitiouner Frequency" "$FREQ_KHZ_T KHz"  \
-    "2 Minitiouner Symbol Rate" "$SYMBOLRATEK_T KS"  \
-    "3 Minitiouner Sélection entrée" "Entrée: $INPUT_SEL"  \
-    "4 Leandvb Frequency" "$RXfreq MHz"  \
-    "5 Leandvb Modulation" "$RXModulation" \
-    "6 Leandvb Symbol Rate" "$RXsr KS"  \
-    "7 Leandvb FEC" "FEC "$FECDVB  \
-    "8 Leandvb RX Key" "$Key_Rx"  \
-    3>&2 2>&1 1>&3)
-  case "$menuchoice" in
-    1\ *) do_RX_Frequency_longmynd ;;
-    2\ *) do_RX_SR_longmynd ;;
-    3\ *) do_RX_INPUT_longmynd ;;
-    4\ *) do_RX_Frequency ;;
-    5\ *) do_RX_Modulation ;;
-    6\ *) do_RX_SR ;;
-    7\ *) do_RX_FEC ;;
-    8\ *) do_rx_select ;;
-  esac
-  do_receive_menu
-}
-
-do_RTL_Frequency()
-{
-FREQ_RX_FM=$(get_config_var r0freq $RTLPRESETSFILE)
-Frequency_rtl=$(whiptail --inputbox "Frequency MHz" 8 78 $FREQ_RX_FM --title "RTL FM Frequency" 3>&1 1>&2 2>&3)
-if [ $? -eq 0 ]; then
-  set_config_var r0freq "$Frequency_rtl" $RTLPRESETSFILE
-fi
-}
-
-do_RTL_MODE()
-{
-MODE_RX_FM=$(get_config_var r0mode $RTLPRESETSFILE)
-
-  case "$MODE_RX_FM" in
-  am)
-  Radio1=ON
-  Radio2=OFF
-  Radio3=OFF
-  Radio4=OFF
-  Radio5=OFF
-  ;;
-  fm)
-  Radio1=OFF
-  Radio2=ON
-  Radio3=OFF
-  Radio4=OFF
-  Radio5=OFF
-  ;;
-  wbfm)
-  Radio1=OFF
-  Radio2=OFF
-  Radio3=ON
-  Radio4=OFF
-  Radio5=OFF
-  ;;
-  usb)
-  Radio1=OFF
-  Radio2=OFF
-  Radio3=OFF
-  Radio4=ON
-  Radio5=OFF
-  ;;
-  lsb)
-  Radio1=OFF
-  Radio2=OFF
-  Radio3=OFF
-  Radio4=OFF
-  Radio5=ON
-  ;;
-  *)
-  Radio1=ON
-  Radio2=OFF
-  Radio3=OFF
-  Radio4=OFF
-  Radio5=OFF
-  ;;
-  esac
-  MODE_RX_FM=$(whiptail --title "Mode" --radiolist \
-    "$StrOutputFECContext" 20 78 8 \
-    "am" "AM" $Radio1 \
-    "fm" "FM" $Radio2 \
-    "wbfm" "WBFM" $Radio3 \
-    "usb" "USB" $Radio4 \
-    "lsb" "LSB" $Radio5 3>&2 2>&1 1>&3)
-
-  if [ $? -eq 0 ]; then
-    set_config_var r0mode "$MODE_RX_FM" $RTLPRESETSFILE
-  fi
-}
-
-do_RTL_SQUELCH()
-{
-SQUELCH_RX_FM=$(get_config_var r0squelch $RTLPRESETSFILE)
-Squelch_rtl=$(whiptail --inputbox "Squelch Level" 8 78 $SQUELCH_RX_FM --title "RTL FM Squelch" 3>&1 1>&2 2>&3)
-if [ $? -eq 0 ]; then
-  set_config_var r0squelch "$Squelch_rtl" $RTLPRESETSFILE
-fi
-}
-
-do_RTL_GAIN()
-{
-GAIN_RX_FM=$(get_config_var r0gain $RTLPRESETSFILE)
-Gain_rtl=$(whiptail --inputbox "Gain Level" 8 78 $GAIN_RX_FM --title "RTL FM Gain" 3>&1 1>&2 2>&3)
-if [ $? -eq 0 ]; then
-  set_config_var r0gain "$Gain_rtl" $RTLPRESETSFILE
-fi
-}
-
-do_RTL_Configuration()
-{
-  menuchoice=$(whiptail --title "Select RTL FM Configuration" --menu "RTL FM Menu" 20 78 13 \
-    "1 Frequency" $FREQ_RX_FM" MHz"  \
-    "2 Mode" $MODE_RX_FM  \
-    "3 Squelch" $SQUELCH_RX_FM  \
-    "4 Gain" $GAIN_RX_FM  \
-    3>&2 2>&1 1>&3)
-  case "$menuchoice" in
-    1\ *) do_RTL_Frequency ;;
-    2\ *) do_RTL_MODE ;;
-    3\ *) do_RTL_SQUELCH ;;
-    4\ *) do_RTL_GAIN ;;
-  esac
-  do_RTL_FM_Menu
-}
-
-do_RTL_Receive_Status()
-{
-  whiptail --title "RECEIVE" --msgbox "RTL FM $FREQ_RX_FM MHz, $MODE_RX_FM" 8 78
-  sudo killall rtl_fm >/dev/null 2>/dev/null
-  sudo killall aplay >/dev/null 2>/dev/null
-  sleep 1
-  sudo killall -9 rtl_fm >/dev/null 2>/dev/null
-  sudo killall -9 aplay >/dev/null 2>/dev/null
-  sudo fbi -T 1 -noverbose -a /home/pi/rpidatv/scripts/images/BATC_Black.png
-}
-
-do_RTL_Receive()
-{
-if pgrep -x "rtl_tcp" > /dev/null; then
-  # rtl_tcp is running, so kill it, pause and really kill it
-  killall rtl_tcp >/dev/null 2>/dev/null
-  sleep 0.5
-  sudo killall -9 rtl_tcp >/dev/null 2>/dev/null
-fi
-
-if ! pgrep -x "fbcp" > /dev/null; then
-  # fbcp is not running, so start it
-  fbcp &
-fi
-
-  /home/pi/rpidatv/scripts/rtl_fm.sh >/dev/null 2>/dev/null &
-  do_RTL_Receive_Status
-
-}
-
-do_RTL_FM_Menu()
-{
-  # Read Configuration
-  FREQ_RX_FM=$(get_config_var r0freq $RTLPRESETSFILE)
-  MODE_RX_FM=$(get_config_var r0mode $RTLPRESETSFILE)
-  SQUELCH_RX_FM=$(get_config_var r0squelch $RTLPRESETSFILE)
-  GAIN_RX_FM=$(get_config_var r0gain $RTLPRESETSFILE)
-  CARD="0"
-
-  menuchoice=$(whiptail --title "RTL FM" --menu "RTL FM Menu" 20 78 13 \
-    "1 Receive" $FREQ_RX_FM" MHz, "$MODE_RX_FM", Squelch: "$SQUELCH_RX_FM", Gain: "$GAIN_RX_FM  \
-    "2 Configuration" "Frequency, Mode, Squelch, Gain"  \
-    3>&2 2>&1 1>&3)
-  case "$menuchoice" in
-    1\ *) do_RTL_Receive ;;
-    2\ *) do_RTL_Configuration ;;
-  esac
-}
 
 do_receive_menu()
 {
-	# RX values
-  RXKEY=$(get_config_var rx0sdr $RXPRESETSFILE)
-
-  if [ "$RXKEY" = "LIMEMINI" ]; then
-    Key_Rx="Lime Mini"
-  elif [ "$RXKEY" = "LIMEUSB" ]; then
-    Key_Rx="Lime USB"
-  elif [ "$RXKEY" = "RTLSDR" ]; then
-    Key_Rx="RTL SDR"
-  else
-    Key_Rx="$RXKEY"
-  fi
-
-  RXfreq=$(get_config_var rx0frequency $RXPRESETSFILE)
-  RXfec=$(get_config_var rx0fec $RXPRESETSFILE)
-  RXsr=$(get_config_var rx0sr $RXPRESETSFILE)
-  RXModulation=$(get_config_var rx0modulation $RXPRESETSFILE)
-  FREQ_KHZ_T=$(get_config_var freq1 $RCONFIGFILE)
-  SYMBOLRATEK_T=$(get_config_var sr1 $RCONFIGFILE)
-  INPUT_SEL=$(get_config_var input $RCONFIGFILE)
-  RX_MODE=$(get_config_var mode $RCONFIGFILE)
-
-  if [ "$RX_MODE" == "sat" ]; then
-    set_config_var mode "terr" $RCONFIGFILE
-  fi
-
-  if [ "$RXfec" != "Auto" ]; then
-   let FECNUM_RX=RXfec
-   let FECDEN_RX=RXfec+1
-   FECDVB="$FECNUM_RX"/"$FECDEN_RX"
-  else
-   FECDVB="Auto"
-  fi
-
   menuchoice=$(whiptail --title "Select Receive Option" --menu "RTL Menu" 20 78 13 \
-    "1 Receive DATV Leandvb" "$Key_Rx, "$RXfreq" MHz, "$RXModulation", "$RXsr" KS, FEC "$FECDVB"."  \
-    "2 Receive DATV Minitiouner" "$FREQ_KHZ_T KHz, "$SYMBOLRATEK_T" KS, Entrée: $INPUT_SEL "  \
-    "3 RX Configuration" "Configure Freq, Modulation, SR, FEC"  \
-    "4 RTL FM" "Receiver with RTL-SDR"  \
-    "5 Start RTL-TCP" "Start the RTL-TCP Server for use with SDR Sharp"  \
-    "6 Stop RTL-TCP" "Stop the RTL-TCP Server" \
-    "7 Start Stream RX" "Display the Selected Stream" \
-    "8 Stop Stream RX" "Stop Displaying the Selected Stream" \
+    "1 Receive DATV" "Use the RTL to Receive with default settings"  \
+    "2 Start RTL-TCP" "Start the RTL-TCP Server for use with SDR Sharp"  \
+    "3 Stop RTL-TCP" "Stop the RTL-TCP Server" \
+    "4 Start Stream RX" "Display the Selected Stream" \
+    "5 Stop Stream RX" "Stop Displaying the Selected Stream" \
     3>&2 2>&1 1>&3)
   case "$menuchoice" in
     1\ *) do_receive ;;
-    2\ *) do_receive_longmynd ;;
-    3\ *) do_RX_Config ;;
-    4\ *) do_RTL_FM_Menu ;;
-    5\ *) do_start_rtl_tcp ;;
-    6\ *) do_stop_rtl_tcp  ;;
-    7\ *) do_streamrx  ;;
-    8\ *) do_stop_streamrx  ;;
+    2\ *) do_start_rtl_tcp ;;
+    3\ *) do_stop_rtl_tcp  ;;
+    4\ *) do_streamrx  ;;
+    5\ *) do_stop_streamrx  ;;
   esac
-}
-
-do_rx_select()
-{
-  RXKEY=$(get_config_var rx0sdr $RXPRESETSFILE)
-
-  case "$RXKEY" in
-   RTLSDR)
-    Radio1=ON
-    Radio2=OFF
-   ;;
-   LIMEMINI)
-    Radio1=OFF
-    Radio2=ON
-   ;;
-   *)
-    Radio1=ON
-    Radio2=OFF
-   ;;
-   esac
-   RXKEY=$(whiptail --title "RX Key Select" --radiolist \
-		"RX Key" 20 78 2 \
-		"RTLSDR" "" $Radio1 \
-		"LIMEMINI" "" $Radio2 3>&2 2>&1 1>&3)
-
- if [ $? -eq 0 ]; then
-	set_config_var rx0sdr "$RXKEY" $RXPRESETSFILE
-fi
 }
 
 do_autostart_setup()
@@ -2027,9 +1592,6 @@ do_autostart_setup()
   Radio10=OFF
   Radio11=OFF
   Radio12=OFF
-  Radio13=OFF
-  Radio14=OFF
-  Radio15=OFF
 
   case "$MODE_STARTUP" in
     Prompt)
@@ -2083,22 +1645,19 @@ do_autostart_setup()
   esac
 
   chstartup=$(whiptail --title "$StrAutostartSetupTitle" --radiolist \
-   "$StrAutostartSetupContext" 20 78 15 \
+   "$StrAutostartSetupContext" 20 78 12 \
    "Prompt" "$AutostartSetupPrompt" $Radio1 \
    "Console" "$AutostartSetupConsole" $Radio2 \
    "TX_boot" "$AutostartSetupTX_boot" $Radio3 \
    "Display_boot" "$AutostartSetupDisplay_boot" $Radio4 \
    "TestRig_boot" "Boot-up to Test Rig for F-M Boards" $Radio5 \
-   "Button_tx_boot" "$AutostartSetupButton_tx_boot" $Radio6 \
-   "Button_rx_boot" "$AutostartSetupButton_rx_boot" $Radio7 \
-   "Button_rx_minitiouner_boot" "$AutostartSetupButton_rx_minitiouner_boot" $Radio13 \
-   "Button_rx_lcd_boot" "$AutostartSetupButton_rx_lcd_boot" $Radio14 \
-   "Keyed_Stream_boot" "Boot up to Keyed Repeater Streamer" $Radio8 \
-   "Cont_Stream_boot" "Boot up to Always-on Repeater Streamer" $Radio9 \
-   "Keyed_TX_boot" "Boot up to GPIO Keyed Repeater TX" $Radio10 \
-   "Keyed_TX_Touch_boot" "Boot up to GPIO Keyed TX with Touchscreen" $Radio11 \
-   "SigGen_boot" "Boot up with the Sig Gen Output On" $Radio12 \
-   "StreamRX_boot" "Boot up to display a BATC Stream" $Radio15 \
+   "Button_boot" "$AutostartSetupButton_boot" $Radio6 \
+   "Keyed_Stream_boot" "Boot up to Keyed Repeater Streamer" $Radio7 \
+   "Cont_Stream_boot" "Boot up to Always-on Repeater Streamer" $Radio8 \
+   "Keyed_TX_boot" "Boot up to GPIO Keyed Repeater TX" $Radio9 \
+   "Keyed_TX_Touch_boot" "Boot up to GPIO Keyed TX with Touchscreen" $Radio10 \
+   "SigGen_boot" "Boot up with the Sig Gen Output On" $Radio11 \
+   "StreamRX_boot" "Boot up to display a BATC Stream" $Radio12 \
    3>&2 2>&1 1>&3)
 
   if [ $? -eq 0 ]; then
@@ -2661,6 +2220,102 @@ do_atten_levels()
   ;;
   esac
 }
+
+
+do_set_limegain()
+{
+  LIMEGAIN0=$(get-config_var d1limegain $PATH_PPRESETS)
+  LIMEGAIN0=$(whiptail --inputbox "Enter 0 to 100" 8 78 $LIMEGAIN0 --title "SET LIME GAIN FOR THE 71 MHz BAND" 3>&1 1>&2 2>&3)
+  if [ $? -eq 0 ]; then
+    set_config_var d1limegain "$LIMEGAIN0" $PATH_PPRESETS
+  fi
+
+  LIMEGAIN1=$(get-config_var d2limegain $PATH_PPRESETS)
+  LIMEGAIN1=$(whiptail --inputbox "Enter 0 to 100" 8 78 $LIMEGAIN1 --title "SET LIME GAIN FOR THE 146 MHz BAND" 3>&1 1>&2 2>&3)
+  if [ $? -eq 0 ]; then
+    set_config_var d2limegain "$LIMEGAIN1" $PATH_PPRESETS
+  fi
+
+  LIMEGAIN2=$(get-config_var d3limegain $PATH_PPRESETS)
+  LIMEGAIN2=$(whiptail --inputbox "Enter 0 to 100" 8 78 $LIMEGAIN2 --title "SET LIME GAIN FOR THE 437MHz BAND" 3>&1 1>&2 2>&3)
+  if [ $? -eq 0 ]; then
+    set_config_var d3limegain "$LIMEGAIN2" $PATH_PPRESETS
+  fi
+
+  LIMEGAIN3=$(get-config_var d4limegain $PATH_PPRESETS)
+  LIMEGAIN3=$(whiptail --inputbox "Enter 0 to 100" 8 78 $LIMEGAIN3 --title "SET LIME GAIN FOR THE 1255 MHz BAND" 3>&1 1>&2 2>&3)
+  if [ $? -eq 0 ]; then
+    set_config_var d4limegain "$LIMEGAIN3" $PATH_PPRESETS
+  fi
+
+  LIMEGAIN4=$(get-config_var d5limegain $PATH_PPRESETS)
+  LIMEGAIN4=$(whiptail --inputbox "Enter 0 to 100" 8 78 $LIMEGAIN4 --title "SET LIME GAIN FOR THE 2400 MHz BAND" 3>&1 1>&2 2>&3)
+  if [ $? -eq 0 ]; then
+    set_config_var d5limegain "$LIMEGAIN4" $PATH_PPRESETS
+  fi
+
+  LIMEGAIN5=$(get-config_var t1limegain $PATH_PPRESETS)
+  LIMEGAIN5=$(whiptail --inputbox "Enter 0 to 100" 8 78 $LIMEGAIN5 --title "SET LIME GAIN FOR TRANSVERTER 1" 3>&1 1>&2 2>&3)
+  if [ $? -eq 0 ]; then
+    set_config_var t1limegain "$LIMEGAIN5" $PATH_PPRESETS
+  fi
+
+  LIMEGAIN6=$(get-config_var t2limegain $PATH_PPRESETS)
+  LIMEGAIN6=$(whiptail --inputbox "Enter 0 to 100" 8 78 $LIMEGAIN6 --title "SET LIME GAIN FOR TRANSVERTER 2" 3>&1 1>&2 2>&3)
+  if [ $? -eq 0 ]; then
+    set_config_var t2limegain "$LIMEGAIN6" $PATH_PPRESETS
+  fi
+
+  LIMEGAIN7=$(get-config_var t3limegain $PATH_PPRESETS)
+  LIMEGAIN7=$(whiptail --inputbox "Enter 0 to 100" 8 78 $LIMEGAIN7 --title "SET LIME GAIN FOR TRANSVERTER 3" 3>&1 1>&2 2>&3)
+  if [ $? -eq 0 ]; then
+    set_config_var t3limegain "$LIMEGAIN7" $PATH_PPRESETS
+  fi
+
+  LIMEGAIN8=$(get-config_var t4limegain $PATH_PPRESETS)
+  LIMEGAIN8=$(whiptail --inputbox "Enter 0 to 100" 8 78 $LIMEGAIN8 --title "SET LIME GAIN FOR TRANSVERTER 4" 3>&1 1>&2 2>&3)
+  if [ $? -eq 0 ]; then
+    set_config_var t4limegain "$LIMEGAIN8" $PATH_PPRESETS
+  fi
+
+  ## Now set the Lime Gain for the current band
+  BAND=$(get_config_var band $PCONFIGFILE)
+
+  case "$BAND" in
+  d1)
+    set_config_var limegain "$LIMEGAIN0" $PCONFIGFILE
+  ;;
+  d2)
+    set_config_var limegain "$LIMEGAIN1" $PCONFIGFILE
+  ;;
+  d3)
+    set_config_var limegain "$LIMEGAIN2" $PCONFIGFILE
+  ;;
+  d4)
+    set_config_var limegain "$LIMEGAIN3" $PCONFIGFILE
+  ;;
+  d5)
+    set_config_var limegain "$LIMEGAIN4" $PCONFIGFILE
+  ;;
+  t1)
+    set_config_var limegain "$LIMEGAIN5" $PCONFIGFILE
+  ;;
+  t2)
+    set_config_var limegain "$LIMEGAIN6" $PCONFIGFILE
+  ;;
+  t3)
+    set_config_var limegain "$LIMEGAIN7" $PCONFIGFILE
+  ;;
+  t4)
+    set_config_var limegain "$LIMEGAIN8" $PCONFIGFILE
+  ;;
+  *)
+    set_config_var limegain "$LIMEGAIN0" $PCONFIGFILE
+  ;;
+  esac
+
+}
+
 
 do_set_express()
 {
@@ -3276,86 +2931,69 @@ do_load_settings()
   fi
 }
 
-do_Install_BrosTrend()
-{
-  $PATHSCRIPT"/brostrend_ac1200.sh"
-}
-
-do_drivers()
-{
-menuchoice=$(whiptail --title "Installation Drivers" --menu "Liste des drivers disponibles" 20 78 14 \
-    "1 BrosTrend" "AC1200 Wifi"  \
-    3>&2 2>&1 1>&3)
-    case "$menuchoice" in
-        1\ *) do_Install_BrosTrend ;;
-     esac
-}
-
 do_system_setup()
 {
-menuchoice=$(whiptail --title "$StrSystemTitle" --menu "$StrSystemContext" 20 78 14 \
+menuchoice=$(whiptail --title "$StrSystemTitle" --menu "$StrSystemContext" 20 78 13 \
     "1 Autostart" "$StrAutostartMenu"  \
     "2 Display" "$StrDisplayMenu" \
     "3 Show IP" "$StrIPMenu" \
     "4 WiFi Set-up" "SSID and password"  \
-    "5 Hotspot Set-up" "SSID, password, band and channel"  \
-    "6 WiFi Off" "Turn the WiFi Off" \
-    "7 Enable DigiThin" "Not Implemented Yet" \
-    "8 Set-up EasyCap" "Set input socket and PAL/NTSC"  \
-    "9 Audio Input" "Select USB Dongle or EasyCap"  \
-    "10 Attenuator" "Select Output Attenuator Type"  \
-    "11 Lime Status" "Check the LimeSDR Firmware Version"  \
-    "12 Lime Update" "Update the LimeSDR Firmware Version"  \
-    "13 Update" "Check for Updated rpidatv Software"  \
+    "5 WiFi Off" "Turn the WiFi Off" \
+    "6 Enable DigiThin" "Not Implemented Yet" \
+    "7 Set-up EasyCap" "Set input socket and PAL/NTSC"  \
+    "8 Audio Input" "Select USB Dongle or EasyCap"  \
+    "9 Attenuator" "Select Output Attenuator Type"  \
+    "10 Lime Status" "Check the LimeSDR Firmware Version"  \
+    "11 Lime Update" "Update the LimeSDR Firmware Version"  \
+    "12 Update" "Check for Updated Portsdown Software"  \
     3>&2 2>&1 1>&3)
     case "$menuchoice" in
         1\ *) do_autostart_setup ;;
         2\ *) do_display_setup   ;;
-        3\ *) do_IP_setup ;;
+	3\ *) do_IP_setup ;;
         4\ *) do_WiFi_setup ;;
-        5\ *) do_hotspot_config;;
-        6\ *) do_WiFi_Off   ;;
-        7\ *) do_Enable_DigiThin ;;
-        8\ *) do_EasyCap ;;
-        9\ *) do_audio_switch;;
-        10\ *) do_attenuator;;
-        11\ *) do_LimeStatus;;
-        12\ *) do_LimeUpdate;;
-        13\ *) do_Update ;;
+        5\ *) do_WiFi_Off   ;;
+        6\ *) do_Enable_DigiThin ;;
+        7\ *) do_EasyCap ;;
+        8\ *) do_audio_switch;;
+        9\ *) do_attenuator;;
+        10\ *) do_LimeStatus;;
+        11\ *) do_LimeUpdate;;
+        12\ *) do_Update ;;
      esac
 }
 
 do_system_setup_2()
 {
-  menuchoice=$(whiptail --title "$StrSystemTitle" --menu "$StrSystemContext" 20 78 14 \
+  menuchoice=$(whiptail --title "$StrSystemTitle 2" --menu "$StrSystemContext" 20 78 13 \
     "1 Set Freq Presets" "For Touchscreen Frequencies"  \
     "2 Set SR Presets" "For Touchscreen Symbol Rates"  \
     "3 ADF4351 Ref Freq" "Set ADF4351 Reference Freq and Cal" \
     "4 Attenuator Levels" "Set Attenuator Levels for Each Band" \
-    "5 DATV Express" "Configure DATV Express Settings for each band" \
-    "6 Contest Numbers" "Set Contest Numbers for each band" \
-    "7 Viewfinder" "Disable or Enable Viewfinder on Touchscreen" \
-    "8 SD Card Info" "Show SD Card Information"  \
-    "9 Factory Settings" "Restore Initial Configuration" \
-    "10 Reset Touch Cal" "Reset Touchscreen Calibration to zero" \
-    "11 Back-up Settings" "Save Settings to a USB drive" \
-    "12 Load Settings" "Load settings from a USB Drive" \
-    "13 Drivers" "Installation drivers divers" \
+    "5 Lime Gain" "Set the LimeGain for Each Band" \
+    "6 DATV Express" "Configure DATV Express Settings for each band" \
+    "7 Contest Numbers" "Set Contest Numbers for each band" \
+    "8 Viewfinder" "Disable or Enable Viewfinder on Touchscreen" \
+    "9 SD Card Info" "Show SD Card Information"  \
+    "10 Factory Settings" "Restore Initial Configuration" \
+    "11 Reset Touch Cal" "Reset Touchscreen Calibration to zero" \
+    "12 Back-up Settings" "Save Settings to a USB drive" \
+    "13 Load Settings" "Load settings from a USB Drive" \
     3>&2 2>&1 1>&3)
   case "$menuchoice" in
     1\ *) do_presets ;;
     2\ *) do_preset_SRs ;;
     3\ *) do_4351_ref  ;;
     4\ *) do_atten_levels ;;
-    5\ *) do_set_express ;;
-    6\ *) do_numbers ;;
-    7\ *) do_vfinder ;;
-    8\ *) do_SD_info ;;
-    9\ *) do_factory;;
-    10\ *) do_touch_factory;;
-    11\ *) do_back_up;;
-    12\ *) do_load_settings;;
-    13\ *) do_drivers;;
+    5\ *) do_set_limegain ;;
+    6\ *) do_set_express ;;
+    7\ *) do_numbers ;;
+    8\ *) do_vfinder ;;
+    9\ *) do_SD_info ;;
+    10\ *) do_factory;;
+    11\ *) do_touch_factory;;
+    12\ *) do_back_up;;
+    13\ *) do_load_settings;;
   esac
 }
 
@@ -3442,7 +3080,7 @@ do_limecal()
   else
     CAL_MSG="LIME Set to Calibrate on Frequency Change only.  Select new option"
   fi
-
+  
   menuchoice=$(whiptail --title "LimeSDR Calibration Menu" --menu "$CAL_MSG" 20 78 4 \
     "1 Never Calibrate" "No Calibration"  \
     "2 Always Calibrate" "Calibrate at the Start of Every Transmission"  \
@@ -3494,7 +3132,7 @@ do_lg()
 
   LIMEGAIN=$(whiptail --inputbox "Current gain = "$LIMEGAIN".  Enter 0 to 100" 8 78 $LIMEGAIN0 --title "SET LIME GAIN FOR THE "$BAND_NAME" BAND" 3>&1 1>&2 2>&3)
   if [ $? -eq 0 ]; then
-
+ 
   set_config_var limegain "$LIMEGAIN" $PCONFIGFILE
   case "$BAND" in
   d1)
@@ -3652,7 +3290,7 @@ do_DisableButtonSD()
 {
   rm /home/pi/.pi-sdn             ## Stop it being loaded at log-on
   sudo pkill -x pi-sdn            ## kill the current process
-}
+} 
 
 do_shutdown_menu()
 {
@@ -3695,22 +3333,13 @@ OnStartup()
   CALL=$(get_config_var call $PCONFIGFILE)
   MODE_INPUT=$(get_config_var modeinput $PCONFIGFILE)
   MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
-  MODULATION=$(get_config_var modulation $PCONFIGFILE)
   SYMBOLRATEK=$(get_config_var symbolrate $PCONFIGFILE)
   FEC=$(get_config_var fec $PCONFIGFILE)
+  MODULATION=$(get_config_var modulation $PCONFIGFILE)
   PATHTS=$(get_config_var pathmedia $PCONFIGFILE)
   FREQ_OUTPUT=$(get_config_var freqoutput $PCONFIGFILE)
   GAIN_OUTPUT=$(get_config_var rfpower $PCONFIGFILE)
-  if [ "$MODULATION" == "DVB-S" ] ; then
-   let FECNUM=FEC
-   let FECDEN=FEC+1
-  else
-   let FECNUM=FEC/10
-   let FECDEN=FEC-FECNUM*10
-   if [ $FECDEN = 1 ] ; then
-	  FECDEN=10
-   fi
-  fi
+  do_fec_lookup
   V_FINDER=$(get_config_var vfinder $PCONFIGFILE)
 
   INFO=$CALL":"$MODE_INPUT"-->"$MODE_OUTPUT" "$FREQ_OUTPUT" MHz "$SYMBOLRATEK" KS, "$MODULATION", FEC "$FECNUM"/"$FECDEN""
@@ -3754,7 +3383,9 @@ status="0"
 # Start DATV Express Server if required
 MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
 SYMBOLRATEK=$(get_config_var symbolrate $PCONFIGFILE)
-if [ "$MODE_OUTPUT" == "DATVEXPRESS" ]; then
+MODULATION=$(get_config_var modulation $PCONFIGFILE)
+
+if [ "$MODE_OUTPUT" == "DATVEXPRESS" ] && [ "$MODULATION" != "DVB-T" ]; then
   if pgrep -x "express_server" > /dev/null; then
     # Express already running so do nothing
     :
@@ -3783,7 +3414,7 @@ fi
 sleep 0.2
 
 # Loop round main menu
-while [ "$status" -eq 0 ]
+while [ "$status" -eq 0 ] 
   do
 
     # Lookup parameters for Menu Info Message
@@ -3791,50 +3422,41 @@ while [ "$status" -eq 0 ]
     MODE_INPUT=$(get_config_var modeinput $PCONFIGFILE)
     MODE_OUTPUT=$(get_config_var modeoutput $PCONFIGFILE)
     SYMBOLRATEK=$(get_config_var symbolrate $PCONFIGFILE)
-    MODULATION=$(get_config_var modulation $PCONFIGFILE)
     FEC=$(get_config_var fec $PCONFIGFILE)
+    MODULATION=$(get_config_var modulation $PCONFIGFILE)
     PATHTS=$(get_config_var pathmedia $PCONFIGFILE)
     FREQ_OUTPUT=$(get_config_var freqoutput $PCONFIGFILE)
     GAIN_OUTPUT=$(get_config_var rfpower $PCONFIGFILE)
-    if [ "$MODULATION" == "DVB-S" ] ; then
-     let FECNUM=FEC
-     let FECDEN=FEC+1
-    else
-     let FECNUM=FEC/10
-     let FECDEN=FEC-FECNUM*10
-     if [ $FECDEN = 1 ] ; then
-      FECDEN=10
-     fi
-    fi
-    INFO=$CALL":"$MODE_INPUT"-->"$MODE_OUTPUT"("$SYMBOLRATEK"KSymbol FEC "$FECNUM"/"$FECDEN") on "$FREQ_OUTPUT"Mhz"
+    do_fec_lookup
+    INFO=$CALL": "$MODE_INPUT" -> "$MODE_OUTPUT" "$FREQ_OUTPUT" MHz "$SYMBOLRATEK" KS, "$MODULATION", FEC "$FECNUM"/"$FECDEN""
     V_FINDER=$(get_config_var vfinder $PCONFIGFILE)
 
     # Display main menu
 
-     menuchoice=$(whiptail --title "$StrMainMenuTitle" --menu "$INFO" 16 82 10 \
-	"0 Transmit" $FREQ_OUTPUT" MHz, "$MODULATION", "$SYMBOLRATEK" KS, FEC "$FECNUM"/"$FECDEN"." \
-	"1 Source" "$StrMainMenuSource"" ("$MODE_INPUT" selected)" \
+    menuchoice=$(whiptail --title "$StrMainMenuTitle" --menu "$INFO" 16 82 10 \
+	"0 Transmit" $FREQ_OUTPUT" MHz, "$SYMBOLRATEK" KS, "$MODULATION", FEC "$FECNUM"/"$FECDEN"" \
+        "1 Source" "$StrMainMenuSource"" ("$MODE_INPUT" selected)" \
 	"2 Output" "$StrMainMenuOutput"" ("$MODE_OUTPUT" selected)" \
 	"3 Station" "$StrMainMenuCall" \
 	"4 Receive" "$StrMainMenuReceive" \
 	"5 System" "$StrMainMenuSystem" \
-	"6 System 2" "$StrMainMenuSystem2" \
-	"7 Lime Config  " "LimeSDR Mini Info and Configuration" \
+        "6 System 2" "$StrMainMenuSystem2" \
+        "7 Lime Config  " "LimeSDR Mini Info and Configuration" \
 	"8 Language" "$StrMainMenuLanguage" \
-	"9 Shutdown" "$StrMainMenuShutdown" \
+        "9 Shutdown" "$StrMainMenuShutdown" \
  	3>&2 2>&1 1>&3)
 
         case "$menuchoice" in
 	    0\ *) do_transmit   ;;
-	    1\ *) do_input_setup   ;;
+            1\ *) do_input_setup   ;;
 	    2\ *) do_output_setup ;;
-	    3\ *) do_station_setup ;;
+   	    3\ *) do_station_setup ;;
 	    4\ *) do_receive_menu ;;
 	    5\ *) do_system_setup ;;
 	    6\ *) do_system_setup_2 ;;
 	    7\ *) do_lime_setup ;;
-	    8\ *) do_language_setup ;;
-	    9\ *) do_shutdown_menu ;;
+            8\ *) do_language_setup ;;
+            9\ *) do_shutdown_menu ;;
                *)
 
         # Display exit message if user jumps out of menu
