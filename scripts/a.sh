@@ -453,6 +453,8 @@ case "$MODE_OUTPUT" in
     # Set digital gain
     let DIGITAL_GAIN=($LIME_GAIN*31)/100 # For LIMEDVB
 
+    LIME_GAINF=`echo - | awk '{print '$LIME_GAIN' / 100}'`
+
     if [ "$SYMBOLRATE_K" -lt 990 ] ; then
 #      UPSAMPLE=2
       LIME_GAINF=`echo - | awk '{print '$LIME_GAIN' / 100}'`
