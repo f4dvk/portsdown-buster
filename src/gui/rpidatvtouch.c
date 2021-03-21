@@ -7074,7 +7074,7 @@ void SelectFreq(int NoButton)  //Frequency
   {
     strcpy(freqtxt, QOFreq[NoButton - 10]);
   }
-  printf("CallingMenu = %d/n", CallingMenu);
+  printf("CallingMenu = %d\n", CallingMenu);
 
   printf ("freqtxt = %s\n", freqtxt);
 
@@ -16272,7 +16272,7 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
         case 7:                               // DVB-T
           SelectTX(i);
           printf("DVB-T\n");
-          //CurrentMenu = 16;                  // Set the guard interval and QAM
+          //CurrentMenu = 16;                  // ! Menu 16 déjà utilisé ! Set the guard interval and QAM
           //printf("MENU 16 \n");              // on DVB-T selection
           //setBackColour(0, 0, 0);
           //clearScreen();
@@ -16533,40 +16533,44 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
         UpdateWindow();
         continue;   // Completed Menu 15 action, go and wait for touch
       }
-      if (CurrentMenu == 16)  // Menu 16 Guard Interval (was frequency)
+      if (CurrentMenu == 16)  // Menu 16 Frequency
       {
         printf("Button Event %d, Entering Menu 16 Case Statement\n",i);
         switch (i)
         {
-        case 4:                               // Cancel DVBTQAM
+        case 4:                               // Cancel
           SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 1);
           printf("SR Cancel\n");
           break;
-        case 0:                               //   Guard 1/4
-        case 1:                               //   Guard 1/8
-        case 2:                               //   Guard 1/16
-        case 3:                               //   Guard 1/32
-          SelectInGroupOnMenu(CurrentMenu, 0, 3, i, 1);
-          //SelectGuard(i);
-          printf("Guard Interval Button %d\n", i);
+        case 0:                               // Freq 6
+        case 1:                               // Freq 7
+        case 2:                               // Freq 8
+        case 5:                               // Freq 1
+        case 6:                               // Freq 2
+        case 7:                               // Freq 3
+        case 8:                               // Freq 4
+        case 9:                               // Freq 5
+          SelectFreq(i);
+          printf("Frequency Button %d\n", i);
           break;
-        case 5:                               //   qpsk
-        case 6:                               //   16-QAM
-        case 7:                               //   64-QAM
-          SelectInGroupOnMenu(CurrentMenu, 5, 7, i, 1);
-          //SelectQAM(i);
-          printf("DVB-T QAM Button %d\n", i);
+        case 3:                               // Freq 9 Direct Entry
+          ChangePresetFreq(i);
+          SelectFreq(i);
+          printf("Frequency Button %d\n", i);
           break;
         default:
           printf("Menu 16 Error\n");
         }
-        UpdateWindow();
-        usleep(1000000);
+        if(i != 3)  // Don't pause if frequency has been set on keyboard
+        {
+          UpdateWindow();
+          usleep(500000);
+        }
         SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 0); // Reset cancel (even if not selected)
-        printf("Returning to MENU 1 from Menu 16\n");
-        CurrentMenu=1;
-        BackgroundRGB(255, 255, 255, 255);
-        Start_Highlights_Menu1();
+        printf("Returning to MENU 5 from Menu 16\n");
+        CurrentMenu=5;
+        BackgroundRGB(0, 0, 0, 255);
+        Start_Highlights_Menu5();
         UpdateWindow();
         continue;   // Completed Menu 16 action, go and wait for touch
       }
@@ -21051,43 +21055,51 @@ void Define_Menu16()
 {
   int button;
 
-  strcpy(MenuTitle[16], "DVB-T Parameters Menu (16)");
+  strcpy(MenuTitle[16], "Frequency Selection Menu (16)");
 
   // Bottom Row, Menu 16
 
   button = CreateButton(16, 0);
-  AddButtonStatus(button, "Guard^1/4", &Blue);
-  AddButtonStatus(button, "Guard^1/4", &Green);
+  AddButtonStatus(button, FreqLabel[5], &Blue);
+  AddButtonStatus(button, FreqLabel[5], &Green);
 
   button = CreateButton(16, 1);
-  AddButtonStatus(button, "Guard^1/8", &Blue);
-  AddButtonStatus(button, "Guard^1/8", &Green);
+  AddButtonStatus(button, FreqLabel[6], &Blue);
+  AddButtonStatus(button, FreqLabel[6], &Green);
 
   button = CreateButton(16, 2);
-  AddButtonStatus(button, "Guard^1/16", &Blue);
-  AddButtonStatus(button, "Guard^1/16", &Green);
+  AddButtonStatus(button, FreqLabel[7], &Blue);
+  AddButtonStatus(button, FreqLabel[7], &Green);
 
   button = CreateButton(16, 3);
-  AddButtonStatus(button, "Guard^1/32", &Blue);
-  AddButtonStatus(button, "Guard^1/32", &Green);
+  AddButtonStatus(button, FreqLabel[8], &Blue);
+  AddButtonStatus(button, FreqLabel[8], &Green);
 
   button = CreateButton(16, 4);
-  AddButtonStatus(button, "Continue", &DBlue);
-  AddButtonStatus(button, "Continue", &LBlue);
+  AddButtonStatus(button, "Cancel", &DBlue);
+  AddButtonStatus(button, "Cancel", &LBlue);
 
   // 2nd Row, Menu 16
 
   button = CreateButton(16, 5);
-  AddButtonStatus(button, "QPSK", &Blue);
-  AddButtonStatus(button, "QPSK", &Green);
+  AddButtonStatus(button, FreqLabel[0], &Blue);
+  AddButtonStatus(button, FreqLabel[0], &Green);
 
   button = CreateButton(16, 6);
-  AddButtonStatus(button, "16-QAM", &Blue);
-  AddButtonStatus(button, "16-QAM", &Green);
+  AddButtonStatus(button, FreqLabel[1], &Blue);
+  AddButtonStatus(button, FreqLabel[1], &Green);
 
   button = CreateButton(16, 7);
-  AddButtonStatus(button, "64-QAM", &Blue);
-  AddButtonStatus(button, "64-QAM", &Green);
+  AddButtonStatus(button, FreqLabel[2], &Blue);
+  AddButtonStatus(button, FreqLabel[2], &Green);
+
+  button = CreateButton(16, 8);
+  AddButtonStatus(button, FreqLabel[3], &Blue);
+  AddButtonStatus(button, FreqLabel[3], &Green);
+
+  button = CreateButton(16, 9);
+  AddButtonStatus(button, FreqLabel[4], &Blue);
+  AddButtonStatus(button, FreqLabel[4], &Green);
 
 }
 
@@ -21097,8 +21109,17 @@ void MakeFreqText(int index)
   char Value[255];
   float TvtrFreq;
 
-  strcpy(Param,"freqoutput");
-  GetConfigParam(PATH_PCONFIG,Param,Value);
+  if (CallingMenu == 5)
+  {
+    strcpy(Param,"rx0frequency");
+    GetConfigParam(PATH_RXPRESETS, Param, Value);
+  }
+  else
+  {
+    strcpy(Param,"freqoutput");
+    GetConfigParam(PATH_PCONFIG,Param,Value);
+  }
+
   if ((TabBandLO[CurrentBand] < 0.1) && (TabBandLO[CurrentBand] > -0.1))
   {
     if (index == 8)
@@ -21142,39 +21163,32 @@ void MakeFreqText(int index)
 
 void Start_Highlights_Menu16()
 {
+  // Frequency
+  int index;
   int NoButton;
 
-  if (strcmp(Guard, "4") == 0)
-  {
-    NoButton = 0;
-  }
-  else if (strcmp(Guard, "8") == 0)
-  {
-    NoButton = 1;
-  }
-  else if (strcmp(Guard, "16") == 0)
-  {
-    NoButton = 2;
-  }
-  else if (strcmp(Guard, "32") == 0)
-  {
-    NoButton = 3;
-  }
-  SelectInGroupOnMenu(16, 0, 3, NoButton, 1);
+  strcpy(MenuTitle[16], " Receive Frequency Selection Menu (16)");
 
-  if (strcmp(DVBTQAM, "qpsk") == 0)
+  for(index = 0; index < 9 ; index = index + 1)
   {
-    NoButton = 5;
+    // Define the button text
+    MakeFreqText(index);
+    NoButton = index + 5; // Valid for bottom row
+    if (index > 4)          // Overwrite for top row
+    {
+      NoButton = index - 5;
+    }
+
+    AmendButtonStatus(ButtonNumber(16, NoButton), 0, FreqBtext, &Blue);
+    AmendButtonStatus(ButtonNumber(16, NoButton), 1, FreqBtext, &Green);
+
+    //Highlight the Current Button
+    if (strcmp(RXfreq[0], TabFreq[index]) == 0)
+    {
+      SelectInGroupOnMenu(16, 5, 9, NoButton, 1);
+      SelectInGroupOnMenu(16, 0, 3, NoButton, 1);
+    }
   }
-  else if (strcmp(DVBTQAM, "16qam") == 0)
-  {
-    NoButton = 6;
-  }
-  else if (strcmp(DVBTQAM, "64qam") == 0)
-  {
-    NoButton = 7;
-  }
-  SelectInGroupOnMenu(16, 5, 7, NoButton, 1);
 }
 
 void Define_Menu17()
