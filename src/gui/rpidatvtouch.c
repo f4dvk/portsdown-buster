@@ -8531,7 +8531,7 @@ void TransmitStop()
     system("sudo killall dvb2iq2 >/dev/null 2>/dev/null");
     system("sudo killall limesdr_send >/dev/null 2>/dev/null");
     system("sudo killall limesdr_dvb >/dev/null 2>/dev/null");
-    system("(sleep 1; /home/pi/rpidatv/bin/limesdr_stopchannel) &");
+    system("(sleep 0.5; /home/pi/rpidatv/bin/limesdr_stopchannel) &");
   }
 
   // Kill the key processes as nicely as possible
@@ -15280,7 +15280,26 @@ void waituntil(int w,int h)
           BackgroundRGB(0,0,0,255);
           UpdateWindow();
           break;
-        case 4:                               // Not used
+        case 4:                              // Lime Band Viewer
+          if (((CheckLimeMiniConnect() == 0)
+           || (DetectLimeNETMicro() == 1)) && (strcmp(DisplayType, "Element14_7") == 0))
+          {
+            DisplayLogo();
+            cleanexit(136);
+          }
+          else
+          {
+            if (strcmp(DisplayType, "Element14_7") == 0)
+            {
+              MsgBox4("No LimeSDR Mini or", "LimeNet Micro detected", " ", "Touch screen to continue");
+            }
+            else
+            {
+              MsgBox4("7 inch screen required", "For Band Viewer", " ", "Touch screen to continue");
+            }
+            wait_touch();
+          }
+          BackgroundRGB(0, 0, 0, 255);
           UpdateWindow();
           break;
         case 5:                               // Locator Bearings
@@ -19410,9 +19429,8 @@ void Define_Menu2()
   AddButtonStatus(button, "Calibrate^Touch", &Blue);
   AddButtonStatus(button, " ", &Green);
 
-  //button = CreateButton(2, 4);
-  //AddButtonStatus(button, " ", &Blue);
-  //AddButtonStatus(button, " ", &Green);
+  button = CreateButton(2, 4);
+  AddButtonStatus(button, "LimeSDR^BandView", &Blue);
 
   // 2nd Row, Menu 2
 
@@ -19456,11 +19474,9 @@ void Define_Menu2()
 
   button = CreateButton(2, 16);
   AddButtonStatus(button, "Sig Gen^ ", &Blue);
-  //AddButtonStatus(button, " ", &Green);
 
   button = CreateButton(2, 17);
   AddButtonStatus(button, "RTL-TCP^Server", &Blue);
-  //AddButtonStatus(button, " ", &Green);
 
   button = CreateButton(2, 18);
   AddButtonStatus(button, "RTL-FM^Receiver", &Blue);
