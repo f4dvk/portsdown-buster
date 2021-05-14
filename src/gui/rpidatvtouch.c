@@ -17740,17 +17740,17 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
             UpdateWindow();
           }
           break;
-        case 7:                               // 8PSK
-          if ((strcmp(ModeOutput, "RPI_R") != 0) || ((strcmp(ModeOutput, "RPI_R") == 0) && (strcmp(RemoteOutput, "LIMEMINI") == 0)))
-          {
-            SetConfigParam(PATH_RXPRESETS, "rx0modulation", "8PSK");
-            SetConfigParam(PATH_RXPRESETS, "rx0fec", "Auto");
-            CurrentMenu=5;
-            BackgroundRGB(0,0,0,255);
-            Start_Highlights_Menu5();
-            UpdateWindow();
-          }
-          break;
+        //case 7:                               // 8PSK
+          //if ((strcmp(ModeOutput, "RPI_R") != 0) || ((strcmp(ModeOutput, "RPI_R") == 0) && (strcmp(RemoteOutput, "LIMEMINI") == 0)))
+          //{
+            //SetConfigParam(PATH_RXPRESETS, "rx0modulation", "8PSK");
+            //SetConfigParam(PATH_RXPRESETS, "rx0fec", "Auto");
+            //CurrentMenu=5;
+            //BackgroundRGB(0,0,0,255);
+            //Start_Highlights_Menu5();
+            //UpdateWindow();
+          //}
+          //break;
         //case 8:                               // 16APSK
           //SetConfigParam(PATH_RXPRESETS, "rx0modulation", "16APSK");
           //SetConfigParam(PATH_RXPRESETS, "rx0fec", "Auto");
@@ -22965,29 +22965,29 @@ void Define_Menu40()
   AddButtonStatus(button,"DVB-S2",&Green);
   AddButtonStatus(button,"DVB-S2",&Grey);
 
-  button = CreateButton(40, 7);
-  AddButtonStatus(button,"8PSK",&Blue);
-  AddButtonStatus(button,"8PSK",&Green);
-  AddButtonStatus(button,"8PSK",&Grey);
+  //button = CreateButton(40, 7);
+  //AddButtonStatus(button,"8PSK",&Blue);
+  //AddButtonStatus(button,"8PSK",&Green);
+  //AddButtonStatus(button,"8PSK",&Grey);
 
-  button = CreateButton(40, 8);
+  //button = CreateButton(40, 8);
   //AddButtonStatus(button,"16APSK",&Blue);
   //AddButtonStatus(button,"16APSK",&Green);
-  AddButtonStatus(button,"16APSK",&Grey);
+  //AddButtonStatus(button,"16APSK",&Grey);
 
-  button = CreateButton(40, 9);
+  //button = CreateButton(40, 9);
   //AddButtonStatus(button,"32APSK",&Blue);
   //AddButtonStatus(button,"32APSK",&Green);
-  AddButtonStatus(button,"32APSK",&Grey);
+  //AddButtonStatus(button,"32APSK",&Grey);
 }
 
 void Start_Highlights_Menu40()
 {
   SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0); // DVB-S
   SetButtonStatus(ButtonNumber(CurrentMenu, 6), 0); // DVB-S2
-  SetButtonStatus(ButtonNumber(CurrentMenu, 7), 0); // 8PSK
-  SetButtonStatus(ButtonNumber(CurrentMenu, 8), 0); // 16APSK
-  SetButtonStatus(ButtonNumber(CurrentMenu, 9), 0); // 32APSK
+  //SetButtonStatus(ButtonNumber(CurrentMenu, 7), 0); // 8PSK
+  //SetButtonStatus(ButtonNumber(CurrentMenu, 8), 0); // 16APSK
+  //SetButtonStatus(ButtonNumber(CurrentMenu, 9), 0); // 32APSK
 
   if (strcmp(RXMOD, "DVB-S") == 0) // DVB-S
   {
@@ -22999,15 +22999,15 @@ void Start_Highlights_Menu40()
     SetButtonStatus(ButtonNumber(CurrentMenu, 6), 1); // DVB-S2
   }
 
-  if (strcmp(RXMOD, "8PSK") == 0) // 8PSK
-  {
-    SetButtonStatus(ButtonNumber(CurrentMenu, 7), 1); // 8PSK
-  }
+  //if (strcmp(RXMOD, "8PSK") == 0) // 8PSK
+  //{
+    //SetButtonStatus(ButtonNumber(CurrentMenu, 7), 1); // 8PSK
+  //}
 
   if ((strcmp(ModeOutput, "RPI_R") == 0) && (strcmp(RemoteOutput, "LIMEMINI") != 0))
   {
     SetButtonStatus(ButtonNumber(CurrentMenu, 6), 2); // DVB-S2 Grey
-    SetButtonStatus(ButtonNumber(CurrentMenu, 7), 2); // 8PSK Grey
+    //SetButtonStatus(ButtonNumber(CurrentMenu, 7), 2); // 8PSK Grey
   }
 
   //if (strcmp(RXMOD, "16APSK") == 0) // 16APSK
