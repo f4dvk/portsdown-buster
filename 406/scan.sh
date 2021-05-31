@@ -19,7 +19,14 @@ EOF
 
 FREQLOW=$(get_config_var low $PATH_406CONFIG)
 FREQHIGH=$(get_config_var high $PATH_406CONFIG)
+CHECKSUM=$(get_config_var no_checksum $PATH_406CONFIG)
 
-/home/pi/rpidatv/406/scan406.pl $FREQLOW"M" $FREQHIGH"M"
+if [ "$CHECKSUM" = "1" ]; then
+  CHECKSUM="no_checksum"
+else
+  CHECKSUM=""
+fi
+
+/home/pi/rpidatv/406/scan406.pl $FREQLOW"M" $FREQHIGH"M" 0 $CHECKSUM
 
 exit

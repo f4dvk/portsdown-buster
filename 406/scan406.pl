@@ -32,10 +32,12 @@ my $i;
 my $j;
 my $frq=0;
 my $dec = '/home/pi/rpidatv/406/dec406_V6 --100 --M3 --une_minute';
-my $dec1 = '/home/pi/rpidatv/406/dec406_V6 --100 --M3 --une_minute --osm';
+my $dec1 = '/home/pi/rpidatv/406/dec406_V6 --100 --M3 --une_minute --no_checksum';
 my $dec3 = '/home/pi/rpidatv/406/dec406_V6 --100 --M3';
+my $dec4 = '/home/pi/rpidatv/406/dec406_V6 --100 --M3 --no_checksum';
 my $timeout = "timeout 56s";
 my $fixe = 0;
+my $no_checksum = 0;
 my $filter = "lowpass 3000 highpass 400"; #highpass de 10Hz à 400Hz selon la qualité du signal
 
 my $largeur = "12k";
@@ -54,8 +56,8 @@ my $destinataires='dede@free.fr,lili@orange.fr';
 
 my $var=@ARGV;
 if ($var<2)
-	{print "\n SYNTAXE:  scan406.pl  freq_Depart  freq_Fin [decalage_ppm [osm]]\n";
-	print " Exemple:\n	scan406.pl 406M 406.1M\n	scan406.pl 406M 406.1M 0 osm\n\n";
+	{print "\n SYNTAXE:  scan406.pl  freq_Depart  freq_Fin [decalage_ppm] [no_checksum]\n";
+	print " Exemple:\n	scan406.pl 406M 406.1M\n	scan406.pl 406M 406.1M 0 no_checksum\n\n";
 	exit(0);
 	}
 
@@ -72,7 +74,11 @@ for (my $i=0;$i<@ARGV;$i++)
 	{$ppm=$ARGV[2];
 	}
 	if ($i==3)
-	{  if ($ARGV[3] eq 'osm'){$dec=$dec1;}
+	{  if ($ARGV[3] eq 'no_checksum')
+	   {
+	     $dec=$dec1;
+	     $no_checksum=1;
+	   }
 	}
 
 }
@@ -155,7 +161,14 @@ while (1) {
 #    my $tps2=56;
     if ($fixe == 1) {
       $timeout = "";
-      $dec=$dec3;
+      if ($no_checksum == 0)
+      {
+        $dec=$dec3;
+      }
+      else
+      {
+        $dec=$dec4;
+      }
     }
     printf "\nLancement du Decodage   ";
     $utc = strftime(' %d %m %Y   %Hh%Mm%Ss', gmtime);

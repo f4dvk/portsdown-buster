@@ -18748,6 +18748,8 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
       if (CurrentMenu == 57)  // Menu 57 Sarsat Decoder
       {
         printf("Button Event %d, Entering Menu 57 Case Statement\n",i);
+        char Checksum[4];
+        GetConfigParam(PATH_406CONFIG,"no_checksum",Checksum);
         switch (i)
         {
         case 4:                               // Cancel
@@ -18838,6 +18840,16 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
         case 8:
           break;
         case 9:
+          SelectInGroupOnMenu(CurrentMenu, 9, 9, 9, 1);
+          UpdateWindow();
+          usleep(50000);
+          SelectInGroupOnMenu(CurrentMenu, 9, 9, 9, 0);
+          if (atoi(Checksum) == 1) SetConfigParam(PATH_406CONFIG, "no_checksum", "0");
+          else SetConfigParam(PATH_406CONFIG, "no_checksum", "1");
+          CurrentMenu=57;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu57();
+          UpdateWindow();
           break;
         default:
           printf("Menu 57 Error\n");
@@ -23861,12 +23873,18 @@ void Define_Menu57()
   AddButtonStatus(button, "Fixe^433.95M", &LBlue);
   AddButtonStatus(button, "Fixe^433.95M", &Green);
 
+  button = CreateButton(57, 9);
+  AddButtonStatus(button, "Balise^F1LVT", &DBlue);
+  AddButtonStatus(button, "Balise^F1LVT", &LBlue);
+  AddButtonStatus(button, "Balise^F1LVT", &Green);
+  AddButtonStatus(button, "Balise^F1LVT", &Grey);
 }
 
 void Start_Highlights_Menu57()
 {
   char ValueLow[15] = "";
   char ValueHigh[15] = "";
+  char ValueChecksum[15] = "";
   char Freqtext[21];
 
   // Low:
@@ -23897,6 +23915,15 @@ void Start_Highlights_Menu57()
     SetButtonStatus(ButtonNumber(CurrentMenu, 7), 2);
   }else{
     SetButtonStatus(ButtonNumber(CurrentMenu, 7), 0);
+  }
+
+  GetConfigParam(PATH_406CONFIG, "no_checksum", ValueChecksum);
+
+  if (atoi(ValueChecksum) == 1)
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 9), 2);
+  }else{
+    SetButtonStatus(ButtonNumber(CurrentMenu, 9), 0);
   }
 }
 
