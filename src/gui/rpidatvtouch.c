@@ -23877,7 +23877,6 @@ void Define_Menu57()
   AddButtonStatus(button, "Balise^F1LVT", &DBlue);
   AddButtonStatus(button, "Balise^F1LVT", &LBlue);
   AddButtonStatus(button, "Balise^F1LVT", &Green);
-  AddButtonStatus(button, "Balise^F1LVT", &Grey);
 }
 
 void Start_Highlights_Menu57()

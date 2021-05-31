@@ -1,3 +1,6 @@
+202105310
+RX Sarsat activation/désactivation CRC NULL (Balise F1LVT Checksum à 0)
+
 202105140
 Suppression RX 8PSK car detection auto avec leandvb
 
