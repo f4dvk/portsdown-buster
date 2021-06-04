@@ -470,6 +470,16 @@ sudo chown root /etc/wpa_supplicant/wpa_supplicant.conf
 sudo rfkill unblock wifi
 sudo ifconfig wlan0 up
 
+# Compile Band Viewer
+echo
+echo "---------------------------------"
+echo "----- Compiling Band Viewer -----"
+echo "---------------------------------"
+cd /home/pi/rpidatv/src/bandview
+make
+cp bandview ../../bin/
+cd /home/pi
+
 echo
 echo "-----------------------------------------"
 echo "----- Compiling Ancilliary programs -----"

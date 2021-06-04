@@ -4,6 +4,10 @@ RX Sarsat activation/désactivation CRC NULL (Balise F1LVT Checksum à 0)
 202105140
 Suppression RX 8PSK car detection auto avec leandvb
 
+202104290
+Add LimeSDR USB to Band Viewer
+Band Viewer Enhancements
+
 202104130
 Add Lime Band Viewer
 

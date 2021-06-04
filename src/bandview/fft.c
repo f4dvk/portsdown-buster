@@ -16,8 +16,8 @@
 
 #include "timing.h"
 #include "lime.h"
+#include "font/font.h"
 #include "graphics.h"
-//#include "graphics2.h"
 
 /* Input from lime.c */
 extern lime_fft_buffer_t lime_fft_buffer;
@@ -95,7 +95,7 @@ void *fft_thread(void *arg)
     pthread_cond_init (&lime_fft_buffer.signal, &attr);
     pthread_condattr_destroy(&attr);
 
-    while((false == *exit_requested)) 
+    while((false == *exit_requested))
     {
         /* Lock input buffer */
         pthread_mutex_lock(&lime_fft_buffer.mutex);
@@ -150,9 +150,9 @@ void *fft_thread(void *arg)
             }
             pwr = pwr_scale * (pt[0] * pt[0]) + (pt[1] * pt[1]);
             lpwr = 10.f * log10(pwr + 1.0e-20);
-            
+
             fft_data_staging[i] = (lpwr * (1.f - FFT_TIME_SMOOTH)) + (fft_data_staging[i] * FFT_TIME_SMOOTH);
-            
+
             if (wfall == true)
             {
 
@@ -169,35 +169,35 @@ void *fft_thread(void *arg)
 
               fft_data_output[i] = (uint8_t)(fft_scaled_data[i]);
             }
-            else
+            else   // Standard Spectrum plot
             {
+              // Set the scaling and vertical offset
               fft_scaled_data[i] = 5 * (fft_data_staging[i] + 88);
 
-
+              // Apply some time smoothing
               main_spectrum_smooth_buffer[i] = ((fft_scaled_data[i]) * (1.f - MAIN_SPECTRUM_TIME_SMOOTH))
                 + (main_spectrum_smooth_buffer[i] * MAIN_SPECTRUM_TIME_SMOOTH);
-
-              //value = ((uint32_t)(main_spectrum_smooth_buffer[i] * MAIN_SPECTRUM_HEIGHT)) / 255;
-
-              fft_scaled_data[i] = main_spectrum_smooth_buffer[i];
-
-              if(fft_scaled_data[i] < 1) fft_scaled_data[i] = 1;
-              if(fft_scaled_data[i] > 399) fft_scaled_data[i] = 399;
 
               // Correct for the roll-off at the ends of the fft
               if (i < 46)
               {
-                y[i] = (uint16_t)(fft_scaled_data[i]) + ((46 - i) * 2) / 5;
+                fft_scaled_data[i] = main_spectrum_smooth_buffer[i] + ((46 - i) * 2) / 5;
               }
               else if (i > 466)
               {
-                y[i] = (uint16_t)(fft_scaled_data[i]) + ((i - 466) * 2) / 5;
+                fft_scaled_data[i] = main_spectrum_smooth_buffer[i] + ((i - 466) * 2) / 5;
               }
               else
               {
-                y[i] = (uint16_t)(fft_scaled_data[i]);
+                fft_scaled_data[i] = main_spectrum_smooth_buffer[i];
               }
 
+              // Make sure that the data is within bounds
+              if(fft_scaled_data[i] < 1) fft_scaled_data[i] = 1;
+              if(fft_scaled_data[i] > 399) fft_scaled_data[i] = 399;
+
+              // Convert to int
+              y[i] = (uint16_t)(fft_scaled_data[i]);
             }
         }
         //printf("Max: %f, Min %f\n", int_max, int_min);

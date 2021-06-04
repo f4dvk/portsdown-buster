@@ -20,11 +20,13 @@ lime_fft_buffer_t lime_fft_buffer;
 extern bool NewFreq;
 extern bool NewGain;
 extern bool NewSpan;
+extern bool NewCal;
 extern float gain;
 
 // Display Defaults:
 double bandwidth = 512e3; // 512ks
 double frequency_actual_rx = 437000000;
+double CalFreq;
 
 //Device structure, should be initialize to NULL
 static lms_device_t* device = NULL;
@@ -97,7 +99,7 @@ void *lime_thread(void *arg)
 
     printf("Lime Frequency Plan:\n"
             "   - Actual RX: %.0fHz\n",
-        frequency_actual_rx        
+        frequency_actual_rx
     );
 
     //Set RX center frequency
@@ -132,10 +134,11 @@ void *lime_thread(void *arg)
     if (LMS_Calibrate(device, LMS_CH_RX, 0, bandwidth, 0) < 0)
     {
         fprintf(stderr, "LMS_Calibrate() : %s\n", LMS_GetLastErrorMessage());
-        // Reset gain to zero 
+        // Reset gain to zero
         LMS_SetNormalizedGain(device, true, 0, 0);
         return false;
     }
+    CalFreq = frequency_actual_rx;
 
     // Report actual LO Frequency
     double rxfreq = 0;
@@ -194,11 +197,11 @@ void *lime_thread(void *arg)
 #endif
 
 //    uint32_t samples_rx_transferred = samplesRead / 2.0;
-    while(false == *exit_requested) 
+    while(false == *exit_requested)
     {
         // Receive samples
         samplesRead = LMS_RecvStream(&rx_stream, buffer, buffersize, &rx_metadata, 1000);
-        if (*exit_requested) 
+        if (*exit_requested)
         {
             break;
         }
@@ -208,10 +211,24 @@ void *lime_thread(void *arg)
         if (NewFreq == true)
         {
           LMS_SetLOFrequency(device, LMS_CH_RX, 0, frequency_actual_rx);
+
+          // Calibrate on significant frequency change
+          if ((frequency_actual_rx > (1.1 * CalFreq)) || (frequency_actual_rx < (0.9 * CalFreq)))
+          {
+            LMS_Calibrate(device, LMS_CH_RX, 0, bandwidth, 0);
+            CalFreq = frequency_actual_rx;
+          }
           NewFreq = false;
 
           LMS_GetLOFrequency(device, LMS_CH_RX, 0, &rxfreq);
           printf("RXFREQ after cal = %f\n", rxfreq);
+        }
+
+        if (NewCal == true)
+        {
+          LMS_Calibrate(device, LMS_CH_RX, 0, bandwidth, 0);
+          CalFreq = frequency_actual_rx;
+          NewCal = false;
         }
 
         if (NewGain == true)
@@ -274,7 +291,7 @@ void *lime_thread(void *arg)
     LMS_StopStream(&rx_stream); //stream is stopped but can be started again with LMS_StartStream()
 
     LMS_DestroyStream(device, &rx_stream); //stream is deallocated and can no longer be used
-    
+
     free(buffer);
 
     // Tidily shut down the Lime

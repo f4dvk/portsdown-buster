@@ -210,6 +210,7 @@ char FreqBtext[31];
 char MenuText[5][63];
 char Guard[7] = "32";
 char DVBTQAM[7] = "qpsk";
+char StartApp[63];            // Startup app on boot
 
 // Valid Input Modes:
 // "CAMMPEG-2", "CAMH264", "PATERNAUDIO", "ANALOGCAM" ,"CARRIER" ,"CONTEST"
@@ -2430,6 +2431,10 @@ void ReadCallLocPID()
   strcpy(Param, "pidpmt");
   GetConfigParam(PATH_PCONFIG, Param, Value);
   strcpy(PIDpmt, Value);
+
+  strcpy(Param, "startup");
+  GetConfigParam(PATH_PCONFIG, Param, Value);
+  strcpy(StartApp, Value);
 
 }
 
@@ -14102,6 +14107,24 @@ void ChangeLocator()
   strcpy(Locator, Locator6);
 }
 
+void ChangeStartApp(int NoButton)
+{
+  switch(NoButton)
+  {
+  case 5:
+    SetConfigParam(PATH_PCONFIG, "startup", "Display_boot");
+    strcpy(StartApp, "Display_boot");
+    break;
+  case 7:
+    SetConfigParam(PATH_PCONFIG, "startup", "Bandview_boot");
+    strcpy(StartApp, "Bandview_boot");
+    break;
+  default:
+    break;
+  }
+}
+
+
 void ChangeADFRef(int NoButton)
 {
   char RequestText[64];
@@ -15281,7 +15304,7 @@ void waituntil(int w,int h)
           UpdateWindow();
           break;
         case 4:                              // Lime Band Viewer
-          if (((CheckLimeMiniConnect() == 0)
+          if (((CheckLimeMiniConnect() == 0) || (CheckLimeUSBConnect() == 0)
            || (DetectLimeNETMicro() == 1)) && (strcmp(DisplayType, "Element14_7") == 0))
           {
             DisplayLogo();
@@ -15291,7 +15314,7 @@ void waituntil(int w,int h)
           {
             if (strcmp(DisplayType, "Element14_7") == 0)
             {
-              MsgBox4("No LimeSDR Mini or", "LimeNet Micro detected", " ", "Touch screen to continue");
+              MsgBox4("No LimeSDR or", "LimeNET Micro detected", " ", "Touch screen to continue");
             }
             else
             {
@@ -15460,20 +15483,10 @@ void waituntil(int w,int h)
         case 4:                               //
           break;
         case 5:                              // Lime Config
-          if (GetLinuxVer() == 10)
-          {
-            printf("MENU 37 \n");
-            CurrentMenu=37;
-            BackgroundRGB(0, 0, 0, 255);
-            Start_Highlights_Menu37();
-          }
-          else
-          {
-            printf("MENU 34 \n");
-            CurrentMenu=34;
-            BackgroundRGB(0, 0, 0, 255);
-            Start_Highlights_Menu34();
-          }
+          printf("MENU 37 \n");
+          CurrentMenu=37;
+          BackgroundRGB(0, 0, 0, 255);
+          Start_Highlights_Menu37();
           UpdateWindow();
           break;
         case 6:                              // Jetson Config
@@ -17405,6 +17418,12 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           Start_Highlights_Menu1();
           UpdateWindow();
           break;
+        case 5:                               // Boot to Portsdown
+        case 7:                               // Boot to Band Viewer
+          ChangeStartApp(i);
+          Start_Highlights_Menu34();
+          UpdateWindow();
+          break;
         default:
           printf("Menu 34 Error\n");
         }
@@ -17979,6 +17998,13 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
             system("/home/pi/.pi-sdn");                                                  // load it now
           }
           Start_Highlights_Menu43();
+          UpdateWindow();
+          break;
+        case 12:                               // Start-up App Menu
+          printf("MENU 34 \n");
+          CurrentMenu=34;
+          BackgroundRGB(0, 0, 0, 255);
+          Start_Highlights_Menu34();
           UpdateWindow();
           break;
         case 13:                               // Invert 7 Inch
@@ -22557,13 +22583,9 @@ void Define_Menu34()
 {
   int button;
 
-  strcpy(MenuTitle[34], "Lime Configuration Menu (34)");
+  strcpy(MenuTitle[34], "Start-up App Menu (34)");
 
   // Bottom Row, Menu 34
-
-  button = CreateButton(34, 0);
-  AddButtonStatus(button, "Del Lime^FW on RPi", &Blue);
-  AddButtonStatus(button, "Del Lime^FW on RPi", &Green);
 
   button = CreateButton(34, 4);
   AddButtonStatus(button, "Exit", &DBlue);
@@ -22572,29 +22594,37 @@ void Define_Menu34()
   // 2nd Row, Menu 34
 
   button = CreateButton(34, 5);
-  AddButtonStatus(button, "LimeUtil^Info", &Blue);
-  AddButtonStatus(button, "LimeUtil^Info", &Green);
-
-  button = CreateButton(34, 6);
-  AddButtonStatus(button, "Lime^FW Info", &Blue);
-  AddButtonStatus(button, "Lime^FW Info", &Green);
+  AddButtonStatus(button, "Boot to^Portsdown", &Blue);
+  AddButtonStatus(button, "Boot to^Portsdown", &Green);
 
   button = CreateButton(34, 7);
-  AddButtonStatus(button, "Lime^Report", &Blue);
-  AddButtonStatus(button, "Lime^Report", &Green);
-
-  button = CreateButton(34, 8);
-  AddButtonStatus(button, "Update^Lime FW", &Blue);
-  AddButtonStatus(button, "Update^Lime FW", &Green);
-
-  button = CreateButton(34, 9);
-  AddButtonStatus(button, "Force^Lime FW", &Blue);
-  AddButtonStatus(button, "Force^Lime FW", &Green);
+  AddButtonStatus(button, "Boot to^Band Viewer", &Blue);
+  AddButtonStatus(button, "Boot to^Band Viewer", &Green);
+  AddButtonStatus(button, "Boot to^Band Viewer", &Grey);
 }
 
 void Start_Highlights_Menu34()
 {
-  // Nothing here yet
+  if (strcmp(StartApp, "Display_boot") == 0)
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 1);
+    SetButtonStatus(ButtonNumber(CurrentMenu, 7), 0);
+  }
+  else if (strcmp(StartApp, "Bandview_boot") == 0)
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0);
+    SetButtonStatus(ButtonNumber(CurrentMenu, 7), 1);
+  }
+  else
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0);
+    SetButtonStatus(ButtonNumber(CurrentMenu, 7), 0);
+  }
+
+  if (strcmp(DisplayType, "Element14_7") != 0)  // Grey-out if not 7 inch
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 7), 2);
+  }
 }
 
 // Menu 35 Stream output Selector
@@ -22784,7 +22814,7 @@ void Define_Menu37()
 {
   int button;
 
-  strcpy(MenuTitle[37], "Buster Lime Configuration Menu (37)");
+  strcpy(MenuTitle[37], "Lime Configuration Menu (37)");
 
   // Bottom Row, Menu 37
 
@@ -23228,9 +23258,9 @@ void Define_Menu43()
 //  AddButtonStatus(button, "", &Blue);
 //  AddButtonStatus(button, "", &Green);
 
-//  button = CreateButton(43, 11);
-//  AddButtonStatus(button, "", &Blue);
-//  AddButtonStatus(button, "", &Green);
+  button = CreateButton(43, 12);
+  AddButtonStatus(button, "Start-up^App", &Blue);
+  AddButtonStatus(button, "Start-up^App", &Green);
 
   button = CreateButton(43, 13);
   AddButtonStatus(button, "force pwm^open = 0", &Blue);

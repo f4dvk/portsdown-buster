@@ -13,15 +13,15 @@
 #include <sys/time.h>
 
 #include "screen.h"
-#include "graphics.h"
+
 #include "timing.h"
 #include "font/font.h"
-#include "font/Font.h"
+#include "graphics.h"
 
 static char *screen_fb_ptr = 0;
 static int screen_fb_fd = 0;
 
-/* Only supporting the Official 7" touchscreen */
+// Only support the Official 7" touchscreen
 #define SCREEN_SIZE_X   800
 #define SCREEN_SIZE_Y   480
 #define SCREEN_PIXEL_COUNT  (SCREEN_SIZE_X*SCREEN_SIZE_Y)
@@ -60,7 +60,7 @@ void screen_setPixelLine(int x, int y, int length, screen_pixel_t *pixel_array_p
 void screen_clear(void)
 {
   pthread_mutex_lock(&screen_backbuffer_mutex);
-  
+
   memcpy(screen_backbuffer, (void *)screen_pixel_empty_array, SCREEN_PIXEL_COUNT * sizeof(screen_pixel_t));
 
   pthread_mutex_unlock(&screen_backbuffer_mutex);
@@ -77,33 +77,13 @@ void screen_render(int signum)
   pthread_mutex_unlock(&screen_backbuffer_mutex);
 }
 
-//static void screen_splash_font_cb(int x, int y, screen_pixel_t *pixel_ptr)
-//{
-//  memcpy(&(screen_backbuffer[x + (y * SCREEN_SIZE_X)]), pixel_ptr, sizeof(screen_pixel_t));
-//}
-
-void screen_splash(void)
-{
-  pthread_mutex_lock(&screen_backbuffer_mutex);
-
-  //char *splash_string;
-  //asprintf(&splash_string, "QO-100 Transceiver");
-  //font_render_string_with_callback(40, 100, &font_dejavu_sans_72, splash_string, screen_splash_font_cb);
-  //free(splash_string);
-
-  //asprintf(&splash_string, "Phil M0DNY");
-  //font_render_string_with_callback(200, 300, &font_dejavu_sans_72, splash_string, screen_splash_font_cb);
-  //free(splash_string);
-
-  pthread_mutex_unlock(&screen_backbuffer_mutex);
-}
 
 bool screen_init(void)
 {
   //struct fb_fix_screeninfo finfo;
- 
+
   screen_fb_fd = open("/dev/fb0", O_RDWR);
-  if (!screen_fb_fd) 
+  if (!screen_fb_fd)
   {
     printf("Error: cannot open framebuffer device.\n");
     return false;
@@ -111,8 +91,8 @@ bool screen_init(void)
 
   //screenSize = finfo.smem_len;
   screen_fb_ptr = (char*)mmap(0, SCREEN_PIXEL_COUNT * sizeof(screen_pixel_t), PROT_READ | PROT_WRITE, MAP_SHARED, screen_fb_fd, 0);
-                    
-  if ((int)screen_fb_ptr == -1) 
+
+  if ((int)screen_fb_ptr == -1)
   {
     return false;
   }
@@ -126,7 +106,7 @@ bool screen_init(void)
   /* Clear Screen */
   screen_clear();
 
-  screen_splash();
+  //screen_splash();
 
   /* Manually call render handler */
   screen_render(0);
