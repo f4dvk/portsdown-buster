@@ -49,7 +49,7 @@ echo "Full DVB-T TS bitrate calculated as "$BITRATE_TS
 
 # Now apply margin % for non-CBR encoding (Vary for modulator and encoder)
 
-MARGIN=100           # 
+MARGIN=100           #
 
 let BITRATE_TS=$BITRATE_TS*$MARGIN
 let BITRATE_TS=$BITRATE_TS/100
@@ -76,8 +76,3 @@ let BITRATE_TS=$BITRATE_TS/100
     VIDEO_WIDTH=160
     VIDEO_HEIGHT=120
   fi
-
-# awk uses scientific notation above 2.1e9, so:
-FREQ_OUTPUTHZ=`echo - | awk '{print '$FREQ_OUTPUT' * 100000}'`
-FREQ_OUTPUTHZ="$FREQ_OUTPUTHZ"0
-
