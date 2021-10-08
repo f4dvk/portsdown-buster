@@ -1,7 +1,7 @@
 stream0=rtmp://rtmp.batc.org.uk/live/gb3hv
 label0=GB3HV
-stream1=rtmp://rtmp.batc.org.uk/live/gb3bh
-label1=GB3BH
+stream1=https://f5zbc.fr/video/stream.m3u8
+label1=F5ZBC
 stream2=rtmp://rtmp.batc.org.uk/live/gb3hv
 label2=GB3HV
 stream3=rtmp://rtmp.batc.org.uk/live/gb3km

@@ -486,6 +486,13 @@ cp -f -r "$PATHUBACKUP"/rx_presets.txt "$PATHSCRIPT"/rx_presets.txt
 # Restore the user's original stream presets
 cp -f -r "$PATHUBACKUP"/stream_presets.txt "$PATHSCRIPT"/stream_presets.txt
 
+# Add Streaming F5ZBC
+if ! grep -q stream1=https://f5zbc.fr/video/stream.m3u8 "$PATHSCRIPT"/stream_presets.txt; then
+  printf "Streaming F5ZBC non présent\n"
+  sed -i -r 's/.*stream1.*/stream1=https:\/\/f5zbc.fr\/video\/stream.m3u8/g' "$PATHSCRIPT"/stream_presets.txt
+  sed -i -r 's/.*label1.*/label1=F5ZBC/g' "$PATHSCRIPT"/stream_presets.txt
+fi
+
 # SSH hostname
 sudo rm /home/pi/hostname.txt
 cp /home/pi/rpidatv/scripts/configs/hostname.txt /home/pi/hostname.txt
