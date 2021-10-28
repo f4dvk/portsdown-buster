@@ -185,6 +185,15 @@ else
   echo
 fi
 
+##################################################
+if ! dpkg -l | grep -q php; then
+  sudo apt-get -y install apache2 # Serveur web
+  sudo apt-get -y install php php-mbstring
+  sudo rm /var/www/html/index.html
+  sudo cp /home/pi/rpidatv/html/index.php /var/www/html/
+  sudo cp /home/pi/rpidatv/html/lecture.php /var/www/html/
+fi
+
 # ---------- Update rpidatv -----------
 
 DisplayUpdateMsg "Step 5 of 10\nDownloading Portsdown SW\n\nXXXXX-----"
