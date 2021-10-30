@@ -5,12 +5,12 @@ GIT_SRC_FILE=".portsdown_gitsrc"
 if [ -e ${GIT_SRC_FILE} ]; then
   GIT_SRC=$(</home/pi/${GIT_SRC_FILE})
 else
-  GIT_SRC="BritishAmateurTelevisionClub"
+  GIT_SRC="f4dvk"
 fi
 
 ## If version was Dev (davecrump), check production version number
 if [ "$GIT_SRC" == "davecrump" ]; then
-  GIT_SRC="BritishAmateurTelevisionClub"
+  GIT_SRC="f4dvk"
 fi
 
 ## Download the latest_version file
