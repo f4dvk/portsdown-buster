@@ -416,14 +416,14 @@ if [ "$MODE_INPUT" == "CAMMPEG-2" ] || [ "$MODE_INPUT" == "ANALOGMPEG-2" ] \
     fi
   fi
 else # h264
-  #if [ "$AUDIO_CHANNELS" != 0 ]; then                 # H264 or H265 with AAC audio
+  if [ "$AUDIO_CHANNELS" != 0 ]; then                 # H264 or H265 with AAC audio
     ARECORD_BUF=55000     # arecord buffer in us
     BITRATE_AUDIO=20000
     let TS_AUDIO_BITRATE=$BITRATE_AUDIO*15/10
     let BITRATE_VIDEO=($BITRATE_TS-24000-$TS_AUDIO_BITRATE)*725/1000
-  #else                                                # H264 or H265 no audio
-    #let BITRATE_VIDEO=($BITRATE_TS-12000)*725/1000
-  #fi
+  else                                                # H264 or H265 no audio
+    let BITRATE_VIDEO=($BITRATE_TS)*780/1000
+  fi
 
   # Set the H264 image size
   if [ "$BITRATE_VIDEO" -gt 190000 ]; then  # 333KS FEC 1/2 or better
@@ -661,8 +661,13 @@ case "$MODE_INPUT" in
     fi
 
     # Now generate the stream
-    if [ "$AUDIO_CARD" == 0 ]; then
-      # ******************************* H264 VIDEO, NO AUDIO, BEEP ************************************
+    if [ "$AUDIO_CHANNELS" == 0 ]; then
+      # ******************************* H264 VIDEO, NO AUDIO ************************************
+      sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
+        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 0 -e $ANALOGCAMNAME -p $PIDPMT -s $CALL $OUTPUT_IP > /dev/null &
+
+    elif [ "$AUDIO_CARD" == "0" ] && [ "$AUDIO_CHANNELS" == "1" ]; then
+      # ******************************* H264 VIDEO, BEEP ************************************
       nice -n -30 $PATHRPI"/ffmpeg" -loglevel $MODE_DEBUG -analyzeduration 0 -probesize 2048 -f lavfi -ac 1 -i "sine=frequency=500:beep_factor=4:sample_rate=48000:duration=0" -c:a pcm_s16le -ac 1 -y audioin.wav &
 
       sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
@@ -910,9 +915,13 @@ fi
 
     # Generate the stream
 
-    if [ "$AUDIO_CARD" == 0 ]; then
-      # ******************************* H264 TCANIM, NO AUDIO, BEEP ************************************
+    if [ "$AUDIO_CHANNELS" == 0 ]; then
+      # ******************************* H264 VIDEO, NO AUDIO ************************************
+      sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
+        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 3 -e $ANALOGCAMNAME -p $PIDPMT -s $CALL $OUTPUT_IP > /dev/null &
 
+    elif [ "$AUDIO_CARD" == "0" ] && [ "$AUDIO_CHANNELS" == "1" ]; then
+      # ******************************* H264 VIDEO, BEEP ************************************
       nice -n -30 $PATHRPI"/ffmpeg" -loglevel $MODE_DEBUG -analyzeduration 0 -probesize 2048 -f lavfi -ac 1 -i "sine=frequency=500:beep_factor=4:sample_rate=48000:duration=0" -c:a pcm_s16le -ac 1 -y audioin.wav &
 
       sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
@@ -966,8 +975,13 @@ fi
 
     # Now generate the stream
 
-    if [ "$AUDIO_CARD" == 0 ]; then
-      # ******************************* H264 VIDEO, NO AUDIO, BEEP ************************************
+    if [ "$AUDIO_CHANNELS" == 0 ]; then
+      # ******************************* H264 VIDEO, NO AUDIO ************************************
+      sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
+        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 4 -e $VNCADDR -p $PIDPMT -s $CALL $OUTPUT_IP > /dev/null &
+
+    elif [ "$AUDIO_CARD" == "0" ] && [ "$AUDIO_CHANNELS" == "1" ]; then
+      # ******************************* H264 VIDEO, BEEP ************************************
       nice -n -30 $PATHRPI"/ffmpeg" -loglevel $MODE_DEBUG -analyzeduration 0 -probesize 2048 -f lavfi -ac 1 -i "sine=frequency=500:beep_factor=4:sample_rate=48000:duration=0" -c:a pcm_s16le -ac 1 -y audioin.wav &
 
       sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
@@ -1058,17 +1072,19 @@ fi
         fi
       fi
       if [ $C170Present == 1 ]; then
-        #AUDIO_CARD=0   # Can't get sound to work at present
         if [ "$BITRATE_VIDEO" -gt 190000 ]; then  # 333KS FEC 1/2 or better
-          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=640,height=480,pixelformat=0 --set-parm=10
-          VIDEO_WIDTH=640
-          VIDEO_HEIGHT=480
-          VIDEO_FPS=10 # This webcam only seems to work at 10 fps
+          #v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=1280,height=720,pixelformat=0 --set-parm=10
+          #v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=640,height=480,pixelformat=0 --set-parm=15
+          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=1024,height=576,pixelformat=0 --set-parm=15 # 16/9
+          VIDEO_WIDTH=1024
+          VIDEO_HEIGHT=576
+          VIDEO_FPS=15
         else
-          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=352,height=288,pixelformat=0 --set-parm=10
-          VIDEO_WIDTH=352
-          VIDEO_HEIGHT=288
-          VIDEO_FPS=10 # This webcam only seems to work at 10 fps
+          #v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=352,height=288,pixelformat=0 --set-parm=15
+          v4l2-ctl --device="$VID_WEBCAM" --set-fmt-video=width=640,height=360,pixelformat=0 --set-parm=15
+          VIDEO_WIDTH=640
+          VIDEO_HEIGHT=360
+          VIDEO_FPS=15
         fi
       fi
       ANALOGCAMNAME=$VID_WEBCAM
@@ -1123,9 +1139,13 @@ fi
 
     # Now generate the stream
 
-    if [ "$AUDIO_CARD" == 0 ]; then
-      # ******************************* H264 VIDEO, NO AUDIO, BEEP ************************************
+    if [ "$AUDIO_CHANNELS" == 0 ]; then
+      # ******************************* H264 VIDEO, NO AUDIO ************************************
+      sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
+        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 2 -e $ANALOGCAMNAME -p $PIDPMT -s $CALL $OUTPUT_IP > /dev/null &
 
+    elif [ "$AUDIO_CARD" == "0" ] && [ "$AUDIO_CHANNELS" == "1" ]; then
+      # ******************************* H264 VIDEO, BEEP ************************************
       nice -n -30 $PATHRPI"/ffmpeg" -loglevel $MODE_DEBUG -analyzeduration 0 -probesize 2048 -f lavfi -ac 1 -i "sine=frequency=500:beep_factor=4:sample_rate=48000:duration=0" -c:a pcm_s16le -ac 1 -y audioin.wav &
 
       sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
@@ -1261,9 +1281,13 @@ fi
     VIDEO_FPS=10  #
     IDRPERIOD=10  #  Setting these parameters prevents the partial picture problem
 
-    if [ "$AUDIO_CARD" == 0 ]; then
-      # ******************************* H264 VIDEO, NO AUDIO, BEEP ************************************
+    if [ "$AUDIO_CHANNELS" == 0 ]; then
+      # ******************************* H264 VIDEO, NO AUDIO ************************************
+      sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \
+        -f $VIDEO_FPS -i $IDRPERIOD $OUTPUT_FILE -t 3 -p $PIDPMT -s $CALL $OUTPUT_IP > /dev/null &
 
+    elif [ "$AUDIO_CARD" == "0" ] && [ "$AUDIO_CHANNELS" == "1" ]; then
+      # ******************************* H264 VIDEO, BEEP ************************************
       nice -n -30 $PATHRPI"/ffmpeg" -loglevel $MODE_DEBUG -analyzeduration 0 -probesize 2048 -f lavfi -ac 1 -i "sine=frequency=500:beep_factor=4:sample_rate=48000:duration=0" -c:a pcm_s16le -ac 1 -y audioin.wav &
 
       sudo $PATHRPI"/avc2ts" -b $BITRATE_VIDEO -m $BITRATE_TS -d 300 -x $VIDEO_WIDTH -y $VIDEO_HEIGHT \

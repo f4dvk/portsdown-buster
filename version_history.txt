@@ -1,3 +1,7 @@
+202110300
+Activation du mode audio off
+Changement formats webcam c525 (C170)
+
 202110270
 Modifications paramètres RX leandvb
 
