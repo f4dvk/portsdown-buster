@@ -1,3 +1,6 @@
+202111011
+Ajout SR 92 en TX
+
 202111010
 Amélioration détection perte verrouillage DVB-S2
 

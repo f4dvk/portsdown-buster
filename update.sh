@@ -474,6 +474,12 @@ DisplayUpdateMsg "Step 8 of 10\nRestoring Config\n\nXXXXXXXX--"
 cp -f -r "$PATHUBACKUP"/portsdown_config.txt "$PATHSCRIPT"/portsdown_config.txt
 cp -f -r "$PATHUBACKUP"/portsdown_presets.txt "$PATHSCRIPT"/portsdown_presets.txt
 
+# Add SR 92
+if ! grep -q  psr6=92 "$PATHSCRIPT"/portsdown_presets.txt; then
+  printf "Changement preset 6 en SR 92\n"
+  sed -i -r 's/.*psr6.*/psr6=92/g' "$PATHSCRIPT"/portsdown_presets.txt
+fi
+
  # Restore the user's original siggencal.txt
  cp -f -r "$PATHUBACKUP"/siggencal.txt /home/pi/rpidatv/src/siggen/siggencal.txt
 
