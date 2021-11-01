@@ -9497,11 +9497,16 @@ void ProcessLeandvb2()
         sscanf(token,"%f",&FREQ);
       }
 
-      if((strcmp(strTag,"LOCK")==0))
+      if((strcmp(strTag,"LOCK")==0) || (strcmp(strTag,"FRAMELOCK") == 0))
       {
         token = strtok(line," ");
         token = strtok(NULL," ");
-        sscanf(token,"%d",&Lock);
+        static int State_frame;
+        sscanf(token,"%d",&State_frame);
+        if((strcmp(strTag,"LOCK")==0) || ((strcmp(strTag,"FRAMELOCK") == 0) && (State_frame == 0)))
+        {
+          sscanf(token,"%d",&Lock);
+        }
       }
 
       free(line);

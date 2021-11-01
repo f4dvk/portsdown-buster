@@ -1,3 +1,6 @@
+202111010
+Amélioration détection perte verrouillage DVB-S2
+
 202110300
 Activation du mode audio off
 Changement formats webcam c525 (C170)
