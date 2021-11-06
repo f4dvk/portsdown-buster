@@ -1,3 +1,6 @@
+202111060
+Ajout DVB-S2 transpondeur (Forward) (Avec RTL en RX et Lime en TX)
+
 202111011
 Ajout SR 92 en TX
 

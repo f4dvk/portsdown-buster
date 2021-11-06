@@ -5764,11 +5764,27 @@ void DrawButton(int ButtonIndex)
   {
     int index = ptr - label;                        // Position of ^ in string
     char line1[15];
-    char line2[15];
+    char line2[30];
     snprintf(line1, index+1, label);                // get text before ^
     snprintf(line2, strlen(label) - index, label + index + 1);  // and after ^
-    TextMid(Button->x+Button->w/2, Button->y+Button->h*11/16, line1, SansTypeface, 18);
-    TextMid(Button->x+Button->w/2, Button->y+Button->h* 3/16, line2, SansTypeface, 18);
+    char find2 = '^';
+    const char *ptr2 = strchr(line2, find2);
+    if (ptr2)
+    {
+      int index2 = ptr2 - line2;
+      char line2b[15];
+      char line3[15];
+      snprintf(line3, strlen(line2) - index2, line2 + index2 + 1);  // and after ^
+      snprintf(line2b, index2+1, line2);
+      TextMid(Button->x+Button->w/2, Button->y+Button->h*11/16, line1, SansTypeface, 18);
+      TextMid(Button->x+Button->w/2, Button->y+Button->h* 7/16, line2b, SansTypeface, 18);
+      TextMid(Button->x+Button->w/2, Button->y+Button->h* 3/16, line3, SansTypeface, 18);
+    }
+    else
+    {
+      TextMid(Button->x+Button->w/2, Button->y+Button->h*11/16, line1, SansTypeface, 18);
+      TextMid(Button->x+Button->w/2, Button->y+Button->h* 3/16, line2, SansTypeface, 18);
+    }
 
     // Draw overlay button.  Menus 1 or 4, 2 lines and Button status = 0 only
     if (((CurrentMenu == 1) || (CurrentMenu == 4)) && (Button->NoStatus == 0))
@@ -8355,7 +8371,7 @@ void ForwardLeandvbStart()
   }
   else
   {
-    system("sudo /home/pi/rpidatv/scripts/leandvbgui2.sh 2>&1");
+    system("sudo /home/pi/rpidatv/scripts/leandvbgui2.sh >/dev/null 2>/dev/null &");
   }
 }
 
@@ -15838,7 +15854,7 @@ void waituntil(int w,int h)
             UpdateWindow();
             ForwardLeandvbStart();
           }
-          else if (((((strcmp(ModeOutput, "LIMEMINI") == 0) && (CheckLimeMiniConnect() == 0)) || (strcmp(ModeOutput, "IQ") == 0)) && ((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))) && (((FREQTX2 - FREQRX2) > 50) || ((- FREQTX2 - - FREQRX2) > 50)))
+          else if (((strcmp(ModeOutput, "LIMEMINI") == 0) || (strcmp(ModeOutput, "LIMEUSB") == 0) || (strcmp(ModeOutput, "LIMEDVB") == 0)) && (((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))) && (((FREQTX2 - FREQRX2) > 50) || ((- FREQTX2 - - FREQRX2) > 50)))
           {
             system("/home/pi/rpidatv/scripts/lime_ptt.sh &");
             SetButtonStatus(ButtonNumber(CurrentMenu, 20), 1);
@@ -19815,9 +19831,9 @@ void Define_Menu5()
   //RECEIVE and Exit - Top of Menu 5
 
   button = CreateButton(5, 20);
-  AddButtonStatus(button, "Forward^RX => TX", &Blue);
-  AddButtonStatus(button, "Forward^RX => TX", &Red);
-  AddButtonStatus(button, "Forward^RX => TX", &Grey);
+  AddButtonStatus(button, "Forward^RX => TX^", &Blue);
+  AddButtonStatus(button, "Forward^RX => TX^", &Red);
+  AddButtonStatus(button, "Forward^RX => TX^Indisponible", &Grey);
 
   button = CreateButton(5, 21);
   AddButtonStatus(button," RX  ",&Blue);
@@ -19837,6 +19853,7 @@ void Start_Highlights_Menu5()
 {
   GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY);
   GetConfigParam(PATH_RXPRESETS, "rx0fec", RXFEC);
+  strcpy(RXfec[0], RXFEC);
 
   int index;
   char RXBtext[31];
@@ -19894,29 +19911,33 @@ void Start_Highlights_Menu5()
   AmendButtonStatus(ButtonNumber(5, 11), 1, RXBtext, &Green);
 
   // FEC Button 12
-  index = atoi(RXfec[0]);
-  switch(index)
+  if (strcmp(RXFEC, "Auto") != 0)
   {
-    case 1:strcpy(RXBtext, "  FEC  ^  1/2 ") ;break;
-    case 2:strcpy(RXBtext, "  FEC  ^  2/3 ") ;break;
-    case 3:strcpy(RXBtext, "  FEC  ^  3/4 ") ;break;
-    case 5:strcpy(RXBtext, "  FEC  ^  5/6 ") ;break;
-    case 7:strcpy(RXBtext, "  FEC  ^  7/8 ") ;break;
-    case 14:strcpy(RXBtext, "  FEC  ^  1/4 ") ;break;
-    case 13:strcpy(RXBtext, "  FEC  ^  1/3 ") ;break;
-    case 12:strcpy(RXBtext, "  FEC  ^  1/2 ") ;break;
-    case 35:strcpy(RXBtext, "  FEC  ^  3/5 ") ;break;
-    case 23:strcpy(RXBtext, "  FEC  ^  2/3 ") ;break;
-    case 34:strcpy(RXBtext, "  FEC  ^  3/4 ") ;break;
-    case 56:strcpy(RXBtext, "  FEC  ^  5/6 ") ;break;
-    case 89:strcpy(RXBtext, "  FEC  ^  8/9 ") ;break;
-    case 91:strcpy(RXBtext, "  FEC  ^  9/10 ") ;break;
-    default:strcpy(RXBtext, "  FEC  ^Error") ;break;
+    index = atoi(RXfec[0]);
+    switch(index)
+    {
+      case 1:strcpy(RXBtext, "  FEC  ^  1/2 ") ;break;
+      case 2:strcpy(RXBtext, "  FEC  ^  2/3 ") ;break;
+      case 3:strcpy(RXBtext, "  FEC  ^  3/4 ") ;break;
+      case 5:strcpy(RXBtext, "  FEC  ^  5/6 ") ;break;
+      case 7:strcpy(RXBtext, "  FEC  ^  7/8 ") ;break;
+      case 14:strcpy(RXBtext, "  FEC  ^  1/4 ") ;break;
+      case 13:strcpy(RXBtext, "  FEC  ^  1/3 ") ;break;
+      case 12:strcpy(RXBtext, "  FEC  ^  1/2 ") ;break;
+      case 35:strcpy(RXBtext, "  FEC  ^  3/5 ") ;break;
+      case 23:strcpy(RXBtext, "  FEC  ^  2/3 ") ;break;
+      case 34:strcpy(RXBtext, "  FEC  ^  3/4 ") ;break;
+      case 56:strcpy(RXBtext, "  FEC  ^  5/6 ") ;break;
+      case 89:strcpy(RXBtext, "  FEC  ^  8/9 ") ;break;
+      case 91:strcpy(RXBtext, "  FEC  ^  9/10 ") ;break;
+      default:strcpy(RXBtext, "  FEC  ^Error") ;break;
+    }
   }
-  if (strcmp(RXFEC, "Auto") == 0)
+  else
   {
     strcpy(RXBtext, "  FEC  ^  Auto ");
   }
+
   AmendButtonStatus(ButtonNumber(5, 12), 0, RXBtext, &Blue);
   AmendButtonStatus(ButtonNumber(5, 12), 1, RXBtext, &Green);
   AmendButtonStatus(ButtonNumber(5, 12), 2, RXBtext, &Grey);
@@ -19987,12 +20008,40 @@ void Start_Highlights_Menu5()
   AmendButtonStatus(ButtonNumber(5, 19), 1, RXBtext, &Green);
 
   // Forward Leandvb Button 20
+  char FECtext[10];
+  char Value[10];
+  strcpy(Value,"");
+  GetConfigParam(PATH_PCONFIG,"fec",Value);
+  int fec=atoi(Value);
+  switch(fec)
+  {
+    case 1:strcpy(FECtext, " 1/2") ;break;
+    case 2:strcpy(FECtext, " 2/3") ;break;
+    case 3:strcpy(FECtext, " 3/4") ;break;
+    case 5:strcpy(FECtext, " 5/6") ;break;
+    case 7:strcpy(FECtext, " 7/8") ;break;
+    case 14:strcpy(FECtext, " 1/4") ;break;
+    case 13:strcpy(FECtext, " 1/3") ;break;
+    case 12:strcpy(FECtext, " 1/2") ;break;
+    case 35:strcpy(FECtext, " 3/5") ;break;
+    case 23:strcpy(FECtext, " 2/3") ;break;
+    case 34:strcpy(FECtext, " 3/4") ;break;
+    case 56:strcpy(FECtext, " 5/6 ") ;break;
+    case 89:strcpy(FECtext, " 8/9") ;break;
+    case 91:strcpy(FECtext, " 9/10") ;break;
+    default:strcpy(FECtext, " Error") ;break;
+  }
   GetConfigParam(PATH_RXPRESETS, "rx0frequency", FREQRX);
   GetConfigParam(PATH_PCONFIG, "freqoutput", FREQTX);
   FREQTX2 = atoi(FREQTX);
   FREQRX2 = atoi(FREQRX);
-  if ((((((strcmp(ModeOutput, "LIMEMINI") == 0) && (CheckLimeMiniConnect() == 0)) || (strcmp(ModeOutput, "IQ") == 0)) && ((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))) || ((strcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() == 0))) && (((FREQTX2 - FREQRX2) > 50) || ((- FREQTX2 - - FREQRX2) > 50)))
+  if (((strcmp(ModeOutput, "LIMEMINI") == 0) || (strcmp(ModeOutput, "LIMEUSB") == 0) || (strcmp(ModeOutput, "LIMEDVB") == 0)) && ((((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))) || ((strcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() == 0))) && (((FREQTX2 - FREQRX2) > 50) || ((- FREQTX2 - - FREQRX2) > 50)))
   {
+    strcpy(RXBtext, "Forward^RX => TX^");
+    strcat(RXBtext, CurrentTXMode);
+    strcat(RXBtext, FECtext);
+    AmendButtonStatus(ButtonNumber(5, 20), 0, RXBtext, &Blue);
+    AmendButtonStatus(ButtonNumber(5, 20), 1, RXBtext, &Red);
     SetButtonStatus(ButtonNumber(CurrentMenu, 20), RTLactive);
   }
   else

@@ -48,7 +48,58 @@ RF_GAIN=$(get_config_var rfpower $PCONFIGFILE)
 FREQ_TX=$(get_config_var freqoutput $PCONFIGFILE)
 LIME_TX_GAIN=$(get_config_var limegain $PCONFIGFILE)
 BAND_GPIO=$(get_config_var expports $PCONFIGFILE)
+MODULATION_TX=$(get_config_var modulation $PCONFIGFILE)
+FEC_TX=$(get_config_var fec $PCONFIGFILE)
 
+ETAT=$(get_config_var etat $RXPRESETSFILE)
+
+Lock="0"
+old="0"
+
+case "$MODULATION_TX" in
+  "DVBS2" )
+    case "$FEC_TX" in
+      "14" ) modcod=1 ;;
+      "13" ) modcod=2 ;;
+      "25" ) modcod=3 ;;
+      "12" ) modcod=4 ;;
+      "35" ) modcod=5 ;;
+      "23" ) modcod=6 ;;
+      "34" ) modcod=7 ;;
+      "45" ) modcod=8 ;;
+      "56" ) modcod=9 ;;
+      "89" ) modcod=10 ;;
+      "91" ) modcod=11 ;;
+    esac ;;
+  "8PSK" )
+    case "$FEC_TX" in
+      "35" ) modcod=12 ;;
+      "23" ) modcod=13 ;;
+      "34" ) modcod=14 ;;
+      "56" ) modcod=15 ;;
+      "89" ) modcod=16 ;;
+      "91" ) modcod=17 ;;
+    esac ;;
+  "16APSK" )
+    case "$FEC_TX" in
+      "23" ) modcod=18 ;;
+      "34" ) modcod=19 ;;
+      "45" ) modcod=20 ;;
+      "56" ) modcod=21 ;;
+      "89" ) modcod=22 ;;
+      "91" ) modcod=23 ;;
+    esac ;;
+  "32APSK" )
+    case "$FEC_TX" in
+      "34" ) modcod=24 ;;
+      "45" ) modcod=25 ;;
+      "56" ) modcod=26 ;;
+      "89" ) modcod=27 ;;
+      "91" ) modcod=28 ;;
+    esac ;;
+esac
+
+modcod=$((2**$modcod))
 
 # Allow for GPIOs in 16 - 31 range (direct setting)
 if [ "$BAND_GPIO" -gt "15" ]; then
@@ -74,30 +125,108 @@ FreqHz=$(echo "($FREQ_OUTPUT*1000000)/1" | bc )
 #echo Freq = $FreqHz
 
 MODULATION=$(get_config_var rx0modulation $RXPRESETSFILE)
-FEC=$(get_config_var rx0fec $RXPRESETSFILE)
-# Will need additional lines here to handle DVB-S2 FECs
-if [ "$FEC" != "Auto" ]; then
- let FECNUM=FEC
- let FECDEN=FEC+1
- FECDVB="--cr $FECNUM"/"$FECDEN"
- FECIQ="$FECNUM"/"$FECDEN"
+
+if [ "$ETAT" != "ON" ]; then
+  FEC=$(get_config_var rx0fec $RXPRESETSFILE)
+  # Will need additional lines here to handle DVB-S2 FECs
+  if [ "$FEC" != "Auto" ]; then
+   let FECNUM=FEC
+   let FECDEN=FEC+1
+   FECDVB="--cr $FECNUM"/"$FECDEN"
+  else
+   FECDVB=""
+  fi
 else
- FECDVB=""
+  if [ "$MODULATION_TX" == "DVBS" ]; then
+    MODULATION="DVB-S"
+    modcod=""
+    let FECNUM=FEC_TX
+    let FECDEN=FEC_TX+1
+    FECDVB="--cr $FECNUM"/"$FECDEN"
+  else
+    MODULATION="DVB-S2"
+    case "$MODULATION_TX" in
+      "DVB-S" )
+        MODULATION_TX="DVBS"
+        CONST="QPSK"
+      ;;
+      "S2QPSK" )
+        MODULATION_TX="DVBS2"
+        CONST="QPSK"
+      ;;
+      "8PSK" )
+        MODULATION_TX="DVBS2"
+        CONST="8PSK"
+      ;;
+      "16APSK" )
+        MODULATION_TX="DVBS2"
+        CONST="16APSK"
+      ;;
+      "32APSK" )
+        MODULATION_TX="DVBS2"
+        CONST="32APSK"
+      ;;
+    esac
+    modcod="--modcods "$modcod
+    FECDVB=""
+  fi
+  case "$FEC_TX" in
+    "1" | "2" | "3" | "5" | "7" )
+      let FECNUM=FEC
+      let FECDEN=FEC+1
+    ;;
+    "14" )
+      FECNUM="1"
+      FECDEN="4"
+    ;;
+    "13" )
+      FECNUM="1"
+      FECDEN="3"
+    ;;
+    "12" )
+      FECNUM="1"
+      FECDEN="2"
+    ;;
+    "35" )
+      FECNUM="3"
+      FECDEN="5"
+    ;;
+    "23" )
+      FECNUM="2"
+      FECDEN="3"
+    ;;
+    "34" )
+      FECNUM="3"
+      FECDEN="4"
+    ;;
+    "56" )
+      FECNUM="5"
+      FECDEN="6"
+    ;;
+    "89" )
+      FECNUM="8"
+      FECDEN="9"
+    ;;
+    "91" )
+      FECNUM="9"
+      FECDEN="10"
+    ;;
+  esac
 fi
 
 SDR=$(get_config_var rx0sdr $RXPRESETSFILE)
 
 SAMPLERATEK=$(get_config_var rx0samplerate $RXPRESETSFILE)
-if [ "$SAMPLERATEK" = "0" ]; then
+if [ "$SAMPLERATEK" == "0" ]; then
   if [ "$SYMBOLRATEK" -lt 250 ]; then
     SR_RTLSDR=300000
-  elif [ "$SYMBOLRATEK" -gt 249 ] && [ "$SYMBOLRATEK" -lt 500 ] && [ "$SDR" = "RTLSDR" ]; then
+  elif [ "$SYMBOLRATEK" -gt 249 ] && [ "$SYMBOLRATEK" -lt 500 ] && [ "$SDR" == "RTLSDR" ]; then
     SR_RTLSDR=1000000
   elif [ "$SYMBOLRATEK" -gt 499 ] && [ "$SYMBOLRATEK" -lt 1000 ]; then
     SR_RTLSDR=1200000
   elif [ "$SYMBOLRATEK" -gt 999 ] && [ "$SYMBOLRATEK" -lt 1101 ]; then
     SR_RTLSDR=1250000
-  elif [ "$SYMBOLRATEK" -gt 249 ] && [ "$SYMBOLRATEK" -lt 500 ] && [ "$SDR" = "LIMEMINI" ]; then
+  elif [ "$SYMBOLRATEK" -gt 249 ] && [ "$SYMBOLRATEK" -lt 500 ] && [ "$SDR" == "LIMEMINI" ]; then
     SR_RTLSDR=850000
   else
     SR_RTLSDR=2400000
@@ -105,10 +234,6 @@ if [ "$SAMPLERATEK" = "0" ]; then
 else
   let SR_RTLSDR=SAMPLERATEK*1000
 fi
-
-#############################################
-
-ETAT=$(get_config_var etat $RXPRESETSFILE)
 
 #############################################
 
@@ -168,7 +293,7 @@ else
 fi
 
 FLOCK=$(get_config_var rx0fastlock $RXPRESETSFILE)
-if [ "$FLOCK" = "ON" ]; then
+if [ "$FLOCK" == "ON" ]; then
   FASTLOCK="--fastlock"
 else
   FASTLOCK=""
@@ -180,18 +305,18 @@ else
   GAIN_LIME="0.$GAIN"
 fi
 
-if [ "$GAIN" = 100 ] && [ "$SDR" = "LIMEMINI" ]; then
+if [ "$GAIN" == 100 ] && [ "$SDR" == "LIMEMINI" ]; then
  GAIN_LIME=1
 fi
 
 MODE_STARTUP=$(get_config_var startup $PCONFIGFILE)
 
 if [ "$MODE_STARTUP" == "Button_rx_boot" ]; then
-  if [ "$FREQ_OUTPUT" = "145.9" ] && [ "$SDR" = "LIMEMINI" ]; then
+  if [ "$FREQ_OUTPUT" == "145.9" ] && [ "$SDR" == "LIMEMINI" ]; then
     GAIN_LIME="0.8"
-  elif [ "$FREQ_OUTPUT" = "437" ] && [ "$SDR" = "LIMEMINI" ]; then
+  elif [ "$FREQ_OUTPUT" == "437" ] && [ "$SDR" == "LIMEMINI" ]; then
     GAIN_LIME="0.7"
-  elif [ "$FREQ_OUTPUT" = "1255" ] && [ "$SDR" = "LIMEMINI" ]; then
+  elif [ "$FREQ_OUTPUT" == "1255" ] && [ "$SDR" == "LIMEMINI" ]; then
     GAIN_LIME="1"
   fi
 fi
@@ -199,17 +324,13 @@ fi
 # Look up the RTL-SDR Frequency error from the RTL-FM file
 FREQOFFSET=$(get_config_var roffset $RTLPRESETSFILE)
 
-if [ "$SDR" = "RTLSDR" ]; then
+if [ "$SDR" == "RTLSDR" ]; then
   KEY="rtl_sdr -p $FREQOFFSET -g $GAIN -f $FreqHz -s $SR_RTLSDR - 2>/dev/null "
   B=""
 fi
-if [ "$SDR" = "LIMEMINI" ]; then
+if [ "$SDR" == "LIMEMINI" ]; then
   KEY="/home/pi/rpidatv/bin/limesdr_dump -f $FreqHz -b 2.5e6 -s $SR_RTLSDR -r $UPSAMPLE_RX -g $GAIN_LIME -l 1024*1024 | buffer"
   B="--s12"
-fi
-
-if [ "$MODULATION" = "DVB-S" ]; then
-  MODULATION_TX="DVBS"
 fi
 
 # Clean up
@@ -240,28 +361,66 @@ sudo fbi -T 1 -noverbose -a $PATHSCRIPT"/images/Blank_Black.png"
 
 if [ "$MODE_OUTPUT" != "RPI_R" ]; then
   # Constellation and Parameters on
-  if [ "$GRAPHICS" = "ON" ] && [ "$PARAMS" = "ON" ] && [ "$ETAT" = "OFF" ]; then
+  if [ "$GRAPHICS" == "ON" ] && [ "$PARAMS" == "ON" ] && [ "$ETAT" == "OFF" ]; then
     sudo $KEY\
       | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --sampler rrc --rrc-steps 35 --rrc-rej 10 --roll-off 0.35 --ldpc-bf 100 -f $SR_RTLSDR >videots 3>fifo.iq &
   fi
 
   # Constellation on, Parameters off
-  if [ "$GRAPHICS" = "ON" ] && [ "$PARAMS" = "OFF" ] && [ "$ETAT" = "OFF" ]; then
+  if [ "$GRAPHICS" == "ON" ] && [ "$PARAMS" == "OFF" ] && [ "$ETAT" == "OFF" ]; then
     sudo $KEY\
       | $PATHBIN"leandvb" $B --fd-pp 3 --fd-const 2 $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --sampler rrc --rrc-steps 35 --rrc-rej 10 --roll-off 0.35 --ldpc-bf 100 -f $SR_RTLSDR >videots 3>fifo.iq &
   fi
 
   # Constellation off, Parameters on
-  if [ "$GRAPHICS" = "OFF" ] && [ "$PARAMS" = "ON" ] && [ "$ETAT" = "OFF" ]; then
+  if [ "$GRAPHICS" == "OFF" ] && [ "$PARAMS" == "ON" ] && [ "$ETAT" == "OFF" ]; then
     sudo $KEY\
       | $PATHBIN"leandvb" $B --fd-pp 3 --fd-info 2 --fd-const 2 $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --sampler rrc --rrc-steps 35 --rrc-rej 10 --roll-off 0.35 --ldpc-bf 100 -f $SR_RTLSDR >videots 3>fifo.iq &
   fi
 
   # Constellation and Parameters off
-  if [[ "$GRAPHICS" = "OFF" && "$PARAMS" = "OFF" ]] || [ "$ETAT" = "ON" ]; then
+  if [[ "$GRAPHICS" == "OFF" && "$PARAMS" == "OFF" ]]; then
     sudo $KEY\
       | $PATHBIN"leandvb" $B $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --sampler rrc --rrc-steps 35 --rrc-rej 10 --roll-off 0.35 --ldpc-bf 100 -f $SR_RTLSDR >videots 3>/dev/null &
   fi
+
+  if [ "$ETAT" == "ON" ]; then
+    sudo $KEY | (exec $PATHBIN"leandvb" $FECDVB --fd-info 2 --sr $SYMBOLRATE --standard $MODULATION --sampler rrc --rrc-steps 35 --rrc-rej 10 --roll-off 0.35 $modcod --ldpc-bf 150 -f $SR_RTLSDR  2>&1 1>videots |
+    (while read tag val; do
+       case "$tag" in
+       LOCK)
+         case "$val" in
+          0) lock="[SEARCH]"
+             Lock="0" ;;
+           1) lock="[LOCKED]"
+              Lock="1" ;;
+         esac ;;
+       FRAMELOCK)
+         case "$val" in
+          0) lock="[SEARCH]"
+             Lock="0" ;;
+         esac ;;
+       esac
+    echo -ne "\r$lock"  1>&2
+    if [ "$Lock" != "$old" ]; then
+      if [ "$Lock" == "0" ]; then
+        sudo killall limesdr_dvb >/dev/null 2>/dev/null
+        sudo pkill -9 limesdr_dvb >/dev/null 2>/dev/null
+        $PATHBIN"/limesdr_stopchannel" >/dev/null 2>/dev/null
+        $PATHBIN"/fake_read" >/dev/null 2>/dev/null &
+      elif [ "$Lock" == "1" ]; then
+        $PATHBIN"/limesdr_dvb" -i videots -s "$SYMBOLRATEK"000 -f $FECNUM/$FECDEN -r $UPSAMPLE -m $MODULATION_TX -c $CONST \
+             -t "$FREQ_TX"e6 -g $LIME_TX_GAINA -q 1 -D $DIGITAL_GAIN -e $BAND_GPIO $LIMETYPE >/dev/null 2>/dev/null &
+        sudo killall fake_read >/dev/null 2>/dev/null
+      fi
+      old=$Lock
+    fi
+  done)
+  ) &
+
+  $PATHBIN"/fake_read" >/dev/null 2>/dev/null &
+
+ fi
 
 else
   nc -u -4 -l $PORT > fifo.264 & # Côté écoute
@@ -289,15 +448,6 @@ if [ "$ETAT" = "OFF" ] && [ "$1" != "-remote" ]; then
       $PATHBIN"ts2es" -video videots fifo.264 &
       $PATHBIN"hello_video2.bin" fifo.264 &
     fi
-  fi
-elif [ "$ETAT" = "ON" ] && [ "$MODE_OUTPUT" != "RPI_R" ]; then
-  if [ "$MODE_OUTPUT" = "LIMEMINI" ]; then
-    $PATHBIN"/limesdr_dvb" -i videots -s "$SYMBOLRATEK"000 -f $FECIQ -r $UPSAMPLE -m $MODULATION_TX -c $CONST \
-        -t "$FREQ_TX"e6 -g $LIME_TX_GAINA -q 1 -D $DIGITAL_GAIN -e $BAND_GPIO $LIMETYPE &
-  elif [ "$MODE_OUTPUT" = "IQ" ]; then
-    $PATHSCRIPT"/ctlfilter.sh"
-    $PATHSCRIPT"/ctlvco.sh"
-    sudo $PATHBIN"/rpidatv" -i videots -s $SYMBOLRATEK -c $FECNUM"/"$FECDEN -f $FREQTX -p $RF_GAIN -m $MODE_OUTPUT -x $PIN_I -y $PIN_Q &
   fi
 fi
 

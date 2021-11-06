@@ -265,6 +265,10 @@ rm master.zip
 cd leansdr/src/apps
 make
 cp leandvb ../../../../bin/
+
+cd /home/pi/rpidatv/src/fake_read
+make
+cp fake_read ../../bin/
 cd /home/pi
 
 # Get tstools
