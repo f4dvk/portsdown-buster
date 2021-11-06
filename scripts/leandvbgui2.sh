@@ -379,7 +379,7 @@ if [ "$MODE_OUTPUT" != "RPI_R" ]; then
   fi
 
   # Constellation and Parameters off
-  if [[ "$GRAPHICS" == "OFF" && "$PARAMS" == "OFF" ]]; then
+  if [[ "$GRAPHICS" == "OFF" && "$PARAMS" == "OFF" ]] && [ "$ETAT" == "OFF" ]; then
     sudo $KEY\
       | $PATHBIN"leandvb" $B $FECDVB $FASTLOCK --sr $SYMBOLRATE --standard $MODULATION --sampler rrc --rrc-steps 35 --rrc-rej 10 --roll-off 0.35 --ldpc-bf 100 -f $SR_RTLSDR >videots 3>/dev/null &
   fi
