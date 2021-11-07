@@ -55,6 +55,8 @@ ETAT=$(get_config_var etat $RXPRESETSFILE)
 
 Lock="0"
 old="0"
+modcod=0
+top=0
 
 case "$MODULATION_TX" in
   "DVBS2" )
@@ -99,8 +101,6 @@ case "$MODULATION_TX" in
     esac ;;
 esac
 
-modcod=$((2**$modcod))
-
 # Allow for GPIOs in 16 - 31 range (direct setting)
 if [ "$BAND_GPIO" -gt "15" ]; then
   let BAND_GPIO=$BAND_GPIO-16
@@ -137,8 +137,10 @@ if [ "$ETAT" != "ON" ]; then
    FECDVB=""
   fi
 else
-  if [ "$MODULATION_TX" == "DVBS" ]; then
+  if [ "$MODULATION_TX" == "DVB-S" ]; then
     MODULATION="DVB-S"
+    MODULATION_TX="DVBS"
+    CONST="QPSK"
     modcod=""
     let FECNUM=FEC_TX
     let FECDEN=FEC_TX+1
@@ -146,10 +148,6 @@ else
   else
     MODULATION="DVB-S2"
     case "$MODULATION_TX" in
-      "DVB-S" )
-        MODULATION_TX="DVBS"
-        CONST="QPSK"
-      ;;
       "S2QPSK" )
         MODULATION_TX="DVBS2"
         CONST="QPSK"
@@ -167,6 +165,7 @@ else
         CONST="32APSK"
       ;;
     esac
+    modcod=$((2**$modcod))
     modcod="--modcods "$modcod
     FECDVB=""
   fi
@@ -388,21 +387,25 @@ if [ "$MODE_OUTPUT" != "RPI_R" ]; then
     sudo $KEY | (exec $PATHBIN"leandvb" $FECDVB --fd-info 2 --sr $SYMBOLRATE --standard $MODULATION --sampler rrc --rrc-steps 35 --rrc-rej 10 --roll-off 0.35 $modcod --ldpc-bf 150 -f $SR_RTLSDR  2>&1 1>videots |
     (while read tag val; do
        case "$tag" in
-       LOCK)
-         case "$val" in
-          0) lock="[SEARCH]"
-             Lock="0" ;;
-           1) lock="[LOCKED]"
-              Lock="1" ;;
-         esac ;;
-       FRAMELOCK)
-         case "$val" in
-          0) lock="[SEARCH]"
-             Lock="0" ;;
-         esac ;;
+         "LOCK" )
+           case "$val" in
+             0) lock="[SEARCH]"
+                Lock="0" ;;
+             1) lock="[LOCKED]"
+                Lock="1" ;;
+           esac ;;
+         "FRAMELOCK" )
+           case "$val" in
+             0) lock="[SEARCH]"
+               Lock="0" ;;
+           esac ;;
+         "LOCKTIME" )
+            top=$(date +%s) ;;
        esac
     echo -ne "\r$lock"  1>&2
-    if [ "$Lock" != "$old" ]; then
+    Time=$(date +%s)
+    tempo=$(($Time - $top))
+    if ; the[ "$Lock" == "0" ] && [ "$Lock" != "$old" ] && [ "$tempo" -gt 6 ] || [ "$Lock" == "1" ] && [ "$Lock" != "$old" ]n
       if [ "$Lock" == "0" ]; then
         sudo killall limesdr_dvb >/dev/null 2>/dev/null
         sudo pkill -9 limesdr_dvb >/dev/null 2>/dev/null
@@ -411,6 +414,7 @@ if [ "$MODE_OUTPUT" != "RPI_R" ]; then
       elif [ "$Lock" == "1" ]; then
         $PATHBIN"/limesdr_dvb" -i videots -s "$SYMBOLRATEK"000 -f $FECNUM/$FECDEN -r $UPSAMPLE -m $MODULATION_TX -c $CONST \
              -t "$FREQ_TX"e6 -g $LIME_TX_GAINA -q 1 -D $DIGITAL_GAIN -e $BAND_GPIO $LIMETYPE >/dev/null 2>/dev/null &
+        sleep 1
         sudo killall fake_read >/dev/null 2>/dev/null
       fi
       old=$Lock

@@ -1,3 +1,6 @@
+202111061
+Correction bug transpondeur DATV
+
 202111060
 Ajout DVB-S2 transpondeur (Forward) (Avec RTL en RX et Lime en TX)
 
