@@ -405,7 +405,7 @@ if [ "$MODE_OUTPUT" != "RPI_R" ]; then
     echo -ne "\r$lock"  1>&2
     Time=$(date +%s)
     tempo=$(($Time - $top))
-    if ; the[ "$Lock" == "0" ] && [ "$Lock" != "$old" ] && [ "$tempo" -gt 6 ] || [ "$Lock" == "1" ] && [ "$Lock" != "$old" ]n
+    if [ "$Lock" == "0" ] && [ "$Lock" != "$old" ] && [ "$tempo" -gt 6 ] || [ "$Lock" == "1" ] && [ "$Lock" != "$old" ]; then
       if [ "$Lock" == "0" ]; then
         sudo killall limesdr_dvb >/dev/null 2>/dev/null
         sudo pkill -9 limesdr_dvb >/dev/null 2>/dev/null
