@@ -8360,21 +8360,6 @@ void ForwardStop()
   }
 }
 
-void ForwardLeandvbStart()
-{
-  SetConfigParam(PATH_RXPRESETS, "etat", "ON");
-  strcpy(ScreenState, "RXtoTX");
-  if (strcmp(ModeOutput, "RPI_R") == 0)
-  {
-    system("sudo /home/pi/rpidatv/scripts/remote_update.sh -rx >/dev/null 2>/dev/null &");
-    system("sudo /home/pi/rpidatv/scripts/leandvbgui2.sh -remote_rxtotx_on >/dev/null 2>/dev/null &");
-  }
-  else
-  {
-    system("sudo /home/pi/rpidatv/scripts/leandvbgui2.sh >/dev/null 2>/dev/null &");
-  }
-}
-
 void ForwardLeandvbStop()
 {
   SetConfigParam(PATH_RXPRESETS, "etat", "OFF");
@@ -11792,7 +11777,112 @@ void CycleLNBVolts()
   GetConfigParam(PATH_LMCONFIG, "lnbvolts", LMRXvolts);
 }
 
+void ForwardLeandvbStart()
+{
+  SetConfigParam(PATH_RXPRESETS, "etat", "ON");
+  if (strcmp(ModeOutput, "RPI_R") == 0)
+  {
+    strcpy(ScreenState, "RXtoTX");
+    system("sudo /home/pi/rpidatv/scripts/remote_update.sh -rx >/dev/null 2>/dev/null &");
+    system("sudo /home/pi/rpidatv/scripts/leandvbgui2.sh -remote_rxtotx_on >/dev/null 2>/dev/null &");
+  }
+  else
+  {
+    #define PATH_SCRIPT_LDVBFW "/home/pi/rpidatv/scripts/leandvbgui2.sh 2>&1"
 
+    //Local parameters:
+
+    FILE *fp;
+    char *line=NULL;
+    size_t len = 0;
+    ssize_t read;
+
+    // Affichage
+    char line1[30]="";
+    char line2[30]="";
+    char line3[30]="";
+    char end[80]="";
+
+    char strTag[30];
+
+    int nbline;
+
+    // Set globals
+    FinishedButton = 0;
+
+    int pointsize = 16; // 22
+    Fontinfo font = SansTypeface;
+
+    VGfloat txtht = TextHeight(font, pointsize);
+    VGfloat txtdp = TextDepth(font, pointsize);
+    VGfloat linepitch = 1.1 * (txtht + txtdp);
+
+    // Create Wait Button thread
+    pthread_create (&thbutton, NULL, &WaitButtonEvent, NULL);
+
+    BackgroundRGB(0, 0, 0, 255);
+    End();
+    fp=popen(PATH_SCRIPT_LDVBFW, "r");
+    if(fp==NULL) printf("Process error\n");
+
+    printf("STARTING LEANDVB FORWARD\n");
+
+    WindowClear();
+
+    while (((read = getline(&line, &len, fp)) != -1) && (FinishedButton == 0))
+    {
+
+       sscanf(line,"%s ",strTag);
+       //printf(strTag);
+
+       if ((strcmp(strTag, "[SEARCH]")==0) || (strcmp(strTag, "[LOCKED]")==0))
+       {
+         nbline=1;
+         strcpy(line1, line);
+       }
+       else if (nbline == 1)
+       {
+         nbline++;
+         strcpy(line2, line);
+       }
+       else if (nbline == 2)
+       {
+         nbline++;
+         strcpy(line3, line);
+       }
+
+       strcpy(end, "Touch to exit     ");
+
+       BackgroundRGB(0, 0, 0, 255);
+       Fill(0, 0, 0, 127);
+       Rect(wscreen * 1.0 / 40.0, hscreen - 9.2 * linepitch, wscreen * 20.0 / 40.0, hscreen);
+       Rect(wscreen * 1.0 / 40.0, hscreen - 11.7 * linepitch, wscreen * 35.0 / 40.0, hscreen - 11.4 * linepitch);
+       Fill(255, 255, 255, 255);
+       Text(wscreen * 1.0 / 40.0, hscreen - 1 * linepitch, line1, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 1.7 * linepitch, line2, font, pointsize);
+       Text(wscreen * 1.0 / 40.0, hscreen - 2.4 * linepitch, line3, font, pointsize);
+       Fill(255, 255, 255, 255);
+       Text(wscreen * 1.0 / 40.0, hscreen - 15.7 * linepitch, end, font, pointsize);
+       End();
+    }
+
+    SetConfigParam(PATH_RXPRESETS, "etat", "OFF");
+
+    finish();
+    usleep(1000);
+    init(&wscreen, &hscreen);  // Restart the graphics
+
+    printf("Stopping leandvb forward process\n");
+    pclose(fp);
+
+    system("sudo /home/pi/rpidatv/scripts/b.sh >/dev/null 2>/dev/null &");
+    touch_response = 0;
+    system("(sudo killall leandvbgui2.sh >/dev/null 2>/dev/null) &");
+    system("(sudo killall fake_read >/dev/null 2>/dev/null) &");
+    pthread_join(thbutton, NULL);
+
+  }
+}
 
 void SARSAT_DECODER()
 {
@@ -15856,10 +15946,13 @@ void waituntil(int w,int h)
           }
           else if (((strcmp(ModeOutput, "LIMEMINI") == 0) || (strcmp(ModeOutput, "LIMEUSB") == 0) || (strcmp(ModeOutput, "LIMEDVB") == 0)) && (((strcmp(RXKEY, "RTLSDR") == 0) && (CheckRTL()==0))) && (((FREQTX2 - FREQRX2) > 50) || ((- FREQTX2 - - FREQRX2) > 50)))
           {
-            system("/home/pi/rpidatv/scripts/lime_ptt.sh &");
-            SetButtonStatus(ButtonNumber(CurrentMenu, 20), 1);
-            UpdateWindow();
+            BackgroundRGB(0, 0, 0, 255);
+            Start(wscreen,hscreen);
             ForwardLeandvbStart();
+            BackgroundRGB(0, 0, 0, 255);
+            Start_Highlights_Menu5();
+            UpdateWindow();
+            break;
           }
           else if ((strcmp(ModeOutput,"RPI_R") == 0) && (CheckRpi() != 0))
           {

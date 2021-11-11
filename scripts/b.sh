@@ -88,7 +88,7 @@ MODULATION=$(get_config_var modulation $PCONFIGFILE)
   sudo killall -9 limesdr_forward >/dev/null 2>/dev/null
   sudo killall -9 limesdr_dvb >/dev/null 2>/dev/null
   sudo killall -9 sox >/dev/null 2>/dev/null
-  if [ "$MODE_OUTPUT" == "LIMEMINI" ]; then
+  if [ "$MODE_OUTPUT" == "LIMEMINI" ] || [ "$MODE_OUTPUT" == "LIMEUSB" ]; then
    /home/pi/rpidatv/bin/limesdr_stopchannel >/dev/null 2>/dev/null
   fi
 

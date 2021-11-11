@@ -397,21 +397,27 @@ if [ "$MODE_OUTPUT" != "RPI_R" ]; then
          "FRAMELOCK" )
            case "$val" in
              0) lock="[SEARCH]"
-               Lock="0" ;;
+                Lock="0" ;;
            esac ;;
          "LOCKTIME" )
             top=$(date +%s) ;;
+         "MER" )
+            mer=$(printf "MER %4.1f dB" "$val") ;;
+         "SS" )
+            ss=$(printf "SS %3.0f" "$val") ;;
        esac
-    echo -ne "\r$lock"  1>&2
+    echo -ne "\r$lock\n$mer\n$ss\n" 1>&2
     Time=$(date +%s)
     tempo=$(($Time - $top))
     if [ "$Lock" == "0" ] && [ "$Lock" != "$old" ] && [ "$tempo" -gt 6 ] || [ "$Lock" == "1" ] && [ "$Lock" != "$old" ]; then
       if [ "$Lock" == "0" ]; then
+        /home/pi/rpidatv/scripts/lime_ptt.sh &
         sudo killall limesdr_dvb >/dev/null 2>/dev/null
         sudo pkill -9 limesdr_dvb >/dev/null 2>/dev/null
         $PATHBIN"/limesdr_stopchannel" >/dev/null 2>/dev/null
         $PATHBIN"/fake_read" >/dev/null 2>/dev/null &
       elif [ "$Lock" == "1" ]; then
+        /home/pi/rpidatv/scripts/lime_ptt.sh &
         $PATHBIN"/limesdr_dvb" -i videots -s "$SYMBOLRATEK"000 -f $FECNUM/$FECDEN -r $UPSAMPLE -m $MODULATION_TX -c $CONST \
              -t "$FREQ_TX"e6 -g $LIME_TX_GAINA -q 1 -D $DIGITAL_GAIN -e $BAND_GPIO $LIMETYPE >/dev/null 2>/dev/null &
         sleep 1
