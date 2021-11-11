@@ -18797,6 +18797,8 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
         printf("Button Event %d, Entering Menu 57 Case Statement\n",i);
         char Checksum[4];
         GetConfigParam(PATH_406CONFIG,"no_checksum",Checksum);
+        char Input[6];
+        GetConfigParam(PATH_406CONFIG,"input",Input);
         switch (i)
         {
         case 4:                               // Cancel
@@ -18816,7 +18818,7 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           UpdateWindow();
           usleep(50000);
           SelectInGroupOnMenu(CurrentMenu, 0, 0, 0, 0);
-          if (CheckRTL()==0)
+          if ((CheckRTL()==0) || (strcmp(Input, "mic") == 0))
           {
             BackgroundRGB(0, 0, 0, 255);
             Start(wscreen,hscreen);
@@ -18885,6 +18887,16 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           UpdateWindow();
           break;
         case 8:
+          //SelectInGroupOnMenu(CurrentMenu, 8, 8, 8, 1);
+          //UpdateWindow();
+          //usleep(50000);
+          //SelectInGroupOnMenu(CurrentMenu, 8, 8, 8, 0);
+          //if (strcmp(Input, "rtl") == 0) SetConfigParam(PATH_406CONFIG, "input", "mic");
+          //else SetConfigParam(PATH_406CONFIG, "input", "rtl");
+          //CurrentMenu=57;
+          //BackgroundRGB(0,0,0,255);
+          //Start_Highlights_Menu57();
+          //UpdateWindow();
           break;
         case 9:
           SelectInGroupOnMenu(CurrentMenu, 9, 9, 9, 1);
@@ -23957,6 +23969,11 @@ void Define_Menu57()
   AddButtonStatus(button, "Fixe^433.95M", &LBlue);
   AddButtonStatus(button, "Fixe^433.95M", &Green);
 
+  //button = CreateButton(57, 8);
+  //AddButtonStatus(button, "Input^", &DBlue);
+  //AddButtonStatus(button, "Input^", &LBlue);
+  //AddButtonStatus(button, "Input^", &Green);
+
   button = CreateButton(57, 9);
   AddButtonStatus(button, "Balise^F1LVT", &DBlue);
   AddButtonStatus(button, "Balise^F1LVT", &LBlue);
@@ -23968,6 +23985,7 @@ void Start_Highlights_Menu57()
   char ValueLow[15] = "";
   char ValueHigh[15] = "";
   char ValueChecksum[15] = "";
+  //char ValueInput[15] = "";
   char Freqtext[21];
 
   // Low:
@@ -23999,6 +24017,12 @@ void Start_Highlights_Menu57()
   }else{
     SetButtonStatus(ButtonNumber(CurrentMenu, 7), 0);
   }
+
+  //GetConfigParam(PATH_406CONFIG, "input", ValueInput);
+  //strcpy(Freqtext, "Input^");
+  //strcat(Freqtext, ValueInput);
+  //AmendButtonStatus(ButtonNumber(57, 8), 0, Freqtext, &DBlue);
+  //AmendButtonStatus(ButtonNumber(57, 8), 1, Freqtext, &LBlue);
 
   GetConfigParam(PATH_406CONFIG, "no_checksum", ValueChecksum);
 

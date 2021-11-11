@@ -38,6 +38,7 @@ my $dec4 = '/home/pi/rpidatv/406/dec406_V6 --100 --M3 --no_checksum';
 my $timeout = "timeout 56s";
 my $fixe = 0;
 my $no_checksum = 0;
+my $mic = 0;
 my $filter = "lowpass 3000 highpass 400"; #highpass de 10Hz à 400Hz selon la qualité du signal
 
 my $largeur = "12k";
@@ -79,15 +80,28 @@ for (my $i=0;$i<@ARGV;$i++)
 	     $dec=$dec1;
 	     $no_checksum=1;
 	   }
+	   elsif ($ARGV[3] eq 'mic')
+	   {
+	     $mic=1;
+	   }
+	}
+	if ($i==4)
+	{  if ($ARGV[4] eq 'mic')
+	   {
+	     $mic=1;
+	   }
 	}
 
 }
 
 
 while (1) {
-    reset_dvbt();
+    if ($mic==0)
+    {
+      reset_dvbt();
+    }
     my $freq_trouvee=0;
-    if ($f1_scan eq $f2_scan){
+    if (($f1_scan eq $f2_scan) || ($mic==1)){
       $freq_trouvee=1;
       $frq=$f1_scan;
       $fixe=1;
@@ -173,9 +187,17 @@ while (1) {
     printf "\nLancement du Decodage   ";
     $utc = strftime(' %d %m %Y   %Hh%Mm%Ss', gmtime);
     printf "$utc UTC";
-    system("$timeout rtl_fm -p $ppm -M fm $WFM -s $largeur -f $frq  2>/dev/null |\
-	    sox -t raw -r $largeur -e s -b 16 -c 1 - -t wav - $filter 2>/dev/null |\
-	    $dec ");
+    if ($mic==0)
+    {
+      system("$timeout rtl_fm -p $ppm -M fm $WFM -s $largeur -f $frq  2>/dev/null |\
+	      sox -t raw -r $largeur -e s -b 16 -c 1 - -t wav - $filter 2>/dev/null |\
+	      $dec ");
+    }
+    else
+    {
+      system("AUDIODRIVER=alsa sox -d -t wav - $filter 2>/dev/null |\
+	      $dec ");
+    }
 #    $trouve="PAS encore trouve";
 #    my $ligne;
 #    if (open (F2, '<', './code')) {
