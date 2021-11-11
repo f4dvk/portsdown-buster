@@ -73,6 +73,7 @@ MODULATION=$(get_config_var modulation $PCONFIGFILE)
   sudo killall rtl_sdr >/dev/null 2>/dev/null
   sudo killall rtl_tcp >/dev/null 2>/dev/null
   sudo killall aplay >/dev/null 2>/dev/null
+  sudo killall rtl_sdr -9 >/dev/null 2>/dev/null
   sudo killall nc >/dev/null 2>/dev/null
   sudo killall mplayer >/dev/null 2>/dev/null
   sudo killall vlc >/dev/null 2>/dev/null
