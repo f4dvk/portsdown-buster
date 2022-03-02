@@ -50,3 +50,5 @@ rpi_ip_distant=192.168.1.99
 remoteoutput=LIMEMINI
 upsample=2
 limerfe=disabled
+port=10000
+webcontrol=disabled

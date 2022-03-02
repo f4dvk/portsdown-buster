@@ -40,7 +40,7 @@ EOF
 # 128  Exit leaving system running
 # 129  Exit from any app requesting restart of main rpidatvgui
 # 130  Exit from rpidatvgui requesting start of siggen
-# 131  Exit from rpidatvgui requesting start of spectrum monitor
+# 131  Exit from rpidatvgui requesting start of FreqShow (now deleted)
 # 132  Run Update Script for production load
 # 133  Run Update Script for development load
 # 134  Run XY Display NOT USED
@@ -52,6 +52,10 @@ EOF
 BANDVIEW_START_DELAY=10  # Stops bandview display being over-written by SSH Prompt
 
 MODE_STARTUP=$(get_config_var startup $PCONFIGFILE)
+
+# Display the web not enabled caption
+# It will get over-written if web is enabled
+cp /home/pi/rpidatv/scripts/images/web_not_enabled.png /home/pi/tmp/screen.png
 
 case "$MODE_STARTUP" in
   Display_boot)

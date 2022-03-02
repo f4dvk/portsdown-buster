@@ -87,6 +87,11 @@ make all
 sudo make install
 cd /home/pi
 
+sudo apt-get -y install nginx-light                                     # For web access
+sudo apt-get -y install libfcgi-dev                                     # For web control
+
+sudo apt-get install avahi-daemon
+
 # Enable USB Storage automount in Buster
 echo
 echo "----------------------------------"
@@ -597,6 +602,11 @@ echo "---- Setting Framebuffer to 32 bit depth -----"
 echo "----------------------------------------------"
 
 sudo sed -i "/^dtoverlay=vc4-fkms-v3d/c\#dtoverlay=vc4-fkms-v3d" /boot/config.txt
+
+cp -r /home/pi/rpidatv/scripts/configs/webroot /home/pi/webroot
+sudo cp /home/pi/rpidatv/scripts/configs/nginx.conf /etc/nginx/nginx.conf
+
+sudo sed -i 's/^#host-name=foo.*/host-name=rpidatv3;/' /etc/avahi/avahi-daemon.conf
 
 # Record Version Number
 cd /home/pi/rpidatv/scripts/

@@ -186,13 +186,23 @@ else
 fi
 
 ##################################################
-if ! dpkg -l | grep -q php; then
-  sudo apt-get -y install apache2 # Serveur web
-  sudo apt-get -y install php php-mbstring
-  sudo rm /var/www/html/index.html
-  sudo cp /home/pi/rpidatv/html/index.php /var/www/html/
-  sudo cp /home/pi/rpidatv/html/lecture.php /var/www/html/
+if dpkg -l | grep -q php; then
+  sudo apt-get -y remove php php-mbstring
+  sudo apt-get -y remove apache2
 fi
+
+# Install nginx and fastcgi for web access
+if [ ! -d  /etc/nginx ]; then
+  echo "Installing nginx light web server for web access"
+  echo
+  sudo apt-get -y install nginx-light                                     # For web access
+  sudo apt-get -y install libfcgi-dev                                     # For web control
+else
+  echo "Found nginx light web server installed"
+  echo
+fi
+
+sudo apt-get install avahi-daemon
 
 # ---------- Update rpidatv -----------
 
@@ -212,6 +222,10 @@ cp -f -r portsdown-buster-master/406 rpidatv
 rm -f rpidatv/video/*.jpg
 cp -f -r portsdown-buster-master/video rpidatv
 cp -f -r portsdown-buster-master/version_history.txt rpidatv/version_history.txt
+
+# Copy the "web not enabled" image into the user's back-up image folder
+cp portsdown-buster-master/scripts/images/web_not_enabled.png "$PATHUBACKUP"/images/web_not_enabled.png
+
 rm master.zip
 rm -rf portsdown-buster-master
 cd /home/pi
@@ -604,6 +618,23 @@ if ! grep -q dtoverlay=disable-bt /boot/config.txt; then
 fi
 
 DisplayUpdateMsg "Step 9 of 10\nFinishing Off\n\nXXXXXXXXX-"
+
+# Add Web Control setting to config file if not included  202203010
+if ! grep -q webcontrol= "$PATHSCRIPT"/portsdown_config.txt; then
+  # File needs updating
+  # Delete any blank lines first
+  sed -i -e '/^$/d' "$PATHSCRIPT"/portsdown_config.txt
+  # Add the new entry and a new line
+  echo "webcontrol=disabled" >> "$PATHSCRIPT"/portsdown_config.txt
+fi
+
+# Configure the nginx web server
+sudo systemctl stop nginx
+rm -rf /home/pi/webroot
+cp -r /home/pi/rpidatv/scripts/configs/webroot /home/pi/webroot
+sudo cp /home/pi/rpidatv/scripts/configs/nginx.conf /etc/nginx/nginx.conf
+
+sudo sed -i 's/^#host-name=foo.*/host-name=rpidatv3;/' /etc/avahi/avahi-daemon.conf
 
 # Update the version number
 rm -rf /home/pi/rpidatv/scripts/installed_version.txt

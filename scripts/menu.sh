@@ -127,7 +127,7 @@ fi
 RET=$?
 if [ $RET -eq 1 ]; then
 ## This is the section where you control what happens when the user hits Cancel
-Cancel	
+Cancel
 elif [ $RET -eq 0 ]; then
 	if [[ -d "/$1$pathselect" ]]; then
 		Pathbrowser "/$1$pathselect"
@@ -135,7 +135,7 @@ elif [ $RET -eq 0 ]; then
 		## Do your thing here, this is just a stub of the code I had to do what I wanted the script to do.
 		fileout=`file "$1$pathselect"`
 		filenametemp=`readlink -m $1$pathselect`
-		filename=`dirname $filenametemp` 
+		filename=`dirname $filenametemp`
 
 	else
 		echo pathselect $1$pathselect
@@ -731,7 +731,7 @@ do_symbolrate_setup()
 do_fec_lookup()
 {
   case "$FEC" in
-  1) 
+  1)
     FECNUM=1
     FECDEN=2
   ;;
@@ -814,7 +814,7 @@ do_fec_setup()
 
   FEC=$(get_config_var fec $PCONFIGFILE)
   case "$FEC" in
-  1) 
+  1)
     Radio1=ON
   ;;
   2)
@@ -970,7 +970,7 @@ do_freq_setup()
     "t4" "Transverter 4" $Radio5 \
     3>&2 2>&1 1>&3)
 
-  if [[ "$BAND" == "Direct" || "$BAND" == "d1" || "$BAND" == "d2" || "$BAND" == "d3" || "$BAND" == "d4" || "$BAND" == "d5" ]]; then 
+  if [[ "$BAND" == "Direct" || "$BAND" == "d1" || "$BAND" == "d2" || "$BAND" == "d3" || "$BAND" == "d4" || "$BAND" == "d5" ]]; then
     ## If direct, look up which band
 
     INT_FREQ_OUTPUT=${FREQ_OUTPUT%.*}       # Change frequency to integer
@@ -1279,7 +1279,7 @@ do_set_DVBS_FEC()
   set_config_var fec "$FEC" $PCONFIGFILE
 }
 
- 
+
 do_set_DVBS2_FEC()
 {
   FEC="91"
@@ -1351,7 +1351,7 @@ do_check_FEC()
 }
 
 
-do_transmit() 
+do_transmit()
 {
   # Check the FEC is valid for DVB-S or DVB-S2
   do_check_FEC
@@ -1511,13 +1511,13 @@ do_receive()
     sleep 0.1
     set_config_var modeinput "DESKTOP" $PCONFIGFILE
     sleep 0.1
-    /home/pi/rpidatv/bin/rpidatvgui 0 1  >/dev/null 2>/dev/null & 
+    /home/pi/rpidatv/bin/rpidatvgui 0 1  >/dev/null 2>/dev/null &
     $PATHSCRIPT"/a.sh" >/dev/null 2>/dev/null &
     do_receive_status
     set_config_var modeinput "$ORGINAL_MODE_INPUT" $PCONFIGFILE
   ;;
   *)
-    /home/pi/rpidatv/bin/rpidatvgui 0 1  >/dev/null 2>/dev/null & 
+    /home/pi/rpidatv/bin/rpidatvgui 0 1  >/dev/null 2>/dev/null &
     do_receive_status
   ;;
   esac
@@ -1845,9 +1845,32 @@ do_WiFi_Off()
   cp $PATHCONFIGS"/text.wifi_off" /home/pi/.wifi_off ## Disable at start-up
 }
 
-do_Enable_DigiThin()
+do_Web_Control()
 {
-whiptail --title "Not implemented yet" --msgbox "Not Implemented yet.  Please press enter to continue" 8 78
+  WEBCONTROL=$(get_config_var webcontrol $PCONFIGFILE)
+  Radio1=OFF
+  Radio2=OFF
+
+  if [[ "$WEBCONTROL" == "enabled" ]]; then
+    Radio1=ON
+  else
+    Radio2=ON
+  fi
+
+  ch_Web_Control=$(whiptail --title "Enable or Disable Web Control" --radiolist \
+    "Select Option with spacebar then press enter" 20 78 5 \
+    "Enabled" "Enable Web Control" $Radio1 \
+    "Disabled" "Disable Web Control" $Radio2 \
+ 	 3>&2 2>&1 1>&3)
+
+  if [ $? -eq 0 ]; then                     ## If the selection has changed
+
+    if [[ "$ch_Web_Control" == "Enabled" ]]; then
+      set_config_var webcontrol "enabled" $PCONFIGFILE
+    else
+      set_config_var webcontrol "disabled" $PCONFIGFILE
+    fi
+  fi
 }
 
 do_EasyCap()
@@ -2939,7 +2962,7 @@ menuchoice=$(whiptail --title "$StrSystemTitle" --menu "$StrSystemContext" 20 78
     "3 Show IP" "$StrIPMenu" \
     "4 WiFi Set-up" "SSID and password"  \
     "5 WiFi Off" "Turn the WiFi Off" \
-    "6 Enable DigiThin" "Not Implemented Yet" \
+    "6 Web Control" "Enable or Disable Web Control" \
     "7 Set-up EasyCap" "Set input socket and PAL/NTSC"  \
     "8 Audio Input" "Select USB Dongle or EasyCap"  \
     "9 Attenuator" "Select Output Attenuator Type"  \
@@ -2953,7 +2976,7 @@ menuchoice=$(whiptail --title "$StrSystemTitle" --menu "$StrSystemContext" 20 78
 	3\ *) do_IP_setup ;;
         4\ *) do_WiFi_setup ;;
         5\ *) do_WiFi_Off   ;;
-        6\ *) do_Enable_DigiThin ;;
+        6\ *) do_Web_Control ;;
         7\ *) do_EasyCap ;;
         8\ *) do_audio_switch;;
         9\ *) do_attenuator;;
@@ -3080,7 +3103,7 @@ do_limecal()
   else
     CAL_MSG="LIME Set to Calibrate on Frequency Change only.  Select new option"
   fi
-  
+
   menuchoice=$(whiptail --title "LimeSDR Calibration Menu" --menu "$CAL_MSG" 20 78 4 \
     "1 Never Calibrate" "No Calibration"  \
     "2 Always Calibrate" "Calibrate at the Start of Every Transmission"  \
@@ -3132,7 +3155,7 @@ do_lg()
 
   LIMEGAIN=$(whiptail --inputbox "Current gain = "$LIMEGAIN".  Enter 0 to 100" 8 78 $LIMEGAIN0 --title "SET LIME GAIN FOR THE "$BAND_NAME" BAND" 3>&1 1>&2 2>&3)
   if [ $? -eq 0 ]; then
- 
+
   set_config_var limegain "$LIMEGAIN" $PCONFIGFILE
   case "$BAND" in
   d1)
@@ -3290,7 +3313,7 @@ do_DisableButtonSD()
 {
   rm /home/pi/.pi-sdn             ## Stop it being loaded at log-on
   sudo pkill -x pi-sdn            ## kill the current process
-} 
+}
 
 do_shutdown_menu()
 {
@@ -3414,7 +3437,7 @@ fi
 sleep 0.2
 
 # Loop round main menu
-while [ "$status" -eq 0 ] 
+while [ "$status" -eq 0 ]
   do
 
     # Lookup parameters for Menu Info Message

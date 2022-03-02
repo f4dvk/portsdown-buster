@@ -46,6 +46,7 @@ Rewitten by Dave, G8GKQ
 
 #include <sys/stat.h>
 #include <sys/types.h>
+#include "ffunc.h"
 
 #define KWHT  "\x1B[37m"
 #define KYEL  "\x1B[33m"
@@ -76,9 +77,9 @@ Rewitten by Dave, G8GKQ
 
 char ImageFolder[63]="/home/pi/rpidatv/image/";
 
-int fd=0;
+int fd = 0;                           // File Descriptor for touchscreen touch messages
 int wscreen, hscreen;
-float scaleXvalue, scaleYvalue; // Coeff ratio from Screen/TouchArea
+float scaleXvalue, scaleYvalue;       // Coeff ratio from Screen/TouchArea
 int wbuttonsize;
 int hbuttonsize;
 
@@ -314,90 +315,351 @@ int Inversed=0;               //Display is inversed (Waveshare=1)
 int PresetStoreTrigger = 0;   //Set to 1 if awaiting preset being stored
 int FinishedButton = 0;       // Used to indicate screentouch during TX or RX
 int touch_response = 0;       // set to 1 on touch and used to reboot display if it locks up
+int TouchX;
+int TouchY;
+int TouchPressure;
+int TouchTrigger = 0;
+bool touchneedsinitialisation = true;
+
+// Web Control globals
+bool webcontrol = false;           // Enables remote control of touchscreen functions
+char ProgramName[255];             // used to pass rpidatvgui char string to listener
+int *web_x_ptr;                // pointer
+int *web_y_ptr;                // pointer
+int web_x;                     // click x 0 - 799 from left
+int web_y;                     // click y 0 - 480 from top
+bool webclicklistenerrunning = false; // Used to only start thread if required
+
+char WebClickForAction[7] = "no";  // no/yes
 
 // Threads for Touchscreen monitoring
-//pthread_t thfft, thbutton, thview, thwait3;
 pthread_t thfft;        //
 pthread_t thbutton;     //
 pthread_t thview;       //
 pthread_t thwait3;      //  Used to count 3 seconds for WebCam reset after transmit
+pthread_t thwebclick;
+pthread_t thtouchscreen;  // listens to the touchscreen
 
-// Function Prototypes
 
-void Start_Highlights_Menu1();
-void Start_Highlights_Menu2();
-void Start_Highlights_Menu3();
-void Start_Highlights_Menu4();
-void Start_Highlights_Menu5();
-void Start_Highlights_Menu6();
-void Start_Highlights_Menu7();
-void Start_Highlights_Menu8();
-void Start_Highlights_Menu10();
-void Start_Highlights_Menu11();
-void Start_Highlights_Menu12();
-void Start_Highlights_Menu13();
-void Start_Highlights_Menu14();
-void Start_Highlights_Menu15();
-void Start_Highlights_Menu16();
-void Start_Highlights_Menu17();
-void Start_Highlights_Menu18();
-void Start_Highlights_Menu19();
-void Start_Highlights_Menu20();
-void Start_Highlights_Menu21();
-void Start_Highlights_Menu22();
-void Start_Highlights_Menu23();
-void Start_Highlights_Menu24();
-void Start_Highlights_Menu25();
-void Start_Highlights_Menu26();
-void Start_Highlights_Menu27();
-void Start_Highlights_Menu28();
-void Start_Highlights_Menu29();
-void Start_Highlights_Menu30();
-void Start_Highlights_Menu31();
-void Start_Highlights_Menu32();
-void Start_Highlights_Menu33();
-void Start_Highlights_Menu34();
-void Start_Highlights_Menu35();
-void Start_Highlights_Menu36();
-void Start_Highlights_Menu37();
-void Start_Highlights_Menu38();
-void Start_Highlights_Menu39();
-void Start_Highlights_Menu40();
-void Start_Highlights_Menu42();
-void Start_Highlights_Menu43();
-void Start_Highlights_Menu44();
-void Start_Highlights_Menu45();
-void Start_Highlights_Menu50();
-void Start_Highlights_Menu51();
-void Start_Highlights_Menu52();
-void Start_Highlights_Menu53();
-void Start_Highlights_Menu54();
-void Start_Highlights_Menu55();
-void Start_Highlights_Menu56();
-void Start_Highlights_Menu57();
+// ************** Function Prototypes **********************************//
 
-void MsgBox(const char *);
-void MsgBox2(const char *, const char *);
-void MsgBox2B(const char *, const char *);
-void MsgBox4(const char *, const char *, const char *, const char *);
-void wait_touch();
-void waituntil(int, int);
-void Keyboard(char *, char *, int);
-void DoFreqChange();
-void CompVidStart();
-void ReceiveLOStart();
-void MonitorStop();
-void DisplayLogo();
-int getTouchSample(int *, int *, int *);
-void TransformTouchMap(int, int);
-int ButtonNumber(int, int);
+void GetConfigParam(char *PathConfigFile, char *Param, char *Value);
+void SetConfigParam(char *PathConfigFile, char *Param, char *Value);
+void strcpyn(char *outstring, char *instring, int n);
+void DisplayHere(char *DisplayCaption);
+void GetPiAudioCard(char card[15]);
+void GetMicAudioCard(char mic[15]);
+void GetPiCamDev(char picamdev[15]);
+int GetLinuxVer();
+void GetIPAddr(char IPAddress[256]);
+void GetIPAddr2(char IPAddress[256]);
+void GetSWVers(char SVersion[256]);
+void GetLatestVers(char LatestVersion[256]);
+int CheckGoogle();
+int CheckJetson();
+int valid_digit(char *ip_str);
+int is_valid_ip(char *ip_str);
+void DisplayUpdateMsg(char* Version, char* Step);
+void PrepSWUpdate();
+void ExecuteUpdate(int NoButton);
+void LimeFWUpdate(int button);
+void GetGPUTemp(char GPUTemp[256]);
+void GetCPUTemp(char CPUTemp[256]);
+void GetThrottled(char Throttled[256]);
+void ReadModeInput(char coding[256], char vsource[256]);
+void ReadModeOutput(char Moutput[256]);
+int file_exist (char *filename);
+void ReadModeEasyCap();
+void ReadCaptionState();
+void ReadAudioState();
+void ReadWebControl();
+void ReadAttenState();
+void ReadBand();
+void ReadBandDetails();
+void ReadCallLocPID();
+void ReadADFRef();
+void GetSerNo(char SerNo[256]);
+int CalcTSBitrate();
+void GetDevices(char DeviceName1[256], char DeviceName2[256]);
+void GetUSBVidDev(char VidDevName[256]);
+int DetectLogitechWebcam();
+int CheckC920();
+void InitialiseGPIO();
+void ReadPresets();
+int CheckRTL();
+int CheckFTDI();
+void SaveRTLPreset(int PresetButton);
+void RecallRTLPreset(int PresetButton);
+void ChangeRTLFreq();
+void ChangeRTLSquelch();
+void ChangeRTLGain();
+void ChangeRTLppm();
+int DetectLimeNETMicro();
+void ReadRTLPresets();
+void ReadRXPresets();
+void ReadLMRXPresets();
+void ChangeLMRXIP();
+void ChangeLMRXPort();
+void ChangeLMRXOffset();
+void AutosetLMRXOffset();
+void SaveCurrentRX();
+void SelectRTLmode(int NoButton);
+void RTLstart();
+void RTLstop();
+void ReadStreamPresets();
+int CheckExpressConnect();
+int CheckExpressRunning();
+int StartExpressServer();
+void CheckExpress();
 int CheckLimeMiniConnect();
 int CheckLimeUSBConnect();
-void YesNo(int);
-static void cleanexit(int);
+void CheckLimeReady();
+void LimeInfo();
 int LimeGWRev();
-void LMRX(int);
-void MakeFreqText(int);
+int LimeGWVer();
+int LimeFWVer();
+int LimeHWVer();
+void LimeMiniTest();
+void LimeUtilInfo();
+void DisplayLogo();
+void TransformTouchMap(int x, int y);
+int IsButtonPushed(int NbButton,int x,int y);
+int IsMenuButtonPushed(int x,int y);
+int IsImageToBeChanged(int x,int y);
+int InitialiseButtons();
+int AddButton(int x,int y,int w,int h);
+int ButtonNumber(int MenuIndex, int Button);
+int CreateButton(int MenuIndex, int ButtonPosition);
+int AddButtonStatus(int ButtonIndex,char *Text,color_t *Color);
+void AmendButtonStatus(int ButtonIndex, int ButtonStatusIndex, char *Text, color_t *Color);
+void DrawButton(int ButtonIndex);
+void SetButtonStatus(int ButtonIndex,int Status);
+int openTouchScreen(int NoDevice);
+int getTouchScreenDetails(int *screenXmin,int *screenXmax,int *screenYmin,int *screenYmax);
+int getTouchSampleThread(int *rawX, int *rawY, int *rawPressure);
+int getTouchSample(int *rawX, int *rawY, int *rawPressure);
+void *WaitTouchscreenEvent(void * arg);
+void *WebClickListener(void * arg);
+void parseClickQuerystring(char *query_string, int *x_ptr, int *y_ptr);
+FFUNC touchscreenClick(ffunc_session_t * session);
+void togglewebcontrol();
+void UpdateWeb();
+void ShowMenuText();
+void ShowTitle();
+void UpdateWindow();
+void ApplyTXConfig();
+void EnforceValidTXMode();
+void EnforceValidFEC();
+void GreyOut1();
+void GreyOutReset11();
+void GreyOut11();
+void GreyOut12();
+void GreyOut15();
+void GreyOutReset25();
+void GreyOut25();
+void GreyOutReset42();
+void GreyOut42();
+void GreyOutReset44();
+void GreyOut44();
+void GreyOut45();
+void SelectInGroup(int StartButton,int StopButton,int NoButton,int Status);
+void SelectInGroupOnMenu(int Menu, int StartButton, int StopButton, int NumberButton, int Status);
+void SelectTX(int NoButton);
+void SelectPilots();
+void SelectFrames();
+void SelectEncoding(int NoButton);
+void SelectOP(int NoButton);
+void SelectFormat(int NoButton);
+void SelectSource(int NoButton);
+void SelectFreq(int NoButton);
+void SelectSR(int NoButton);
+void SelectFec(int NoButton);
+void SelectLMSR(int NoButton);
+void SelectLMFREQ(int NoButton);
+void ResetLMParams();
+void SelectS2Fec(int NoButton);
+void SelectPTT(int NoButton,int Status);
+void SelectSTD(int NoButton);
+void ChangeBandDetails(int NoButton);
+void DoFreqChange();
+void SelectBand(int NoButton);
+void SelectVidIP(int NoButton);
+void SelectAudio(int NoButton);
+void SelectAtten(int NoButton);
+void SetAttenLevel();
+void SetDeviceLevel();
+void SetReceiveLOFreq(int NoButton);
+void SavePreset(int PresetButton);
+void RecallPreset(int PresetButton);
+void SelectVidSource(int NoButton);
+void ChangeVidBand(int NoButton);
+void ReceiveLOStart();
+void CompVidInitialise();
+void CompVidStart();
+void CompVidStop();
+void TransmitStart();
+void *Wait3Seconds(void * arg);
+void TransmitStop();
+void *WaitButtonEvent(void * arg);
+void *WaitButtonVideo(void * arg);
+void *WaitButtonSnap(void * arg);
+void *WaitButtonLMRX(void * arg);
+int CheckStream();
+void DisplayStream(int NoButton);
+void AmendStreamPreset(int NoButton);
+void SelectStreamer(int NoButton);
+void SeparateStreamKey(char streamkey[127], char streamname[63], char key[63]);
+void AmendStreamerPreset(int NoButton);
+void chopN(char *str, size_t n);
+void LMRX(int NoButton);
+void CycleLNBVolts();
+void wait_touch();
+void MsgBox(const char *message);
+void MsgBox2(const char *message1, const char *message2);
+void MsgBox4(const char *message1, const char *message2, const char *message3, const char *message4);
+void YesNo(int i);
+void InfoScreen();
+void RangeBearing();
+void BeaconBearing();
+void AmendBeacon(int i);
+int CalcBearing(char *myLocator, char *remoteLocator);
+int CalcRange(char *myLocator, char *remoteLocator);
+bool CheckLocator(char *Loc);
+float Locator_To_Lat(char *Loc);
+float Locator_To_Lon(char *Loc);
+float GcDistance( const float lat1, const float lon1, const float lat2, const float lon2, const char *unit );
+int GcBearing( const float lat1, const float lon1, const float lat2, const float lon2 );
+void rtl_tcp();
+void do_snap();
+void do_snapcheck();
+static void cleanexit(int exit_code);
+void do_video_monitor(int button);
+void MonitorStop();
+void Keyboard(char RequestText[64], char InitText[64], int MaxLength);
+void ChangePresetFreq(int NoButton);
+void ChangeLMPresetFreq(int NoButton);
+void ChangePresetSR(int NoButton);
+void ChangeLMPresetSR(int NoButton);
+void ChangeCall();
+void ChangeLocator();
+void ReadContestSites();
+void ChangeStartApp(int NoButton);
+void ChangeADFRef(int NoButton);
+void ChangePID(int NoButton);
+void ControlLimeCal();
+void ToggleLimeRFE();
+void ChangeJetsonIP();
+void ChangeLKVIP();
+void ChangeLKVPort();
+void ChangeJetsonUser();
+void ChangeJetsonPW();
+void ChangeJetsonRPW();
+void waituntil(int w,int h);
+void Define_Menu1();
+void Start_Highlights_Menu1();
+void Define_Menu2();
+void Start_Highlights_Menu2();
+void Define_Menu3();
+void Start_Highlights_Menu3();
+void Define_Menu4();
+void Start_Highlights_Menu4();
+void Define_Menu5();
+void Start_Highlights_Menu5();
+void Define_Menu6();
+void Start_Highlights_Menu6();
+void Define_Menu7();
+void Start_Highlights_Menu7();
+void Define_Menu8();
+void Start_Highlights_Menu8();
+void Define_Menu10();
+void Start_Highlights_Menu10();
+void Define_Menu11();
+void Start_Highlights_Menu11();
+void Define_Menu12();
+void Start_Highlights_Menu12();
+void Define_Menu13();
+void Start_Highlights_Menu13();
+void Define_Menu14();
+void Start_Highlights_Menu14();
+void Define_Menu15();
+void Start_Highlights_Menu15();
+void Define_Menu16();
+void MakeFreqText(int index);
+void Start_Highlights_Menu16();
+void Define_Menu17();
+void Start_Highlights_Menu17();
+void Define_Menu18();
+void Start_Highlights_Menu18();
+void Define_Menu19();
+void Start_Highlights_Menu19();
+void Define_Menu20();
+void Start_Highlights_Menu20();
+void Define_Menu21();
+void Start_Highlights_Menu21();
+void Define_Menu22();
+void Start_Highlights_Menu22();
+void Define_Menu23();
+void Start_Highlights_Menu23();
+void Define_Menu24();
+void Start_Highlights_Menu24();
+void Define_Menu25();
+void Start_Highlights_Menu25();
+void Define_Menu26();
+void Start_Highlights_Menu26();
+void Define_Menu27();
+void Start_Highlights_Menu27();
+void Define_Menu28();
+void Start_Highlights_Menu28();
+void Define_Menu29();
+void Start_Highlights_Menu29();
+void Define_Menu30();
+void Start_Highlights_Menu30();
+void Define_Menu31();
+void Start_Highlights_Menu31();
+void Define_Menu32();
+void Start_Highlights_Menu32();
+void Define_Menu33();
+void Start_Highlights_Menu33();
+void Define_Menu34();
+void Start_Highlights_Menu34();
+void Define_Menu35();
+void Start_Highlights_Menu35();
+void Define_Menu36();
+void Start_Highlights_Menu36();
+void Define_Menu37();
+void Start_Highlights_Menu37();
+void Define_Menu38();
+void Start_Highlights_Menu38();
+void Define_Menu39();
+void Start_Highlights_Menu39();
+void Define_Menu40();
+void Start_Highlights_Menu40();
+void Define_Menu42();
+void Start_Highlights_Menu42();
+void Define_Menu43();
+void Start_Highlights_Menu43();
+void Define_Menu44();
+void Start_Highlights_Menu44();
+void Define_Menu45();
+void Start_Highlights_Menu45();
+void Define_Menu50();
+void Start_Highlights_Menu50();
+void Define_Menu51();
+void Start_Highlights_Menu51();
+void Define_Menu52();
+void Start_Highlights_Menu52();
+void Define_Menu53();
+void Start_Highlights_Menu53();
+void Define_Menu54();
+void Start_Highlights_Menu54();
+void Define_Menu55();
+void Start_Highlights_Menu55();
+void Define_Menu56();
+void Start_Highlights_Menu56();
+void Define_Menu57();
+void Start_Highlights_Menu57();
+
+// **************************************************************************** //
 
 /***************************************************************************//**
  * @brief Looks up the value of a Param in PathConfigFile and sets value
@@ -556,6 +818,8 @@ void DisplayHere(char *DisplayCaption)
   system(ConvertCommand);
 
   system("sudo fbi -T 1 -noverbose -a /home/pi/tmp/streamcaption.png  >/dev/null 2>/dev/null");  // Add logo image
+
+  UpdateWeb();
 }
 
 
@@ -2244,6 +2508,35 @@ void ReadCaptionState()
 void ReadAudioState()
 {
   GetConfigParam(PATH_PCONFIG,"audio", CurrentAudioState);
+}
+
+
+/***************************************************************************//**
+ * @brief Reads webcontrol state from portsdown_config.txt
+ *
+ * @param nil
+ *
+ * @return void
+*******************************************************************************/
+
+void ReadWebControl()
+{
+  char WebControlText[15];
+
+  GetConfigParam(PATH_PCONFIG, "webcontrol", WebControlText);
+
+  if (strcmp(WebControlText, "enabled") == 0)
+  {
+    webcontrol = true;
+    pthread_create (&thwebclick, NULL, &WebClickListener, NULL);
+    webclicklistenerrunning = true;
+
+  }
+  else
+  {
+    webcontrol = false;
+    system("cp /home/pi/rpidatv/scripts/images/web_not_enabled.png /home/pi/tmp/screen.png");
+  }
 }
 
 /***************************************************************************//**
@@ -4998,6 +5291,8 @@ void LimeMiniTest()
   Fill(255, 255, 255, 1);    // White text
   Text(wscreen*5/12, 1.0 * th, "Touch Screen to Continue", SansTypeface, 20);
 
+  UpdateWeb();
+
   End();
 }
 
@@ -5043,6 +5338,8 @@ void LimeUtilInfo()
   /* close */
   pclose(fp);
   Text(wscreen/12, 1.2 * th, "Touch Screen to Continue", SansTypeface, 20);
+
+  UpdateWeb();
 
   End();
 }
@@ -5907,57 +6204,312 @@ int getTouchScreenDetails(int *screenXmin,int *screenXmax,int *screenYmin,int *s
 return IsAtouchDevice;
 }
 
+int getTouchSampleThread(int *rawX, int *rawY, int *rawPressure)
+{
+  int i;
+  static bool awaitingtouchstart;
+  static bool touchfinished;
+
+  if (touchneedsinitialisation == true)
+  {
+    awaitingtouchstart = true;
+    touchfinished = true;
+    touchneedsinitialisation = false;
+  }
+
+  /* how many bytes were read */
+  size_t rb;
+
+  /* the events (up to 64 at once) */
+  struct input_event ev[64];
+
+  if (strcmp(DisplayType, "Element14_7") == 0)
+  {
+    // Program flow blocks here until there is a touch event
+    rb = read(fd, ev, sizeof(struct input_event) * 64);
+
+    *rawX = -1;
+    *rawY = -1;
+    int StartTouch = 0;
+
+    for (i = 0;  i <  (rb / sizeof(struct input_event)); i++)
+    {
+      if (ev[i].type ==  EV_SYN)
+      {
+        //printf("Event type is %s%s%s = Start of New Event\n",
+        //        KYEL, events[ev[i].type], KWHT);
+      }
+
+      else if (ev[i].type == EV_KEY && ev[i].code == 330 && ev[i].value == 1)
+      {
+        StartTouch = 1;
+        //printf("Event type is %s%s%s & Event code is %sTOUCH(330)%s & Event value is %s1%s = Touch Starting\n",
+        //        KYEL,events[ev[i].type],KWHT,KYEL,KWHT,KYEL,KWHT);
+      }
+
+      else if (ev[i].type == EV_KEY && ev[i].code == 330 && ev[i].value == 0)
+      {
+        //StartTouch=0;
+        //printf("Event type is %s%s%s & Event code is %sTOUCH(330)%s & Event value is %s0%s = Touch Finished\n",
+        //        KYEL,events[ev[i].type],KWHT,KYEL,KWHT,KYEL,KWHT);
+      }
+
+      else if (ev[i].type == EV_ABS && ev[i].code == 0 && ev[i].value > 0)
+      {
+        //printf("Event type is %s%s%s & Event code is %sX(0)%s & Event value is %s%d%s\n",
+        //        KYEL, events[ev[i].type], KWHT, KYEL, KWHT, KYEL, ev[i].value, KWHT);
+	    *rawX = ev[i].value;
+      }
+
+      else if (ev[i].type == EV_ABS  && ev[i].code == 1 && ev[i].value > 0)
+      {
+        //printf("Event type is %s%s%s & Event code is %sY(1)%s & Event value is %s%d%s\n",
+        //        KYEL, events[ev[i].type], KWHT, KYEL, KWHT, KYEL, ev[i].value, KWHT);
+        *rawY = ev[i].value;
+      }
+
+      else if (ev[i].type == EV_ABS  && ev[i].code == 24 && ev[i].value > 0)
+      {
+        //printf("Event type is %s%s%s & Event code is %sPressure(24)%s & Event value is %s%d%s\n",
+        //        KYEL, events[ev[i].type], KWHT, KYEL, KWHT, KYEL, ev[i].value,KWHT);
+        *rawPressure = ev[i].value;
+      }
+
+      if((*rawX != -1) && (*rawY != -1) && (StartTouch == 1))  // 1a
+      {
+        printf("\n7 inch Touchscreen Touch Event: rawX = %d, rawY = %d, rawPressure = %d\n\n",
+                *rawX, *rawY, *rawPressure);
+        return 1;
+      }
+    }
+  }
+
+  if (strcmp(DisplayType, "dfrobot5") == 0)
+  {
+    // Program flow blocks here until there is a touch event
+    rb = read(fd, ev, sizeof(struct input_event) * 64);
+
+    if (awaitingtouchstart == true)
+    {
+      *rawX = -1;
+      *rawY = -1;
+      touchfinished = false;
+    }
+
+    for (i = 0;  i <  (rb / sizeof(struct input_event)); i++)
+    {
+       //printf("rawX = %d, rawY = %d, rawPressure = %d, \n\n", *rawX, *rawY, *rawPressure);
+
+      if (ev[i].type ==  EV_SYN)
+      {
+        //printf("Event type is %s%s%s = Start of New Event\n",
+        //        KYEL, events[ev[i].type], KWHT);
+      }
+
+      else if (ev[i].type == EV_KEY && ev[i].code == 330 && ev[i].value == 1)
+      {
+        awaitingtouchstart = false;
+        touchfinished = false;
+
+        //printf("Event type is %s%s%s & Event code is %sTOUCH(330)%s & Event value is %s1%s = Touch Starting\n",
+        //        KYEL,events[ev[i].type],KWHT,KYEL,KWHT,KYEL,KWHT);
+      }
+
+      else if (ev[i].type == EV_KEY && ev[i].code == 330 && ev[i].value == 0)
+      {
+        awaitingtouchstart = false;
+        touchfinished = true;
+
+        //printf("Event type is %s%s%s & Event code is %sTOUCH(330)%s & Event value is %s0%s = Touch Finished\n",
+        //        KYEL,events[ev[i].type],KWHT,KYEL,KWHT,KYEL,KWHT);
+      }
+
+      else if (ev[i].type == EV_ABS && ev[i].code == 0 && ev[i].value > 0)
+      {
+        //printf("Event type is %s%s%s & Event code is %sX(0)%s & Event value is %s%d%s\n",
+        //        KYEL, events[ev[i].type], KWHT, KYEL, KWHT, KYEL, ev[i].value, KWHT);
+        *rawX = ev[i].value;
+      }
+
+      else if (ev[i].type == EV_ABS  && ev[i].code == 1 && ev[i].value > 0)
+      {
+        //printf("Event type is %s%s%s & Event code is %sY(1)%s & Event value is %s%d%s\n",
+        //        KYEL, events[ev[i].type], KWHT, KYEL, KWHT, KYEL, ev[i].value, KWHT);
+        *rawY = ev[i].value;
+      }
+
+      else if (ev[i].type == EV_ABS  && ev[i].code == 24 && ev[i].value > 0)
+      {
+        //printf("Event type is %s%s%s & Event code is %sPressure(24)%s & Event value is %s%d%s\n",
+        //        KYEL, events[ev[i].type], KWHT, KYEL, KWHT, KYEL, ev[i].value,KWHT);
+        *rawPressure = ev[i].value;
+      }
+
+      if((*rawX != -1) && (*rawY != -1) && (touchfinished == true))  // 1a
+      {
+        printf("\nDFRobot Touch Event: rawX = %d, rawY = %d, rawPressure = %d\n\n",
+                *rawX, *rawY, *rawPressure);
+        awaitingtouchstart = true;
+        touchfinished = false;
+        return 1;
+      }
+    }
+  }
+  return 0;
+}
+
+
 int getTouchSample(int *rawX, int *rawY, int *rawPressure)
 {
-	int i;
-        /* how many bytes were read */
-        size_t rb;
-        /* the events (up to 64 at once) */
-        struct input_event ev[64];
-	//static int Last_event=0; //not used?
-	rb=read(fd,ev,sizeof(struct input_event)*64);
-	*rawX=-1;*rawY=-1;
-	int StartTouch=0;
-        for (i = 0;  i <  (rb / sizeof(struct input_event)); i++){
-              if (ev[i].type ==  EV_SYN)
-		{
-                         //printf("Event type is %s%s%s = Start of New Event\n",KYEL,events[ev[i].type],KWHT);
-		}
-                else if (ev[i].type == EV_KEY && ev[i].code == 330 && ev[i].value == 1)
-		{
-			StartTouch=1;
-                        //printf("Event type is %s%s%s & Event code is %sTOUCH(330)%s & Event value is %s1%s = Touch Starting\n", KYEL,events[ev[i].type],KWHT,KYEL,KWHT,KYEL,KWHT);
-		}
-                else if (ev[i].type == EV_KEY && ev[i].code == 330 && ev[i].value == 0)
-		{
-			//StartTouch=0;
-			//printf("Event type is %s%s%s & Event code is %sTOUCH(330)%s & Event value is %s0%s = Touch Finished\n", KYEL,events[ev[i].type],KWHT,KYEL,KWHT,KYEL,KWHT);
-		}
-                else if (ev[i].type == EV_ABS && ev[i].code == 0 && ev[i].value > 0){
-                        //printf("Event type is %s%s%s & Event code is %sX(0)%s & Event value is %s%d%s\n", KYEL,events[ev[i].type],KWHT,KYEL,KWHT,KYEL,ev[i].value,KWHT);
-			*rawX = ev[i].value;
-		}
-                else if (ev[i].type == EV_ABS  && ev[i].code == 1 && ev[i].value > 0){
-                        //printf("Event type is %s%s%s & Event code is %sY(1)%s & Event value is %s%d%s\n", KYEL,events[ev[i].type],KWHT,KYEL,KWHT,KYEL,ev[i].value,KWHT);
-			*rawY = ev[i].value;
-		}
-                else if (ev[i].type == EV_ABS  && ev[i].code == 24 && ev[i].value > 0){
-                        //printf("Event type is %s%s%s & Event code is %sPressure(24)%s & Event value is %s%d%s\n", KYEL,events[ev[i].type],KWHT,KYEL,KWHT,KYEL,ev[i].value,KWHT);
-			*rawPressure = ev[i].value;
-		}
-		if((*rawX!=-1)&&(*rawY!=-1)&&(StartTouch==1))
-		{
-			/*if(Last_event-mymillis()>500)
-			{
-				Last_event=mymillis();
-				return 1;
-			}*/
-			//StartTouch=0;
-			return 1;
-		}
+  while (true)
+  {
+    if (TouchTrigger == 1)
+    {
+      *rawX = TouchX;
+      *rawY = TouchY;
+      *rawPressure = TouchPressure;
+      TouchTrigger = 0;
+      return 1;
+    }
+    else if ((webcontrol == true) && (strcmp(WebClickForAction, "yes") == 0))
+    {
+      *rawX = web_x;
+      *rawY = web_y;
+      *rawPressure = 0;
+      strcpy(WebClickForAction, "no");
+      printf("Web rawX = %d, rawY = %d, rawPressure = %d\n", *rawX, *rawY, *rawPressure);
+      return 1;
+    }
+    else
+    {
+      usleep(1000);
+    }
+  }
+  return 0;
+}
 
-	}
-	return 0;
+void *WaitTouchscreenEvent(void * arg)
+{
+  int TouchTriggerTemp;
+  int rawX;
+  int rawY;
+  int rawPressure;
+  while (true)
+  {
+    TouchTriggerTemp = getTouchSampleThread(&rawX, &rawY, &rawPressure);
+    TouchX = rawX;
+    TouchY = rawY;
+    TouchPressure = rawPressure;
+    TouchTrigger = TouchTriggerTemp;
+  }
+  return NULL;
+}
+
+void *WebClickListener(void * arg)
+{
+  while (webcontrol)
+  {
+    //(void)argc;
+	//return ffunc_run(ProgramName);
+	ffunc_run(ProgramName);
+  }
+  webclicklistenerrunning = false;
+  printf("Exiting WebClickListener\n");
+  return NULL;
+}
+
+void parseClickQuerystring(char *query_string, int *x_ptr, int *y_ptr)
+{
+  char *query_ptr = strdup(query_string),
+  *tokens = query_ptr,
+  *p = query_ptr;
+
+  while ((p = strsep (&tokens, "&\n")))
+  {
+    char *var = strtok (p, "="),
+         *val = NULL;
+    if (var && (val = strtok (NULL, "=")))
+    {
+      if(strcmp("x", var) == 0)
+      {
+        *x_ptr = atoi(val);
+      }
+      else if(strcmp("y", var) == 0)
+      {
+        *y_ptr = atoi(val);
+      }
+    }
+  }
+}
+
+FFUNC touchscreenClick(ffunc_session_t * session)
+{
+  ffunc_str_t payload;
+
+  if( (webcontrol == false) || ffunc_read_body(session, &payload) )
+  {
+    if( webcontrol == false)
+    {
+      return;
+    }
+
+    ffunc_write_out(session, "Status: 200 OK\r\n");
+    ffunc_write_out(session, "Content-Type: text/plain\r\n\r\n");
+    ffunc_write_out(session, "%s\n", "click received.");
+    fprintf(stderr, "Received click POST: %s (%d)\n", payload.data?payload.data:"", payload.len);
+
+    int x = -1;
+    int y = -1;
+    parseClickQuerystring(payload.data, &x, &y);
+    printf("After Parse: x: %d, y: %d\n", x, y);
+
+    if((x >= 0) && (y >= 0))
+    {
+      web_x = x;                 // web_x is a global int
+      web_y = y;                 // web_y is a global int
+      strcpy(WebClickForAction, "yes");
+      printf("\nWeb Click Event x: %d, y: %d\n\n", web_x, web_y);
+    }
+  }
+  else
+  {
+    ffunc_write_out(session, "Status: 400 Bad Request\r\n");
+    ffunc_write_out(session, "Content-Type: text/plain\r\n\r\n");
+    ffunc_write_out(session, "%s\n", "payload not found.");
+  }
+}
+
+
+void togglewebcontrol()
+{
+  if(webcontrol == false)
+  {
+    SetConfigParam(PATH_PCONFIG, "webcontrol", "enabled");
+    webcontrol = true;
+    if (webclicklistenerrunning == false)
+    {
+      printf("Creating thread as webclick listener is not running\n");
+      pthread_create (&thwebclick, NULL, &WebClickListener, NULL);
+      printf("Created webclick listener thread\n");
+    }
+  }
+  else
+  {
+    system("cp /home/pi/rpidatv/scripts/images/web_not_enabled.png /home/pi/tmp/screen.png");
+    SetConfigParam(PATH_PCONFIG, "webcontrol", "disabled");
+    webcontrol = false;
+  }
+}
+
+
+void UpdateWeb()
+{
+  // Called after any screen update to update the web page if required.
+
+  if(webcontrol == true)
+  {
+    system("/home/pi/rpidatv/scripts/single_screen_grab_for_web.sh &");
+  }
 }
 
 void ShowMenuText()
@@ -5977,6 +6529,7 @@ void ShowMenuText()
     //tw = TextWidth(MenuText[line], font, pointsize);
     Text(wscreen / 12, hscreen - (4 + line) * linepitch, MenuText[line], font, pointsize);
   }
+  UpdateWeb();
 }
 
 void ShowTitle()
@@ -6050,6 +6603,8 @@ void UpdateWindow()
   {
     ShowMenuText();
   }
+
+  UpdateWeb();
 
   End();                      // Write the drawn buttons to the screen
 }
@@ -11720,6 +12275,7 @@ void LMRX(int NoButton)
               Text(wscreen * 1.0 / 40.0, hscreen - 9.5 * linepitch, "Saved to memory card", font, pointsize);
             }
             Text(wscreen * 1.0 / 40.0, hscreen - 11.5 * linepitch, "Touch right side of screen to exit", font, pointsize);
+            UpdateWeb();
             End();
           }
           stat_string[0] = '\0';
@@ -11863,6 +12419,7 @@ void ForwardLeandvbStart()
        Text(wscreen * 1.0 / 40.0, hscreen - 2.4 * linepitch, line3, font, pointsize);
        Fill(255, 255, 255, 255);
        Text(wscreen * 1.0 / 40.0, hscreen - 15.7 * linepitch, end, font, pointsize);
+       UpdateWeb();
        End();
     }
 
@@ -12121,7 +12678,7 @@ void wait_touch()
   printf("wait_touch called\n");
 
   // Check if screen touched, if not, wait 0.1s and check again
-  while(getTouchSample(&rawX, &rawY, &rawPressure)==0)
+  while(getTouchSample(&rawX, &rawY, &rawPressure) == 0)
   {
     usleep(100000);
   }
@@ -12139,6 +12696,7 @@ void MsgBox(const char *message)
 
   VGfloat tw = TextWidth("Touch Screen to Continue", SansTypeface, 25);
   Text(wscreen / 2.0 - (tw / 2.0), 20, "Touch Screen to Continue", SansTypeface, 25);
+  UpdateWeb();
   End();
   printf("MsgBox called and waiting for touch\n");
 }
@@ -12157,6 +12715,7 @@ void MsgBox2(const char *message1, const char *message2)
 
   VGfloat tw = TextWidth("Touch Screen to Continue", SansTypeface, 25);
   Text(wscreen / 2.0 - (tw / 2.0), 20, "Touch Screen to Continue", SansTypeface, 25);
+  UpdateWeb();
   End();
   printf("MsgBox2 called and waiting for touch\n");
 }
@@ -12173,6 +12732,8 @@ void MsgBox2B(const char *message1, const char *message2)
   TextMid(wscreen/2, hscreen/2+th, message1, SansTypeface, 25);
   TextMid(wscreen/2, hscreen/2-th, message2, SansTypeface, 25);
 
+  UpdateWeb();
+
   End();
 }
 
@@ -12188,6 +12749,8 @@ void MsgBox4(const char *message1, const char *message2, const char *message3, c
   TextMid(wscreen/2, hscreen/2 + 0.7 * th, message2, SansTypeface, 25);
   TextMid(wscreen/2, hscreen/2 - 0.7 * th, message3, SansTypeface, 25);
   TextMid(wscreen/2, hscreen/2 - 2.1 * th, message4, SansTypeface, 25);
+
+  UpdateWeb();
 
   End();
   printf("MsgBox4 called\n");
@@ -12569,6 +13132,7 @@ void InfoScreen()
   End();
 
   printf("Info Screen called and waiting for touch\n");
+  UpdateWeb();
   wait_touch();
 }
 
@@ -12709,6 +13273,7 @@ void RangeBearing()
   End();
 
   printf("Locator Bearing called and waiting for touch\n");
+  UpdateWeb();
   wait_touch();
 }
 
@@ -12795,6 +13360,7 @@ void BeaconBearing()
   End();
 
   printf("Beacon Bearing called and waiting for touch\n");
+  UpdateWeb();
   wait_touch();
 }
 
@@ -18114,6 +18680,11 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           Start_Highlights_Menu43();
           UpdateWindow();
           break;
+        case 10:                               // Web Control Enable/disable
+          togglewebcontrol();
+          Start_Highlights_Menu43();
+          UpdateWindow();
+          break;
         case 12:                               // Start-up App Menu
           printf("MENU 34 \n");
           CurrentMenu=34;
@@ -23413,9 +23984,9 @@ void Define_Menu43()
 
   // 3rd Row, Menu 43
 
-//  button = CreateButton(43, 10);
-//  AddButtonStatus(button, "", &Blue);
-//  AddButtonStatus(button, "", &Green);
+  button = CreateButton(43, 10);
+  AddButtonStatus(button, "Web Control^Enabled", &Blue);
+  AddButtonStatus(button, "Web Control^Disabled", &Blue);
 
   button = CreateButton(43, 12);
   AddButtonStatus(button, "Start-up^App", &Blue);
@@ -23458,6 +24029,15 @@ void Start_Highlights_Menu43()
   else
   {
     SetButtonStatus(ButtonNumber(CurrentMenu, 9), 2);
+  }
+
+  if (webcontrol == true)
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 10), 0);
+  }
+  else
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 10), 1);
   }
 
   if (Getforce_pwm_open() == 0)
@@ -24537,7 +25117,8 @@ terminate(int dummy)
 
 // main initializes the system and starts Menu 1
 
-int main(int argc, char **argv)
+//int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
   int NoDeviceEvent=0;
   saveterm();
@@ -24553,6 +25134,8 @@ int main(int argc, char **argv)
   char SetStandard[255];
   char vcoding[256];
   char vsource[256];
+
+  strcpy(ProgramName, argv[0]);
 
   // Catch sigaction and call terminate
   for (i = 0; i < 16; i++)
@@ -24654,9 +25237,9 @@ int main(int argc, char **argv)
 
   // Calculate screen parameters
   scaleXvalue = ((float)screenXmax-screenXmin) / wscreen;
-  printf ("X Scale Factor = %f\n", scaleXvalue);
+  //printf ("X Scale Factor = %f\n", scaleXvalue);
   scaleYvalue = ((float)screenYmax-screenYmin) / hscreen;
-  printf ("Y Scale Factor = %f\n", scaleYvalue);
+  //printf ("Y Scale Factor = %f\n", scaleYvalue);
 
   // Define button grid
   // -25 keeps right hand side symmetrical with left hand side
@@ -24665,6 +25248,9 @@ int main(int argc, char **argv)
 
   // Read in the touchscreen Calibration
   ReadTouchCal();
+
+  // Create Touchscreen thread
+  pthread_create (&thtouchscreen, NULL, &WaitTouchscreenEvent, NULL);
 
   printf("Read in the presets from the Config file \n");
   // Read in the presets from the Config file
@@ -24683,6 +25269,7 @@ int main(int argc, char **argv)
   ReadRXPresets();
   ReadStreamPresets();
   ReadLMRXPresets();
+  ReadWebControl();
 
   // Initialise all the button Status Indexes to 0
   InitialiseButtons();
@@ -24768,6 +25355,13 @@ int main(int argc, char **argv)
 
   // Suppression lignes known_hosts
   system("echo "" | sudo tee /root/.ssh/known_hosts >/dev/null 2>/dev/null");
+
+  // Initialise web access
+
+  web_x = -1;
+  web_y = -1;
+  web_x_ptr = &web_x;
+  web_y_ptr = &web_y;
 
   // Determine button highlights
   BackgroundRGB(0, 0, 0, 255);
