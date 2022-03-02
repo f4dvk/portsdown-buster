@@ -90,7 +90,7 @@ cd /home/pi
 sudo apt-get -y install nginx-light                                     # For web access
 sudo apt-get -y install libfcgi-dev                                     # For web control
 
-sudo apt-get install avahi-daemon
+sudo apt-get -y install avahi-daemon
 
 # Enable USB Storage automount in Buster
 echo

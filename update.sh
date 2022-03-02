@@ -202,7 +202,7 @@ else
   echo
 fi
 
-sudo apt-get install avahi-daemon
+sudo apt-get -y install avahi-daemon
 
 # ---------- Update rpidatv -----------
 
