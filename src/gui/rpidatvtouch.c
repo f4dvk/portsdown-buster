@@ -6158,50 +6158,48 @@ Supported events:
 
 int getTouchScreenDetails(int *screenXmin,int *screenXmax,int *screenYmin,int *screenYmax)
 {
-	//unsigned short id[4];
-        unsigned long bit[EV_MAX][NBITS(KEY_MAX)];
-        char name[256] = "Unknown";
-        int abs[6] = {0};
+  //unsigned short id[4];
+  unsigned long bit[EV_MAX][NBITS(KEY_MAX)];
+  char name[256] = "Unknown";
+  int abs[6] = {0};
 
-        ioctl(fd, EVIOCGNAME(sizeof(name)), name);
-        printf("Input device name: \"%s\"\n", name);
+  ioctl(fd, EVIOCGNAME(sizeof(name)), name);
+  printf("Input device name: \"%s\"\n", name);
 
-        memset(bit, 0, sizeof(bit));
-        ioctl(fd, EVIOCGBIT(0, EV_MAX), bit[0]);
-        printf("Supported events:\n");
+  memset(bit, 0, sizeof(bit));
+  ioctl(fd, EVIOCGBIT(0, EV_MAX), bit[0]);
+  printf("Supported events:\n");
 
-        int i,j,k;
-	int IsAtouchDevice=0;
-        for (i = 0; i < EV_MAX; i++)
-                if (test_bit(i, bit[0])) {
-                        printf("  Event type %d (%s)\n", i, events[i] ? events[i] : "?");
-                        if (!i) continue;
-                        ioctl(fd, EVIOCGBIT(i, KEY_MAX), bit[i]);
-                        for (j = 0; j < KEY_MAX; j++){
-                                if (test_bit(j, bit[i])) {
-                                        printf("    Event code %d (%s)\n", j, names[i] ? (names[i][j] ? names[i][j] : "?") : "?");
-	if(j==330) IsAtouchDevice=1;
-                                        if (i == EV_ABS) {
-                                                ioctl(fd, EVIOCGABS(j), abs);
-                                                for (k = 0; k < 5; k++)
-                                                        if ((k < 3) || abs[k]){
-                                                                printf("     %s %6d\n", absval[k], abs[k]);
-                                                                if (j == 0){
-                                                                        if ((strcmp(absval[k],"Min  ")==0)) *screenXmin =  abs[k];
-                                                                        if ((strcmp(absval[k],"Max  ")==0)) *screenXmax =  abs[k];
-                                                                }
-                                                                if (j == 1){
-                                                                        if ((strcmp(absval[k],"Min  ")==0)) *screenYmin =  abs[k];
-                                                                        if ((strcmp(absval[k],"Max  ")==0)) *screenYmax =  abs[k];
-                                                                }
-                                                        }
-                                                }
-
-                                        }
-                               }
-                        }
-
-return IsAtouchDevice;
+  int i,j,k;
+  int IsAtouchDevice=0;
+  for (i = 0; i < EV_MAX; i++)
+  if (test_bit(i, bit[0])) {
+    printf("  Event type %d (%s)\n", i, events[i] ? events[i] : "?");
+    if (!i) continue;
+    ioctl(fd, EVIOCGBIT(i, KEY_MAX), bit[i]);
+    for (j = 0; j < KEY_MAX; j++){
+      if (test_bit(j, bit[i])) {
+        printf("    Event code %d (%s)\n", j, names[i] ? (names[i][j] ? names[i][j] : "?") : "?");
+        if(j==330) IsAtouchDevice=1;
+        if (i == EV_ABS) {
+          ioctl(fd, EVIOCGABS(j), abs);
+          for (k = 0; k < 5; k++)
+          if ((k < 3) || abs[k]){
+            printf("     %s %6d\n", absval[k], abs[k]);
+            if (j == 0){
+              if ((strcmp(absval[k],"Min  ")==0)) *screenXmin =  abs[k]; // Fix for only web ??
+              if ((strcmp(absval[k],"Max  ")==0)) *screenXmax =  abs[k]; // Fix for only web ??
+            }
+            if (j == 1){
+              if ((strcmp(absval[k],"Min  ")==0)) *screenYmin =  abs[k]; // Fix for only web ??
+              if ((strcmp(absval[k],"Max  ")==0)) *screenYmax =  abs[k]; // Fix for only web ??
+            }
+          }
+        }
+      }
+    }
+  }
+  return IsAtouchDevice;
 }
 
 int getTouchSampleThread(int *rawX, int *rawY, int *rawPressure)
@@ -12507,6 +12505,8 @@ void SARSAT_DECODER()
   fp=popen(PATH_SCRIPT_DECODER, "r");
   if(fp==NULL) printf("Process error\n");
 
+  system("/home/pi/rpidatv/scripts/screen_grab_for_web.sh &"); // web access auto-refresh
+
   printf("STARTING SARSAT DECODER\n");
 
   WindowClear();
@@ -12670,6 +12670,8 @@ void SARSAT_DECODER()
   touch_response = 0;
   system("pkill -9 rtl_power && pkill perl && pkill -9 perl >/dev/null 2>/dev/null");
   pthread_join(thbutton, NULL);
+
+  system("pkill -f screen_grab_for_web.sh");
 }
 
 void wait_touch()
@@ -19487,6 +19489,7 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           {
             BackgroundRGB(0, 0, 0, 255);
             Start(wscreen,hscreen);
+            system("/home/pi/rpidatv/scripts/screen_grab_for_web.sh &");
             SARSAT_DECODER();
             BackgroundRGB(0, 0, 0, 255);
             Start_Highlights_Menu57();
