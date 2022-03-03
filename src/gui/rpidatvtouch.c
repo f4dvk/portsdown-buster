@@ -19489,7 +19489,6 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           {
             BackgroundRGB(0, 0, 0, 255);
             Start(wscreen,hscreen);
-            system("/home/pi/rpidatv/scripts/screen_grab_for_web.sh &");
             SARSAT_DECODER();
             BackgroundRGB(0, 0, 0, 255);
             Start_Highlights_Menu57();
