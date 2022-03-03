@@ -6604,9 +6604,9 @@ void UpdateWindow()
     ShowMenuText();
   }
 
-  UpdateWeb();
-
   End();                      // Write the drawn buttons to the screen
+
+  UpdateWeb();
 }
 
 void ApplyTXConfig()
@@ -10315,6 +10315,7 @@ void ReceiveStart2()
   system("sudo killall hello_video.bin >/dev/null 2>/dev/null");
   system("sudo killall hello_video2.bin >/dev/null 2>/dev/null");
   system("sudo rm /home/pi/fifo.iq >/dev/null 2>/dev/null");  // Clean up before receive
+  system("/home/pi/rpidatv/scripts/screen_grab_for_web.sh &");
   ProcessLeandvb2();
 }
 
@@ -10331,6 +10332,7 @@ void ReceiveStop()
      system("sudo killall limesdr_dump >/dev/null 2>/dev/null");
      system("/home/pi/rpidatv/bin/limesdr_stopchannel");
   }
+  system("pkill -f screen_grab_for_web.sh");
   printf("Receive Stop\n");
 }
 
@@ -12275,8 +12277,8 @@ void LMRX(int NoButton)
               Text(wscreen * 1.0 / 40.0, hscreen - 9.5 * linepitch, "Saved to memory card", font, pointsize);
             }
             Text(wscreen * 1.0 / 40.0, hscreen - 11.5 * linepitch, "Touch right side of screen to exit", font, pointsize);
-            UpdateWeb();
             End();
+            UpdateWeb();
           }
           stat_string[0] = '\0';
         }
@@ -12419,8 +12421,8 @@ void ForwardLeandvbStart()
        Text(wscreen * 1.0 / 40.0, hscreen - 2.4 * linepitch, line3, font, pointsize);
        Fill(255, 255, 255, 255);
        Text(wscreen * 1.0 / 40.0, hscreen - 15.7 * linepitch, end, font, pointsize);
-       UpdateWeb();
        End();
+       UpdateWeb();
     }
 
     SetConfigParam(PATH_RXPRESETS, "etat", "OFF");
@@ -12696,8 +12698,8 @@ void MsgBox(const char *message)
 
   VGfloat tw = TextWidth("Touch Screen to Continue", SansTypeface, 25);
   Text(wscreen / 2.0 - (tw / 2.0), 20, "Touch Screen to Continue", SansTypeface, 25);
-  UpdateWeb();
   End();
+  UpdateWeb();
   printf("MsgBox called and waiting for touch\n");
 }
 
@@ -12715,8 +12717,8 @@ void MsgBox2(const char *message1, const char *message2)
 
   VGfloat tw = TextWidth("Touch Screen to Continue", SansTypeface, 25);
   Text(wscreen / 2.0 - (tw / 2.0), 20, "Touch Screen to Continue", SansTypeface, 25);
-  UpdateWeb();
   End();
+  UpdateWeb();
   printf("MsgBox2 called and waiting for touch\n");
 }
 
@@ -12732,9 +12734,9 @@ void MsgBox2B(const char *message1, const char *message2)
   TextMid(wscreen/2, hscreen/2+th, message1, SansTypeface, 25);
   TextMid(wscreen/2, hscreen/2-th, message2, SansTypeface, 25);
 
-  UpdateWeb();
-
   End();
+
+  UpdateWeb();
 }
 
 void MsgBox4(const char *message1, const char *message2, const char *message3, const char *message4)
@@ -12750,9 +12752,8 @@ void MsgBox4(const char *message1, const char *message2, const char *message3, c
   TextMid(wscreen/2, hscreen/2 - 0.7 * th, message3, SansTypeface, 25);
   TextMid(wscreen/2, hscreen/2 - 2.1 * th, message4, SansTypeface, 25);
 
-  UpdateWeb();
-
   End();
+  UpdateWeb();
   printf("MsgBox4 called\n");
 }
 
@@ -15591,12 +15592,12 @@ void waituntil(int w,int h)
     if ((strcmp(ScreenState, "TXwithMenu") == 0) && ((strcmp(ModeOutput, "RPI_R") != 0) || ((strcmp(ModeOutput, "RPI_R") == 0) && (CheckRpi() == 0))))
     {
       SelectPTT(20, 0);  // Update screen first
-      UpdateWindow();
       TransmitStop();
       if (strcmp(ScreenState, "WebcamWait") != 0)
       {
         strcpy(ScreenState, "NormalMenu");
       }
+      UpdateWindow();
       buffertouch = 1; // Clear the touch buffer before doing anything else
       continue;
     }
