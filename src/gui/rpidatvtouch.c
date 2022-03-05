@@ -321,6 +321,10 @@ int TouchPressure;
 int TouchTrigger = 0;
 bool touchneedsinitialisation = true;
 
+// touchscreen
+int screenXmax, screenXmin;
+int screenYmax, screenYmin;
+
 // Web Control globals
 bool webcontrol = false;           // Enables remote control of touchscreen functions
 char ProgramName[255];             // used to pass rpidatvgui char string to listener
@@ -331,6 +335,7 @@ int web_y;                     // click y 0 - 480 from top
 bool webclicklistenerrunning = false; // Used to only start thread if required
 
 char WebClickForAction[7] = "no";  // no/yes
+int WebControl = 0;
 
 // Threads for Touchscreen monitoring
 pthread_t thfft;        //
@@ -5681,10 +5686,11 @@ void TransformTouchMap(int x, int y)
   }
 
   // Switch axes for normal and waveshare displays
-  if(Inversed==0) // Tontec35 or Element14_7
+  if((Inversed==0) || (WebControl==1))// Tontec35 or Element14_7 or Web
   {
     scaledX = x/scaleXvalue;
     scaledY = hscreen-y/scaleYvalue;
+    WebControl = 0;
   }
   else //Waveshare (inversed)
   {
@@ -6432,6 +6438,8 @@ int getTouchSample(int *rawX, int *rawY, int *rawPressure)
     }
     else if ((webcontrol == true) && (strcmp(WebClickForAction, "yes") == 0))
     {
+      web_x = (web_x/(wscreen*1.00))*screenXmax;
+      web_y = (web_y/(hscreen*1.00))*screenYmax;
       *rawX = web_x;
       *rawY = web_y;
       *rawPressure = 0;
@@ -6526,6 +6534,7 @@ FFUNC touchscreenClick(ffunc_session_t * session)
     {
       web_x = x;                 // web_x is a global int
       web_y = y;                 // web_y is a global int
+      WebControl = 1;
       strcpy(WebClickForAction, "yes");
       printf("\nWeb Click Event x: %d, y: %d\n\n", web_x, web_y);
     }
@@ -25188,8 +25197,8 @@ int main(int argc, char *argv[])
   saveterm();
   init(&wscreen, &hscreen);
   rawterm();
-  int screenXmax, screenXmin;
-  int screenYmax, screenYmin;
+  //int screenXmax, screenXmin;
+  //int screenYmax, screenYmin;
   int ReceiveDirect=0;
   int i;
   char Param[255];
