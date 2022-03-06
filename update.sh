@@ -634,7 +634,8 @@ rm -rf /home/pi/webroot
 cp -r /home/pi/rpidatv/scripts/configs/webroot /home/pi/webroot
 sudo cp /home/pi/rpidatv/scripts/configs/nginx.conf /etc/nginx/nginx.conf
 
-sudo sed -i 's/^#host-name=foo.*/host-name=rpidatv3;/' /etc/avahi/avahi-daemon.conf
+sudo sed -i 's/^#host-name=foo.*/host-name=rpidatv3/' /etc/avahi/avahi-daemon.conf
+sudo sed -i 's/^host-name=rpidatv3;.*/host-name=rpidatv3/' /etc/avahi/avahi-daemon.conf
 
 # Update the version number
 rm -rf /home/pi/rpidatv/scripts/installed_version.txt
