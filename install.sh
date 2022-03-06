@@ -606,7 +606,7 @@ sudo sed -i "/^dtoverlay=vc4-fkms-v3d/c\#dtoverlay=vc4-fkms-v3d" /boot/config.tx
 cp -r /home/pi/rpidatv/scripts/configs/webroot /home/pi/webroot
 sudo cp /home/pi/rpidatv/scripts/configs/nginx.conf /etc/nginx/nginx.conf
 
-sudo sed -i 's/^#host-name=foo.*/host-name=rpidatv3;/' /etc/avahi/avahi-daemon.conf
+sudo sed -i 's/^#host-name=foo.*/host-name=rpidatv3/' /etc/avahi/avahi-daemon.conf
 
 # Record Version Number
 cd /home/pi/rpidatv/scripts/
