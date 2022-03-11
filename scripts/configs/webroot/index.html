@@ -26,8 +26,6 @@ window.onload = function()
   canvasHeight = canvas_el.clientHeight;
   canvasWidth = canvas_el.clientWidth;
 
-  canvasInit();
-
   ImageLoad();
   setInterval(ImageLoad, 800);  // Voir pour le meilleur délai
 
@@ -45,6 +43,7 @@ window.onload = function()
     request.send("x="+clicked_x+"&y="+clicked_y);
 
   };
+  canvasInit();
 };
 
 const canvasInit = function()
@@ -79,6 +78,8 @@ const ImageLoad = function()
   canvas_image.src = './screen.png?t='+(new Date().getTime());
   canvas_image.onload = function()
   {
+    canvas_el.width = canvas_image.width;
+    canvas_el.height = canvas_image.height;
     canvas_ctx.drawImage(canvas_image, 0, 0);
   };
 }
@@ -194,7 +195,7 @@ setInterval(checkOrientation, 2000);
 </script>
 </head>
 <body>
-  <canvas id="screen-canvas" width="800" height="480"></canvas>
+  <canvas id="screen-canvas"></canvas>
   <!-- <button id="fullscreen-link" onclick="fft_fullscreen();">Open fullscreen</button> -->
   <button onclick="ImageDownload();">Download screenshot</button>
 </body>
