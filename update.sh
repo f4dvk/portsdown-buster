@@ -516,6 +516,16 @@ cp -f -r "$PATHUBACKUP"/portsdown_locators.txt "$PATHSCRIPT"/portsdown_locators.
 # Restore the user's original rx_presets.txt
 cp -f -r "$PATHUBACKUP"/rx_presets.txt "$PATHSCRIPT"/rx_presets.txt
 
+# Add Leandvb VLC if not included
+if ! grep -q rx0vlc "$PATHSCRIPT"/rx_presets.txt; then
+  # File needs updating
+  printf "Adding vlc to rx_presets.txt\n"
+  # Delete any blank lines
+  sed -i -e '/^$/d' "$PATHSCRIPT"/rx_presets.txt
+  # Add the new entry and a new line
+  echo "rx0vlc=OFF" >> "$PATHSCRIPT"/rx_presets.txt
+fi
+
 # Restore the user's original stream presets
 cp -f -r "$PATHUBACKUP"/stream_presets.txt "$PATHSCRIPT"/stream_presets.txt
 

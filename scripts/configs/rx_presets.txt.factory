@@ -11,6 +11,7 @@ rx0parameters=ON
 rx0sound=OFF
 rx0fastlock=OFF
 rx0label=Preset_1
+rx0vlc=OFF
 rx1frequency=146.5
 rx1sr=333
 rx1fec=7

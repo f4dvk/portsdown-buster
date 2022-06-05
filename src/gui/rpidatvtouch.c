@@ -258,6 +258,7 @@ int FinishedButton2 = 1;    // Used to control FFT
 fftwf_complex *fftout=NULL; // FFT for RX
 #define FFT_SIZE 200        // for RX display
 char RXKEY[256];
+char RX_VLC[10];
 char RXMOD[256];
 char RXFEC[256];
 char FREQTX[256];
@@ -3817,6 +3818,9 @@ void ReadRXPresets()
     snprintf(Param, 15, "rx%dfastlock", n);
     GetConfigParam(PATH_RXPRESETS, Param, Value);
     strcpy(RXfastlock[n], Value);
+
+    // VLC
+    GetConfigParam(PATH_RXPRESETS, "rx0vlc", RX_VLC);
 
     // Label
     snprintf(Param, 12, "rx%dlabel", n);
@@ -10376,6 +10380,149 @@ void ProcessLeandvb2()
   finish();
 }
 
+void ProcessLeandvb2_VLC()
+{
+  #define PATH_SCRIPT_LEANVLC "/home/pi/rpidatv/scripts/leandvb_vlc.sh 3>&1"
+
+  char *line=NULL;
+  size_t len = 0;
+  ssize_t read;
+  FILE *fp;
+
+  char vlctext[255];
+  //int FirstLock = 0;
+  //clock_t LockTime;
+
+  FinishedButton = 1;
+
+  int pointsize = 25;
+  Fontinfo font = SansTypeface;
+
+  if (hscreen < 500)  // reduce font size for 7 inch screen
+  {
+    pointsize = 20;
+  }
+
+  VGfloat txtht = TextHeight(font, pointsize);
+  VGfloat txtdp = TextDepth(font, pointsize);
+  VGfloat linepitch = 1.1 * (txtht + txtdp);
+
+  // Create Wait Button thread
+  pthread_create (&thbutton, NULL, &WaitButtonLMRX, NULL);
+
+  BackgroundRGB(0, 0, 0, 255);
+  End();
+  fp=popen(PATH_SCRIPT_LEANVLC, "r");
+  if(fp==NULL) printf("Process error\n");
+
+  printf("STARTING VLC with FFMPEG RX\n");
+
+  WindowClear();
+
+  while (((FinishedButton == 1) || (FinishedButton == 2))) // 1 is captions on, 2 is off
+  {
+    if ((read = getline(&line, &len, fp)) != -1)
+    {
+      char strTag[20];
+      sscanf(line,"%s ",strTag);
+      char * token;
+      static int Lock = 0;
+      static float MER = 0;
+      static float SignalStrength = 0;
+
+      if((strcmp(strTag, "SS") == 0))
+      {
+        token = strtok(line," ");
+        token = strtok(NULL," ");
+        sscanf(token,"%f",&SignalStrength);
+      }
+
+      char sSignalStrength[50];
+      sprintf(sSignalStrength, "[SS: %3.0f]", SignalStrength);
+
+      char sLock[50];
+
+      if((strcmp(strTag,"LOCK")==0) || (strcmp(strTag,"FRAMELOCK") == 0))
+      {
+        token = strtok(line," ");
+        token = strtok(NULL," ");
+        static int State_frame;
+        sscanf(token,"%d",&State_frame);
+        if((strcmp(strTag,"LOCK")==0) || ((strcmp(strTag,"FRAMELOCK") == 0) && (State_frame == 0)))
+        {
+          sscanf(token,"%d",&Lock);
+        }
+      }
+
+      if (Lock == 1)
+      {
+        strcpy(sLock,"[LOCKED]");
+      }
+      else
+      {
+        strcpy(sLock,"[SEARCH]");
+      }
+
+      if((strcmp(strTag, "MER") == 0))
+      {
+        token = strtok(line," ");
+        token = strtok(NULL," ");
+        sscanf(token,"%f",&MER);
+      }
+
+      char sMER[50];
+      sprintf(sMER, "[MER: %2.1fdB]", MER);
+
+      BackgroundRGB(0, 0, 0, 255);
+      Fill(0, 0, 0, 127);
+      Rect(wscreen * 1.0 / 40.0, hscreen - 9.2 * linepitch, wscreen * 20.0 / 40.0, hscreen);
+      Rect(wscreen * 1.0 / 40.0, hscreen - 11.7 * linepitch, wscreen * 35.0 / 40.0, hscreen - 11.4 * linepitch);
+      Fill(255, 255, 255, 255);
+      Text(wscreen * 1.0 / 40.0, hscreen - 1 * linepitch, sLock, font, pointsize);
+      Text(wscreen * 1.0 / 40.0, hscreen - 2 * linepitch, sSignalStrength, font, pointsize);
+      Text(wscreen * 1.0 / 40.0, hscreen - 3 * linepitch, sMER, font, pointsize);
+
+
+      // Build string for VLC
+      strcpy(vlctext, sLock);
+      strcat(vlctext, "%n");
+      strcat(vlctext, sSignalStrength);
+      strcat(vlctext, "%n");
+      strcat(vlctext, sMER);
+      strcat(vlctext, "%n");
+
+      FILE *fw=fopen("/home/pi/tmp/vlc_temp_overlay.txt","w+");
+      if(fw!=0)
+      {
+        fprintf(fw, "%s\n", vlctext);
+      }
+      fclose(fw);
+
+      // Copy temp file to file to be read by VLC to prevent file collisions
+      system("cp /home/pi/tmp/vlc_temp_overlay.txt /home/pi/tmp/vlc_overlay.txt");
+
+      End();
+    }
+  }
+
+  // Shutdown VLC if it has not stolen the graphics
+  system("/home/pi/rpidatv/scripts/lmvlcsd.sh &");
+
+  //close(fd_status_fifo);
+  finish();
+  usleep(1000);
+  init(&wscreen, &hscreen);  // Restart the graphics
+
+  printf("Stopping receive process\n");
+  pclose(fp);
+
+  system("sudo killall leandvb_vlc.sh >/dev/null 2>/dev/null");
+  touch_response = 0;
+
+  system("sudo killall leandvb >/dev/null 2>/dev/null");
+  system("sudo killall vlc >/dev/null 2>/dev/null");
+  pthread_join(thbutton, NULL);
+}
 
 void ReceiveStart2()
 {
@@ -10387,6 +10534,14 @@ void ReceiveStart2()
   ProcessLeandvb2();
 }
 
+void ReceiveStart2_VLC()
+{
+  strcpy(ScreenState, "RXwithImage");  //  Signal to display touch menu without further touch
+  system("sudo killall vlc >/dev/null 2>/dev/null");
+  system("sudo rm /home/pi/fifo.iq >/dev/null 2>/dev/null");  // Clean up before receive
+  system("/home/pi/rpidatv/scripts/screen_grab_for_web.sh &");
+  ProcessLeandvb2_VLC();
+}
 
 void ReceiveStop()
 {
@@ -10395,6 +10550,7 @@ void ReceiveStop()
   system("sudo killall -9 hello_video.bin >/dev/null 2>/dev/null");
   system("sudo killall -9 hello_video2.bin >/dev/null 2>/dev/null");
   system("sudo killall omxplayer.bin >/dev/null 2>/dev/null");
+  system("sudo killall vlc >/dev/null 2>/dev/null");
   if (strcmp(RXKEY, "LIMEMINI") == 0)
   {
      system("sudo killall limesdr_dump >/dev/null 2>/dev/null");
@@ -16454,17 +16610,32 @@ void waituntil(int w,int h)
           UpdateWindow();
           break;
         case 5:                                            // Fastlock on/off
-          if (strcmp(RXfastlock[0], "ON") == 0)
+          if (strcmp(RXMOD, "DVB-S") == 0)
           {
-            strcpy(RXfastlock[0], "OFF");
-          }
-          else
-          {
-            strcpy(RXfastlock[0], "ON");
+            if (strcmp(RXfastlock[0], "ON") == 0)
+            {
+              strcpy(RXfastlock[0], "OFF");
+            }
+            else
+            {
+              strcpy(RXfastlock[0], "ON");
+            }
           }
           Start_Highlights_Menu5();    // Refresh button labels
           UpdateWindow();
           SetConfigParam(PATH_RXPRESETS, "rx0fastlock", RXfastlock[0]);
+          break;
+        case 6:
+          if (strcmp(RX_VLC, "ON") == 0)
+          {
+            SetConfigParam(PATH_RXPRESETS, "rx0vlc", "OFF");
+          }
+          else
+          {
+            SetConfigParam(PATH_RXPRESETS, "rx0vlc", "ON");
+          }
+          Start_Highlights_Menu5();    // Refresh button labels
+          UpdateWindow();
           break;
         case 7:                                            // Audio on/off
           if (strcmp(RXsound[0], "ON") == 0)
@@ -16511,7 +16682,7 @@ void waituntil(int w,int h)
            printf("MENU 18 \n");        // FEC
            CurrentMenu=18;
            Start_Highlights_Menu18();
-				  }
+          }
           else // DVB-S2
           {
            //SetConfigParam(PATH_RXPRESETS, "rx0fec", "Auto");
@@ -16609,7 +16780,14 @@ void waituntil(int w,int h)
             {
               BackgroundRGB(0,0,0,255);
               Start(wscreen,hscreen);
-              ReceiveStart2();
+              if (strcmp(RX_VLC, "ON") == 0)
+              {
+                ReceiveStart2_VLC();
+              }
+              else
+              {
+                ReceiveStart2();
+              }
               break;
             }
             else
@@ -16620,13 +16798,13 @@ void waituntil(int w,int h)
               UpdateWindow();
             }
           }
-          else if ((strcmp(RXgraphics[0], "OFF") == 0) && (strcmp(RXparams[0], "OFF") == 0))
-          {
-            BackgroundRGB(0,0,0,255);
-            Start(wscreen,hscreen);
-            ReceiveStart2();
+          //else if ((strcmp(RXgraphics[0], "OFF") == 0) && (strcmp(RXparams[0], "OFF") == 0))
+          //{
+            //BackgroundRGB(0,0,0,255);
+            //Start(wscreen,hscreen);
+            //ReceiveStart2();
             //system("sudo /home/pi/rpidatv/scripts/RX_remote.sh >/dev/null 2>/dev/null &");
-          }
+          //}
           break;
         case 22:                                          // Back to Menu 1
           printf("MENU 1 \n");
@@ -18506,6 +18684,8 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           {
             SetConfigParam(PATH_RXPRESETS, "rx0modulation", "DVB-S2");
             SetConfigParam(PATH_RXPRESETS, "rx0fec", "Auto");
+            strcpy(RXfastlock[0], "OFF");
+            SetConfigParam(PATH_RXPRESETS, "rx0fastlock", RXfastlock[0]);
             CurrentMenu=5;
             BackgroundRGB(0,0,0,255);
             Start_Highlights_Menu5();
@@ -20516,9 +20696,9 @@ void Define_Menu5()
   AddButtonStatus(button, "FastLock^ON", &Blue);
   AddButtonStatus(button, "FastLock^ON", &Green);
 
-  //button = CreateButton(5, 6);
-  //AddButtonStatus(button, " ", &Blue);
-  //AddButtonStatus(button, " ", &Green);
+  button = CreateButton(5, 6);
+  AddButtonStatus(button, "Player^OMX", &Blue);
+  AddButtonStatus(button, "Player^OMX", &Green);
 
   button = CreateButton(5, 7);
   AddButtonStatus(button, "Audio^OFF", &Blue);
@@ -20601,6 +20781,7 @@ void Define_Menu5()
 void Start_Highlights_Menu5()
 {
   GetConfigParam(PATH_RXPRESETS, "rx0sdr", RXKEY);
+  GetConfigParam(PATH_RXPRESETS, "rx0vlc", RX_VLC);
   GetConfigParam(PATH_RXPRESETS, "rx0fec", RXFEC);
   strcpy(RXfec[0], RXFEC);
 
@@ -20639,6 +20820,18 @@ void Start_Highlights_Menu5()
   strcat(RXBtext, RXfastlock[0]);
   AmendButtonStatus(ButtonNumber(5, 5), 0, RXBtext, &Blue);
   AmendButtonStatus(ButtonNumber(5, 5), 1, RXBtext, &Green);
+
+  // Player Button 6
+  if (strcmp(RX_VLC, "ON") == 0)
+  {
+    AmendButtonStatus(ButtonNumber(5, 6), 0, "Player^VLC", &Blue);
+    AmendButtonStatus(ButtonNumber(5, 6), 1, "Player^VLC", &Green);
+  }
+  else
+  {
+    AmendButtonStatus(ButtonNumber(5, 6), 0, "Player^OMX", &Blue);
+    AmendButtonStatus(ButtonNumber(5, 6), 1, "Player^OMX", &Green);
+  }
 
   // Audio Button 7
   strcpy(RXBtext, "Audio^");

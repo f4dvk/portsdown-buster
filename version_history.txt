@@ -1,3 +1,7 @@
+202206050
+Ajout VLC RX Leandvb
+FastLock OFF si DVB-S2
+
 202203110
 web control résolution fenêtre automatique
 
