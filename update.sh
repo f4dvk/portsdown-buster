@@ -139,6 +139,12 @@ cp -f -r "$PATHSCRIPT"/limecalfreq.txt "$PATHUBACKUP"/limecalfreq.txt
 cp -f -r "$PATHSCRIPT"/wifi_config.txt "$PATHUBACKUP"/wifi_config.txt
 cp -f -r "$PATHSCRIPT"/hotspot_config.txt "$PATHUBACKUP"/hotspot_config.txt
 
+# Make a safe copy of the Airspy Band Viewer config
+cp -f -r /home/pi/rpidatv/src/airspyview/airspyview_config.txt "$PATHUBACKUP"/airspyview_config.txt
+
+# Make a safe copy of the RTL-SDR Band Viewer config
+cp -f -r /home/pi/rpidatv/src/rtlsdrview/rtlsdrview_config.txt "$PATHUBACKUP"/rtlsdrview_config.txt
+
 # Make a safe copy of the User Button scripts
 cp -f -r "$PATHSCRIPT"/user_button1.sh "$PATHUBACKUP"/user_button1.sh
 cp -f -r "$PATHSCRIPT"/user_button2.sh "$PATHUBACKUP"/user_button2.sh
@@ -223,6 +229,8 @@ else
 fi
 
 sudo apt-get -y install avahi-daemon
+
+sudo apt-get -y install libairspy-dev                                   # For Airspy Bandviewer
 
 # ---------- Update rpidatv -----------
 
@@ -488,6 +496,26 @@ make
 cp bandview ../../bin/
 cd /home/pi
 
+# Compile Airspy Band Viewer
+echo
+echo "----------------------------------------"
+echo "----- Compiling Airspy Band Viewer -----"
+echo "----------------------------------------"
+cd /home/pi/rpidatv/src/airspyview
+make
+cp airspyview ../../bin/
+cd /home/pi
+
+# Compile RTL-SDR Band Viewer
+echo
+echo "----------------------------------------"
+echo "----- Compiling RTL-SDR Band Viewer -----"
+echo "----------------------------------------"
+cd /home/pi/rpidatv/src/rtlsdrview
+make
+cp rtlsdrview ../../bin/
+cd /home/pi
+
 # Check if raspi2png needs to be installed (202004300)
 if [ ! -f "/usr/bin/raspi2png" ]; then
   echo "Installing raspi2png"
@@ -608,6 +636,12 @@ cp -f -r "$PATHUBACKUP"/hotspot_config.txt "$PATHSCRIPT"/hotspot_config.txt
 
 # Restore the user's original Lime Calibration frequency or status
 cp -f -r "$PATHUBACKUP"/limecalfreq.txt "$PATHSCRIPT"/limecalfreq.txt
+
+# Restore the user's original Airspy Band Viewer config
+cp -f -r "$PATHUBACKUP"/airspyview_config.txt /home/pi/rpidatv/src/airspyview/airspyview_config.txt
+
+# Restore the user's original RTL-SDR Band Viewer config
+cp -f -r "$PATHUBACKUP"/rtlsdrview_config.txt /home/pi/rpidatv/src/rtlsdrview/rtlsdrview_config.txt
 
 # Restore the user's original User Button scripts
 cp -f -r "$PATHUBACKUP"/user_button1.sh "$PATHSCRIPT"/user_button1.sh

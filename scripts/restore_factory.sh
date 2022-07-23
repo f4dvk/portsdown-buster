@@ -45,3 +45,19 @@ cp -f $PATHSCRIPT"/configs/stream_presets.txt.factory" $PATHSCRIPT"/stream_prese
 # jetson_config.txt
 cp -f $PATHSCRIPT"/jetson_config.txt" $PATHSCRIPT"/jetson_config.txt.bak"
 cp -f $PATHSCRIPT"/configs/jetson_config.txt.factory" $PATHSCRIPT"/jetson_config.txt"
+
+# bandview_config.txt
+cp -f /home/pi/rpidatv/src/bandview/bandview_config.txt /home/pi/rpidatv/src/bandview/bandview_config.txt.bak
+cp -f /home/pi/rpidatv/src/bandview/bandview_config.txt.factory /home/pi/rpidatv/src/bandview/bandview_config.txt
+
+# airspyview_config.txt
+cp -f /home/pi/rpidatv/src/airspyview/airspyview_config.txt /home/pi/rpidatv/src/airspyview/airspyview_config.txt.bak
+cp -f /home/pi/rpidatv/src/airspyview/airspyview_config.txt.factory /home/pi/rpidatv/src/airspyview/airspyview_config.txt
+
+# rtlsdrview_config.txt
+cp -f /home/pi/rpidatv/src/rtlsdrview/rtlsdrview_config.txt /home/pi/rpidatv/src/rtlsdrview/rtlsdrview_config.txt.bak
+cp -f /home/pi/rpidatv/src/rtlsdrview/rtlsdrview_config.txt.factory /home/pi/rpidatv/src/rtlsdrview/rtlsdrview_config.txt
+
+# nf_meter_config.txt
+# cp -f /home/pi/rpidatv/src/nf_meter/nf_meter_config.txt /home/pi/rpidatv/src/nf_meter/nf_meter_config.txt.bak
+# cp -f /home/pi/rpidatv/src/nf_meter/nf_meter_config.txt.factory /home/pi/rpidatv/src/nf_meter/nf_meter_config.txt

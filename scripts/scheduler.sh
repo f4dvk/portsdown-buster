@@ -45,6 +45,8 @@ EOF
 # 133  Run Update Script for development load
 # 134  Run XY Display NOT USED
 # 136  Exit from rpidatvgui requesting start of BandViewer
+# 140  Exit from rpidatvgui requesting start of Airspy BandViewer
+# 141  Exit from rpidatvgui requesting start of RTL-SDR BandViewer
 # 160  Shutdown from GUI
 # 192  Reboot from GUI
 # 193  Rotate 7 inch and reboot
@@ -114,6 +116,16 @@ while [ "$GUI_RETURN_CODE" -gt 127 ] || [ "$GUI_RETURN_CODE" -eq 0 ];  do
       /home/pi/rpidatv/bin/bandview >/dev/null 2>/dev/null
       GUI_RETURN_CODE="$?"
       BANDVIEW_START_DELAY=0
+    ;;
+    140)
+      sleep 1
+      /home/pi/rpidatv/bin/airspyview
+      GUI_RETURN_CODE="$?"
+    ;;
+    141)
+      sleep 1
+      /home/pi/rpidatv/bin/rtlsdrview
+      GUI_RETURN_CODE="$?"
     ;;
     160)
       sleep 1
