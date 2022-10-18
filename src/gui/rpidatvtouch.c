@@ -1583,7 +1583,7 @@ void ExecuteUpdate(int NoButton)
       else if (GetLinuxVer() == 9)  // Stretch, so portsdown repo
       {
         printf("Downloading Development Update Stretch Version\n");
-        strcpy(LinuxCommand, "wget https://raw.githubusercontent.com/davecrump/portsdown/master/update.sh");
+        strcpy(LinuxCommand, "wget https://raw.githubusercontent.com/f4dvk/portsdown/master/update.sh");
         strcat(LinuxCommand, " -O /home/pi/update.sh");
         system(LinuxCommand);
 
@@ -1593,7 +1593,7 @@ void ExecuteUpdate(int NoButton)
       else                         // Buster, so portsdown-buster repo
       {
         printf("Downloading Development Update Buster Version\n");
-        strcpy(LinuxCommand, "wget https://raw.githubusercontent.com/davecrump/portsdown-buster/master/update.sh");
+        strcpy(LinuxCommand, "wget https://raw.githubusercontent.com/f4dvk/portsdown-buster/master/update.sh");
         strcat(LinuxCommand, " -O /home/pi/update.sh");
         system(LinuxCommand);
 
