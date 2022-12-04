@@ -59,7 +59,7 @@ modcod=0
 top=0
 
 case "$MODULATION_TX" in
-  "DVBS2" )
+  "S2QPSK" )
     case "$FEC_TX" in
       "14" ) modcod=1 ;;
       "13" ) modcod=2 ;;
@@ -144,7 +144,7 @@ else
     modcod=""
     let FECNUM=FEC_TX
     let FECDEN=FEC_TX+1
-    FECDVB="--cr $FECNUM"/"$FECDEN"
+    FECDVB="--fastlock --cr $FECNUM"/"$FECDEN"
   else
     MODULATION="DVB-S2"
     case "$MODULATION_TX" in
@@ -170,10 +170,6 @@ else
     FECDVB=""
   fi
   case "$FEC_TX" in
-    "1" | "2" | "3" | "5" | "7" )
-      let FECNUM=FEC
-      let FECDEN=FEC+1
-    ;;
     "14" )
       FECNUM="1"
       FECDEN="4"
@@ -384,7 +380,7 @@ if [ "$MODE_OUTPUT" != "RPI_R" ]; then
   fi
 
   if [ "$ETAT" == "ON" ]; then
-    sudo $KEY | (exec $PATHBIN"leandvb" $FECDVB --fd-info 2 --sr $SYMBOLRATE --standard $MODULATION --sampler rrc --rrc-steps 35 --rrc-rej 10 --roll-off 0.35 $modcod --ldpc-bf 150 -f $SR_RTLSDR  2>&1 1>videots |
+    sudo $KEY | (exec $PATHBIN"leandvb" $FECDVB --fd-info 2 --sr $SYMBOLRATE --standard $MODULATION --sampler rrc --rrc-steps 35 --rrc-rej 10 --roll-off 0.35 $modcod --ldpc-bf 150 --ts-udp 127.0.0.1:10010 -f $SR_RTLSDR  2>&1 1>&4 |
     (while read tag val; do
        case "$tag" in
          "LOCK" )
@@ -414,22 +410,19 @@ if [ "$MODE_OUTPUT" != "RPI_R" ]; then
         /home/pi/rpidatv/scripts/lime_ptt.sh &
         sudo killall limesdr_dvb >/dev/null 2>/dev/null
         sudo pkill -9 limesdr_dvb >/dev/null 2>/dev/null
+        sudo killall netcat >/dev/null 2>/dev/null
         $PATHBIN"/limesdr_stopchannel" >/dev/null 2>/dev/null
-        $PATHBIN"/fake_read" >/dev/null 2>/dev/null &
       elif [ "$Lock" == "1" ]; then
         /home/pi/rpidatv/scripts/lime_ptt.sh &
-        $PATHBIN"/limesdr_dvb" -i videots -s "$SYMBOLRATEK"000 -f $FECNUM/$FECDEN -r $UPSAMPLE -m $MODULATION_TX -c $CONST \
+        netcat -u -4 -l 10010 | \
+        $PATHBIN"/limesdr_dvb" -s "$SYMBOLRATEK"000 -f $FECNUM/$FECDEN -r $UPSAMPLE -m $MODULATION_TX -c $CONST \
              -t "$FREQ_TX"e6 -g $LIME_TX_GAINA -q 1 -D $DIGITAL_GAIN -e $BAND_GPIO $LIMETYPE >/dev/null 2>/dev/null &
         sleep 1
-        sudo killall fake_read >/dev/null 2>/dev/null
       fi
       old=$Lock
     fi
   done)
-  ) &
-
-  $PATHBIN"/fake_read" >/dev/null 2>/dev/null &
-
+  ) 4>&1 &
  fi
 
 else
