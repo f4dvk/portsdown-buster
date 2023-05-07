@@ -52,3 +52,7 @@ upsample=2
 limerfe=disabled
 port=10000
 webcontrol=disabled
+rtsp_ip=192.168.0.26
+rtsp_port=8554
+rtsp_usr=admin
+rtsp_pwd=admin

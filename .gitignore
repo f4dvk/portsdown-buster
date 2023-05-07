@@ -48,3 +48,4 @@ src/siggen/libshapes.o
 src/siggen/oglinit.o
 src/gui/libshapes.c
 src/tstools/
+src/rtlsdrview/rtlsdrview

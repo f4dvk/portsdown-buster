@@ -69,6 +69,8 @@ Rewitten by Dave, G8GKQ
 #define PATH_FORWARDCONFIG "/home/pi/rpidatv/src/limesdr_toolbox/forward_config.txt"
 #define PATH_LIME_CAL "/home/pi/rpidatv/scripts/limecalfreq.txt"
 #define PATH_406CONFIG "/home/pi/rpidatv/406/config.txt"
+#define PATH_AS_CONFIG "/home/pi/rpidatv/src/airspyview/airspyview_config.txt"
+#define PATH_RS_CONFIG "/home/pi/rpidatv/src/rtlsdrview/rtlsdrview_config.txt"
 
 #define PI 3.14159265358979323846
 #define deg2rad(DEG) ((DEG)*((PI)/(180.0)))
@@ -196,7 +198,7 @@ char CurrentTXMode[255] = "DVB-S";
 char CurrentPilots[7] = "off";
 char CurrentFrames[7] = "long";
 //char CurrentModeInput[255] = "DESKTOP";
-char TabEncoding[5][15] = {"MPEG-2", "H264", "H265", "IPTS in", "TS File"};
+char TabEncoding[6][15] = {"MPEG-2", "H264", "H265", "IPTS in", "TS File", "RTSP"};
 char CurrentEncoding[255] = "H264";
 char TabSource[11][15] = {"Pi Cam", "CompVid", "TCAnim", "TestCard", "PiScreen", "Contest", "Webcam", "C920", "HDMI", "PC", "HDMI Usb"};
 char CurrentSource[15] = "PiScreen";
@@ -2154,6 +2156,12 @@ void ReadModeInput(char coding[256], char vsource[256])
     strcpy(coding, "Native");
     strcpy(vsource, "IP Transport Stream");
     strcpy(CurrentEncoding, "IPTS in");
+  }
+	else if (strcmp(ModeInput, "RTSP") == 0)
+  {
+    strcpy(coding, "Native");
+    strcpy(vsource, "RTSP Stream");
+    strcpy(CurrentEncoding, "RTSP");
   }
   else if (strcmp(ModeInput, "VNC") == 0)
   {
@@ -6750,6 +6758,10 @@ void ApplyTXConfig()
     {
       strcpy(ModeInput, "IPTSIN");
     }
+		else if (strcmp(CurrentEncoding, "RTSP") == 0)
+    {
+      strcpy(ModeInput, "RTSP");
+    }
     else if (strcmp(CurrentEncoding, "TS File") == 0)
     {
       strcpy(ModeInput, "FILETS");
@@ -7223,7 +7235,7 @@ void GreyOut1()
       SetButtonStatus(ButtonNumber(CurrentMenu, 6), 0); // Caption
       SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0); // EasyCap
 
-      if ((strcmp(CurrentEncoding, "IPTS in") == 0) || (strcmp(CurrentEncoding, "TS File") == 0))
+      if ((strcmp(CurrentEncoding, "RTSP") == 0) || (strcmp(CurrentEncoding, "IPTS in") == 0) || (strcmp(CurrentEncoding, "TS File") == 0))
       {
         SetButtonStatus(ButtonNumber(CurrentMenu, 18), 2); // Format
         SetButtonStatus(ButtonNumber(CurrentMenu, 19), 2); // Source
@@ -7247,7 +7259,7 @@ void GreyOut1()
       {
         SetButtonStatus(ButtonNumber(CurrentMenu, 7), 0); // Blue/Green Audio
       }
-      else  // IPTS in or TS File
+      else  // IPTS in or TS File or RTSP
       {
         SetButtonStatus(ButtonNumber(CurrentMenu, 7), 2); // Grey Audio
       }
@@ -7641,8 +7653,16 @@ void SelectFrames()  // Toggle frames long/short
 
 void SelectEncoding(int NoButton)  // Encoding
 {
-  SelectInGroupOnMenu(CurrentMenu, 5, 9, NoButton, 1);
-  strcpy(CurrentEncoding, TabEncoding[NoButton - 5]);
+  if (NoButton > 4)
+  {
+    SelectInGroupOnMenu(CurrentMenu, 5, 9, NoButton, 1);
+    strcpy(CurrentEncoding, TabEncoding[NoButton - 5]);
+  }
+  else
+  {
+    SelectInGroupOnMenu(CurrentMenu, 0, 3, NoButton, 1);
+    strcpy(CurrentEncoding, TabEncoding[NoButton + 5]);
+  }
   char Param[15]="encoding";
   SetConfigParam(PATH_PCONFIG, Param, CurrentEncoding);
 
@@ -9099,6 +9119,7 @@ void TransmitStart()
     ||(strcmp(ModeInput,"CARRIER") == 0)
     ||(strcmp(ModeInput,"TESTMODE") == 0)
     ||(strcmp(ModeInput,"IPTSIN") == 0)
+    ||(strcmp(ModeInput,"RTMP") == 0)
     ||(strcmp(ModeInput,"FILETS") == 0)
     ||(strcmp(ModeInput,"WEBCAMMPEG-2") == 0)
     ||(strcmp(ModeInput,"ANALOG16MPEG-2") == 0)
@@ -16271,6 +16292,19 @@ void waituntil(int w,int h)
               }
             }
           }
+					else if (strcmp(DisplayType, "Waveshare") == 0)
+          {
+            if(CheckRTL() == 0)
+            {
+              DisplayLogo();
+              cleanexit(141);
+            }
+            else
+            {
+               MsgBox("RTL-SDR required for 3.5 inch screen");
+               wait_touch();
+            }
+          }
           else
           {
             MsgBox4("7 inch or", "other DSI screen required", "For Band Viewer", "Touch screen to continue");
@@ -17111,6 +17145,19 @@ void waituntil(int w,int h)
 	              }
 	            }
 	          }
+						else if (strcmp(DisplayType, "Waveshare") == 0)
+            {
+              if(CheckRTL() == 0)
+              {
+                DisplayLogo();
+                cleanexit(141);
+              }
+              else
+              {
+                 MsgBox("RTL-SDR required for 3.5 inch screen");
+                 wait_touch();
+              }
+            }
 	          else
 	          {
 	            MsgBox4("7 inch or", "other DSI screen required", "For Band Viewer", "Touch screen to continue");
@@ -17159,6 +17206,58 @@ void waituntil(int w,int h)
             BackgroundRGB(0, 0, 0, 255);
             Start_Highlights_Menu8();
             UpdateWindow();
+          }
+          else                                           // Terrestrial, so set band viewer freq and exit to bandviewer
+          {
+						if (strcmp(DisplayType, "Element14_7") == 0)
+            {
+							if (((CheckLimeMiniConnect() == 0) || (CheckLimeUSBConnect() == 0)) || (DetectLimeNETMicro() == 1))
+              {
+                snprintf(ValueToSave, 63, "%d", LMRXfreq[0]);
+                SetConfigParam(PATH_BV_CONFIG, "centrefreq", ValueToSave);
+                DisplayLogo();
+                cleanexit(136);
+              }
+              else if (CheckAirspyConnect() == 0)
+              {
+                snprintf(ValueToSave, 63, "%d", LMRXfreq[0]);
+                SetConfigParam(PATH_AS_CONFIG, "centrefreq", ValueToSave);
+                DisplayLogo();
+                cleanexit(140);
+              }
+              else if(CheckRTL() == 0)
+              {
+                snprintf(ValueToSave, 63, "%d", LMRXfreq[0]);
+                SetConfigParam(PATH_RS_CONFIG, "centrefreq", ValueToSave);
+                DisplayLogo();
+                cleanexit(141);
+              }
+              else
+              {
+                MsgBox("No LimeSDR, Airspy or RTL-SDR Connected");
+                wait_touch();
+              }
+            }
+            else if (strcmp(DisplayType, "Waveshare") == 0)
+            {
+              if(CheckRTL() == 0)
+              {
+                snprintf(ValueToSave, 63, "%d", LMRXfreq[0]);
+                SetConfigParam(PATH_RS_CONFIG, "centrefreq", ValueToSave);
+                DisplayLogo();
+                cleanexit(141);
+              }
+              else
+              {
+                 MsgBox("RTL-SDR required for 3.5 inch screen");
+                 wait_touch();
+              }
+						}
+            else
+            {
+							MsgBox4("7 inch or", "RTL-SDR required", "For Band Viewer", "Touch screen to continue");
+              wait_touch();
+            }
           }
           break;
         case 5:                                          // Change Freq
@@ -17376,6 +17475,10 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
         printf("Button Event %d, Entering Menu 12 Case Statement\n",i);
         switch (i)
         {
+				case 0:                               // RTSP
+          SelectEncoding(i);
+          printf("RTSP\n");
+          break;
         case 4:                               // Cancel
           SelectInGroupOnMenu(CurrentMenu, 4, 4, 4, 1);
           printf("Encoding Cancel\n");
@@ -21483,11 +21586,23 @@ void Start_Highlights_Menu8()
   if (strcmp(LMRXmode, "terr") == 0)
   {
     indexoffset = 10;
+    if (((CheckLimeMiniConnect() == 0) || (CheckLimeUSBConnect() == 0)) && (strcmp(DisplayType, "Element14_7") == 0))
     SetButtonStatus(ButtonNumber(CurrentMenu, 4), 1);
+		{
+  		SetButtonStatus(ButtonNumber(CurrentMenu, 4), 2);
+  	}
+  	else if ((CheckRTL() == 0) && (strcmp(DisplayType, "Waveshare") == 0))
+  	{
+	  	SetButtonStatus(ButtonNumber(CurrentMenu, 4), 2);
+	  }
+	  else  // Grey out BandViewer Button
+	  {
+	  	SetButtonStatus(ButtonNumber(CurrentMenu, 4), 3);
+	  }
   }
   else
   {
-    SetButtonStatus(ButtonNumber(CurrentMenu, 4), 0);
+	  SetButtonStatus(ButtonNumber(CurrentMenu, 4), 0);
   }
 
   for(i = 1; i <= 10; i = i + 1)
@@ -21967,6 +22082,10 @@ void Define_Menu12()
 
   // Bottom Row, Menu 12
 
+	button = CreateButton(12, 0);                     // RTSP
+  AddButtonStatus(button, TabEncoding[5], &Blue);
+  AddButtonStatus(button, TabEncoding[5], &Green);
+
   button = CreateButton(12, 4);
   AddButtonStatus(button, "Cancel", &DBlue);
   AddButtonStatus(button, "Cancel", &LBlue);
@@ -22003,23 +22122,27 @@ void Start_Highlights_Menu12()
 
   if(strcmp(CurrentEncoding, TabEncoding[0]) == 0)
   {
-    SelectInGroupOnMenu(12, 5, 9, 5, 1);
+    SelectInGroupOnMenu(12, 0, 9, 5, 1);
   }
   if(strcmp(CurrentEncoding, TabEncoding[1]) == 0)
   {
-    SelectInGroupOnMenu(12, 5, 9, 6, 1);
+    SelectInGroupOnMenu(12, 0, 9, 6, 1);
   }
   if(strcmp(CurrentEncoding, TabEncoding[2]) == 0)
   {
-    SelectInGroupOnMenu(12, 5, 9, 7, 1);
+    SelectInGroupOnMenu(12, 0, 9, 7, 1);
   }
   if(strcmp(CurrentEncoding, TabEncoding[3]) == 0)
   {
-    SelectInGroupOnMenu(12, 5, 9, 8, 1);
+    SelectInGroupOnMenu(12, 0, 9, 8, 1);
   }
   if(strcmp(CurrentEncoding, TabEncoding[4]) == 0)
   {
-    SelectInGroupOnMenu(12, 5, 9, 9, 1);
+    SelectInGroupOnMenu(12, 0, 9, 9, 1);
+  }
+	if(strcmp(CurrentEncoding, TabEncoding[5]) == 0)
+  {
+    SelectInGroupOnMenu(12, 0, 9, 0, 1);
   }
   GreyOut12();
 }

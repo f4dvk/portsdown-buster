@@ -34,9 +34,9 @@ extern int gain;                     // Gain (20 - 50) from main 60 = auto
 extern bool Range20dB;
 extern int BaseLine20dB;
 extern int fft_size;                 // Number of fft samples.  Depends on scan width
-extern float fft_time_smooth; 
+extern float fft_time_smooth;
 
-extern int span;      
+extern int span;
 
 int fft_offset;
 int nearest_gain_value;
@@ -71,7 +71,7 @@ fftw_complex* fft_in;
 fftw_complex*   fft_out;
 fftw_plan   fft_plan;
 
-typedef struct 
+typedef struct
 {
   float data[1250];
   pthread_mutex_t mutex;
@@ -81,13 +81,13 @@ fft_buffer_t fft_buffer = {
 	.mutex = PTHREAD_MUTEX_INITIALIZER,
 };
 
-//#define DEFAULT_SAMPLE_RATE 2048000
-#define DEFAULT_SAMPLE_RATE 1024000
+#define DEFAULT_SAMPLE_RATE 2048000
+//#define DEFAULT_SAMPLE_RATE 1024000
 static rtlsdr_dev_t *dev = NULL;
 
 static uint8_t *buffer;
 static uint32_t dev_index = 0;
-static uint32_t samp_rate = DEFAULT_SAMPLE_RATE;
+static uint32_t samp_rate; // = DEFAULT_SAMPLE_RATE;
 static uint32_t buff_len = 2048;
 static int      ppm_error = 0;
 static float    lut[256];       /* look-up table to convert U8 to +/- 1.0f */
@@ -192,6 +192,15 @@ static uint8_t setup_rtlsdr()
     }
   }
 
+  if (SpanWidth == 1024000)  // for 500 kHz
+  {
+    samp_rate = DEFAULT_SAMPLE_RATE / 2;
+  }
+  else
+  {
+    samp_rate = DEFAULT_SAMPLE_RATE;
+  }
+
   r = rtlsdr_set_sample_rate(dev, samp_rate);
   if (r < 0)
   {
@@ -221,7 +230,7 @@ static uint8_t setup_rtlsdr()
   else  // manual gain
   {
     r = rtlsdr_set_tuner_gain_mode(dev, 1);
-    if (r < 0) 
+    if (r < 0)
     {
       printf("WARNING: Failed to enable manual gain.\n");
       return 1;
@@ -230,7 +239,7 @@ static uint8_t setup_rtlsdr()
     nearest_gain_value = nearest_gain(dev, 10 * gain);
 
     r = rtlsdr_set_tuner_gain(dev, nearest_gain_value);
-    if (r != 0) 
+    if (r != 0)
     {
       printf("WARNING: Failed to set tuner gain.\n");
     }
@@ -312,7 +321,7 @@ void perform_fft()
 	}
 	pwr = pwr_scale * (pt[0] * pt[0]) + (pt[1] * pt[1]);
 	lpwr = 10.f * log10(pwr + 1.0e-20);
-	        
+
 	fft_buffer.data[i] = (lpwr * (1.f - fft_time_smooth)) + (fft_buffer.data[i] * fft_time_smooth);
   }
 
@@ -348,8 +357,8 @@ void fft_to_buffer()
 
     if (Range20dB) // Range20dB
     {
-                
-      fft_output_data[j] = fft_output_data[j] - 5 * (80 + BaseLine20dB);  
+
+      fft_output_data[j] = fft_output_data[j] - 5 * (80 + BaseLine20dB);
       fft_output_data[j] = 4 * fft_output_data[j];
     }
 
@@ -373,7 +382,7 @@ void fft_to_buffer()
 
   // Lock the histogram buffer for writing
   pthread_mutex_lock(&histogram);
-  
+
   y3[6] = fft_output_data[7 + fft_offset];
 
   for (j = 7; j <= 505; j++)
@@ -439,8 +448,8 @@ void *rtlsdr_fft_thread(void *arg)
     printf("setup_rtlsdr Done.\n");
   }
 
-  // Copy fft scaled data to display buffer 
-  while((false == *exit_requested)) 
+  // Copy fft scaled data to display buffer
+  while((false == *exit_requested))
   {
     if(monotonic_ms() > (last_output + 2))  // so 500 Hz refresh
     {
@@ -544,13 +553,13 @@ void *rtlsdr_fft_thread(void *arg)
         else  // manual gain
         {
           r = rtlsdr_set_tuner_gain_mode(dev, 1);
-          if (r < 0) 
+          if (r < 0)
           {
             printf("WARNING: Failed to enable manual gain.\n");
           }
           nearest_gain_value = nearest_gain(dev, 10 * gain);
           r = rtlsdr_set_tuner_gain(dev, nearest_gain_value);
-          if (r != 0) 
+          if (r != 0)
           {
             printf("WARNING: Failed to set tuner gain.\n");
           }
