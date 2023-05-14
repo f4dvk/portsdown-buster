@@ -9120,7 +9120,7 @@ void TransmitStart()
     ||(strcmp(ModeInput,"CARRIER") == 0)
     ||(strcmp(ModeInput,"TESTMODE") == 0)
     ||(strcmp(ModeInput,"IPTSIN") == 0)
-    ||(strcmp(ModeInput,"RTMP") == 0)
+    ||(strcmp(ModeInput,"RTSP") == 0)
     ||(strcmp(ModeInput,"FILETS") == 0)
     ||(strcmp(ModeInput,"WEBCAMMPEG-2") == 0)
     ||(strcmp(ModeInput,"ANALOG16MPEG-2") == 0)
@@ -15775,7 +15775,7 @@ void waituntil(int w,int h)
   rawX = 0;
   rawY = 0;
   int buffertouch = 0;
-	char ValueToSave[63];
+  char ValueToSave[63];
 
   // Start the main loop for the Touchscreen
   for (;;)

@@ -702,6 +702,17 @@ if ! grep -q webcontrol= "$PATHSCRIPT"/portsdown_config.txt; then
   echo "webcontrol=disabled" >> "$PATHSCRIPT"/portsdown_config.txt
 fi
 
+if ! grep -q rtsp_ip= "$PATHSCRIPT"/portsdown_config.txt; then
+  # File needs updating
+  # Delete any blank lines first
+  sed -i -e '/^$/d' "$PATHSCRIPT"/portsdown_config.txt
+  # Add the new entry and a new line
+  echo "rtsp_ip=192.168.0.26" >> "$PATHSCRIPT"/portsdown_config.txt
+  echo "rtsp_port=8554" >> "$PATHSCRIPT"/portsdown_config.txt
+  echo "rtsp_usr=admin" >> "$PATHSCRIPT"/portsdown_config.txt
+  echo "rtsp_pwd=admin" >> "$PATHSCRIPT"/portsdown_config.txt
+fi
+
 # Configure the nginx web server
 sudo systemctl stop nginx
 rm -rf /home/pi/webroot
