@@ -69,6 +69,7 @@ Rewitten by Dave, G8GKQ
 #define PATH_FORWARDCONFIG "/home/pi/rpidatv/src/limesdr_toolbox/forward_config.txt"
 #define PATH_LIME_CAL "/home/pi/rpidatv/scripts/limecalfreq.txt"
 #define PATH_406CONFIG "/home/pi/rpidatv/406/config.txt"
+#define PATH_BV_CONFIG "/home/pi/rpidatv/src/bandview/bandview_config.txt"
 #define PATH_AS_CONFIG "/home/pi/rpidatv/src/airspyview/airspyview_config.txt"
 #define PATH_RS_CONFIG "/home/pi/rpidatv/src/rtlsdrview/rtlsdrview_config.txt"
 
@@ -15774,6 +15775,8 @@ void waituntil(int w,int h)
   rawX = 0;
   rawY = 0;
   int buffertouch = 0;
+	char ValueToSave[63];
+
   // Start the main loop for the Touchscreen
   for (;;)
   {
@@ -21587,18 +21590,17 @@ void Start_Highlights_Menu8()
   {
     indexoffset = 10;
     if (((CheckLimeMiniConnect() == 0) || (CheckLimeUSBConnect() == 0)) && (strcmp(DisplayType, "Element14_7") == 0))
-    SetButtonStatus(ButtonNumber(CurrentMenu, 4), 1);
-		{
-  		SetButtonStatus(ButtonNumber(CurrentMenu, 4), 2);
-  	}
-  	else if ((CheckRTL() == 0) && (strcmp(DisplayType, "Waveshare") == 0))
-  	{
-	  	SetButtonStatus(ButtonNumber(CurrentMenu, 4), 2);
-	  }
-	  else  // Grey out BandViewer Button
-	  {
-	  	SetButtonStatus(ButtonNumber(CurrentMenu, 4), 3);
-	  }
+    {
+      SetButtonStatus(ButtonNumber(CurrentMenu, 4), 2);
+    }
+    else if ((CheckRTL() == 0) && (strcmp(DisplayType, "Waveshare") == 0))
+    {
+      SetButtonStatus(ButtonNumber(CurrentMenu, 4), 2);
+    }
+    else  // Grey out BandViewer Button
+    {
+      SetButtonStatus(ButtonNumber(CurrentMenu, 4), 3);
+    }
   }
   else
   {
