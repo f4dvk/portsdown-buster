@@ -21,11 +21,7 @@ FREQLOW=$(get_config_var low $PATH_406CONFIG)
 FREQHIGH=$(get_config_var high $PATH_406CONFIG)
 CHECKSUM=$(get_config_var no_checksum $PATH_406CONFIG)
 INPUT=$(get_config_var input $PATH_406CONFIG)
-CARD=0
-
-if [ $1 > 0 ]; then
-  CARD=$1
-fi
+CARD=$1
 
 if [ "$CHECKSUM" = "1" ]; then
   CHECKSUM="no_checksum"

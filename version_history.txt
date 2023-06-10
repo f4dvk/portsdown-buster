@@ -1,3 +1,7 @@
+202306101
+Correction carte son decodeur sarsat
+mise à jour rtl-sdr
+
 202306100
 RTSP camera
 Audio decodeur sarsat

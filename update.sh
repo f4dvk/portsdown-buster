@@ -289,6 +289,22 @@ make
 sudo make install
 
 echo
+echo "-----------------------------------------------"
+echo "------- Update RTL-SDR Drivers and Apps -------"
+echo "-----------------------------------------------"
+cd /home/pi
+sudo rm -r rtl-sdr
+wget https://github.com/f4dvk/rtl-sdr/archive/master.zip
+unzip master.zip
+mv rtl-sdr-master rtl-sdr
+rm master.zip
+
+# Compile and install rtl-sdr
+cd rtl-sdr/ && mkdir build && cd build
+cmake ../ -DINSTALL_UDEV_RULES=ON
+make && sudo make install && sudo ldconfig
+
+echo
 echo "----------------------------------"
 echo "------- Compiling cam_ctl --------"
 echo "----------------------------------"
