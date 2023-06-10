@@ -86,6 +86,8 @@ sudo apt-get -y install libairspy-dev                                   # For Ai
 
 sudo pip install pyrtlsdr  #20180101 FreqShow
 
+sudo apt-get install libcurl4-openssl-dev
+
 # Install libiio for DVB-T scripts that refer to Pluto
 cd /home/pi
 git clone https://github.com/analogdevicesinc/libiio.git
@@ -202,6 +204,15 @@ cd /home/pi/rpidatv/src/gui
 make
 sudo make install
 
+echo
+echo "----------------------------------"
+echo "------- Compiling cam_ctl --------"
+echo "----------------------------------"
+cd /home/pi/rpidatv/src/cam_ctl
+rm cam_ctl >/dev/null 2>/dev/null
+gcc ./cam_ctl.c -lm -lcurl -o ./cam_ctl
+cp cam_ctl ../../bin
+
 # Build avc2ts and dependencies
 echo
 echo "--------------------------------------------"
@@ -255,7 +266,7 @@ echo "-----------------------------------------------"
 echo "----- Installing RTL-SDR Drivers and Apps -----"
 echo "-----------------------------------------------"
 cd /home/pi
-wget https://github.com/keenerd/rtl-sdr/archive/master.zip
+wget https://github.com/f4dvk/rtl-sdr/archive/master.zip
 unzip master.zip
 mv rtl-sdr-master rtl-sdr
 rm master.zip

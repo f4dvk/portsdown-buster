@@ -39,6 +39,7 @@ my $timeout = "timeout 56s";
 my $fixe = 0;
 my $no_checksum = 0;
 my $mic = 0;
+my $card = 0;
 my $filter = "lowpass 3000 highpass 400"; #highpass de 10Hz à 400Hz selon la qualité du signal
 
 my $largeur = "12k";
@@ -75,18 +76,21 @@ for (my $i=0;$i<@ARGV;$i++)
 	{$ppm=$ARGV[2];
 	}
 	if ($i==3)
-	{  if ($ARGV[3] eq 'no_checksum')
+	{$card=$ARGV[3]
+	}
+	if ($i==4)
+	{  if ($ARGV[4] eq 'no_checksum')
 	   {
 	     $dec=$dec1;
 	     $no_checksum=1;
 	   }
-	   elsif ($ARGV[3] eq 'mic')
+	   elsif ($ARGV[4] eq 'mic')
 	   {
 	     $mic=1;
 	   }
 	}
-	if ($i==4)
-	{  if ($ARGV[4] eq 'mic')
+	if ($i==5)
+	{  if ($ARGV[5] eq 'mic')
 	   {
 	     $mic=1;
 	   }
@@ -189,9 +193,10 @@ while (1) {
     printf "$utc UTC";
     if ($mic==0)
     {
-      system("$timeout rtl_fm -p $ppm -M fm $WFM -s $largeur -f $frq  2>/dev/null |\
-	      sox -t raw -r $largeur -e s -b 16 -c 1 - -t wav - $filter 2>/dev/null |\
-	      $dec ");
+			my @args = ( "bash", "-c", "$timeout rtl_fm -p $ppm -M fm $WFM -s $largeur -f $frq  2>/dev/null |\
+              sox -t raw -r $largeur -e s -b 16 -c 1 - -t wav - $filter 2>/dev/null |\
+              tee >($dec) >(aplay -D plughw:$card >/dev/null 2>/dev/null) >/dev/null" );
+      system(@args);
     }
     else
     {

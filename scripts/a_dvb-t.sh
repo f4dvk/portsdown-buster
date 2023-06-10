@@ -68,11 +68,13 @@ let BITRATE_TS=$BITRATE_TS/100
 
   # Set the H264 image size
   if [ "$BITRATE_VIDEO" -lt 190000 ]; then  # less than 333KS FEC 1/2
+    RESOLUTION=640
     VIDEO_WIDTH=352
     VIDEO_HEIGHT=288
     VIDEO_FPS=25
   fi
   if [ "$BITRATE_VIDEO" -lt 100000 ]; then
+    RESOLUTION=352
     VIDEO_WIDTH=160
     VIDEO_HEIGHT=120
   fi

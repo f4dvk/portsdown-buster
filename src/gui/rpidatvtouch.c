@@ -78,6 +78,8 @@ Rewitten by Dave, G8GKQ
 #define rad2deg(RAD) ((RAD)*180/PI)
 #define DELIM "."
 
+char PATH_SCRIPT_DECODER_1[40];
+
 char ImageFolder[63]="/home/pi/rpidatv/image/";
 
 int fd = 0;                           // File Descriptor for touchscreen touch messages
@@ -12723,7 +12725,22 @@ void ForwardLeandvbStart()
 
 void SARSAT_DECODER()
 {
-  #define PATH_SCRIPT_DECODER "/home/pi/rpidatv/406/scan.sh 2>&1"
+	char card[15];
+	char mic[15];
+
+	GetMicAudioCard(mic);
+	if (strlen(mic) == 1)   // Use USB audio output if present
+	{
+		strcpy(card, mic);
+	}
+	else                    // Use RPi audio if no USB
+	{
+		GetPiAudioCard(card);
+	}
+
+	snprintf(PATH_SCRIPT_DECODER_1, 40, "/home/pi/rpidatv/406/scan.sh %s 2>&1", card);
+
+  #define PATH_SCRIPT_DECODER PATH_SCRIPT_DECODER_1
 
   //Local parameters:
 
@@ -12948,7 +12965,7 @@ void SARSAT_DECODER()
 
   system("sudo killall scan.sh >/dev/null 2>/dev/null");
   touch_response = 0;
-  system("pkill -9 rtl_power && pkill perl && pkill -9 perl >/dev/null 2>/dev/null");
+  system("pkill -9 rtl_power && pkill perl && pkill -9 perl && pkill aplay >/dev/null 2>/dev/null");
   pthread_join(thbutton, NULL);
 
   system("pkill -f screen_grab_for_web.sh");

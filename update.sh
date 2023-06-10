@@ -201,6 +201,7 @@ sudo apt-get -y dist-upgrade # Upgrade all the installed packages to their lates
 
 sudo apt-get -y install vlc                       # Removed earlier
 sudo apt-get -y install mplayer                   # 202004300 Used for video monitor and LongMynd
+sudo apt-get install libcurl4-openssl-dev
 
 # Install libiio and dependencies if required (used for DVB-T scripts)
 echo
@@ -286,6 +287,15 @@ cd gui
 make clean
 make
 sudo make install
+
+echo
+echo "----------------------------------"
+echo "------- Compiling cam_ctl --------"
+echo "----------------------------------"
+cd /home/pi/rpidatv/src/cam_ctl
+rm cam_ctl >/dev/null 2>/dev/null
+gcc ./cam_ctl.c -lm -lcurl -o ./cam_ctl
+cp cam_ctl ../../bin
 
 cd /home/pi
 

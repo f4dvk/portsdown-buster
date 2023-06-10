@@ -432,17 +432,21 @@ else # h264
 
   # Set the H264 image size
   if [ "$BITRATE_VIDEO" -gt 190000 ]; then  # 333KS FEC 1/2 or better
+    RESOLUTION=720
     VIDEO_WIDTH=704
     VIDEO_HEIGHT=576
     VIDEO_FPS=25
   else
+    RESOLUTION=352
     VIDEO_WIDTH=352
     VIDEO_HEIGHT=288
     VIDEO_FPS=25
   fi
   if [ "$BITRATE_VIDEO" -lt 100000 ]; then
+    RESOLUTION=352
     VIDEO_WIDTH=160
     VIDEO_HEIGHT=120
+    VIDEO_FPS=20
   fi
 fi
 
@@ -1361,17 +1365,38 @@ fi
   # *********************************** RTSP INPUT TEST ******************************************
 
   "RTSP")
+
+  let BITRATE_VIDEO=BITRATE_VIDEO/1000
+  $PATHRPI"/cam_ctl" $RTSPIP h265 $VIDEO_FPS $RESOLUTION $BITRATE_VIDEO >/dev/null 2>/dev/null
+
   if [ "$MODULATION" != "DVB-T" ]; then                    ######### DVB-S/S2
+    OUTPUT_FFMPEG="-y videots"
     case "$MODE_OUTPUT" in
       "LIMEMINI" | "LIMEUSB" | "LIMEDVB")
-      $PATHRPI"/ffmpeg" -thread_queue_size 1024 -fflags nobuffer -analyzeduration 500000 -i rtsp://$RTSPUSR:$RTSPPWD"@"$RTSPIP":"$RTSPPORT"/profile1" -ss 5 -c:v copy -c:a aac -ar 22050 -ac 1 -b:a 32k -minrate:a 32k -maxrate:a 32k \
-        -f mpegts -mpegts_original_network_id 1 -mpegts_transport_stream_id 1 -mpegts_service_id $SERVICEID -mpegts_pmt_start_pid $PIDPMT -streamid 0:"$PIDVIDEO" \
-        -streamid 1:"$PIDAUDIO" -metadata service_provider=$CHANNEL -metadata service_name=$CALL -blocksize 1880 -muxrate $BITRATE_TS pipe:1 2>/dev/null \
-        | $PATHRPI"/limesdr_dvb" -s "$SYMBOLRATE_K"000 -f $FECNUM/$FECDEN -r $UPSAMPLE -m $MODTYPE -c $CONSTLN $PILOTS $FRAMES \
+      $PATHRPI"/limesdr_dvb" -i videots -s "$SYMBOLRATE_K"000 -f $FECNUM/$FECDEN -r $UPSAMPLE -m $MODTYPE -c $CONSTLN $PILOTS $FRAMES \
         -t "$FREQ_OUTPUT"e6 -g $LIME_GAINF -q $CAL $CUSTOM_FPGA -D $DIGITAL_GAIN -e $BAND_GPIO $LIMETYPE &
       ;;
     esac
+  else                                                    ########### DVB-T
+  OUTPUT_FFMPEG="-y /dev/null"
+    case "$MODE_OUTPUT" in
+      "DATVEXPRESS")
+        OUTPUT_IP="-n 127.0.0.1:1314"
+        /home/pi/rpidatv/bin/dvb_t_stack -m $CONSTLN -f $FREQ_OUTPUTHZ -a $GAIN -r express \
+          -g 1/"$GUARD" -b $SYMBOLRATE -p $UDPINPORT -e "$FECNUM"/"$FECDEN" -i /dev/null &
+      ;;
+      "LIMEMINI")
+        OUTPUT_IP="-n 127.0.0.1:1314"
+        /home/pi/rpidatv/bin/dvb_t_stack -m $CONSTLN -f $FREQ_OUTPUTHZ -a $LIME_GAINF -r lime \
+          -g 1/"$GUARD" -b $SYMBOLRATE -p $UDPINPORT -e "$FECNUM"/"$FECDEN" -i /dev/null &
+      ;;
+    esac
   fi
+
+  $PATHRPI"/ffmpeg" -thread_queue_size 1024 -fflags nobuffer -analyzeduration 500000 -i rtsp://$RTSPUSR:$RTSPPWD"@"$RTSPIP":"$RTSPPORT"/profile1" -c:v copy -c:a aac -ar 22050 -ac 1 -b:a 32k -minrate:a 32k -maxrate:a 32k \
+    -f mpegts -mpegts_original_network_id 1 -mpegts_transport_stream_id 1 -mpegts_service_id $SERVICEID -mpegts_pmt_start_pid $PIDPMT -streamid 0:"$PIDVIDEO" \
+    -streamid 1:"$PIDAUDIO" -metadata service_provider=$CHANNEL -metadata service_name=$CALL -blocksize 1880 -muxrate $BITRATE_TS $OUTPUT_FFMPEG 2>/dev/null &
+
   ;;
 
   # *********************************** TRANSPORT STREAM INPUT FILE ******************************************

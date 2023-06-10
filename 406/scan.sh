@@ -21,6 +21,11 @@ FREQLOW=$(get_config_var low $PATH_406CONFIG)
 FREQHIGH=$(get_config_var high $PATH_406CONFIG)
 CHECKSUM=$(get_config_var no_checksum $PATH_406CONFIG)
 INPUT=$(get_config_var input $PATH_406CONFIG)
+CARD=0
+
+if [ $1 > 0 ]; then
+  CARD=$1
+fi
 
 if [ "$CHECKSUM" = "1" ]; then
   CHECKSUM="no_checksum"
@@ -32,6 +37,6 @@ if [ "$INPUT" = "rtl" ]; then
   INPUT=""
 fi
 
-/home/pi/rpidatv/406/scan406.pl $FREQLOW"M" $FREQHIGH"M" 0 $CHECKSUM $INPUT
+/home/pi/rpidatv/406/scan406.pl $FREQLOW"M" $FREQHIGH"M" 0 $CARD $CHECKSUM $INPUT
 
 exit
