@@ -270,6 +270,7 @@ cp -f -r portsdown-buster-master/bin rpidatv
 cp -f -r portsdown-buster-master/scripts rpidatv
 cp -f -r portsdown-buster-master/src rpidatv
 cp -f -r portsdown-buster-master/406 rpidatv
+cp -f -r portsdown-buster-master/server rpidatv
 rm -f rpidatv/video/*.jpg
 cp -f -r portsdown-buster-master/video rpidatv
 cp -f -r portsdown-buster-master/version_history.txt rpidatv/version_history.txt
