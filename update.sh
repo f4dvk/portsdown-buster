@@ -165,6 +165,7 @@ if [ ! -f  /etc/apt/preferences.d/vlc ]; then
   sudo cp vlc /etc/apt/preferences.d/vlc
 fi
 
+sudo rm vlc.* >/dev/null 2>/dev/null
 sudo apt -y remove vlc*
 sudo apt -y remove libvlc*
 sudo apt -y remove vlc-data
