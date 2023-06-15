@@ -78,7 +78,7 @@ Rewitten by Dave, G8GKQ
 #define rad2deg(RAD) ((RAD)*180/PI)
 #define DELIM "."
 
-char PATH_SCRIPT_DECODER_1[40];
+char PATH_SCRIPT_DECODER_1[45];
 
 char ImageFolder[63]="/home/pi/rpidatv/image/";
 
@@ -4435,7 +4435,7 @@ void RTLstart()
       GetPiAudioCard(card);
       IQAvailable = 0;     // Set flag to say transmit unavailable
     }
-    strcpy(rtlcall, "(rtl_fm");
+    strcpy(rtlcall, "bash -c '(rtl_fm");
     snprintf(fragment, 12, " -M %s", RTLmode[0]);  // -M mode
     strcat(rtlcall, fragment);
     strcpyn(fragment11, RTLfreq[0], 11);
@@ -4460,23 +4460,35 @@ void RTLstart()
     strcat(rtlcall, fragment);
     strcpy(fragment, " -E pad"); // -E pad so that aplay does not crash
     strcat(rtlcall, fragment);
-    strcat(rtlcall, " | aplay -D plughw:");
-    strcat(rtlcall, card);
-    if (strcmp(RTLmode[0], "am") == 0)
+		if ((strcmp(RTLmode[0], "am") == 0) || (strcmp(RTLmode[0], "fm") == 0))
     {
-      strcat(rtlcall, ",0 -f S16_LE -r12) &"); // 12 KHz for AM
-    }
-    if (strcmp(RTLmode[0], "fm") == 0)
-    {
-      strcat(rtlcall, ",0 -f S16_LE -r12) &"); // 12 KHz for FM
+      strcat(rtlcall, " | sox -t raw -r 12k -e s -b 16 -c 1 - -t wav - 2>/dev/null");
     }
     if (strcmp(RTLmode[0], "wbfm") == 0)
     {
-      strcat(rtlcall, ",0 -f S16_LE -r32) &"); // 32 KHz for WBFM
+      strcat(rtlcall, " | sox -t raw -r 32k -e s -b 16 -c 1 - -t wav - 2>/dev/null");
     }
     if ((strcmp(RTLmode[0], "usb") == 0) || (strcmp(RTLmode[0], "lsb") == 0))
     {
-      strcat(rtlcall, ",0 -f S16_LE -r6) &"); // 6 KHz for SSB
+      strcat(rtlcall, " | sox -t raw -r 6k -e s -b 16 -c 1 - -t wav - 2>/dev/null");
+    }
+    strcat(rtlcall, " | tee >(aplay2 -D plughw:Loopback,0,2 2>/dev/null) >(aplay -D plughw:");
+    strcat(rtlcall, card);
+    if (strcmp(RTLmode[0], "am") == 0)
+    {
+      strcat(rtlcall, ",0 -r12) >/dev/null) &'"); // 12 KHz for AM
+    }
+    if (strcmp(RTLmode[0], "fm") == 0)
+    {
+      strcat(rtlcall, ",0 -r12) >/dev/null)&'"); // 12 KHz for FM
+    }
+    if (strcmp(RTLmode[0], "wbfm") == 0)
+    {
+      strcat(rtlcall, ",0 -r32) >/dev/null)&'"); // 32 KHz for WBFM
+    }
+    if ((strcmp(RTLmode[0], "usb") == 0) || (strcmp(RTLmode[0], "lsb") == 0))
+    {
+      strcat(rtlcall, ",0 -r6) >/dev/null)&'"); // 6 KHz for SSB
     }
     printf("RTL_FM called with: %s\n", rtlcall);
     system(rtlcall);
@@ -12725,20 +12737,20 @@ void ForwardLeandvbStart()
 
 void SARSAT_DECODER()
 {
-	char card[15];
-	char mic[15];
+  char card[10];
+  char mic[10];
 
-	GetMicAudioCard(mic);
-	if (strlen(mic) == 1)   // Use USB audio output if present
-	{
-		strcpy(card, mic);
-	}
-	else                    // Use RPi audio if no USB
-	{
-		GetPiAudioCard(card);
-	}
+  GetMicAudioCard(mic);
+  if (strlen(mic) == 1)   // Use USB audio output if present
+  {
+    strcpy(card, mic);
+  }
+  else                    // Use RPi audio if no USB
+  {
+    GetPiAudioCard(card);
+  }
 
-	snprintf(PATH_SCRIPT_DECODER_1, 40, "/home/pi/rpidatv/406/scan.sh %s 2>&1", card);
+  snprintf(PATH_SCRIPT_DECODER_1, 45, "/home/pi/rpidatv/406/scan.sh %s 2>&1", card);
 
   #define PATH_SCRIPT_DECODER PATH_SCRIPT_DECODER_1
 

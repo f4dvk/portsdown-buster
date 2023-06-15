@@ -191,11 +191,12 @@ while (1) {
     printf "\nLancement du Decodage   ";
     $utc = strftime(' %d %m %Y   %Hh%Mm%Ss', gmtime);
     printf "$utc UTC";
+		#AUDIODEV=hw:Loopback,0,2 play - 2>/dev/null
     if ($mic==0)
     {
-			my @args = ( "bash", "-c", "$timeout rtl_fm -p $ppm -M fm $WFM -s $largeur -f $frq  2>/dev/null |\
+      my @args = ( "bash", "-c", "$timeout rtl_fm -p $ppm -M fm $WFM -s $largeur -f $frq  2>/dev/null |\
               sox -t raw -r $largeur -e s -b 16 -c 1 - -t wav - $filter 2>/dev/null |\
-              tee >($dec) >(aplay -D plughw:$card >/dev/null 2>/dev/null) >/dev/null" );
+              tee >(aplay2 -D plughw:Loopback,0,2 2>/dev/null) >($dec) >(aplay -D plughw:$card 2>/dev/null) >/dev/null" );
       system(@args);
     }
     else
