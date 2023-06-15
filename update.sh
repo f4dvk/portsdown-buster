@@ -750,21 +750,19 @@ fi
 
 # Streming audio source: https://github.com/JoJoBond/3LAS
 
-<<<<<<< HEAD
 #if [ ! -d "/home/pi/rpidatv/server/node_modules" ];then
 cd /home/pi/rpidatv/server/
 npm install ws wrtc
 chmod ug+x stream.sh
 cd /home/pi
 #fi
-=======
+
 if [ ! -d "/home/pi/rpidatv/server/node_modules" ];then
   cd /home/pi/rpidatv/server/
   npm install ws wrtc
   chmod ug+x stream.sh
   cd /home/pi
 fi
->>>>>>> 7f77f9a1a70fc2dcb92f6b8c162d7a4a663c1e46
 
 if ! grep -q stream.sh /etc/rc.local; then
   sudo sed -i '/exit 0/i /home/pi/rpidatv/server/stream.sh >/dev/null 2>/dev/null &' /etc/rc.local
