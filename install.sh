@@ -87,6 +87,10 @@ sudo apt-get -y install libairspy-dev                                   # For Ai
 sudo pip install pyrtlsdr  #20180101 FreqShow
 
 sudo apt-get install libcurl4-openssl-dev
+sudo apt-get install -y nodejs npm         # streaming audio
+sudo apt-get install -y ffmpeg
+sudo cp /usr/bin/ffmpeg /usr/bin/ffmpeg2
+sudo cp /usr/bin/aplay /usr/bin/aplay2
 
 # Install libiio for DVB-T scripts that refer to Pluto
 cd /home/pi
@@ -642,6 +646,18 @@ echo "----------------------------------------------"
 
 sudo sed -i "/^dtoverlay=vc4-fkms-v3d/c\#dtoverlay=vc4-fkms-v3d" /boot/config.txt
 
+# Streming audio source: https://github.com/JoJoBond/3LAS
+
+cd /home/pi/rpidatv/server/
+npm install ws wrtc
+chmod ug+x stream.sh
+cd /home/pi
+
+sudo sed -i '/exit 0/i /home/pi/rpidatv/server/stream.sh >/dev/null 2>/dev/null &' /etc/rc.local
+
+cp /home/pi/rpidatv/scripts/configs/asoundrc /home/pi/.asoundrc
+sudo sed -i '$ s/$/\nsnd-aloop/' /etc/modules
+
 cp -r /home/pi/rpidatv/scripts/configs/webroot /home/pi/webroot
 sudo cp /home/pi/rpidatv/scripts/configs/nginx.conf /etc/nginx/nginx.conf
 
@@ -685,6 +701,9 @@ cat /sys/block/mmcblk0/device/cid
 # Installation décodage 406
 cd /home/pi/rpidatv/406
 ./install.sh
+
+#cd /home/pi
+#pactl load-module module-loopback latency_msec=1
 
 # Reboot
 echo

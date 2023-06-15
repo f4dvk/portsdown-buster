@@ -202,6 +202,15 @@ sudo apt-get -y dist-upgrade # Upgrade all the installed packages to their lates
 sudo apt-get -y install vlc                       # Removed earlier
 sudo apt-get -y install mplayer                   # 202004300 Used for video monitor and LongMynd
 sudo apt-get install libcurl4-openssl-dev
+sudo apt-get install -y nodejs npm         # streaming audio
+
+if [ ! $(find /usr/bin -name ffmpeg2) ]; then
+  sudo apt-get install -y ffmpeg
+  sudo cp /usr/bin/ffmpeg /usr/bin/ffmpeg2
+fi
+if [ ! $(find /usr/bin -name aplay2) ]; then
+  sudo cp /usr/bin/aplay /usr/bin/aplay2
+fi
 
 # Install libiio and dependencies if required (used for DVB-T scripts)
 echo
@@ -737,6 +746,25 @@ if ! grep -q rtsp_ip= "$PATHSCRIPT"/portsdown_config.txt; then
   echo "rtsp_port=8554" >> "$PATHSCRIPT"/portsdown_config.txt
   echo "rtsp_usr=admin" >> "$PATHSCRIPT"/portsdown_config.txt
   echo "rtsp_pwd=admin" >> "$PATHSCRIPT"/portsdown_config.txt
+fi
+
+# Streming audio source: https://github.com/JoJoBond/3LAS
+
+if [ ! -d "/home/pi/rpidatv/server/node_modules" ];then
+  cd /home/pi/rpidatv/server/
+  npm install ws wrtc
+  chmod ug+x stream.sh
+  cd /home/pi
+fi
+
+if ! grep -q stream.sh /etc/rc.local; then
+  sudo sed -i '/exit 0/i /home/pi/rpidatv/server/stream.sh >/dev/null 2>/dev/null &' /etc/rc.local
+fi
+
+cp /home/pi/rpidatv/scripts/configs/asoundrc /home/pi/.asoundrc
+
+if ! grep -q snd-aloop /etc/modules; then
+  sudo sed -i '$ s/$/\nsnd-aloop/' /etc/modules
 fi
 
 # Configure the nginx web server
