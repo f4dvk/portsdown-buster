@@ -653,8 +653,6 @@ npm install ws wrtc
 chmod ug+x stream.sh
 cd /home/pi
 
-sudo sed -i '/exit 0/i /home/pi/rpidatv/server/stream.sh >/dev/null 2>/dev/null &' /etc/rc.local
-
 cp /home/pi/rpidatv/scripts/configs/asoundrc /home/pi/.asoundrc
 sudo sed -i '$ s/$/\nsnd-aloop/' /etc/modules
 

@@ -4512,9 +4512,11 @@ void RTLstop()
 {
   system("sudo killall rtl_fm >/dev/null 2>/dev/null");
   system("sudo killall aplay >/dev/null 2>/dev/null");
+	system("sudo killall aplay2 >/dev/null 2>/dev/null");
   usleep(1000);
   system("sudo killall -9 rtl_fm >/dev/null 2>/dev/null");
   system("sudo killall -9 aplay >/dev/null 2>/dev/null");
+	system("sudo killall -9 aplay2 >/dev/null 2>/dev/null");
 }
 
 /***************************************************************************//**

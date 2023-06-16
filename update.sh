@@ -768,8 +768,8 @@ if [ ! -d "/home/pi/rpidatv/server/node_modules" ];then
   cd /home/pi
 fi
 
-if ! grep -q stream.sh /etc/rc.local; then
-  sudo sed -i '/exit 0/i /home/pi/rpidatv/server/stream.sh >/dev/null 2>/dev/null &' /etc/rc.local
+if grep -q stream.sh /etc/rc.local; then
+  sudo sed -i '/\/home\/pi\/rpidatv\/server\/stream.sh >\/dev\/null 2>\/dev\/null &/d' /etc/rc.local
 fi
 
 cp /home/pi/rpidatv/scripts/configs/asoundrc /home/pi/.asoundrc
