@@ -4512,11 +4512,11 @@ void RTLstop()
 {
   system("sudo killall rtl_fm >/dev/null 2>/dev/null");
   system("sudo killall aplay >/dev/null 2>/dev/null");
-	system("sudo killall aplay2 >/dev/null 2>/dev/null");
+  system("sudo killall aplay2 >/dev/null 2>/dev/null");
   usleep(1000);
   system("sudo killall -9 rtl_fm >/dev/null 2>/dev/null");
   system("sudo killall -9 aplay >/dev/null 2>/dev/null");
-	system("sudo killall -9 aplay2 >/dev/null 2>/dev/null");
+  system("sudo killall -9 aplay2 >/dev/null 2>/dev/null");
 }
 
 /***************************************************************************//**
@@ -12969,6 +12969,10 @@ void SARSAT_DECODER()
   }
 
   system("/home/pi/rpidatv/406/stop.sh >/dev/null 2>/dev/null");
+	usleep(1000);
+	system("sudo killall -9 aplay >/dev/null 2>/dev/null");
+  system("sudo killall -9 aplay2 >/dev/null 2>/dev/null");
+
 
   finish();
   usleep(1000);
@@ -20027,16 +20031,16 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           UpdateWindow();
           break;
         case 8:
-          //SelectInGroupOnMenu(CurrentMenu, 8, 8, 8, 1);
-          //UpdateWindow();
-          //usleep(50000);
-          //SelectInGroupOnMenu(CurrentMenu, 8, 8, 8, 0);
-          //if (strcmp(Input, "rtl") == 0) SetConfigParam(PATH_406CONFIG, "input", "mic");
-          //else SetConfigParam(PATH_406CONFIG, "input", "rtl");
-          //CurrentMenu=57;
-          //BackgroundRGB(0,0,0,255);
-          //Start_Highlights_Menu57();
-          //UpdateWindow();
+          SelectInGroupOnMenu(CurrentMenu, 8, 8, 8, 1);
+          UpdateWindow();
+          usleep(50000);
+          SelectInGroupOnMenu(CurrentMenu, 8, 8, 8, 0);
+					SetConfigParam(PATH_406CONFIG, "low", "434.2");
+          SetConfigParam(PATH_406CONFIG, "high", "434.2");
+          CurrentMenu=57;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu57();
+          UpdateWindow();
           break;
         case 9:
           SelectInGroupOnMenu(CurrentMenu, 9, 9, 9, 1);
@@ -25153,10 +25157,10 @@ void Define_Menu57()
   AddButtonStatus(button, "Fixe^433.95M", &LBlue);
   AddButtonStatus(button, "Fixe^433.95M", &Green);
 
-  //button = CreateButton(57, 8);
-  //AddButtonStatus(button, "Input^", &DBlue);
-  //AddButtonStatus(button, "Input^", &LBlue);
-  //AddButtonStatus(button, "Input^", &Green);
+	button = CreateButton(57, 8);
+  AddButtonStatus(button, "Fixe^434.2M", &DBlue);
+  AddButtonStatus(button, "Fixe^434.2M", &LBlue);
+  AddButtonStatus(button, "Fixe^434.2M", &Green);
 
   button = CreateButton(57, 9);
   AddButtonStatus(button, "Balise^F1LVT", &DBlue);
