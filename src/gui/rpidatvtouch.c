@@ -25206,6 +25206,13 @@ void Start_Highlights_Menu57()
     SetButtonStatus(ButtonNumber(CurrentMenu, 7), 0);
   }
 
+	if ((atof(ValueLow) == 434.2) && (atof(ValueHigh) == 434.2))
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 8), 2);
+  }else{
+    SetButtonStatus(ButtonNumber(CurrentMenu, 8), 0);
+  }
+
   //GetConfigParam(PATH_406CONFIG, "input", ValueInput);
   //strcpy(Freqtext, "Input^");
   //strcat(Freqtext, ValueInput);
