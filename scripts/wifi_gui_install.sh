@@ -121,6 +121,7 @@ elif [ "$1" == "-install" ]; then
   if [ "$ETAT" == "oui" ]; then
     sudo systemctl disable hostapd
     sudo systemctl stop hostapd
+    sudo systemctl disable dnsmasq
     sudo service hostapd stop
     sudo service dnsmasq stop
   fi
