@@ -161,6 +161,7 @@ fi
 # Démarrage des service
 sudo systemctl unmask hostapd
 sudo systemctl enable hostapd
+sudo systemctl enable dnsmasq
 sudo systemctl start hostapd
 #sudo service hostapd start
 sudo service dnsmasq start

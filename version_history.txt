@@ -1,3 +1,6 @@
+202309020
+Activation service dnsmasq pour le hotspot
+
 202308250
 Ajout fréquence fixe 434.2MHz Décodeur Sarsat
 

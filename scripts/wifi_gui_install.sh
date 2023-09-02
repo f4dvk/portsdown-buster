@@ -94,6 +94,7 @@ if [ $? == 0 ]; then
   sudo systemctl disable hostapd
   sudo systemctl stop hostapd
   sudo service hostapd stop
+  sudo systemctl disable dnsmasq
   sudo service dnsmasq stop
 fi
 
