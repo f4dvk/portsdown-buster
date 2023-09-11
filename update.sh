@@ -738,7 +738,7 @@ if ! grep -q webcontrol= "$PATHSCRIPT"/portsdown_config.txt; then
   # Delete any blank lines first
   sed -i -e '/^$/d' "$PATHSCRIPT"/portsdown_config.txt
   # Add the new entry and a new line
-  echo "webcontrol=disabled" >> "$PATHSCRIPT"/portsdown_config.txt
+  echo "webcontrol=enabled" >> "$PATHSCRIPT"/portsdown_config.txt
 fi
 
 if ! grep -q rtsp_ip= "$PATHSCRIPT"/portsdown_config.txt; then
@@ -752,14 +752,7 @@ if ! grep -q rtsp_ip= "$PATHSCRIPT"/portsdown_config.txt; then
   echo "rtsp_pwd=admin" >> "$PATHSCRIPT"/portsdown_config.txt
 fi
 
-# Streming audio source: https://github.com/JoJoBond/3LAS
-
-#if [ ! -d "/home/pi/rpidatv/server/node_modules" ];then
-cd /home/pi/rpidatv/server/
-npm install ws wrtc
-chmod ug+x stream.sh
-cd /home/pi
-#fi
+# Streaming audio source: https://github.com/JoJoBond/3LAS
 
 if [ ! -d "/home/pi/rpidatv/server/node_modules" ];then
   cd /home/pi/rpidatv/server/

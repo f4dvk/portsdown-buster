@@ -646,7 +646,7 @@ echo "----------------------------------------------"
 
 sudo sed -i "/^dtoverlay=vc4-fkms-v3d/c\#dtoverlay=vc4-fkms-v3d" /boot/config.txt
 
-# Streming audio source: https://github.com/JoJoBond/3LAS
+# Streaming audio source: https://github.com/JoJoBond/3LAS
 
 cd /home/pi/rpidatv/server/
 npm install ws wrtc
