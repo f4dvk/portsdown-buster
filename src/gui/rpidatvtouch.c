@@ -10626,7 +10626,7 @@ void ReceiveStop()
      system("sudo killall limesdr_dump >/dev/null 2>/dev/null");
      system("/home/pi/rpidatv/bin/limesdr_stopchannel");
   }
-  system("pkill -f screen_grab_for_web.sh");
+  system("/home/pi/rpidatv/scripts/stop_web_update.sh >/dev/null 2>/dev/null");
   printf("Receive Stop\n");
 }
 
@@ -12969,8 +12969,8 @@ void SARSAT_DECODER()
   }
 
   system("/home/pi/rpidatv/406/stop.sh >/dev/null 2>/dev/null");
-	usleep(1000);
-	system("sudo killall -9 aplay >/dev/null 2>/dev/null");
+  usleep(1000);
+  system("sudo killall -9 aplay >/dev/null 2>/dev/null");
   system("sudo killall -9 aplay2 >/dev/null 2>/dev/null");
 
 
@@ -12986,7 +12986,7 @@ void SARSAT_DECODER()
   system("pkill -9 rtl_power && pkill perl && pkill -9 perl && pkill aplay >/dev/null 2>/dev/null");
   pthread_join(thbutton, NULL);
 
-  system("pkill -f screen_grab_for_web.sh");
+  system("/home/pi/rpidatv/scripts/stop_web_update.sh >/dev/null 2>/dev/null");
 }
 
 void wait_touch()
@@ -18879,7 +18879,7 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           printf("Menu 39 Error\n");
        }
         continue;   // Completed Menu 39 action, go and wait for touch
-}
+      }
 
       if (CurrentMenu == 40)  // Menu 40 LeanDVB Modulation Selection
       {
@@ -20035,7 +20035,7 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           UpdateWindow();
           usleep(50000);
           SelectInGroupOnMenu(CurrentMenu, 8, 8, 8, 0);
-					SetConfigParam(PATH_406CONFIG, "low", "434.2");
+          SetConfigParam(PATH_406CONFIG, "low", "434.2");
           SetConfigParam(PATH_406CONFIG, "high", "434.2");
           CurrentMenu=57;
           BackgroundRGB(0,0,0,255);
@@ -25157,7 +25157,7 @@ void Define_Menu57()
   AddButtonStatus(button, "Fixe^433.95M", &LBlue);
   AddButtonStatus(button, "Fixe^433.95M", &Green);
 
-	button = CreateButton(57, 8);
+  button = CreateButton(57, 8);
   AddButtonStatus(button, "Fixe^434.2M", &DBlue);
   AddButtonStatus(button, "Fixe^434.2M", &LBlue);
   AddButtonStatus(button, "Fixe^434.2M", &Green);
@@ -25206,7 +25206,7 @@ void Start_Highlights_Menu57()
     SetButtonStatus(ButtonNumber(CurrentMenu, 7), 0);
   }
 
-	if ((atof(ValueLow) == 434.2) && (atof(ValueHigh) == 434.2))
+  if ((atof(ValueLow) == 434.2) && (atof(ValueHigh) == 434.2))
   {
     SetButtonStatus(ButtonNumber(CurrentMenu, 8), 2);
   }else{
@@ -25627,6 +25627,7 @@ terminate(int dummy)
   system("sudo killall lmudp.sh >/dev/null 2>/dev/null");
   system("sudo killall longmynd >/dev/null 2>/dev/null");
   finish();
+  system("/home/pi/rpidatv/scripts/stop_web_update.sh >/dev/null 2>/dev/null");
   printf("Terminate\n");
   sprintf(Commnd,"sudo killall express_server >/dev/null 2>/dev/null");
   system(Commnd);
