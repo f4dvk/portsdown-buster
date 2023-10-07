@@ -700,6 +700,10 @@ cat /sys/block/mmcblk0/device/cid
 cd /home/pi/rpidatv/406
 ./install.sh
 
+# installation de hostapd et dnsmasq
+sudo apt-get -f -y install hostapd
+sudo apt-get -f -y install dnsmasq
+
 #cd /home/pi
 #pactl load-module module-loopback latency_msec=1
 

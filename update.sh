@@ -16,6 +16,7 @@ DisplayUpdateMsg() {
   # Display the update message on the desktop
   sudo fbi -T 1 -noverbose -a /home/pi/tmp/update.jpg >/dev/null 2>/dev/null
   (sleep 1; sudo killall -9 fbi >/dev/null 2>/dev/null) &  ## kill fbi once it has done its work
+  /home/pi/rpidatv/scripts/single_screen_grab_for_web.sh &
 }
 
 DisplayRebootMsg() {
@@ -32,6 +33,7 @@ DisplayRebootMsg() {
   # Display the update message on the desktop
   sudo fbi -T 1 -noverbose -a /home/pi/tmp/update.jpg >/dev/null 2>/dev/null
   (sleep 1; sudo killall -9 fbi >/dev/null 2>/dev/null) &  ## kill fbi once it has done its work
+  /home/pi/rpidatv/scripts/single_screen_grab_for_web.sh &
 }
 
 ############ Function to Read from Config File ###############
@@ -776,6 +778,9 @@ sudo systemctl stop nginx
 rm -rf /home/pi/webroot
 cp -r /home/pi/rpidatv/scripts/configs/webroot /home/pi/webroot
 sudo cp /home/pi/rpidatv/scripts/configs/nginx.conf /etc/nginx/nginx.conf
+sudo systemctl start nginx
+
+sleep 1
 
 sudo sed -i 's/^#host-name=foo.*/host-name=rpidatv3/' /etc/avahi/avahi-daemon.conf
 sudo sed -i 's/^host-name=rpidatv3;.*/host-name=rpidatv3/' /etc/avahi/avahi-daemon.conf
@@ -800,11 +805,22 @@ sudo chmod -R 777 /home/pi/rpidatv/scripts/
 cd /home/pi/rpidatv/406
 ./install.sh
 
+# installation de hostapd et dnsmasq
+dpkg -l | grep hostapd >/dev/null 2>/dev/null
+if [ $? != 0 ]; then
+ sudo apt-get -f -y install hostapd
+fi
+
+dpkg -l | grep dnsmasq >/dev/null 2>/dev/null
+if [ $? != 0 ]; then
+  sudo apt-get -f -y install dnsmasq
+fi
+
 # Reboot
 DisplayRebootMsg "Step 10 of 10\nRebooting\n\nUpdate Complete"
 printf "\nRebooting\n"
 
-sleep 1
+sleep 3
 # Turn off swap to prevent reboot hang
 sudo swapoff -a
 sudo shutdown -r now  # Seems to be more reliable than reboot

@@ -4075,71 +4075,32 @@ void ChangeLMRXscan()
   SetConfigParam(PATH_LMCONFIG, Value, KeyboardReturn);
 }
 
-void ChangeSarsatFreq(int dir)
+void ChangeSarsatFreq()
 {
   char RequestText[64];
   char InitText[64];
   bool IsValid = FALSE;
-  char FreqLimit[10];
   char Sarsatlow[10];
-  char Sarsathigh[10];
-  char Value[10];
-
-  switch (dir)
-  {
-  case 1:
-    strcpy(Value, "low");
-    break;
-  case 2:
-    strcpy(Value, "high");
-    break;
-  default:
-    printf("Sarsat freq Menu Error\n");
-  }
 
   GetConfigParam(PATH_406CONFIG, "low", Sarsatlow);
-  GetConfigParam(PATH_406CONFIG, "high", Sarsathigh);
 
-
-  //Retrieve (10 char) Current offset from Config file
-  GetConfigParam(PATH_406CONFIG, Value, FreqLimit);
-
-  if (strcmp(Value, "low")==0)
+  while (IsValid == FALSE)
   {
-    while (IsValid == FALSE)
-    {
-      strcpy(RequestText, "Fréquence en MHz");
-      strcpyn(InitText, FreqLimit, 8);
-      Keyboard(RequestText, FreqLimit, 8);
+    strcpy(RequestText, "Fréquence en MHz");
+    strcpyn(InitText, Sarsatlow, 8);
+    Keyboard(RequestText, Sarsatlow, 8);
 
-      if((atoi(KeyboardReturn) >= 24) && (atoi(KeyboardReturn) <= 1766))
-      {
-        IsValid = TRUE;
-        if ((atof(Sarsathigh)-atof(KeyboardReturn))<0.1)
-        {
-          sprintf(Sarsathigh, "%.3f", (atof(KeyboardReturn)+0.1));
-          SetConfigParam(PATH_406CONFIG, "high", Sarsathigh);
-        }
-      }
-    }
-  }else{
-    while (IsValid == FALSE)
+    if((atoi(KeyboardReturn) >= 24) && (atoi(KeyboardReturn) <= 1766))
     {
-      strcpy(RequestText, "Fréquence en MHz");
-      strcpyn(InitText, FreqLimit, 8);
-      Keyboard(RequestText, FreqLimit, 8);
-
-      if((atoi(KeyboardReturn) >= 24) && (atoi(KeyboardReturn) <= 1766) && (((atof(KeyboardReturn)-atof(Sarsatlow))>=0.1) || (atof(Sarsatlow)==atof(KeyboardReturn))))
-      {
-        IsValid = TRUE;
-      }
+      IsValid = TRUE;
     }
   }
 
   printf("Fréquence %s MHz\n", KeyboardReturn);
 
   // Save offset to Config File
-  SetConfigParam(PATH_406CONFIG, Value, KeyboardReturn);
+  SetConfigParam(PATH_406CONFIG, "low", KeyboardReturn);
+  SetConfigParam(PATH_406CONFIG, "high", KeyboardReturn);
 }
 
 void AutosetLMRXOffset()
@@ -19985,22 +19946,13 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           UpdateWindow();
           usleep(50000);
           SelectInGroupOnMenu(CurrentMenu, 1, 1, 1, 0);
-          ChangeSarsatFreq(i);
+          ChangeSarsatFreq();
           CurrentMenu=57;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu57();
           UpdateWindow();
           break;
         case 2:
-          SelectInGroupOnMenu(CurrentMenu, 2, 2, 2, 1);
-          UpdateWindow();
-          usleep(50000);
-          SelectInGroupOnMenu(CurrentMenu, 2, 2, 2, 0);
-          ChangeSarsatFreq(i);
-          CurrentMenu=57;
-          BackgroundRGB(0,0,0,255);
-          Start_Highlights_Menu57();
-          UpdateWindow();
           break;
         case 3:
           break;
@@ -25132,12 +25084,12 @@ void Define_Menu57()
   //AddButtonStatus(button, "Start^Decoder", &Grey);
 
   button = CreateButton(57, 1);
-  AddButtonStatus(button, "Début^Début", &DBlue);
-  AddButtonStatus(button, "Début^Début", &LBlue);
+  AddButtonStatus(button, "Freq^Freq", &DBlue);
+  AddButtonStatus(button, "Freq^Freq", &LBlue);
 
-  button = CreateButton(57, 2);
-  AddButtonStatus(button, "Fin^Fin", &DBlue);
-  AddButtonStatus(button, "Fin^Fin", &LBlue);
+//  button = CreateButton(57, 2);
+//  AddButtonStatus(button, "", &DBlue);
+//  AddButtonStatus(button, "", &LBlue);
 
   button = CreateButton(57, 4);
   AddButtonStatus(button, "Exit", &DBlue);
@@ -25148,19 +25100,19 @@ void Define_Menu57()
   //AddButtonStatus(button, "", &Blue);
 
   button = CreateButton(57, 6);
-  AddButtonStatus(button, "Fixe^406.028M", &DBlue);
-  AddButtonStatus(button, "Fixe^406.028M", &LBlue);
-  AddButtonStatus(button, "Fixe^406.028M", &Green);
+  AddButtonStatus(button, "406.028M", &DBlue);
+  AddButtonStatus(button, "406.028M", &LBlue);
+  AddButtonStatus(button, "406.028M", &Green);
 
   button = CreateButton(57, 7);
-  AddButtonStatus(button, "Fixe^433.95M", &DBlue);
-  AddButtonStatus(button, "Fixe^433.95M", &LBlue);
-  AddButtonStatus(button, "Fixe^433.95M", &Green);
+  AddButtonStatus(button, "433.95M", &DBlue);
+  AddButtonStatus(button, "433.95M", &LBlue);
+  AddButtonStatus(button, "433.95M", &Green);
 
   button = CreateButton(57, 8);
-  AddButtonStatus(button, "Fixe^434.2M", &DBlue);
-  AddButtonStatus(button, "Fixe^434.2M", &LBlue);
-  AddButtonStatus(button, "Fixe^434.2M", &Green);
+  AddButtonStatus(button, "434.2M", &DBlue);
+  AddButtonStatus(button, "434.2M", &LBlue);
+  AddButtonStatus(button, "434.2M", &Green);
 
   button = CreateButton(57, 9);
   AddButtonStatus(button, "Balise^F1LVT", &DBlue);
@@ -25178,7 +25130,7 @@ void Start_Highlights_Menu57()
 
   // Low:
   GetConfigParam(PATH_406CONFIG, "low", ValueLow);
-  strcpy(Freqtext, "Début^");
+  strcpy(Freqtext, "Freq^");
   strcat(Freqtext, ValueLow);
   strcat(Freqtext, "M");
   AmendButtonStatus(ButtonNumber(57, 1), 0, Freqtext, &DBlue);
@@ -25186,11 +25138,6 @@ void Start_Highlights_Menu57()
 
   // High:
   GetConfigParam(PATH_406CONFIG, "high", ValueHigh);
-  strcpy(Freqtext, "Fin^");
-  strcat(Freqtext, ValueHigh);
-  strcat(Freqtext, "M");
-  AmendButtonStatus(ButtonNumber(57, 2), 0, Freqtext, &DBlue);
-  AmendButtonStatus(ButtonNumber(57, 2), 1, Freqtext, &LBlue);
 
   if ((atof(ValueLow) == 406.028) && (atof(ValueHigh) == 406.028))
   {
