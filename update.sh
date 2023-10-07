@@ -165,35 +165,48 @@ cd /home/pi
 if [ ! -f  /etc/apt/preferences.d/vlc ]; then
   wget https://github.com/${GIT_SRC}/portsdown-buster/raw/master/scripts/configs/vlc
   sudo cp vlc /etc/apt/preferences.d/vlc
-fi
+  sudo apt -y remove vlc*
+  sudo apt -y remove libvlc*
+  sudo apt -y remove vlc-data
 
-sudo rm vlc.* >/dev/null 2>/dev/null
-sudo apt -y remove vlc*
-sudo apt -y remove libvlc*
-sudo apt -y remove vlc-data
+  sudo dpkg --configure -a                            # Make sure that all the packages are properly configured
+  sudo apt-get clean                                  # Clean up the old archived packages
+  sudo apt-get update --allow-releaseinfo-change      # Update the package list
 
-sudo dpkg --configure -a                         # Make sure that all the packages are properly configured
-sudo apt-get clean                               # Clean up the old archived packages
-sudo apt-get update --allow-releaseinfo-change   # Update the package list
+  # --------- Remove any previous hold on VLC -----------------
 
-# --------- Remove any previous hold on VLC -----------------
+  if apt-mark showhold | grep -q 'vlc'; then
+    sudo apt-mark unhold vlc
+    sudo apt-mark unhold libvlc-bin
+    sudo apt-mark unhold libvlc5
+    sudo apt-mark unhold libvlccore9
+    sudo apt-mark unhold vlc-bin
+    sudo apt-mark unhold vlc-data
+    sudo apt-mark unhold vlc-plugin-base
+    sudo apt-mark unhold vlc-plugin-qt
+    sudo apt-mark unhold vlc-plugin-video-output
+    sudo apt-mark unhold vlc-l10n
+    sudo apt-mark unhold vlc-plugin-notify
+    sudo apt-mark unhold vlc-plugin-samba
+    sudo apt-mark unhold vlc-plugin-skins2
+    sudo apt-mark unhold vlc-plugin-video-splitter
+    sudo apt-mark unhold vlc-plugin-visualization
+  fi
 
-if apt-mark showhold | grep -q 'vlc'; then
-  sudo apt-mark unhold vlc
-  sudo apt-mark unhold libvlc-bin
-  sudo apt-mark unhold libvlc5
-  sudo apt-mark unhold libvlccore9
-  sudo apt-mark unhold vlc-bin
-  sudo apt-mark unhold vlc-data
-  sudo apt-mark unhold vlc-plugin-base
-  sudo apt-mark unhold vlc-plugin-qt
-  sudo apt-mark unhold vlc-plugin-video-output
-  sudo apt-mark unhold vlc-l10n
-  sudo apt-mark unhold vlc-plugin-notify
-  sudo apt-mark unhold vlc-plugin-samba
-  sudo apt-mark unhold vlc-plugin-skins2
-  sudo apt-mark unhold vlc-plugin-video-splitter
-  sudo apt-mark unhold vlc-plugin-visualization
+  sudo apt-get -y dist-upgrade # Upgrade all the installed packages to their latest version
+
+  echo
+  echo "Updating VLC"
+  echo
+
+  sudo apt-get -y install vlc                         # Reload the correct version
+
+else                                                  # VLC is the correct version, so leave it there
+
+  sudo dpkg --configure -a                            # Make sure that all the packages are properly configured
+  sudo apt-get clean                                  # Clean up the old archived packages
+  sudo apt-get update --allow-releaseinfo-change      # Update the package list
+
 fi
 
 DisplayUpdateMsg "Step 4a of 10\nStill Updating Software Packages\n\nXXXX------"
@@ -204,7 +217,6 @@ sudo apt-get -y dist-upgrade # Upgrade all the installed packages to their lates
 
 # --------- Install new packages as Required ---------
 
-sudo apt-get -y install vlc                       # Removed earlier
 sudo apt-get -y install mplayer                   # 202004300 Used for video monitor and LongMynd
 sudo apt-get install libcurl4-openssl-dev
 sudo apt-get install -y nodejs npm         # streaming audio
