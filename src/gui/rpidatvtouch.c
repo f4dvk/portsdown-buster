@@ -3466,15 +3466,16 @@ void SaveRTLPreset(int PresetButton)
   char Value[255];
   char Prompt[63];
   int index;
-  int Spaces;
+  int Spaces = 1;
   int j;
 
   // Transform button number into preset index
-  index = PresetButton + 6;  // works for bottom row
-  if (PresetButton > 4)      // second row
-  {
-    index = PresetButton - 4;
-  }
+  index = PresetButton + 1;  // works for bottom row
+  //index = PresetButton + 6;  // works for bottom row
+  //if (PresetButton > 4)      // second row
+  //{
+  //  index = PresetButton - 4;
+  //}
 
   if (index != 0)
   {
@@ -3578,6 +3579,7 @@ void ChangeRTLFreq()
 
   // Store Response
   strcpy(RTLfreq[0], KeyboardReturn);
+  SetConfigParam(PATH_RTLPRESETS, "r0freq", RTLfreq[0]);
 }
 
 /***************************************************************************//**
@@ -3606,6 +3608,7 @@ void ChangeRTLSquelch()
 
   // Store Response
   RTLsquelch[0] = atoi(KeyboardReturn);
+  SetConfigParam(PATH_RTLPRESETS, "r0squelch", KeyboardReturn);
 }
 
 /***************************************************************************//**
@@ -3634,6 +3637,7 @@ void ChangeRTLGain()
 
   // Store Response
   RTLgain[0] = atoi(KeyboardReturn);
+  SetConfigParam(PATH_RTLPRESETS, "r0gain", KeyboardReturn);
 }
 
 /***************************************************************************//**
@@ -3719,7 +3723,7 @@ void ReadRTLPresets()
   char Value[15] = "";
   char Param[15];
 
-  for(n = 0; n < 10; n = n + 1)
+  for(n = 0; n < 5; n = n + 1)
   {
     // Title
     snprintf(Param, 10, "r%dtitle", n);
@@ -4349,6 +4353,15 @@ void SelectRTLmode(int NoButton)
 {
   switch (NoButton)
   {
+  case 5:
+    strcpy(RTLmode[0], "dmr");
+    break;
+  case 6:
+    strcpy(RTLmode[0], "ysf");
+    break;
+  case 7:
+    strcpy(RTLmode[0], "dstar");
+    break;
   case 10:
     strcpy(RTLmode[0], "am");
     break;
@@ -4365,6 +4378,7 @@ void SelectRTLmode(int NoButton)
     strcpy(RTLmode[0], "lsb");
     break;
   }
+  SetConfigParam(PATH_RTLPRESETS, "r0mode", RTLmode[0]);
 }
 
 /***************************************************************************//**
@@ -4397,7 +4411,14 @@ void RTLstart()
       IQAvailable = 0;     // Set flag to say transmit unavailable
     }
     strcpy(rtlcall, "bash -c '(rtl_fm");
-    snprintf(fragment, 12, " -M %s", RTLmode[0]);  // -M mode
+    if ((strcmp(RTLmode[0], "fm") == 0) || (strcmp(RTLmode[0], "dmr") == 0) || (strcmp(RTLmode[0], "ysf") == 0) || (strcmp(RTLmode[0], "dstar") == 0))
+    {
+      snprintf(fragment, 12, " -M %s", "fm");
+    }
+    else
+    {
+      snprintf(fragment, 12, " -M %s", RTLmode[0]);  // -M mode
+    }
     strcat(rtlcall, fragment);
     strcpyn(fragment11, RTLfreq[0], 11);
     snprintf(fragment, 18, " -f %sM", fragment11); // -f frequencyM
@@ -4410,9 +4431,13 @@ void RTLstart()
     {
       strcat(rtlcall, " -s 12k");
     }
+    if ((strcmp(RTLmode[0], "dmr") == 0) || (strcmp(RTLmode[0], "ysf") == 0) || (strcmp(RTLmode[0], "dstar") == 0))
+    {
+      strcat(rtlcall, " -s 16k");
+    }
     snprintf(fragment, 12, " -g %d", RTLgain[0]); // -g gain
     strcat(rtlcall, fragment);
-    if (RTLsquelchoveride == 1)
+    if ((RTLsquelchoveride == 1) && ((strcmp(RTLmode[0], "dmr") != 0) && (strcmp(RTLmode[0], "ysf") != 0) && (strcmp(RTLmode[0], "dstar") != 0)))
     {
       snprintf(fragment, 12, " -l %d", RTLsquelch[0]); // -l squelch
       strcat(rtlcall, fragment);
@@ -4421,6 +4446,22 @@ void RTLstart()
     strcat(rtlcall, fragment);
     strcpy(fragment, " -E pad"); // -E pad so that aplay does not crash
     strcat(rtlcall, fragment);
+		if ((strcmp(RTLmode[0], "dmr") == 0) || (strcmp(RTLmode[0], "ysf") == 0) || (strcmp(RTLmode[0], "dstar") == 0))
+    {
+      strcat(rtlcall, " | sox -t raw -r 16k -b 16 -c 1 -e signed-integer - -r 48k -t raw - 2>/dev/null");
+      if (strcmp(RTLmode[0], "dmr") == 0)
+      {
+        strcat(rtlcall, " | dsd -i - -fr -o - 2>/dev/null");
+      }
+      if (strcmp(RTLmode[0], "ysf") == 0)
+      {
+        strcat(rtlcall, " | dsdccx -i - -fy -o - -U 6 2>/dev/null");
+      }
+      if (strcmp(RTLmode[0], "dstar") == 0)
+      {
+        strcat(rtlcall, " | dsdccx -i - -fd -o - -U 6 2>/dev/null");
+      }
+    }
 		if ((strcmp(RTLmode[0], "am") == 0) || (strcmp(RTLmode[0], "fm") == 0))
     {
       strcat(rtlcall, " | sox -t raw -r 12k -e s -b 16 -c 1 - -t wav - 2>/dev/null");
@@ -4433,23 +4474,22 @@ void RTLstart()
     {
       strcat(rtlcall, " | sox -t raw -r 6k -e s -b 16 -c 1 - -t wav - 2>/dev/null");
     }
-    strcat(rtlcall, " | tee >(aplay2 -D plughw:Loopback,0,2 2>/dev/null) >(aplay -D plughw:");
+    if ((strcmp(RTLmode[0], "ysf") == 0) || (strcmp(RTLmode[0], "dstar") == 0))
+    {
+      strcat(rtlcall, " | tee >(aplay2 -q -f S16_LE -D plughw:Loopback,0,2 -r 48) >(aplay -q -f S16_LE -D plughw:");
+    }
+    else
+    {
+      strcat(rtlcall, " | tee >(aplay2 -q -f S16_LE -D plughw:Loopback,0,2) >(aplay -q -f S16_LE -D plughw:");
+    }
     strcat(rtlcall, card);
-    if (strcmp(RTLmode[0], "am") == 0)
+    if ((strcmp(RTLmode[0], "ysf") == 0) || (strcmp(RTLmode[0], "dstar") == 0))
     {
-      strcat(rtlcall, ",0 -r12) >/dev/null) &'"); // 12 KHz for AM
+      strcat(rtlcall, ",0 -r 48) >/dev/null) &'");
     }
-    if (strcmp(RTLmode[0], "fm") == 0)
+    else
     {
-      strcat(rtlcall, ",0 -r12) >/dev/null)&'"); // 12 KHz for FM
-    }
-    if (strcmp(RTLmode[0], "wbfm") == 0)
-    {
-      strcat(rtlcall, ",0 -r32) >/dev/null)&'"); // 32 KHz for WBFM
-    }
-    if ((strcmp(RTLmode[0], "usb") == 0) || (strcmp(RTLmode[0], "lsb") == 0))
-    {
-      strcat(rtlcall, ",0 -r6) >/dev/null)&'"); // 6 KHz for SSB
+      strcat(rtlcall, ",0) >/dev/null) &'");
     }
     printf("RTL_FM called with: %s\n", rtlcall);
     system(rtlcall);
@@ -4474,10 +4514,16 @@ void RTLstop()
   system("sudo killall rtl_fm >/dev/null 2>/dev/null");
   system("sudo killall aplay >/dev/null 2>/dev/null");
   system("sudo killall aplay2 >/dev/null 2>/dev/null");
+  system("sudo killall sox >/dev/null 2>/dev/null");
+  system("sudo killall dsd >/dev/null 2>/dev/null");
+  system("sudo killall dsdccx >/dev/null 2>/dev/null");
   usleep(1000);
   system("sudo killall -9 rtl_fm >/dev/null 2>/dev/null");
   system("sudo killall -9 aplay >/dev/null 2>/dev/null");
   system("sudo killall -9 aplay2 >/dev/null 2>/dev/null");
+  system("sudo killall -9 sox >/dev/null 2>/dev/null");
+  system("sudo killall -9 dsd >/dev/null 2>/dev/null");
+  system("sudo killall -9 dsdccx >/dev/null 2>/dev/null");
 }
 
 /***************************************************************************//**
@@ -16913,7 +16959,7 @@ void waituntil(int w,int h)
         printf("Button Event %d, Entering Menu 6 Case Statement\n",i);
 
         // Clear RTL Preset store trigger if not a preset
-        if ((i > 9) && (RTLStoreTrigger == 1))
+        if ((i > 4) && (RTLStoreTrigger == 1))
         {
           RTLStoreTrigger = 0;
           SetButtonStatus(ButtonNumber(CurrentMenu, 4), 0);
@@ -16935,11 +16981,11 @@ void waituntil(int w,int h)
           }
           UpdateWindow();
           break;
-        case 5:                              // Preset 1
-        case 6:                              // Preset 2
-        case 7:                              // Preset 3
-        case 8:                              // Preset 4
-        case 9:                              // Preset 5
+        //case 5:                              // Preset 1
+        //case 6:                              // Preset 2
+        //case 7:                              // Preset 3
+        //case 8:                              // Preset 4
+        //case 9:                              // Preset 5
         case 0:                              // Preset 6
         case 1:                              // Preset 7
         case 2:                              // Preset 8
@@ -16967,6 +17013,9 @@ void waituntil(int w,int h)
           Start_Highlights_Menu6();          // Refresh button labels
           UpdateWindow();
           break;
+        case 5:                              // DMR
+        case 6:                              // YSF
+        case 7:                              // DSTAR
         case 10:                             // AM
         case 11:                             // FM
         case 12:                             // WBFM
@@ -17022,7 +17071,7 @@ void waituntil(int w,int h)
           UpdateWindow();
           break;
         case 18:                             // Save
-          SaveRTLPreset(-6);                 // Saves current state
+          SaveRTLPreset(-1);                 // Saves current state
           SetButtonStatus(ButtonNumber(CurrentMenu, i), 1);
           Start_Highlights_Menu6();    // Refresh button labels
           UpdateWindow();
@@ -21218,16 +21267,16 @@ void Define_Menu6()
   // 2nd Row, Menu 6.  Presets
 
   button = CreateButton(6, 5);
-  AddButtonStatus(button, " ", &Blue);
-  AddButtonStatus(button, " ", &Green);
+  AddButtonStatus(button, " DMR  ", &Blue);
+  AddButtonStatus(button, " DMR  ", &Green);
 
   button = CreateButton(6, 6);
-  AddButtonStatus(button, " ", &Blue);
-  AddButtonStatus(button, " ", &Green);
+  AddButtonStatus(button, " YSF  ", &Blue);
+  AddButtonStatus(button, " YSF  ", &Green);
 
   button = CreateButton(6, 7);
-  AddButtonStatus(button, " ", &Blue);
-  AddButtonStatus(button, " ", &Green);
+  AddButtonStatus(button, " DSTAR", &Blue);
+  AddButtonStatus(button, " DSTAR", &Green);
 
   button = CreateButton(6, 8);
   AddButtonStatus(button, " ", &Blue);
@@ -21327,45 +21376,58 @@ void Start_Highlights_Menu6()
   AmendButtonStatus(ButtonNumber(6, 19), 1, RTLBtext, &Green);
 
   // Highlight the current mode
-  if (strcmp(RTLmode[0], "am") == 0)
+  if (strcmp(RTLmode[0], "dmr") == 0)
   {
-    SelectInGroupOnMenu(6, 10, 14, 10, 1);
+    SelectInGroupOnMenu(6, 5, 14, 5, 1);
+  }
+  else if (strcmp(RTLmode[0], "ysf") == 0)
+  {
+    SelectInGroupOnMenu(6, 5, 14, 6, 1);
+  }
+  else if (strcmp(RTLmode[0], "dstar") == 0)
+  {
+    SelectInGroupOnMenu(6, 5, 14, 7, 1);
+  }
+  else if (strcmp(RTLmode[0], "am") == 0)
+  {
+    SelectInGroupOnMenu(6, 5, 14, 10, 1);
   }
   else if (strcmp(RTLmode[0], "fm") == 0)
   {
-    SelectInGroupOnMenu(6, 10, 14, 11, 1);
+    SelectInGroupOnMenu(6, 5, 14, 11, 1);
   }
   else if (strcmp(RTLmode[0], "wbfm") == 0)
   {
-    SelectInGroupOnMenu(6, 10, 14, 12, 1);
+    SelectInGroupOnMenu(6, 5, 14, 12, 1);
   }
   else if (strcmp(RTLmode[0], "usb") == 0)
   {
-    SelectInGroupOnMenu(6, 10, 14, 13, 1);
+    SelectInGroupOnMenu(6, 5, 14, 13, 1);
   }
   else if (strcmp(RTLmode[0], "lsb") == 0)
   {
-    SelectInGroupOnMenu(6, 10, 14, 14, 1);
+    SelectInGroupOnMenu(6, 5, 14, 14, 1);
   }
 
   // Highlight current preset by comparing frequency
-  for(index = 1; index < 10 ; index = index + 1)
+  for(index = 1; index < 5 ; index = index + 1)
   {
     // Define the button text
     snprintf(RTLBtext, 35, "%s^%s", RTLlabel[index], RTLfreq[index]);
 
-    NoButton = index + 4;   // Valid for top row
-    if (index > 5)          // Overwrite for bottom row
-    {
-      NoButton = index - 6;
-    }
+    NoButton = index - 1;   // Valid for top row
+    //NoButton = index + 4;   // Valid for top row
+    //if (index > 5)          // Overwrite for bottom row
+    //{
+    //  NoButton = index - 6;
+    //}
     AmendButtonStatus(ButtonNumber(6, NoButton), 0, RTLBtext, &Blue);
     AmendButtonStatus(ButtonNumber(6, NoButton), 1, RTLBtext, &Green);
 
     if (atof(RTLfreq[index]) == atof(RTLfreq[0]))
     {
       SelectInGroupOnMenu(6, 0, 3, NoButton, 1);
-      SelectInGroupOnMenu(6, 5, 9, NoButton, 1);
+      //SelectInGroupOnMenu(6, 5, 9, NoButton, 1);
       Match = 1;
     }
   }
@@ -21373,16 +21435,17 @@ void Start_Highlights_Menu6()
   // If current freq not a preset, unhighlight all buttons
   if (Match == 0)
   {
-    for(index = 1; index < 10 ; index = index + 1)
+    for(index = 1; index < 5 ; index = index + 1)
     {
-      NoButton = index + 4;   // Valid for top row
-      if (index > 5)          // Overwrite for bottom row
-      {
-        NoButton = index - 6;
-      }
+      NoButton = index - 1;   // Valid for top row
+      //NoButton = index + 4;   // Valid for top row
+      //if (index > 5)          // Overwrite for bottom row
+      //{
+      //  NoButton = index - 6;
+      //}
 
       SelectInGroupOnMenu(6, 0, 3, NoButton, 0);
-      SelectInGroupOnMenu(6, 5, 9, NoButton, 0);
+      //SelectInGroupOnMenu(6, 5, 9, NoButton, 0);
     }
   }
 

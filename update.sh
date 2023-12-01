@@ -269,6 +269,49 @@ sudo apt-get -y install avahi-daemon
 
 sudo apt-get -y install libairspy-dev                                   # For Airspy Bandviewer
 
+if [ ! -f  /usr/local/bin/dsd ]; then
+  sudo apt-get -y install libsndfile1-dev fftw3-dev liblapack-dev portaudio19-dev
+
+  git clone https://github.com/szechyjs/mbelib.git
+  cd mbelib
+  mkdir build && cd build
+  cmake ..
+  make -j4
+  sudo make install
+  sudo ldconfig
+  cd /home/pi
+  sudo rm -r mbelib
+
+  wget -O itpp-latest.tar.bz2 http://sourceforge.net/projects/itpp/files/latest/download?source=files
+  tar xjf itpp-latest.tar.bz2
+  cd itpp-4.3.1
+  mkdir build && cd build
+  cmake ..
+  make -j4
+  sudo make install
+  sudo ldconfig
+  cd /home/pi
+  sudo rm -r itpp-4.3.1
+
+  git clone https://github.com/f4exb/dsdcc.git
+  cd dsdcc
+  mkdir build && cd build
+  cmake -DUSE_MBELIB=ON ..
+  make -j4
+  sudo make install
+  cd /home/pi
+  sudo rm -r dsdcc
+
+  git clone https://github.com/f4dvk/dsd.git
+  cd dsd
+  mkdir build && cd build
+  cmake ..
+  make -j4
+  sudo make install
+  cd /home/pi
+  sudo rm -r dsd
+fi
+
 # ---------- Update rpidatv -----------
 
 DisplayUpdateMsg "Step 5 of 10\nDownloading Portsdown SW\n\nXXXXX-----"
