@@ -383,6 +383,7 @@ int file_exist (char *filename);
 void ReadModeEasyCap();
 void ReadCaptionState();
 void ReadAudioState();
+int GetAudioVol2(char Vol[20]);
 void ReadWebControl();
 void ReadAttenState();
 void ReadBand();
@@ -889,7 +890,7 @@ void GetAudioLevel(char AudioLevel[256])
   FILE *fp;
 
   /* Open the command for reading. */
-  fp = popen("amixer sget -c ALSA PCM | grep 'Mono:' | awk -F'[][]' '{ print $2 }'", "r");
+  fp = popen("amixer sget -c 1 Headphone | grep 'Mono:' | awk -F'[][]' '{ print $2 }'", "r");
   if (fp == NULL) {
     printf("Failed to run first command\n" );
     exit(1);
@@ -908,9 +909,15 @@ void GetAudioLevel(char AudioLevel[256])
 void GetAudioLevel2(char AudioLevel[256])
 {
   FILE *fp;
+  char Vol[20];
+  char Command[100];
 
   /* Open the command for reading. */
-  fp = popen("amixer sget -c 1 Speaker | grep 'Left:' | awk -F'[][]' '{ print $2 }'", "r");
+  GetAudioVol2(Vol);
+  snprintf(Command, 100, "amixer sget -c 2 %s | grep 'Left:' | awk -F'[][]' '{ print $2 }'", Vol);
+
+  fp = popen(Command, "r");
+  //fp = popen("amixer sget -c 2 Speaker | grep 'Left:' | awk -F'[][]' '{ print $2 }'", "r");
   if (fp == NULL) {
     printf("Failed to run command\n" );
     exit(1);
@@ -924,6 +931,35 @@ void GetAudioLevel2(char AudioLevel[256])
 
   /* close */
   pclose(fp);
+}
+
+int GetAudioVol2(char Vol[20])
+{
+  FILE *fp;
+  //char Command[60];
+  char reponse[20];
+
+  /* Open the command for reading. */
+
+  //snprintf(Command, 60,"amixer -c %d scontrols |  cut -d\"'\" -f2", Card);
+  fp = popen("amixer -c 2 scontrols |  cut -d\"'\" -f2", "r");
+  if (fp == NULL) {
+    printf("Failed to run command\n" );
+    exit(1);
+  }
+
+  /* Read the output a line at a time - output it. */
+  while (fgets(reponse, 20, fp) != NULL)
+  {
+    //printf("%s", AudioVol);
+  }
+
+  reponse[strcspn(reponse, "\n")] = 0;
+  strcpy(Vol, reponse);
+
+  /* close */
+  pclose(fp);
+  return 0;
 }
 
 /***************************************************************************//**
@@ -3539,11 +3575,12 @@ void RecallRTLPreset(int PresetButton)
   int index;
 
   // Transform button number into preset index
-  index = PresetButton + 6;  // works for bottom row
-  if (PresetButton > 4)      // second row
-  {
-    index = PresetButton - 4;
-  }
+  index = PresetButton + 1;  // works for bottom row
+  //index = PresetButton + 6;  // works for bottom row
+  //if (PresetButton > 4)      // second row
+  //{
+  //  index = PresetButton - 4;
+  //}
 
   // Copy stored parameters into in-use parameters
   strcpy(RTLfreq[0], RTLfreq[index]);
@@ -19782,6 +19819,8 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
         printf("Button Event %d, Entering Menu 55 Case Statement\n",i);
         char mic[15];
         char Up[255];
+        char Vol[20];
+        char Command[60];
         GetConfigParam(PATH_RXPRESETS,"upsample",Up);
         switch (i)
         {
@@ -19804,11 +19843,14 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
            SelectInGroupOnMenu(CurrentMenu, 0, 0, 0, 0);
            if (strcmp(LMRXaudio, "rpi") == 0)
            {
-             system("amixer -q sset -c ALSA PCM 3db-");
+             system("amixer -q sset -c 1 Headphone 3db-");
            }
            else
            {
-             system("amixer -q sset -c 1 Speaker 1db-");
+             GetAudioVol2(Vol);
+             snprintf(Command, 60, "amixer -q sset -c 2 %s 1db-", Vol);
+             system(Command);
+             //system("amixer -q sset -c 2 Speaker 1db-");
            }
            Start_Highlights_Menu55();
            UpdateWindow();
@@ -19820,11 +19862,14 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
            SelectInGroupOnMenu(CurrentMenu, 1, 1, 1, 0);
            if (strcmp(LMRXaudio, "rpi") == 0)
            {
-             system("amixer -q sset -c ALSA PCM 3db+");
+             system("amixer -q sset -c 1 Headphone 3db+");
            }
            else
            {
-             system("amixer -q sset -c 1 Speaker 1db+");
+             GetAudioVol2(Vol);
+             snprintf(Command, 60, "amixer -q sset -c 2 %s 1db+", Vol);
+             system(Command);
+             //system("amixer -q sset -c 2 Speaker 1db+");
            }
            Start_Highlights_Menu55();
            UpdateWindow();

@@ -1,3 +1,6 @@
+202312060
+RTL presets et detection carte son pour volume
+
 202312010
 Ajout modes numeriques rtl_fm
 
