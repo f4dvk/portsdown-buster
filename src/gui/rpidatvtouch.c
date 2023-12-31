@@ -942,7 +942,7 @@ int GetAudioVol2(char Vol[20])
   /* Open the command for reading. */
 
   //snprintf(Command, 60,"amixer -c %d scontrols |  cut -d\"'\" -f2", Card);
-  fp = popen("amixer -c 2 scontrols |  cut -d\"'\" -f2", "r");
+  fp = popen("amixer -c 2 scontrols | grep -E \"PCM|Speaker\" | cut -d\"'\" -f2", "r");
   if (fp == NULL) {
     printf("Failed to run command\n" );
     exit(1);

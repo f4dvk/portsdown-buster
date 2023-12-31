@@ -1,3 +1,6 @@
+202312310
+Detection carte audio
+
 202312060
 RTL presets et detection carte son pour volume
 
