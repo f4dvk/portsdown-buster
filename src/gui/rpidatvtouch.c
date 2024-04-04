@@ -320,6 +320,7 @@ char QOFreqButts[10][31] = {"10494.75^2405.25", "10495.25^2405.75", "10495.75^24
 int Inversed=0;               //Display is inversed (Waveshare=1)
 int PresetStoreTrigger = 0;   //Set to 1 if awaiting preset being stored
 int FinishedButton = 0;       // Used to indicate screentouch during TX or RX
+int Lock_GUI = 0;             // Sarsat
 int touch_response = 0;       // set to 1 on touch and used to reboot display if it locks up
 int TouchX;
 int TouchY;
@@ -513,6 +514,7 @@ void TransmitStart();
 void *Wait3Seconds(void * arg);
 void TransmitStop();
 void *WaitButtonEvent(void * arg);
+void *WaitButtonSarsat(void * arg);
 void *WaitButtonVideo(void * arg);
 void *WaitButtonSnap(void * arg);
 void *WaitButtonLMRX(void * arg);
@@ -9407,6 +9409,30 @@ void *WaitButtonEvent(void * arg)
   return NULL;
 }
 
+void *WaitButtonSarsat(void * arg)
+{
+  int rawX, rawY, rawPressure;
+
+  FinishedButton = 0;
+  while(FinishedButton == 0)
+  {
+    while(getTouchSample(&rawX, &rawY, &rawPressure)==0);  // Wait here for touch
+
+    TransformTouchMap(rawX, rawY);  // Sorts out orientation and approx scaling of the touch map
+
+    if((scaledX <= 15 * wscreen / 40)  && (scaledY >= 10 * hscreen / 12))  // Top left
+    {
+      Lock_GUI = 0;
+    }
+    else
+    {
+      printf("End Sarsat requested\n");
+      FinishedButton = 1;
+    }
+  }
+  return NULL;
+}
+
 void *WaitButtonVideo(void * arg)
 {
   int rawX, rawY, rawPressure;
@@ -12781,6 +12807,94 @@ void ForwardLeandvbStart()
   }
 }
 
+void SARSAT_READER()
+{
+
+  #define PATH_FILE_DECODER "/home/pi/rpidatv/406/decode.txt"
+
+  // Affichage
+  char line1[80]="";   // Date
+  char line2[80]="";   // ID
+  char line3[80]="";   // Longitude et Latitude
+  //char line4[80]="";
+  //char line5[80]="";
+  //char line6[80]="";
+  //char line7[80]="";
+  //char line8[80]="";
+  char date[80];
+  char ID[80];
+  char lon[80];
+  char lat[80];
+  char crc1[80];
+  char crc2[80];
+  char end[80]="";    // CRC
+
+  GetConfigParam(PATH_FILE_DECODER, "date", date);
+  GetConfigParam(PATH_FILE_DECODER, "id", ID);
+  GetConfigParam(PATH_FILE_DECODER, "lon", lon);
+  GetConfigParam(PATH_FILE_DECODER, "lat", lat);
+  GetConfigParam(PATH_FILE_DECODER, "crc1", crc1);
+  GetConfigParam(PATH_FILE_DECODER, "crc2", crc2);
+
+  // Set globals
+  FinishedButton = 0;
+
+  int pointsize = 16; // 22
+  Fontinfo font = SansTypeface;
+
+  VGfloat txtht = TextHeight(font, pointsize);
+  VGfloat txtdp = TextDepth(font, pointsize);
+  VGfloat linepitch = 1.1 * (txtht + txtdp);
+
+  // Create Wait Button thread
+  pthread_create (&thbutton, NULL, &WaitButtonEvent, NULL);
+
+  BackgroundRGB(0, 0, 0, 255);
+  End();
+
+  system("/home/pi/rpidatv/scripts/screen_grab_for_web.sh &"); // web access auto-refresh
+
+  printf("STARTING SARSAT READER\n");
+
+  WindowClear();
+
+  Fill(255, 255, 255, 255);
+  strcpy(line1, "Derniere Trame: ");
+  strcat(line1, date);
+  Text(wscreen * 1.0 / 40.0, hscreen - 1.75 * linepitch, line1, font, pointsize);
+  strcpy(line2, "ID: ");
+  strcat(line2, ID);
+  Text(wscreen * 1.0 / 40.0, hscreen - 3.25 * linepitch, line2, font, pointsize);
+  strcpy(line3, "Latitude: ");
+  strcat(line3, lat);
+  strcat(line3, "   Longitude: ");
+  strcat(line3, lon);
+  Text(wscreen * 1.0 / 40.0, hscreen - 4.75 * linepitch, line3, font, pointsize);
+
+  strcpy(end, "Touch to exit     ");
+  strcat(end,crc1);
+  strcat(end,"     ");
+  strcat(end,crc2);
+  Text(wscreen * 1.0 / 40.0, hscreen - 15.5 * linepitch, end, font, pointsize);
+  End();
+
+  while (FinishedButton == 0)
+  {
+    usleep(1000);
+  }
+
+  finish();
+  usleep(1000);
+  init(&wscreen, &hscreen);  // Restart the graphics
+
+  printf("Stopping decoder reader\n");
+
+  touch_response = 0;
+
+  pthread_join(thbutton, NULL);
+  system("/home/pi/rpidatv/scripts/stop_web_update.sh >/dev/null 2>/dev/null");
+}
+
 void SARSAT_DECODER()
 {
   char card[10];
@@ -12839,6 +12953,7 @@ void SARSAT_DECODER()
 
   // Set globals
   FinishedButton = 0;
+  Lock_GUI = 0;
 
   int pointsize = 16; // 22
   Fontinfo font = SansTypeface;
@@ -12853,7 +12968,7 @@ void SARSAT_DECODER()
   VGfloat linepitch = 1.1 * (txtht + txtdp);
 
   // Create Wait Button thread
-  pthread_create (&thbutton, NULL, &WaitButtonEvent, NULL);
+  pthread_create (&thbutton, NULL, &WaitButtonSarsat, NULL);
 
   BackgroundRGB(0, 0, 0, 255);
   End();
@@ -12872,7 +12987,7 @@ void SARSAT_DECODER()
     sscanf(line,"%s ",strTag);
     //printf("\n len: %d line: %s strTag: %s", len, line, strTag);
 
-    if((strcmp(strTag, "Scan")==0) || (strcmp(strTag, "Lancement")==0) || (strcmp(strTag, "****Attente")==0) || (strcmp(strTag, "CRC_1")==0) || (strcmp(strTag, "CRC_2")==0) || (strcmp(strTag, "Contenu")==0))
+    if(((strcmp(strTag, "Scan")==0) || (strcmp(strTag, "Lancement")==0) || (strcmp(strTag, "****Attente")==0) || (strcmp(strTag, "CRC_1")==0) || (strcmp(strTag, "CRC_2")==0) || (strcmp(strTag, "Contenu")==0)) && (Lock_GUI!=2))
     {
        nbline=1;
        if (strcmp(strTag, "CRC_1")==0)
@@ -12884,9 +12999,14 @@ void SARSAT_DECODER()
        {
          strcpy(crc2, line);
        }
-       else if (strcmp(strTag, "Contenu")!=0)
+       else if ((strcmp(strTag, "Contenu")!=0) && (!Lock_GUI))
        {
          strcpy(line1, line);
+       }
+       else if ((strcmp(strTag, "****Attente")==0) && (Lock_GUI))
+       {
+         strcpy(line1, "LOCK <= Appuyer pour activer");
+         Lock_GUI = 2;
        }
 
        strcpy(line2, "");
@@ -12898,6 +13018,12 @@ void SARSAT_DECODER()
 
        if (strcmp(strTag, "Contenu")==0)
          {
+           char CRC_Word[30];
+           sscanf(crc1,"%s %s", CRC_Word, CRC_Word);
+           if ((strcmp(CRC_Word, "OK")==0) || (strcmp(CRC_Word, "null?")==0))
+           {
+             Lock_GUI = 1;
+           }
            nbline=3;
            strcpy(line3, "");
            strcpy(line3, line);
@@ -12920,62 +13046,64 @@ void SARSAT_DECODER()
            strcpy(line20, "");
            strcpy(line21, "");
          }
-    }else if (nbline==1){
-       nbline++;
-       strcpy(line2, line);
-    }else if (nbline==2){
-       nbline++;
-       strcpy(line3, line);
-    }else if (nbline==3){
-       nbline++;
-       strcpy(line4, line);
-    }else if (nbline==4){
-       nbline++;
-       strcpy(line5, line);
-    }else if (nbline==5){
-       nbline++;
-       strcpy(line6, line);
-    }else if (nbline==6){
-       nbline++;
-       strcpy(line7, line);
-    }else if (nbline==7){
-       nbline++;
-       strcpy(line8, line);
-    }else if (nbline==8){
-       nbline++;
-       strcpy(line9, line);
-    }else if (nbline==9){
-       nbline++;
-       strcpy(line10, line);
-    }else if (nbline==10){
-       nbline++;
-       strcpy(line11, line);
-    }else if (nbline==11){
-       nbline++;
-       strcpy(line12, line);
-    }else if (nbline==12){
-       nbline++;
-       strcpy(line13, line);
-    }else if (nbline==13){
-       nbline++;
-       strcpy(line14, line);
-    }else if (nbline==14){
-       nbline++;
-       strcpy(line15, line);
-    }else if (nbline==15){
-       nbline++;
-       strcpy(line16, line);
-    }else if (nbline==16){
-       nbline++;
-       strcpy(line17, line);
-    }else if (nbline==17){
-       nbline++;
-       strcpy(line18, line);
-    }else if (nbline==18){
-       nbline++;
-       strcpy(line19, line);
+    }else if (Lock_GUI!=2)
+    {
+      if (nbline==1){
+        nbline++;
+        strcpy(line2, line);
+      }else if (nbline==2){
+        nbline++;
+        strcpy(line3, line);
+      }else if (nbline==3){
+        nbline++;
+        strcpy(line4, line);
+      }else if (nbline==4){
+        nbline++;
+        strcpy(line5, line);
+      }else if (nbline==5){
+        nbline++;
+        strcpy(line6, line);
+      }else if (nbline==6){
+        nbline++;
+        strcpy(line7, line);
+      }else if (nbline==7){
+        nbline++;
+        strcpy(line8, line);
+      }else if (nbline==8){
+        nbline++;
+        strcpy(line9, line);
+      }else if (nbline==9){
+        nbline++;
+        strcpy(line10, line);
+      }else if (nbline==10){
+        nbline++;
+        strcpy(line11, line);
+      }else if (nbline==11){
+        nbline++;
+        strcpy(line12, line);
+      }else if (nbline==12){
+        nbline++;
+        strcpy(line13, line);
+      }else if (nbline==13){
+        nbline++;
+        strcpy(line14, line);
+      }else if (nbline==14){
+        nbline++;
+        strcpy(line15, line);
+      }else if (nbline==15){
+        nbline++;
+        strcpy(line16, line);
+      }else if (nbline==16){
+        nbline++;
+        strcpy(line17, line);
+      }else if (nbline==17){
+        nbline++;
+        strcpy(line18, line);
+      }else if (nbline==18){
+        nbline++;
+        strcpy(line19, line);
+      }
     }
-
        strcpy(end, "Touch to exit     ");
        strcat(end,crc1);
        strcat(end,"     ");
@@ -20049,6 +20177,16 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
         case 2:
           break;
         case 3:
+          SelectInGroupOnMenu(CurrentMenu, 3, 3, 3, 1);
+          UpdateWindow();
+          usleep(50000);
+          SelectInGroupOnMenu(CurrentMenu, 3, 3, 3, 0);
+          BackgroundRGB(0, 0, 0, 255);
+          Start(wscreen,hscreen);
+          SARSAT_READER();
+          BackgroundRGB(0, 0, 0, 255);
+          Start_Highlights_Menu57();
+          UpdateWindow();
           break;
         case 5:
           break;
@@ -25198,6 +25336,11 @@ void Define_Menu57()
 //  button = CreateButton(57, 2);
 //  AddButtonStatus(button, "", &DBlue);
 //  AddButtonStatus(button, "", &LBlue);
+
+  button = CreateButton(57, 3);
+  AddButtonStatus(button, "Derniere^Trame", &DBlue);
+  AddButtonStatus(button, "Derniere^Trame", &LBlue);
+  //AddButtonStatus(button, "Derniere^Trame", &Grey);
 
   button = CreateButton(57, 4);
   AddButtonStatus(button, "Exit", &DBlue);
