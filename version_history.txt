@@ -1,3 +1,6 @@
+202406160
+Suppression RPI remote
+
 202406150
 Reglage Date et Heure Sarsat
 
