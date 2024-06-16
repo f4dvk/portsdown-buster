@@ -38,3 +38,4 @@ uint32_t font_render_character_with_callback(int x, int y, const font_t *font_pt
 //uint32_t font_width_string(const font_t *font_ptr, char *string);
 
 #endif /* __FONT_H__ */
+

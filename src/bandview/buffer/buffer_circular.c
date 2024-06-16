@@ -22,10 +22,10 @@ buffer_circular_t buffer_circular_audio;
 #define NEON_ALIGNMENT (4*4*2) // From libcsdr
 
 bool buffer_circular_init(buffer_circular_t *buffer_ptr, uint32_t unit_size, uint32_t buffer_capacity)
-{
+{    
     pthread_mutex_init(&buffer_ptr->Mutex, NULL);
     pthread_cond_init(&buffer_ptr->Signal, NULL);
-
+    
     pthread_mutex_lock(&buffer_ptr->Mutex);
 
     buffer_ptr->Head = 0;
@@ -48,33 +48,33 @@ bool buffer_circular_init(buffer_circular_t *buffer_ptr, uint32_t unit_size, uin
 uint32_t buffer_circular_notEmpty(buffer_circular_t *buffer_ptr)
 {
     uint32_t result;
-
+    
     pthread_mutex_lock(&buffer_ptr->Mutex);
     result = (buffer_ptr->Head!=buffer_ptr->Tail);
     pthread_mutex_unlock(&buffer_ptr->Mutex);
-
+    
     return result;
 }
 
 uint32_t buffer_circular_head(buffer_circular_t *buffer_ptr)
-{
+{    
     uint32_t result;
-
+    
     pthread_mutex_lock(&buffer_ptr->Mutex);
     result = (buffer_ptr->Head / buffer_ptr->Unitsize);
     pthread_mutex_unlock(&buffer_ptr->Mutex);
-
+    
     return result;
 }
 
 uint32_t buffer_circular_tail(buffer_circular_t *buffer_ptr)
 {
     uint32_t result;
-
+    
     pthread_mutex_lock(&buffer_ptr->Mutex);
     result = (buffer_ptr->Tail / buffer_ptr->Unitsize);
     pthread_mutex_unlock(&buffer_ptr->Mutex);
-
+    
     return result;
 }
 
@@ -108,7 +108,7 @@ void buffer_circular_stats(buffer_circular_t *buffer_ptr, uint32_t *head, uint32
             *occupied = (buffer_ptr->Head + (buffer_ptr->Capacity - buffer_ptr->Tail)) / buffer_ptr->Unitsize;
         }
     }
-
+    
     pthread_mutex_unlock(&buffer_ptr->Mutex);
 }
 
@@ -245,7 +245,7 @@ void buffer_circular_thresholdPop(buffer_circular_t *buffer_ptr, uint32_t minLen
     *length = 0;
 
     pthread_mutex_lock(&buffer_ptr->Mutex);
-
+    
     if(buffer_ptr->Head == buffer_ptr->Tail
         || ((buffer_ptr->Head > buffer_ptr->Tail) && (((buffer_ptr->Head - buffer_ptr->Tail) / buffer_ptr->Unitsize) < minLength))
         || ((buffer_ptr->Head < buffer_ptr->Tail) && (((buffer_ptr->Head + (buffer_ptr->Capacity - buffer_ptr->Tail)) / buffer_ptr->Unitsize) < minLength)))
@@ -297,7 +297,7 @@ void buffer_circular_waitPop(buffer_circular_t *buffer_ptr, uint32_t maxLength, 
     *length = 0;
 
     pthread_mutex_lock(&buffer_ptr->Mutex);
-
+    
     while(buffer_ptr->Head==buffer_ptr->Tail) /* If buffer is empty */
     {
         /* Mutex is atomically unlocked on beginning waiting for signal */
@@ -348,7 +348,7 @@ void buffer_circular_waitThresholdPop(buffer_circular_t *buffer_ptr, uint32_t mi
     *length = 0;
 
     pthread_mutex_lock(&buffer_ptr->Mutex);
-
+    
     while(buffer_ptr->Head == buffer_ptr->Tail
         || ((buffer_ptr->Head > buffer_ptr->Tail) && (((buffer_ptr->Head - buffer_ptr->Tail) / buffer_ptr->Unitsize) < minLength))
         || ((buffer_ptr->Head < buffer_ptr->Tail) && (((buffer_ptr->Head + (buffer_ptr->Capacity - buffer_ptr->Tail)) / buffer_ptr->Unitsize) < minLength)))
@@ -393,3 +393,4 @@ void buffer_circular_waitThresholdPop(buffer_circular_t *buffer_ptr, uint32_t mi
 
     pthread_mutex_unlock(&buffer_ptr->Mutex);
 }
+

@@ -60,7 +60,7 @@ void screen_setPixelLine(int x, int y, int length, screen_pixel_t *pixel_array_p
 void screen_clear(void)
 {
   pthread_mutex_lock(&screen_backbuffer_mutex);
-
+  
   memcpy(screen_backbuffer, (void *)screen_pixel_empty_array, SCREEN_PIXEL_COUNT * sizeof(screen_pixel_t));
 
   pthread_mutex_unlock(&screen_backbuffer_mutex);
@@ -81,9 +81,9 @@ void screen_render(int signum)
 bool screen_init(void)
 {
   //struct fb_fix_screeninfo finfo;
-
+ 
   screen_fb_fd = open("/dev/fb0", O_RDWR);
-  if (!screen_fb_fd)
+  if (!screen_fb_fd) 
   {
     printf("Error: cannot open framebuffer device.\n");
     return false;
@@ -91,8 +91,8 @@ bool screen_init(void)
 
   //screenSize = finfo.smem_len;
   screen_fb_ptr = (char*)mmap(0, SCREEN_PIXEL_COUNT * sizeof(screen_pixel_t), PROT_READ | PROT_WRITE, MAP_SHARED, screen_fb_fd, 0);
-
-  if ((int)screen_fb_ptr == -1)
+                    
+  if ((int)screen_fb_ptr == -1) 
   {
     return false;
   }
@@ -159,3 +159,4 @@ void *screen_thread(void *arg)
 
   return NULL;
 }
+

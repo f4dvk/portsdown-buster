@@ -4151,6 +4151,78 @@ void AutosetLMRXOffset()
   LMRX(5);
 }
 
+void ChangeDate()
+{
+  FILE *fp;
+  char response[10];
+  char RequestText[30];
+  char Command[100];
+
+  /* Open the command for reading. */
+  fp = popen("date +'%Y%m%d'", "r");
+  if (fp == NULL) {
+    printf("Failed to return Date\n" );
+    exit(1);
+  }
+
+  fgets(response, 9, fp);
+
+  /* close */
+  pclose(fp);
+
+  //Define request string
+  strcpy(RequestText, "Enter new Date (YYYYMMDD) :");
+
+  // Ask for response and check validity
+  strcpy(KeyboardReturn, "20240614");
+  while ((atoi(KeyboardReturn) < 20240615) || (atoi(KeyboardReturn) > 99999999))
+  {
+    Keyboard(RequestText, response, 9);
+  }
+
+  strcpy(Command, "sudo date -s \"");
+  strcat(Command, KeyboardReturn);
+  strcat(Command, " $(date +%H:%M:%S)\"");
+
+  system(Command);
+}
+
+void ChangeTime()
+{
+  FILE *fp;
+  char response[10];
+  char RequestText[40];
+  char Command[100];
+
+  /* Open the command for reading. */
+  fp = popen("date -u +'%H:%M:%S'", "r");
+  if (fp == NULL) {
+    printf("Failed to return Date\n" );
+    exit(1);
+  }
+
+  fgets(response, 9, fp);
+
+  /* close */
+  pclose(fp);
+
+  //Define request string
+  strcpy(RequestText, "Enter new Time (HH:MM:SS) in UTC :");
+
+  // Ask for response and check validity
+  strcpy(KeyboardReturn, "-1");
+  while ((atoi(KeyboardReturn) < 0) || (atoi(KeyboardReturn) > 235959))
+  {
+    Keyboard(RequestText, response, 9);
+  }
+
+  strcpy(Command, "sudo date -u +%T -s \"");
+  strcat(Command, KeyboardReturn);
+  strcat(Command, "\"");
+
+  system(Command);
+}
+
 /***************************************************************************//**
  * @brief Saves Current LeanDVB Config to file as Preset 0
  *
@@ -14617,7 +14689,7 @@ void Keyboard(char RequestText[64], char InitText[64], int MaxLength)
         case 46: strcpy(KeyPressed, "7"); break;
         case 47: strcpy(KeyPressed, "8"); break;
         case 48: strcpy(KeyPressed, "9"); break;
-        case 49: strcpy(KeyPressed, "0"); break;
+        case 49: strcpy(KeyPressed, ":"); break;
         }
       }
       else                          // Lower Case
@@ -20175,6 +20247,16 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           UpdateWindow();
           break;
         case 2:
+          SelectInGroupOnMenu(CurrentMenu, 2, 2, 2, 1);
+          UpdateWindow();
+          usleep(50000);
+          SelectInGroupOnMenu(CurrentMenu, 2, 2, 2, 0);
+          BackgroundRGB(0, 0, 0, 255);
+          Start(wscreen,hscreen);
+          SARSAT_READER();
+          BackgroundRGB(0, 0, 0, 255);
+          Start_Highlights_Menu57();
+          UpdateWindow();
           break;
         case 3:
           SelectInGroupOnMenu(CurrentMenu, 3, 3, 3, 1);
@@ -20183,20 +20265,30 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           SelectInGroupOnMenu(CurrentMenu, 3, 3, 3, 0);
           BackgroundRGB(0, 0, 0, 255);
           Start(wscreen,hscreen);
-          SARSAT_READER();
+          ChangeTime();
           BackgroundRGB(0, 0, 0, 255);
           Start_Highlights_Menu57();
           UpdateWindow();
           break;
         case 5:
+          SelectInGroupOnMenu(CurrentMenu, 5, 5, 5, 1);
+          UpdateWindow();
+          usleep(50000);
+          SelectInGroupOnMenu(CurrentMenu, 5, 5, 5, 0);
+          SetConfigParam(PATH_406CONFIG, "low", "406.028");
+          SetConfigParam(PATH_406CONFIG, "high", "406.028");
+          CurrentMenu=57;
+          BackgroundRGB(0,0,0,255);
+          Start_Highlights_Menu57();
+          UpdateWindow();
           break;
         case 6:
           SelectInGroupOnMenu(CurrentMenu, 6, 6, 6, 1);
           UpdateWindow();
           usleep(50000);
           SelectInGroupOnMenu(CurrentMenu, 6, 6, 6, 0);
-          SetConfigParam(PATH_406CONFIG, "low", "406.028");
-          SetConfigParam(PATH_406CONFIG, "high", "406.028");
+          SetConfigParam(PATH_406CONFIG, "low", "433.95");
+          SetConfigParam(PATH_406CONFIG, "high", "433.95");
           CurrentMenu=57;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu57();
@@ -20207,8 +20299,8 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           UpdateWindow();
           usleep(50000);
           SelectInGroupOnMenu(CurrentMenu, 7, 7, 7, 0);
-          SetConfigParam(PATH_406CONFIG, "low", "433.95");
-          SetConfigParam(PATH_406CONFIG, "high", "433.95");
+          SetConfigParam(PATH_406CONFIG, "low", "434.2");
+          SetConfigParam(PATH_406CONFIG, "high", "434.2");
           CurrentMenu=57;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu57();
@@ -20219,10 +20311,10 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           UpdateWindow();
           usleep(50000);
           SelectInGroupOnMenu(CurrentMenu, 8, 8, 8, 0);
-          SetConfigParam(PATH_406CONFIG, "low", "434.2");
-          SetConfigParam(PATH_406CONFIG, "high", "434.2");
-          CurrentMenu=57;
-          BackgroundRGB(0,0,0,255);
+          BackgroundRGB(0, 0, 0, 255);
+          Start(wscreen,hscreen);
+          ChangeDate();
+          BackgroundRGB(0, 0, 0, 255);
           Start_Highlights_Menu57();
           UpdateWindow();
           break;
@@ -25333,14 +25425,14 @@ void Define_Menu57()
   AddButtonStatus(button, "Freq^Freq", &DBlue);
   AddButtonStatus(button, "Freq^Freq", &LBlue);
 
-//  button = CreateButton(57, 2);
-//  AddButtonStatus(button, "", &DBlue);
-//  AddButtonStatus(button, "", &LBlue);
-
-  button = CreateButton(57, 3);
+  button = CreateButton(57, 2);
   AddButtonStatus(button, "Derniere^Trame", &DBlue);
   AddButtonStatus(button, "Derniere^Trame", &LBlue);
   //AddButtonStatus(button, "Derniere^Trame", &Grey);
+
+  button = CreateButton(57, 3);
+  AddButtonStatus(button, "Set^Time", &DBlue);
+  AddButtonStatus(button, "Set^Time", &LBlue);
 
   button = CreateButton(57, 4);
   AddButtonStatus(button, "Exit", &DBlue);
@@ -25350,20 +25442,24 @@ void Define_Menu57()
   //AddButtonStatus(button, "", &Blue);
   //AddButtonStatus(button, "", &Blue);
 
-  button = CreateButton(57, 6);
+  button = CreateButton(57, 5);
   AddButtonStatus(button, "406.028M", &DBlue);
   AddButtonStatus(button, "406.028M", &LBlue);
   AddButtonStatus(button, "406.028M", &Green);
 
-  button = CreateButton(57, 7);
+  button = CreateButton(57, 6);
   AddButtonStatus(button, "433.95M", &DBlue);
   AddButtonStatus(button, "433.95M", &LBlue);
   AddButtonStatus(button, "433.95M", &Green);
 
-  button = CreateButton(57, 8);
+  button = CreateButton(57, 7);
   AddButtonStatus(button, "434.2M", &DBlue);
   AddButtonStatus(button, "434.2M", &LBlue);
   AddButtonStatus(button, "434.2M", &Green);
+
+  button = CreateButton(57, 8);
+  AddButtonStatus(button, "Set^Date", &DBlue);
+  AddButtonStatus(button, "Set^Date", &LBlue);
 
   button = CreateButton(57, 9);
   AddButtonStatus(button, "Balise^F1LVT", &DBlue);
@@ -25392,23 +25488,23 @@ void Start_Highlights_Menu57()
 
   if ((atof(ValueLow) == 406.028) && (atof(ValueHigh) == 406.028))
   {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 2);
+  }else{
+    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0);
+  }
+
+  if ((atof(ValueLow) == 433.95) && (atof(ValueHigh) == 433.95))
+  {
     SetButtonStatus(ButtonNumber(CurrentMenu, 6), 2);
   }else{
     SetButtonStatus(ButtonNumber(CurrentMenu, 6), 0);
   }
 
-  if ((atof(ValueLow) == 433.95) && (atof(ValueHigh) == 433.95))
+  if ((atof(ValueLow) == 434.2) && (atof(ValueHigh) == 434.2))
   {
     SetButtonStatus(ButtonNumber(CurrentMenu, 7), 2);
   }else{
     SetButtonStatus(ButtonNumber(CurrentMenu, 7), 0);
-  }
-
-  if ((atof(ValueLow) == 434.2) && (atof(ValueHigh) == 434.2))
-  {
-    SetButtonStatus(ButtonNumber(CurrentMenu, 8), 2);
-  }else{
-    SetButtonStatus(ButtonNumber(CurrentMenu, 8), 0);
   }
 
   //GetConfigParam(PATH_406CONFIG, "input", ValueInput);
@@ -25805,8 +25901,8 @@ void Define_Menu41()
   AddButtonStatus(button, "9", &Blue);
   AddButtonStatus(button, "9", &LBlue);
   button = CreateButton(41, 49);
-  AddButtonStatus(button, "0", &Blue);
-  AddButtonStatus(button, "0", &LBlue);
+  AddButtonStatus(button, ":", &Blue);
+  AddButtonStatus(button, ":", &LBlue);
   AddButtonStatus(button, "0", &Blue);
   AddButtonStatus(button, "0", &LBlue);
 }

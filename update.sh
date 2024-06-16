@@ -158,6 +158,10 @@ cp -f -r "$PATHSCRIPT"/user_button5.sh "$PATHUBACKUP"/user_button5.sh
 cp -f -r "$PATHSCRIPT"/TXstartextras.sh "$PATHUBACKUP"/TXstartextras.sh
 cp -f -r "$PATHSCRIPT"/TXstopextras.sh "$PATHUBACKUP"/TXstopextras.sh
 
+# Sarsat
+cp -f -r /home/pi/rpidatv/406/decode.txt "$PATHUBACKUP"/decode.txt
+cp -f -r /home/pi/rpidatv/406/config.txt "$PATHUBACKUP"/sarsat_config.txt
+
 DisplayUpdateMsg "Step 4 of 10\nUpdating Software Packages\n\nXXXX------"
 
 # Download and install the VLC apt Preferences File 202212010
@@ -759,6 +763,10 @@ cp -f -r "$PATHUBACKUP"/user_button5.sh "$PATHSCRIPT"/user_button5.sh
 # Restore the user's original transmit start and transmit stop scripts
 cp -f -r "$PATHUBACKUP"/TXstartextras.sh "$PATHSCRIPT"/TXstartextras.sh
 cp -f -r "$PATHUBACKUP"/TXstopextras.sh "$PATHSCRIPT"/TXstopextras.sh
+
+# sarsat
+cp -f -r "$PATHUBACKUP"/decode.txt /home/pi/rpidatv/406/decode.txt
+cp -f -r "$PATHUBACKUP"/sarsat_config.txt /home/pi/rpidatv/406/config.txt
 
 # set the framebuffer to 32 bit depth by disabling dtoverlay=vc4-fkms-v3d
 echo

@@ -22,7 +22,7 @@ static const screen_pixel_t font_black_pixel =
     .Blue = 0x00
 };
 
-// Returns Width of rendered character, 0 if not found
+// Returns Width of rendered character, 0 if not found 
 uint32_t font_render_character_with_callback(int x, int y, const font_t *font_ptr, char c, const screen_pixel_t *pixel_background, const screen_pixel_t *pixel_foreground, void (*render_cb)(int x, int y, screen_pixel_t *pixel_ptr))
 {
     screen_pixel_t character_pixel;
@@ -93,3 +93,4 @@ uint32_t font_render_colour_string_with_callback(int x, int y, const font_t *fon
 //    }
 //    return total_width;
 //}
+
