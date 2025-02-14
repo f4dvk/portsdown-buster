@@ -343,7 +343,7 @@ rm master.zip
 rm -rf portsdown-buster-master
 cd /home/pi
 
-DisplayUpdateMsg "Step 6 of 10\nCompiling Portsdown SW\n\nXXXXXX----"
+DisplayUpdateMsg "Step 6 of 10\nDownloading Portsdown SW\n\nXXXXX-----"
 
 # Compile rpidatv core
 sudo killall -9 rpidatv
@@ -353,6 +353,8 @@ touch rpidatv.c
 make clean
 make
 sudo make install
+
+DisplayUpdateMsg "Step 7 of 10\nCompiling Portsdown SW\n\nXXXXXX----"
 
 # Compile rpidatv gui
 sudo killall -9 rpidatvgui
@@ -481,6 +483,8 @@ make dvb
 cp limesdr_dvb /home/pi/rpidatv/bin/
 cd /home/pi
 
+DisplayUpdateMsg "Step 7 of 10\nCompiling Portsdown SW\nDVB-T Transmitter\nXXXXXX----"
+
 echo
 echo "--------------------------------"
 echo "----- Updating dvb_t_stack -----"
@@ -518,6 +522,8 @@ cp leandvb ../../../../bin/
 cd /home/pi/rpidatv/src/fake_read
 make
 cp fake_read ../../bin/
+
+DisplayUpdateMsg "Step 7 of 10\nCompiling Portsdown SW\nLongMynd Receiver\nXXXXXX----"
 
 # Update the previously selected version of LongMynd
 echo
@@ -597,6 +603,8 @@ cd /home/pi/rpidatv/src/atten
 make
 cp /home/pi/rpidatv/src/atten/set_attenuator /home/pi/rpidatv/bin/set_attenuator
 cd /home/pi
+
+DisplayUpdateMsg "Step 7 of 10\nCompiling Portsdown SW\nBandViewer\nXXXXXX----"
 
 # Compile Band Viewer
 echo
