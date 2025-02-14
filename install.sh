@@ -92,6 +92,8 @@ sudo apt-get install -y ffmpeg
 sudo cp /usr/bin/ffmpeg /usr/bin/ffmpeg2
 sudo cp /usr/bin/aplay /usr/bin/aplay2
 
+sudo apt-get install -y picotool # Flasheur de RP2040
+
 # Install libiio for DVB-T scripts that refer to Pluto
 cd /home/pi
 git clone https://github.com/analogdevicesinc/libiio.git

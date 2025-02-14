@@ -389,6 +389,8 @@ cp cam_ctl ../../bin
 
 cd /home/pi
 
+sudo apt-get install -y picotool # Flasheur de RP2040
+
 # -----------Update LimeSuite if required -------------
 
 if ! grep -q be27699 /home/pi/LimeSuite/commit_tag.txt; then

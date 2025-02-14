@@ -344,6 +344,12 @@ bool webclicklistenerrunning = false; // Used to only start thread if required
 char WebClickForAction[7] = "no";  // no/yes
 int WebControl = 0;
 
+//////////////////// USB ///////////////////
+char USB[8];            // Sirene USB Sarsat
+int RP2040 = 0;         // Presence du module
+char COM_USB[40];       // Commande
+int RP2040_Flashed = 0; // Confirmation installation firmware RP2040
+
 // Threads for Touchscreen monitoring
 pthread_t thfft;        //
 pthread_t thbutton;     //
@@ -423,6 +429,7 @@ void ReadStreamPresets();
 int CheckExpressConnect();
 int CheckExpressRunning();
 int StartExpressServer();
+int DetectUSBAudio();
 void CheckExpress();
 int CheckLimeMiniConnect();
 int CheckLimeUSBConnect();
@@ -3033,7 +3040,7 @@ void GetDevices(char DeviceName1[256], char DeviceName2[256])
   int card = 1;
 
   /* Open the command for reading. */
-  fp = popen("arecord -l", "r");
+  fp = popen("arecord -l | grep -v -e 'Loopback'", "r");
   if (fp == NULL) {
     printf("Failed to run command\n" );
     exit(1);
@@ -3904,6 +3911,11 @@ void ReadLMRXPresets()
 
   // Audio output port: (rpi or usb)
   GetConfigParam(PATH_LMCONFIG, "audio", LMRXaudio);
+  if ((strcmp(LMRXaudio, "usb") == 0) && (DetectUSBAudio() != 0))
+  {
+    strcpy(LMRXaudio, "rpi");
+    SetConfigParam(PATH_LMCONFIG, "audio", "rpi");
+  }
 
   // QO-100 LNB Offset:
   GetConfigParam(PATH_LMCONFIG, "qoffset", Value);
@@ -4111,6 +4123,130 @@ void ChangeLMRXscan()
   // Save offset to Config File
   LMRXscan[0] = atoi(KeyboardReturn);
   SetConfigParam(PATH_LMCONFIG, Value, KeyboardReturn);
+}
+
+int checkRP()
+{
+  char Status[256];
+  FILE *fp;
+  int stat = 1;
+
+  /* Open the command for reading. */
+  fp = popen("/home/pi/rpidatv/scripts/check_rp.sh", "r");
+  if (fp == NULL)
+  {
+    printf("Failed to run command\n" );
+    exit(1);
+  }
+
+  // Read the output a line at a time - output it
+  while (fgets(Status, sizeof(Status)-1, fp) != NULL)
+  {
+    if (Status[0] == '0')
+    {
+      printf("RP2040 Detected\n" );
+      stat = 0;
+    }
+    else
+    {
+      printf("No RP2040 Detected\n" );
+    }
+  }
+  pclose(fp);
+  return(stat);
+}
+
+int Install_RP2040()
+{
+  char Status[256];
+  FILE *fp;
+  int stat = 1;
+
+  /* Open the command for reading. */
+  fp = popen("/home/pi/rpidatv/scripts/check_rp.sh -load", "r");
+  if (fp == NULL)
+  {
+    printf("Failed to run command\n" );
+    exit(1);
+  }
+
+  // Read the output a line at a time - output it
+  while (fgets(Status, sizeof(Status)-1, fp) != NULL)
+  {
+    if (Status[0] == '0')
+    {
+      printf("RP2040 flash OK\n" );
+      stat = 0;
+    }
+    else
+    {
+      printf("Failed RP2040 flash\n" );
+    }
+  }
+  pclose(fp);
+  return(stat);
+}
+
+int checkRP_BOOTSEL()
+{
+  char Status[256];
+  FILE *fp;
+  int stat = 1;
+
+  /* Open the command for reading. */
+  fp = popen("/home/pi/rpidatv/scripts/check_rp.sh -f", "r");
+  if (fp == NULL)
+  {
+    printf("Failed to run command\n" );
+    exit(1);
+  }
+
+  // Read the output a line at a time - output it
+  while (fgets(Status, sizeof(Status)-1, fp) != NULL)
+  {
+    if (Status[0] == '0')
+    {
+      printf("RP2040 in BOOTSEL mode\n" );
+      stat = 0;
+    }
+    else
+    {
+      printf("No BOOTSEL RP2040 Detected\n" );
+    }
+  }
+  pclose(fp);
+  return(stat);
+}
+
+void initCOM(void) // Sarsat signal sonore USB (RP2040)
+{
+  char commande[150];
+
+  FILE *fp;
+
+  fp = popen("ls -l /dev/serial/by-id | grep RP2040 | grep -o '.\\{7\\}$' | tr -d '\n'", "r");
+  if (fp == NULL) {
+    printf("Erreur Commande recherche nom USB\n" );
+    exit(1);
+  }
+
+  while (fgets(USB, 8, fp) != NULL)
+  {
+    //printf("%s", USB);
+  }
+
+  pclose(fp);
+
+  system("sudo killall cat >/dev/null 2>/dev/null");
+
+  snprintf(commande, 150, "sudo chmod o+rw /dev/%s", USB);
+  system(commande);
+
+  snprintf(commande, 150, "stty 9600 -F /dev/%s raw -echo", USB);
+  system(commande);
+
+  snprintf(commande, 150, "cat /dev/%s >/dev/null 2>/dev/null &", USB);
+  system(commande);
 }
 
 void ChangeSarsatFreq()
@@ -4811,6 +4947,42 @@ int StartExpressServer()
     responseint = 0;
   }
   return responseint;
+}
+
+/***************************************************************************//**
+ * @brief Detects if a USB Audio device is connected
+ *
+ * @param None
+ *
+ * @return 0 = USB Audio detected
+ *         1 = USB Audio not detected
+ *         2 = shell returned unexpected exit status
+*******************************************************************************/
+
+int DetectUSBAudio()
+{
+  char shell_command[255];
+  // Pattern for USB Audio Dongle; others can be added with |xxxx
+  char DMESG_PATTERN[63] = "USB Audio|wm8960";
+  FILE * shell;
+  sprintf(shell_command, "aplay -l | grep -E -q \"%s\"", DMESG_PATTERN);
+  shell = popen(shell_command, "r");
+  int r = pclose(shell);
+  if (WEXITSTATUS(r) == 0)
+  {
+    //printf("USB Audio detected\n");
+    return 0;
+  }
+  else if (WEXITSTATUS(r) == 1)
+  {
+    //printf("USB Audio not detected\n");
+    return 1;
+  }
+  else
+  {
+    //printf("USB Audio: unexpected exit status %d\n", WEXITSTATUS(r));
+    return 2;
+  }
 }
 
 /***************************************************************************//**
@@ -12849,7 +13021,7 @@ void SARSAT_DECODER()
   char mic[10];
 
   GetMicAudioCard(mic);
-  if (strlen(mic) == 1)   // Use USB audio output if present
+  if ((strlen(mic) == 1) && (strcmp(LMRXaudio, "usb") == 0))  // Use USB audio output if present
   {
     strcpy(card, mic);
   }
@@ -12967,10 +13139,15 @@ void SARSAT_DECODER()
        if (strcmp(strTag, "Contenu")==0)
          {
            char CRC_Word[30];
-           sscanf(crc1,"%s %s", CRC_Word, CRC_Word);
+           sscanf(crc2,"%s %s", CRC_Word, CRC_Word);
            if ((strcmp(CRC_Word, "OK")==0) || (strcmp(CRC_Word, "null?")==0))
            {
              Lock_GUI = 1;
+           }
+           if ((strcmp(CRC_Word, "OK")==0) && (RP2040 == 1))
+           {
+             snprintf(COM_USB, 40, "echo 'Sirene!'>/dev/%s", USB);
+             system(COM_USB);
            }
            nbline=3;
            strcpy(line3, "");
@@ -16612,7 +16789,7 @@ void waituntil(int w,int h)
           UpdateWindow();
           break;
         case 13:                               // Set Default Audio Out
-          if (strcmp(LMRXaudio, "rpi") == 0)
+          if ((strcmp(LMRXaudio, "rpi") == 0) && (DetectUSBAudio() == 0))
           {
             strcpy(LMRXaudio, "usb");
           }
@@ -17692,7 +17869,7 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           UpdateWindow();
           break;
         case 9:                                        // Audio Output
-          if (strcmp(LMRXaudio, "rpi") == 0)
+          if ((strcmp(LMRXaudio, "rpi") == 0) && (DetectUSBAudio() == 0))
           {
             strcpy(LMRXaudio, "usb");
           }
@@ -19972,6 +20149,13 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           {
             BackgroundRGB(0, 0, 0, 255);
             Start(wscreen,hscreen);
+            if (checkRP() == 0)
+            {
+              initCOM();
+              RP2040 = 1;
+              snprintf(COM_USB, 40, "echo 'Sirene2!'>/dev/%s", USB);
+              system(COM_USB);
+            }
             SARSAT_DECODER();
             BackgroundRGB(0, 0, 0, 255);
             Start_Highlights_Menu57();
@@ -20022,24 +20206,34 @@ if (CurrentMenu == 10)  // Menu 10 New TX Frequency
           UpdateWindow();
           break;
         case 5:
-          SelectInGroupOnMenu(CurrentMenu, 5, 5, 5, 1);
-          UpdateWindow();
-          usleep(50000);
-          SelectInGroupOnMenu(CurrentMenu, 5, 5, 5, 0);
-          SetConfigParam(PATH_406CONFIG, "low", "406.028");
-          SetConfigParam(PATH_406CONFIG, "high", "406.028");
+          if (checkRP_BOOTSEL() == 0)
+          {
+            SelectInGroupOnMenu(CurrentMenu, 5, 5, 5, 1);
+            UpdateWindow();
+            usleep(50000);
+            SelectInGroupOnMenu(CurrentMenu, 5, 5, 5, 0);
+            if (Install_RP2040() == 0)
+            {
+              RP2040_Flashed = 1;
+            }
+            else
+            {
+              RP2040_Flashed = 2;
+            }
+          }
           CurrentMenu=57;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu57();
           UpdateWindow();
+          RP2040_Flashed = 0;
           break;
         case 6:
           SelectInGroupOnMenu(CurrentMenu, 6, 6, 6, 1);
           UpdateWindow();
           usleep(50000);
           SelectInGroupOnMenu(CurrentMenu, 6, 6, 6, 0);
-          SetConfigParam(PATH_406CONFIG, "low", "433.95");
-          SetConfigParam(PATH_406CONFIG, "high", "433.95");
+          SetConfigParam(PATH_406CONFIG, "low", "406.028");
+          SetConfigParam(PATH_406CONFIG, "high", "406.028");
           CurrentMenu=57;
           BackgroundRGB(0,0,0,255);
           Start_Highlights_Menu57();
@@ -20824,7 +21018,7 @@ void Start_Highlights_Menu3()
   {
     AmendButtonStatus(ButtonNumber(3, 13), 0, "Audio out^RPi Jack", &Blue);
   }
-  else
+  else if (strcmp(LMRXaudio, "usb") == 0)
   {
     AmendButtonStatus(ButtonNumber(3, 13), 0, "Audio out^USB dongle", &Blue);
   }
@@ -22303,7 +22497,7 @@ void Start_Highlights_Menu13()
   {
     AmendButtonStatus(ButtonNumber(13, 9), 0, "Audio out^RPi Jack", &Blue);
   }
-  else
+  else if (strcmp(LMRXaudio, "usb") == 0)
   {
     AmendButtonStatus(ButtonNumber(13, 9), 0, "Audio out^USB dongle", &Blue);
   }
@@ -25173,14 +25367,16 @@ void Define_Menu57()
   //AddButtonStatus(button, "", &Blue);
 
   button = CreateButton(57, 5);
+  AddButtonStatus(button, "Flash^RP2040", &DBlue);
+  AddButtonStatus(button, "Flash^RP2040", &LBlue);
+  AddButtonStatus(button, "RP2040^Flashed", &Green);
+  AddButtonStatus(button, "Flash^Failed", &Red);
+  AddButtonStatus(button, "", &Grey);
+
+  button = CreateButton(57, 6);
   AddButtonStatus(button, "406.028M", &DBlue);
   AddButtonStatus(button, "406.028M", &LBlue);
   AddButtonStatus(button, "406.028M", &Green);
-
-  button = CreateButton(57, 6);
-  AddButtonStatus(button, "433.95M", &DBlue);
-  AddButtonStatus(button, "433.95M", &LBlue);
-  AddButtonStatus(button, "433.95M", &Green);
 
   button = CreateButton(57, 7);
   AddButtonStatus(button, "434.2M", &DBlue);
@@ -25216,14 +25412,24 @@ void Start_Highlights_Menu57()
   // High:
   GetConfigParam(PATH_406CONFIG, "high", ValueHigh);
 
-  if ((atof(ValueLow) == 406.028) && (atof(ValueHigh) == 406.028))
+  if (checkRP_BOOTSEL() == 0)
   {
-    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 2);
-  }else{
     SetButtonStatus(ButtonNumber(CurrentMenu, 5), 0);
   }
+  else if (RP2040_Flashed == 1)
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 2);
+  }
+  else if (RP2040_Flashed == 2)
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 3);
+  }
+  else
+  {
+    SetButtonStatus(ButtonNumber(CurrentMenu, 5), 4);
+  }
 
-  if ((atof(ValueLow) == 433.95) && (atof(ValueHigh) == 433.95))
+  if ((atof(ValueLow) == 406.028) && (atof(ValueHigh) == 406.028))
   {
     SetButtonStatus(ButtonNumber(CurrentMenu, 6), 2);
   }else{

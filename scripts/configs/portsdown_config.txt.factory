@@ -51,4 +51,4 @@ remoteoutput=LIMEMINI
 upsample=2
 limerfe=disabled
 port=10000
-webcontrol=disabled
+webcontrol=enabled
