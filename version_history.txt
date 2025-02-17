@@ -1,3 +1,6 @@
+202502150
+Sarsat : detection programme dans rp2040 et possibilité de passage en BOOTSEL
+
 202502090
 Sarsat : verrouillage ecran sur detection crc2 au lieu de crc1
 Sarsat : alarme sonore USB (RP2040) sur detection trame crc2 OK

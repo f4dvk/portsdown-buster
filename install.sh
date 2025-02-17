@@ -260,6 +260,15 @@ rm cam_ctl >/dev/null 2>/dev/null
 gcc ./cam_ctl.c -lm -lcurl -o ./cam_ctl
 cp cam_ctl ../../bin
 
+echo
+echo "----------------------------------"
+echo "------ Compiling serial_com ------"
+echo "----------------------------------"
+cd /home/pi/rpidatv/src/serial_com
+rm serial_com >/dev/null 2>/dev/null
+gcc serial_com.c -o serial_com -I/usr/include/libusb-1.0 -L/usr/lib/arm-linux-gnueabihf -lusb-1.0
+cp serial_com ../../bin
+
 # Build avc2ts and dependencies
 echo
 echo "--------------------------------------------"

@@ -389,6 +389,15 @@ rm cam_ctl >/dev/null 2>/dev/null
 gcc ./cam_ctl.c -lm -lcurl -o ./cam_ctl
 cp cam_ctl ../../bin
 
+echo
+echo "----------------------------------"
+echo "------ Compiling serial_com ------"
+echo "----------------------------------"
+cd /home/pi/rpidatv/src/serial_com
+rm serial_com >/dev/null 2>/dev/null
+gcc serial_com.c -o serial_com -I/usr/include/libusb-1.0 -L/usr/lib/arm-linux-gnueabihf -lusb-1.0
+cp serial_com ../../bin
+
 cd /home/pi
 
 sudo apt-get install -y picotool # Flasheur de RP2040
@@ -856,7 +865,7 @@ sudo systemctl start nginx
 sleep 1
 
 sudo sed -i 's/^#host-name=foo.*/host-name=rpidatv3/' /etc/avahi/avahi-daemon.conf
-sudo sed -i 's/^host-name=rpidatv3;.*/host-name=rpidatv3/' /etc/avahi/avahi-daemon.conf
+#sudo sed -i 's/^host-name=rpidatv3;.*/host-name=rpidatv3/' /etc/avahi/avahi-daemon.conf
 
 # Update the version number
 rm -rf /home/pi/rpidatv/scripts/installed_version.txt
